@@ -14,7 +14,7 @@
  },
  "seed": 10,
  "generation_inputs": {
-  "generation/cause_ratio_table.json": "fa59f98c0ff1c3c3ad7161cbc2d3b02ae41046dc4e66c98a220be81d1d2de349"
+  "generation/cause_ratio_table.json": "7c6819bb736238117f2f6d13b9e393ed794ee0befd96e4b003fdf4900462fa17"
  },
  "history": {
   "total": 300,
@@ -41,10 +41,10 @@
    "PW-1": 23,
    "PW-2": 13,
    "PW-3": 9,
-   "TW-1": 15,
-   "TW-2": 9,
+   "TW-1": 16,
+   "TW-2": 10,
    "TW-3": 2,
-   "TW-4": 3
+   "TW-4": 1
   },
   "by_shift": {
    "야간": 93,
@@ -60,9 +60,9 @@
   "causes": 14
  },
  "files": {
-  "data/manuals/MG-MM.md": "bd5184fb3d143ae1dc19f473242458b6bb5bca1ce8fd78510c56cbfa9eccbf28",
-  "data/manuals/manual_sections.json": "e87effd74b26ce49042d5e04fa5d68d36257b249b7b476960b6c23c4d694de66",
-  "data/history/maintenance_history.jsonl": "6f85aeaad598b4c4f81c090f03476399c701861375d659b1cb2ee26cf18ec4c7",
+  "data/manuals/MG-MM.md": "a684aad477d875be0c8cd51dff5041e78399a17cdaae53b7e04f95b9a3569854",
+  "data/manuals/manual_sections.json": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598",
+  "data/history/maintenance_history.jsonl": "078142d1c62874b0dcf33440ba59e927621063b7b65385c9e23b15beb287a319",
   "data/alarm_rules.json": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
  }
 }

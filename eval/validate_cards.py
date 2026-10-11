@@ -19,7 +19,7 @@ SECTIONS = ROOT / "data/manuals/manual_sections.json"
 HISTORY = ROOT / "data/history/maintenance_history.jsonl"
 
 CAUSE_NAMES = {
-    "TW-1": "공구 수명 도래", "TW-2": "공구 날 손상", "TW-3": "마모 카운터 미초기화", "TW-4": "콜릿 칩 끼임",
+    "TW-1": "공구 수명 도래", "TW-2": "공구 날 손상", "TW-3": "마모 카운터 미초기화", "TW-4": "공구 편마모",
     "PW-1": "회전 조건 설정 오류", "PW-2": "전원 단자 이완", "PW-3": "엔코더 신호 이상",
     "CL-1": "냉각 필터 막힘", "CL-2": "냉각 팬 열화", "CL-3": "냉각수 부족", "CL-4": "냉각 설정 오류",
     "LD-1": "절삭유 노즐 막힘", "LD-2": "스핀들 베어링 열화", "LD-3": "절삭 조건 과다",
