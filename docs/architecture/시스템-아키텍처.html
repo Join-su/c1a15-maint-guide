@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>정비 길잡이 시스템 아키텍처</title>
+<style>
+:root {
+  --ink:#1d2129; --sub:#5b6270; --dk:#3a3f47; --ln:#d5d9e0;
+  --ui:#c77700; --ui-bg:#fffaf1;
+  --srv:#1b33e3; --srv-bg:#f3f5ff;
+  --db:#1f7a52; --db-bg:#f0f8f4;
+  --ext:#6b7280; --ext-bg:#f6f7f9;
+  --sep:#c0365e;
+  --f:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@page { size: 1600px 900px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #fff; color: var(--ink); font-family: var(--f); }
+.slide { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #fff; word-break: keep-all; }
+.abs { position: absolute; }
+
+.ttl { left: 56px; top: 30px; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+.st { left: 58px; top: 78px; font-size: 16px; color: var(--sub); }
+.legend { right: 48px; top: 40px; display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--dk); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 14px; border-radius: 3px; border: 1.8px solid; display: inline-block; }
+
+.zone { border: 1.6px dashed #9aa1ad; border-radius: 14px; }
+.zone-label { font-size: 13px; font-weight: 700; color: var(--dk); background: #fff; padding: 0 8px; }
+
+.box { border: 1.8px solid; border-radius: 10px; padding: 10px 12px; background: #fff; }
+.box .t { font-size: 16px; font-weight: 800; line-height: 1.25; }
+.box .k { font-size: 12.5px; font-weight: 700; margin-left: 4px; }
+.box .d { font-size: 13px; color: var(--dk); line-height: 1.42; margin-top: 5px; }
+.box ul { margin: 6px 0 0; padding-left: 16px; font-size: 13px; color: var(--dk); line-height: 1.5; }
+.ui { border-color: var(--ui); background: var(--ui-bg); } .ui .k { color: var(--ui); }
+.srv { border-color: var(--srv); background: var(--srv-bg); } .srv .k { color: var(--srv); }
+.db { border-color: var(--db); background: var(--db-bg); } .db .k { color: var(--db); }
+.ext { border-color: var(--ext); background: var(--ext-bg); } .ext .k { color: var(--ext); }
+.user { border-color: var(--ln); }
+.sep { border-color: var(--sep); border-style: dashed; }
+.container { border: 1.8px solid var(--srv); border-radius: 14px; background: #fff; }
+.inner { border: 1.4px solid #b9c2f5; border-radius: 9px; background: #fff; padding: 10px 12px; }
+.inner .t { font-size: 15.5px; font-weight: 800; }
+.mod { font-size: 13px; color: var(--dk); line-height: 1.35; padding: 5px 9px; border-radius: 6px; background: var(--srv-bg); margin-top: 6px; }
+.mod b { color: var(--ink); }
+.lbl { font-size: 12.5px; color: var(--dk); font-weight: 700; background: #fff; padding: 0 3px; }
+.mono { font-family: var(--mono); font-size: 12px; }
+.foot { left: 56px; top: 872px; font-size: 12.5px; color: var(--sub); }
+.note { font-size: 13px; color: var(--dk); line-height: 1.55; }
+svg.wires { position: absolute; left: 0; top: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="abs ttl">정비 길잡이 시스템 아키텍처</div>
+  <div class="abs st">구성 요소와 연결 관계 · React 앱 2개(브라우저) → nginx → API 서버(FastAPI + agent 패키지) → DB 2개 · Agent 내부 처리 흐름은 제외</div>
+  <div class="abs legend">
+    <span><i class="sw" style="background:var(--ui-bg);border-color:var(--ui)"></i>화면</span>
+    <span><i class="sw" style="background:var(--srv-bg);border-color:var(--srv)"></i>서버</span>
+    <span><i class="sw" style="background:var(--db-bg);border-color:var(--db)"></i>DB</span>
+    <span><i class="sw" style="background:var(--ext-bg);border-color:var(--ext)"></i>외부·스크립트</span>
+  </div>
+
+  <!-- 사용자 기기 -->
+  <div class="abs box user" style="left:40px;top:180px;width:182px;height:150px;">
+    <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="5" y="3" width="24" height="28" rx="3.5" fill="#fff4e2" stroke="#c77700" stroke-width="2"/><rect x="9" y="7" width="16" height="17" rx="1.5" fill="#c77700" opacity=".25"/><circle cx="17" cy="27.5" r="1.6" fill="#c77700"/></svg>
+    <div class="t">정비자</div>
+    <div class="d" style="margin-top:2px">설비 앞 태블릿 브라우저</div>
+    <div class="mod" style="background:var(--ui-bg);border:1.4px solid var(--ui);"><b>정비자 앱</b> React</div>
+  </div>
+  <div class="abs box user" style="left:40px;top:380px;width:182px;height:150px;">
+    <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="5" width="28" height="19" rx="2.5" fill="#fff4e2" stroke="#c77700" stroke-width="2"/><path d="M13 29h8M17 24v5" stroke="#c77700" stroke-width="2" stroke-linecap="round"/></svg>
+    <div class="t">정비 파트장</div>
+    <div class="d" style="margin-top:2px">사무실 PC 브라우저</div>
+    <div class="mod" style="background:var(--ui-bg);border:1.4px solid var(--ui);"><b>파트장 앱</b> React</div>
+  </div>
+
+  <!-- Docker Compose -->
+  <div class="abs zone" style="left:240px;top:140px;width:1035px;height:565px;"></div>
+  <div class="abs zone-label" style="left:258px;top:131px;">Docker Compose</div>
+
+  <!-- 웹 서버 -->
+  <div class="abs box ui" style="left:266px;top:200px;width:210px;height:320px;">
+    <div class="t">웹 서버<span class="k">nginx</span></div>
+    <div class="mod" style="background:#fff;border:1px solid #ecd2a6;"><b>앱 파일 제공</b><br>정비자 앱 · 파트장 앱 빌드 결과(정적 파일)</div>
+    <div class="mod" style="background:#fff;border:1px solid #ecd2a6;"><b>/api 중계</b><br>앱의 API 요청을 API 서버로 넘김</div>
+    <div class="d" style="margin-top:10px;">브라우저는 주소 하나만 사용<br>새 알람은 앱이 주기적으로 조회</div>
+  </div>
+  <div class="abs box ext" style="left:266px;top:572px;width:210px;height:112px;">
+    <div class="t">알람 발생기</div>
+    <div class="d">AI4I CSV 행 + 알람 경계 규칙으로 알람 등록 · 실제 설비 연동을 대신함</div>
+  </div>
+
+  <!-- API 서버 컨테이너 -->
+  <div class="abs container" style="left:540px;top:168px;width:362px;height:522px;"></div>
+  <div class="abs" style="left:558px;top:178px;font-size:16px;font-weight:800;">API 서버 <span style="font-size:13px;font-weight:600;color:var(--sub)">· 컨테이너 1개, 프로세스 1개</span></div>
+  <div class="abs inner" style="left:558px;top:212px;width:264px;height:158px;">
+    <div class="t">FastAPI 계층</div>
+    <div class="mod"><b>라우터</b> 정비자 API · 파트장 API · 알람 API</div>
+    <div class="mod"><b>로그인 · 역할 확인</b></div>
+    <div class="mod"><b>요청·응답 schema</b> Pydantic → OpenAPI</div>
+  </div>
+  <div class="abs inner" style="left:558px;top:436px;width:326px;height:238px;">
+    <div class="t">agent 패키지</div>
+    <div class="mod"><b>LangGraph 그래프</b> HITL 중단과 재개</div>
+    <div class="mod"><b>도구 · 코드 규칙</b> 잠금 · 권한 등급 · 근거 검사</div>
+    <div class="mod"><b>검색</b> BM25 메모리 색인 + pgvector 질의</div>
+    <div class="mod"><b>LLM Adapter</b> 문장 생성 · 임베딩 요청</div>
+    <div class="mod"><b>DB 접근</b> 운영 DB · 벡터 DB</div>
+  </div>
+  <div class="abs lbl" style="left:700px;top:394px;">함수 호출 (import)</div>
+
+  <!-- DB -->
+  <div class="abs box db" style="left:980px;top:290px;width:270px;height:180px;">
+    <div class="t">운영 DB<span class="k">PostgreSQL</span></div>
+    <ul>
+      <li>세션 상태 (LangGraph checkpoint)</li>
+      <li>보고서 · 승인 기록</li>
+      <li>감사 로그 (지시 · 입력 · 승인)</li>
+      <li>권한 등급표</li>
+    </ul>
+  </div>
+  <div class="abs box db" style="left:980px;top:508px;width:270px;height:182px;">
+    <div class="t">벡터 DB<span class="k">PostgreSQL + pgvector</span></div>
+    <ul>
+      <li>매뉴얼 MG-MM 절 (원문 + 임베딩)</li>
+      <li>정비 이력 (원문 · 필드 + 임베딩)</li>
+      <li>승인된 보고서가 이력으로 추가</li>
+    </ul>
+  </div>
+
+  <!-- 외부 LLM -->
+  <div class="abs box ext" style="left:1320px;top:178px;width:236px;height:132px;">
+    <div class="t">외부 LLM API</div>
+    <div class="d">과정 제공 API로 개발 · 이후 sLLM으로 교체<br>문장 생성 · 임베딩</div>
+  </div>
+
+  <!-- 읽는 법 -->
+  <div class="abs" style="left:1320px;top:400px;width:190px;">
+    <div style="font-size:14px;font-weight:800;margin-bottom:8px;">연결 읽는 법</div>
+    <svg width="190" height="40" viewBox="0 0 190 40" aria-hidden="true">
+      <defs><marker id="la" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2b2f36"/></marker></defs>
+      <path d="M2,10 H44" stroke="#2b2f36" stroke-width="2.4" marker-end="url(#la)"/>
+      <text x="54" y="14" font-size="13" fill="#3a3f47">운영 중 호출</text>
+      <path d="M2,32 H44" stroke="#2b2f36" stroke-width="2.4" stroke-dasharray="6 4" marker-end="url(#la)"/>
+      <text x="54" y="36" font-size="13" fill="#3a3f47">한 번 실행 · 분리 실행</text>
+    </svg>
+    <div class="note" style="margin-top:10px;">앱은 브라우저에서 실행되고 DB에 직접 붙지 않음<br>모든 데이터는 nginx → API 서버를 거침</div>
+  </div>
+
+  <!-- 프론트엔드 코드 -->
+  <div class="abs box ui" style="left:40px;top:742px;width:470px;height:106px;border-style:dashed;">
+    <div class="t">프론트엔드 코드<span class="k">React + TypeScript + Vite</span></div>
+    <div style="display:flex;gap:6px;margin-top:6px;">
+      <div class="mod" style="background:#fff;border:1px solid #ecd2a6;margin:0;"><b>정비자 앱</b></div>
+      <div class="mod" style="background:#fff;border:1px solid #ecd2a6;margin:0;"><b>파트장 앱</b></div>
+      <div class="mod" style="background:#fff;border:1px solid #ecd2a6;margin:0;flex:1;"><b>공통 UI 패키지</b> 상단 바 · 등급 배지 · 기록 카드 · API 클라이언트(OpenAPI 타입)</div>
+    </div>
+  </div>
+
+  <!-- 스크립트 -->
+  <div class="abs box ext sep" style="left:560px;top:742px;width:322px;height:106px;border-color:var(--sep);">
+    <div class="t">평가 실행기<span class="k" style="color:var(--sep)">분리 실행</span></div>
+    <div class="d">평가 카드 30건으로 API를 호출해 성능 측정<br>DB · agent 코드에는 접근하지 않음</div>
+  </div>
+  <div class="abs box ext" style="left:980px;top:742px;width:270px;height:106px;border-style:dashed;">
+    <div class="t">데이터 적재 스크립트<span class="k">한 번 실행</span></div>
+    <div class="d">매뉴얼 · 이력 300건 → 임베딩 → 벡터 DB<br>초기 권한 등급표 → 운영 DB</div>
+  </div>
+
+  <!-- 연결 라벨 -->
+  <div class="abs lbl" style="left:226px;top:232px;">HTTP</div>
+  <div class="abs lbl" style="left:226px;top:432px;">HTTP</div>
+  <div class="abs lbl" style="left:484px;top:283px;">/api</div>
+  <div class="abs lbl" style="left:480px;top:607px;">HTTP</div>
+  <div class="abs lbl" style="left:258px;top:712px;">빌드</div>
+  <div class="abs lbl" style="left:916px;top:441px;">SQL</div>
+  <div class="abs lbl" style="left:904px;top:568px;">검색 · 추가</div>
+  <div class="abs lbl" style="left:1060px;top:220px;">HTTPS · 문장 생성 · 임베딩</div>
+  <div class="abs lbl" style="left:730px;top:708px;">HTTP</div>
+  <div class="abs lbl" style="left:1124px;top:708px;">적재</div>
+  <div class="abs lbl" style="left:1302px;top:600px;">초기 등급표</div>
+  <div class="abs lbl" style="left:1390px;top:789px;">임베딩</div>
+
+  <div class="abs foot">※ 기준: C1-a15 제안서 · 정비 길잡이 사용 가이드 v1.0 · 2026-10-09 결정(화면 React 앱 2개 + 공통 UI 패키지 · nginx가 앱 파일 제공과 /api 중계 · FastAPI가 agent 패키지를 import · DB 용도별 2개 · BM25는 agent 패키지 안)</div>
+
+  <svg class="wires" width="1600" height="900" viewBox="0 0 1600 900">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b2f36"/></marker>
+    </defs>
+    <g fill="none" stroke="#2b2f36" stroke-width="2.4" stroke-linejoin="round">
+      <!-- 브라우저 ↔ nginx -->
+      <path d="M224,255 H264" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M224,455 H264" marker-start="url(#a)" marker-end="url(#a)"/>
+      <!-- nginx ↔ FastAPI -->
+      <path d="M478,300 H556" marker-start="url(#a)" marker-end="url(#a)"/>
+      <!-- 알람 발생기 → FastAPI -->
+      <path d="M478,628 H526 V350 H556" marker-end="url(#a)"/>
+      <!-- FastAPI → agent -->
+      <path d="M690,372 V434" marker-end="url(#a)"/>
+      <!-- agent → DB -->
+      <path d="M886,458 H978" marker-end="url(#a)"/>
+      <path d="M886,590 H978" marker-end="url(#a)"/>
+      <!-- agent → 외부 LLM -->
+      <path d="M856,434 V240 H1318" marker-end="url(#a)"/>
+    </g>
+    <g fill="none" stroke="#2b2f36" stroke-width="2.4" stroke-dasharray="7 5" stroke-linejoin="round">
+      <!-- 프론트엔드 빌드 → nginx -->
+      <path d="M252,740 V546 H300 V522" marker-end="url(#a)"/>
+      <!-- 평가 실행기 → API 서버 -->
+      <path d="M721,740 V692" marker-end="url(#a)"/>
+      <!-- 적재 스크립트 → 벡터 DB · 운영 DB · 외부 LLM -->
+      <path d="M1115,740 V692" marker-end="url(#a)"/>
+      <path d="M1252,775 H1294 V400 H1252" marker-end="url(#a)"/>
+      <path d="M1252,812 H1530 V312" marker-end="url(#a)"/>
+    </g>
+  </svg>
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주문 처리 플랫폼 시스템 아키텍처 (가상 예시)</title>
+<style>
+:root {
+  --ink:#1d2129; --sub:#5b6270; --dk:#3a3f47; --ln:#d5d9e0;
+  --ui:#c77700; --ui-bg:#fffaf1;
+  --srv:#1b33e3; --srv-bg:#f3f5ff;
+  --db:#1f7a52; --db-bg:#f0f8f4;
+  --ext:#6b7280; --ext-bg:#f6f7f9;
+  --sep:#c0365e;
+  --f:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --mono:"SF Mono",Menlo,Consolas,monospace;
+}
+@page { size: 1600px 900px; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #fff; color: var(--ink); font-family: var(--f); }
+.slide { position: relative; width: 1600px; height: 900px; overflow: hidden; background: #fff; word-break: keep-all; }
+.abs { position: absolute; }
+
+.ttl { left: 56px; top: 30px; font-size: 30px; font-weight: 800; letter-spacing: -0.5px; }
+.st { left: 58px; top: 78px; font-size: 16px; color: var(--sub); }
+.legend { right: 48px; top: 40px; display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--dk); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 14px; border-radius: 3px; border: 1.8px solid; display: inline-block; }
+
+.zone { border: 1.6px dashed #9aa1ad; border-radius: 14px; }
+.zone-label { font-size: 13px; font-weight: 700; color: var(--dk); background: #fff; padding: 0 8px; }
+
+.box { border: 1.8px solid; border-radius: 10px; padding: 10px 12px; background: #fff; }
+.box .t { font-size: 16px; font-weight: 800; line-height: 1.25; }
+.box .k { font-size: 12.5px; font-weight: 700; margin-left: 4px; }
+.box .d { font-size: 13px; color: var(--dk); line-height: 1.42; margin-top: 5px; }
+.box ul { margin: 6px 0 0; padding-left: 16px; font-size: 13px; color: var(--dk); line-height: 1.5; }
+.ui { border-color: var(--ui); background: var(--ui-bg); } .ui .k { color: var(--ui); }
+.srv { border-color: var(--srv); background: var(--srv-bg); } .srv .k { color: var(--srv); }
+.db { border-color: var(--db); background: var(--db-bg); } .db .k { color: var(--db); }
+.ext { border-color: var(--ext); background: var(--ext-bg); } .ext .k { color: var(--ext); }
+.user { border-color: var(--ln); }
+.sep { border-color: var(--sep); border-style: dashed; }
+.container { border: 1.8px solid var(--srv); border-radius: 14px; background: #fff; }
+.inner { border: 1.4px solid #b9c2f5; border-radius: 9px; background: #fff; padding: 10px 12px; }
+.inner .t { font-size: 15.5px; font-weight: 800; }
+.mod { font-size: 13px; color: var(--dk); line-height: 1.35; padding: 5px 9px; border-radius: 6px; background: var(--srv-bg); margin-top: 6px; }
+.mod b { color: var(--ink); }
+.lbl { font-size: 12.5px; color: var(--dk); font-weight: 700; background: #fff; padding: 0 3px; }
+.mono { font-family: var(--mono); font-size: 12px; }
+.foot { left: 56px; top: 872px; font-size: 12.5px; color: var(--sub); }
+.note { font-size: 13px; color: var(--dk); line-height: 1.55; }
+svg.wires { position: absolute; left: 0; top: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="slide">
+
+  <div class="abs ttl">주문 처리 플랫폼 시스템 아키텍처 (가상 예시)</div>
+  <div class="abs st">구성 요소와 연결 관계 · 모바일 앱·관리자 웹 → API 게이트웨이 → 서비스 3개 → 데이터 4종 · 서비스 내부 처리 흐름은 제외</div>
+  <div class="abs legend">
+    <span><i class="sw" style="background:var(--ui-bg);border-color:var(--ui)"></i>화면·진입</span>
+    <span><i class="sw" style="background:var(--srv-bg);border-color:var(--srv)"></i>서버</span>
+    <span><i class="sw" style="background:var(--db-bg);border-color:var(--db)"></i>데이터</span>
+    <span><i class="sw" style="background:var(--ext-bg);border-color:var(--ext)"></i>외부·스크립트</span>
+  </div>
+
+  <!-- L1 사용자·클라이언트 -->
+  <div class="abs box user" style="left:40px;top:180px;width:182px;height:150px;">
+    <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="9" y="2" width="16" height="30" rx="3" fill="#fff4e2" stroke="#c77700" stroke-width="2"/><rect x="12" y="6" width="10" height="19" rx="1" fill="#c77700" opacity=".25"/><circle cx="17" cy="28.5" r="1.4" fill="#c77700"/></svg>
+    <div class="t">고객</div>
+    <div class="d" style="margin-top:2px">스마트폰</div>
+    <div class="mod" style="background:var(--ui-bg);border:1.4px solid var(--ui);"><b>주문 앱</b> React Native</div>
+  </div>
+  <div class="abs box user" style="left:40px;top:380px;width:182px;height:150px;">
+    <svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><rect x="3" y="5" width="28" height="19" rx="2.5" fill="#fff4e2" stroke="#c77700" stroke-width="2"/><path d="M13 29h8M17 24v5" stroke="#c77700" stroke-width="2" stroke-linecap="round"/></svg>
+    <div class="t">운영 관리자</div>
+    <div class="d" style="margin-top:2px">사무실 PC 브라우저</div>
+    <div class="mod" style="background:var(--ui-bg);border:1.4px solid var(--ui);"><b>관리자 웹</b> React</div>
+  </div>
+
+  <!-- 실행 경계 -->
+  <div class="abs zone" style="left:240px;top:140px;width:1035px;height:565px;"></div>
+  <div class="abs zone-label" style="left:258px;top:131px;">Kubernetes 클러스터</div>
+
+  <!-- L2 진입·트리거 -->
+  <div class="abs box ui" style="left:266px;top:200px;width:210px;height:300px;">
+    <div class="t">API 게이트웨이<span class="k">nginx Ingress</span></div>
+    <div class="mod" style="background:#fff;border:1px solid #ecd2a6;"><b>경로별 중계</b><br>/api/orders · /api/admin → 주문 서비스</div>
+    <div class="mod" style="background:#fff;border:1px solid #ecd2a6;"><b>앱 파일 제공</b><br>관리자 웹 빌드 결과(정적 파일)</div>
+    <div class="d" style="margin-top:10px;">인증 토큰 확인 후 전달<br>바깥에서 들어오는 유일한 입구</div>
+  </div>
+  <div class="abs box ext" style="left:266px;top:572px;width:210px;height:112px;">
+    <div class="t">스케줄러<span class="k">Kubernetes CronJob</span></div>
+    <div class="d">매일 02:00 미결제 주문 정리 요청</div>
+  </div>
+
+  <!-- L3 실행 단위 3개 -->
+  <div class="abs box srv" style="left:540px;top:168px;width:362px;height:147px;">
+    <div class="t">결제 서비스<span class="k">FastAPI · Deployment</span></div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>결제 승인·취소</b> 외부 PG 연동</div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>멱등 처리</b> 같은 결제 요청 중복 방지</div>
+  </div>
+  <div class="abs box srv" style="left:540px;top:355px;width:362px;height:147px;">
+    <div class="t">주문 서비스<span class="k">FastAPI · Deployment</span></div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>주문 API</b> 생성 · 조회 · 관리자 조회</div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>주문 완료 처리</b> 결제 요청 · 이벤트 발행</div>
+  </div>
+  <div class="abs box srv" style="left:540px;top:542px;width:362px;height:148px;">
+    <div class="t">알림 워커<span class="k">Celery · Deployment</span></div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>주문 완료 이벤트 구독</b> 푸시 발송</div>
+    <div class="mod" style="background:#fff;border:1px solid #c9d1fb;"><b>영수증</b> PDF 생성 · 저장</div>
+  </div>
+
+  <!-- L4 데이터·상태 4개 -->
+  <div class="abs box db" style="left:980px;top:290px;width:270px;height:91px;">
+    <div class="t">캐시<span class="k">Redis · 캐시</span></div>
+    <ul><li>결제 멱등 키 (24시간 보관)</li></ul>
+  </div>
+  <div class="abs box db" style="left:980px;top:393px;width:270px;height:91px;">
+    <div class="t">주문 DB<span class="k">PostgreSQL</span></div>
+    <ul><li>주문 · 주문 항목 · 결제 결과</li></ul>
+  </div>
+  <div class="abs box db" style="left:980px;top:496px;width:270px;height:91px;">
+    <div class="t">이벤트 큐<span class="k">RabbitMQ · 큐</span></div>
+    <ul><li>주문 완료 이벤트</li></ul>
+  </div>
+  <div class="abs box db" style="left:980px;top:599px;width:270px;height:91px;">
+    <div class="t">파일 저장소<span class="k">MinIO · 파일 저장소</span></div>
+    <ul><li>영수증 PDF</li></ul>
+  </div>
+
+  <!-- L5 외부 서비스 -->
+  <div class="abs box ext" style="left:1320px;top:178px;width:236px;height:110px;">
+    <div class="t">외부 결제 PG</div>
+    <div class="d">카드 승인 · 취소</div>
+  </div>
+  <div class="abs box ext" style="left:1320px;top:308px;width:236px;height:100px;">
+    <div class="t">푸시 알림 서비스<span class="k">FCM</span></div>
+    <div class="d">모바일 앱으로 주문 상태 알림</div>
+  </div>
+
+  <!-- 연결 읽는 법 -->
+  <div class="abs" style="left:1320px;top:440px;width:190px;">
+    <div style="font-size:14px;font-weight:800;margin-bottom:8px;">연결 읽는 법</div>
+    <svg width="190" height="40" viewBox="0 0 190 40" aria-hidden="true">
+      <defs><marker id="la" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2b2f36"/></marker></defs>
+      <path d="M2,10 H44" stroke="#2b2f36" stroke-width="2.4" marker-end="url(#la)"/>
+      <text x="54" y="14" font-size="13" fill="#3a3f47">운영 중 호출</text>
+      <path d="M2,32 H44" stroke="#2b2f36" stroke-width="2.4" stroke-dasharray="6 4" marker-end="url(#la)"/>
+      <text x="54" y="36" font-size="13" fill="#3a3f47">한 번 실행 · 분리 실행</text>
+    </svg>
+    <div class="note" style="margin-top:10px;">클라이언트는 API 게이트웨이만 부름<br>서비스 사이 비동기 이벤트는 큐를 거침</div>
+  </div>
+
+  <!-- 아래 줄: 칸1 빌드·CI -->
+  <div class="abs box ext" style="left:40px;top:742px;width:470px;height:106px;border-style:dashed;">
+    <div class="t">CI/CD 파이프라인<span class="k">GitHub Actions · 빌드</span></div>
+    <div class="d">서비스 이미지 · 관리자 웹 빌드 → 클러스터에 배포</div>
+  </div>
+
+  <!-- 연결 라벨 -->
+  <div class="abs lbl" style="left:226px;top:232px;">HTTPS</div>
+  <div class="abs lbl" style="left:226px;top:432px;">HTTPS</div>
+  <div class="abs lbl" style="left:484px;top:397px;">HTTP</div>
+  <div class="abs lbl" style="left:481px;top:634px;">정기 실행</div>
+  <div class="abs lbl" style="left:730px;top:326px;">HTTP · 결제 요청</div>
+  <div class="abs lbl" style="left:1060px;top:197px;">HTTPS · 결제 승인</div>
+  <div class="abs lbl" style="left:912px;top:277px;">멱등 키</div>
+  <div class="abs lbl" style="left:928px;top:417px;">SQL</div>
+  <div class="abs lbl" style="left:910px;top:457px;">발행</div>
+  <div class="abs lbl" style="left:922px;top:542px;">구독</div>
+  <div class="abs lbl" style="left:908px;top:627px;">파일 쓰기</div>
+  <div class="abs lbl" style="left:1330px;top:726px;">HTTPS · 푸시 발송</div>
+  <div class="abs lbl" style="left:285px;top:714px;">배포</div>
+
+  <div class="abs foot">※ 기준: 가상 예시 · 2026-10-10 작성(서비스 3개 · 결제 요청은 동기 HTTP · 알림은 RabbitMQ 비동기 · 결제 멱등 키는 Redis · Kubernetes 클러스터 1개)</div>
+
+  <svg class="wires" width="1600" height="900" viewBox="0 0 1600 900">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2b2f36"/></marker>
+    </defs>
+    <g fill="none" stroke="#2b2f36" stroke-width="2.4" stroke-linejoin="round">
+      <!-- 클라이언트 ↔ 게이트웨이 ↔ 주문 서비스 (사용자 요청 경로) -->
+      <path d="M224,255 H264" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M224,455 H264" marker-start="url(#a)" marker-end="url(#a)"/>
+      <path d="M478,420 H538" marker-start="url(#a)" marker-end="url(#a)"/>
+      <!-- 스케줄러 → 주문 서비스 -->
+      <path d="M478,628 H520 V480 H538" marker-end="url(#a)"/>
+      <!-- 주문 서비스 → 결제 서비스 -->
+      <path d="M720,353 V317" marker-end="url(#a)"/>
+      <!-- 결제 서비스 → 외부 PG (L4 위 띠 y 220) -->
+      <path d="M904,220 H1318" marker-end="url(#a)"/>
+      <!-- 서비스 → 데이터 -->
+      <path d="M904,300 H978" marker-end="url(#a)"/>
+      <path d="M904,440 H978" marker-end="url(#a)"/>
+      <path d="M904,480 H950 V520 H978" marker-end="url(#a)"/>
+      <path d="M904,565 H978" marker-end="url(#a)"/>
+      <path d="M904,650 H978" marker-end="url(#a)"/>
+      <!-- 알림 워커 → 푸시 알림 (경계 아래 띠 y 720, x 1540에서 위로) -->
+      <path d="M860,692 V720 H1540 V410" marker-end="url(#a)"/>
+    </g>
+    <g fill="none" stroke="#2b2f36" stroke-width="2.4" stroke-dasharray="7 5" stroke-linejoin="round">
+      <!-- CI/CD → 클러스터 배포 -->
+      <path d="M275,740 V707" marker-end="url(#a)"/>
+    </g>
+  </svg>
+</div>
+</body>
+</html>
