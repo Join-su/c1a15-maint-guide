@@ -1,0 +1,38 @@
+{
+ "report_id": 6,
+ "session_id": 39,
+ "status": "awaiting_approval",
+ "equipment_id": "M-01",
+ "group_name": "온도 차 저하",
+ "occurred_at": "2026-10-13T12:40:42.194860+00:00",
+ "author_name": "김 정비",
+ "low_evidence": false,
+ "fields": [
+  {
+   "key": "cause",
+   "label": "확정 원인",
+   "text": "냉각 필터 막힘"
+  },
+  {
+   "key": "check_path",
+   "label": "점검 경로",
+   "text": "잠금 확인(1.2) → 고온부 확인과 온도 기록(4.2) → 흡기 필터 육안 점검(4.3, 이상: 기름때가 필터 표면 절반 넘게 덮음)"
+  },
+  {
+   "key": "action",
+   "label": "조치",
+   "text": "흡기 필터 교체(4.3.2, A) · 재가동(6.1, B, 확인 완료) 후 온도 차 9.1 K 경계 이내"
+  },
+  {
+   "key": "evidence_records",
+   "label": "근거 사례",
+   "text": "H-0248 · H-0295 · H-0262"
+  },
+  {
+   "key": "unresolved",
+   "label": "미확인",
+   "text": "냉각 팬 분해 점검(4.4, C등급) · 주간 확인 요청"
+  }
+ ],
+ "violations": 0
+}

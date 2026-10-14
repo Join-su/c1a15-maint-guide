@@ -1,0 +1,180 @@
+// E2E 도우미: compose 스택 조작(알람 발생기 · 시험 DB · api 재시작)과 외부 요청 차단 · 콘솔 오류 수집.
+
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { expect, type Page, type TestInfo } from "@playwright/test";
+
+const ROOT = path.resolve(__dirname, "..", "..");
+const compose = (...args: string[]) =>
+  execFileSync("docker", ["compose", ...args], { cwd: ROOT, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+
+export const TECH_PW = process.env.C1A15_TECH_PASSWORD ?? "";
+export const LEAD_PW = process.env.C1A15_LEAD_PASSWORD ?? "";
+
+export function psql(sql: string): string {
+  return compose("exec", "-T", "db", "psql", "-U", "c1a15", "-d", "c1a15", "-tAc", sql).trim();
+}
+
+/** 시연 알람 발생기(P-07)로 각본 한 건을 등록하고 알람 ID를 돌려준다. */
+export function alarm(scenario: string): number {
+  const out = compose("exec", "-T", "api", "python", "-m", "c1a15.alarms", scenario);
+  const m = /알람 (\d+) 등록/.exec(out);
+  if (!m) throw new Error(`알람 등록 실패: ${out}`);
+  return Number(m[1]);
+}
+
+/** 매 시험 전: 운영 기록(알람 · 세션 · 로그인)과 등급표를 처음 상태로. */
+export function resetOps(): void {
+  psql(
+    "delete from ops.audit_log; delete from ops.calls; delete from ops.reports; delete from ops.session_events; " +
+      "delete from ops.diag_sessions; delete from ops.alarms; " +
+      "delete from ops.login_sessions; update ops.grade_table g set grade = s.initial_grade " +
+      "from knowledge.manual_sections s where s.section_id = g.section_id; truncate checkpoints, checkpoint_blobs, checkpoint_writes",
+  );
+}
+
+export function simLlmFailure(sessionId: number, mode: "last" | "all"): void {
+  execFileSync("docker", ["compose", "exec", "-T", "api", "python", "-", String(sessionId), mode], {
+    cwd: ROOT,
+    input: readFileSync(path.join(ROOT, "e2e", "sim_llm_failure.py")),
+  });
+}
+
+/** 파트장 답 기록을 시험 DB에 넣는다(S-03, 파트장 답 API는 S-04 P-11) — e2e/sim_lead_answer.py. */
+export function simLeadAnswer(sessionId: number, answer: "approved" | "daytime" | "direct" | "assign"): void {
+  execFileSync("docker", ["compose", "exec", "-T", "api", "python", "-", String(sessionId), answer], {
+    cwd: ROOT,
+    input: readFileSync(path.join(ROOT, "e2e", "sim_lead_answer.py")),
+  });
+}
+
+/** 점검 결과 정정(다시 판정)을 정정 API로 만든다(S-05 P-14 — 화면 정정은 tech-s05 E2E). */
+export async function apiCorrection(page: Page, sessionId: number, section: string, value: string): Promise<void> {
+  const s = await page.request.get(`/api/tech/sessions/${sessionId}`).then((r) => r.json());
+  const target = s.results.find((r: { section: string }) => r.section === section).seq;
+  const r = await page.request.post(`/api/tech/sessions/${sessionId}/corrections`, {
+    data: { target_seq: target, value, reason: "시험 정정", confirmed: true },
+  });
+  expect(r.status()).toBe(200);
+}
+
+/** 명세 R5 계산 예시 입력(AC-03): 그 세션의 비슷한 기록 = CL-1 2건(0.96, 0.91) · CL-2 1건(0.84), 기록 번호는 실제 이력. */
+export function simR5Example(sessionId: number): void {
+  const ids = (cause: string, n: number) =>
+    psql(
+      `select record_id from knowledge.history_records where record->'outcome'->>'cause_code' = '${cause}' order by record_id limit ${n}`,
+    ).split("\n");
+  const [a, b] = ids("CL-1", 2);
+  const [c] = ids("CL-2", 1);
+  const similar = JSON.stringify([
+    { record_id: a, cause: "CL-1", score: 0.96 },
+    { record_id: b, cause: "CL-1", score: 0.91 },
+    { record_id: c, cause: "CL-2", score: 0.84 },
+  ]);
+  psql(`update ops.diag_sessions set "similar" = '${similar}'::jsonb where session_id = ${sessionId}`);
+  // 다음 판정이 바뀐 입력으로 thread를 다시 세우도록 그 세션의 checkpoint를 지운다(업무 기록은 그대로)
+  for (const t of ["checkpoint_writes", "checkpoint_blobs", "checkpoints"])
+    psql(`delete from ${t} where thread_id = 'session-${sessionId}'`);
+}
+
+export async function restartApi(page: Page): Promise<void> {
+  compose("restart", "api");
+  for (let i = 0; i < 60; i++) {
+    const ok = await page.request.get("/api/health").then((r) => r.ok()).catch(() => false);
+    if (ok) return;
+    await page.waitForTimeout(1000);
+  }
+  throw new Error("api 재시작 뒤 응답 없음");
+}
+
+/** 외부 요청을 막고 세며, 콘솔 오류를 모은다. allow: 시험이 일부러 만드는 오류(예: 역할 거부 403). */
+export function guard(page: Page, allow: RegExp[] = []) {
+  const external: string[] = [];
+  const errors: string[] = [];
+  void page.route("**/*", (route) => {
+    const u = new URL(route.request().url());
+    if (u.hostname !== "127.0.0.1" && u.hostname !== "localhost") {
+      external.push(u.href);
+      return route.abort();
+    }
+    return route.continue();
+  });
+  page.on("console", (m) => m.type() === "error" && !allow.some((a) => a.test(m.text())) && errors.push(m.text()));
+  page.on("pageerror", (e) => errors.push(String(e)));
+  return {
+    check: (info: TestInfo) => {
+      void info.attach("external-requests", { body: JSON.stringify(external), contentType: "application/json" });
+      expect(external, "외부 요청 0건").toEqual([]);
+      expect(errors, "콘솔 오류 0건").toEqual([]);
+    },
+  };
+}
+
+export async function login(page: Page, user = "tech.kim", pw = TECH_PW): Promise<void> {
+  await page.goto("/");
+  await page.getByLabel("ID").fill(user);
+  await page.getByLabel("비밀번호").fill(pw);
+  await page.getByText("로그인", { exact: true }).click();
+}
+
+export async function shot(page: Page, info: TestInfo, name: string): Promise<void> {
+  const root = (await page.locator(".ap").count()) ? ".ap" : ".wb"; // 정비자 앱 · 파트장 앱 화면 틀
+  await info.attach(name, { body: await page.locator(root).first().screenshot(), contentType: "image/png" });
+}
+
+// ---------------- 정비자 앱 조작(S-03 · S-04 E2E 공통)
+
+export const sidOf = (page: Page) => Number(/\/session\/(\d+)/.exec(page.url())![1]);
+
+/** 홈 → 새 알람 '점검 시작' → 진단 → 잠금 → 사전 확인 → 첫 지시(T06). */
+export async function toFirstCheck(
+  page: Page,
+  scenario = "DEMO-01",
+  before?: (sid: number) => void,
+  onDiagnosis?: () => Promise<void>,
+): Promise<number> {
+  alarm(scenario);
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  const sid = sidOf(page);
+  if (before) {
+    before(sid);
+    await page.reload();
+  }
+  await page.getByText("진단 보기").click();
+  if (onDiagnosis) await onDiagnosis();
+  await page.locator(".nx .btn").click();
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByText("사전 확인 완료").click();
+  await expect(page.locator(".rbtns")).toBeVisible();
+  return sid;
+}
+
+/** 결과 버튼 · 메모 → 결과 보내기, 서버 응답(다음 단계)을 받을 때까지 기다린다. */
+export async function result(page: Page, value: "정상" | "이상" | "확인 불가", memo?: string): Promise<void> {
+  await page.locator(".rbtn", { hasText: value }).click();
+  if (memo) await page.getByLabel("메모").fill(memo);
+  const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
+  await page.getByText("결과 보내기").click();
+  expect((await sent).status()).toBe(200);
+}
+
+export async function restartWithin(page: Page): Promise<void> {
+  const items = page.locator(".act .ck");
+  await expect(page.getByText("체크리스트 확인 후 재가동")).toHaveClass(/dis/); // AC-21-C1
+  for (let i = 0; i < (await items.count()); i++) await items.nth(i).click();
+  await page.locator(".btn", { hasText: /^재가동$/ }).click();
+  await expect(page.locator(".rv-big")).toBeVisible(); // AC-21-C2
+}
+
+
+/** 파트장 앱(8082) — 정비자 앱과 다른 browser context에서 연다. */
+export const LEAD_URL = process.env.LEAD_URL ?? "http://127.0.0.1:8082";
+
+export async function loginLead(page: Page, user = "lead.park", pw = LEAD_PW): Promise<void> {
+  await page.goto(LEAD_URL + "/");
+  await page.getByLabel("ID").fill(user);
+  await page.getByLabel("비밀번호").fill(pw);
+  await page.getByText("로그인", { exact: true }).click();
+}

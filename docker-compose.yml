@@ -1,0 +1,57 @@
+# 실행 순서: db(healthcheck) → init(migration · 적재 · LangGraph checkpoint 표, 한 번) → api → web(EP-C1-RUN-001).
+# 포트는 127.0.0.1에만 연다. api 포트는 밖에 열지 않는다. 값은 .env(Git 제외)에서 받는다.
+services:
+  db:
+    image: pgvector/pgvector:0.8.6-pg16-bookworm
+    environment:
+      POSTGRES_USER: c1a15
+      POSTGRES_DB: c1a15
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env에 POSTGRES_PASSWORD 필요}
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U c1a15 -d c1a15"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  init:
+    build: ./server
+    command: sh -c "alembic upgrade head && python -m c1a15.loader && python -m c1a15.engine.checkpoint"
+    environment:
+      DATABASE_URL: postgresql+psycopg://c1a15:${POSTGRES_PASSWORD}@db:5432/c1a15
+      DATA_DIR: /data
+      C1A15_TECH_PASSWORD: ${C1A15_TECH_PASSWORD:?.env에 C1A15_TECH_PASSWORD 필요}
+      C1A15_LEAD_PASSWORD: ${C1A15_LEAD_PASSWORD:?.env에 C1A15_LEAD_PASSWORD 필요}
+    volumes:
+      - ./data:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build: ./server
+    command: uvicorn c1a15.api.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg://c1a15:${POSTGRES_PASSWORD}@db:5432/c1a15
+      APP_MODE: ${APP_MODE:-fixture}
+      DATA_DIR: /data
+      C1A15_INTERNAL_TOKEN: ${C1A15_INTERNAL_TOKEN:?.env에 C1A15_INTERNAL_TOKEN 필요}
+    # 경계 판정 표 · 시연 각본(읽기만). 알람 발생: docker compose exec api python -m c1a15.alarms DEMO-01
+    volumes:
+      - ./data:/data:ro
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  web:
+    image: nginx:latest
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./apps/tech/dist:/srv/tech:ro
+      - ./apps/lead/dist:/srv/lead:ro
+    ports:
+      - "127.0.0.1:8081:8081"
+      - "127.0.0.1:8082:8082"
+    depends_on:
+      - api

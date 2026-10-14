@@ -198,6 +198,16 @@ def thresholds(history_rows):
     return th
 
 
+# 화면 센서 표의 '평소 범위'(사용자 결정 014 ①): 알람 경계와 같은 방식 — 1~9월 행의 2.5 · 97.5 백분위
+NORMAL_RANGE_KEYS = [("air", "air_temperature_k"), ("proc", "process_temperature_k"), ("rpm", "rotational_speed_rpm"),
+                     ("torque", "torque_nm"), ("wear", "tool_wear_min"), ("temp_diff", "temp_diff_k"), ("power", "power_w")]
+
+
+def normal_ranges(history_rows):
+    return {snap: {"low": quantile([r[k] for r in history_rows], 0.025), "high": quantile([r[k] for r in history_rows], 0.975)}
+            for k, snap in NORMAL_RANGE_KEYS}
+
+
 def detect(r, th):
     hits = []
     for rule in ALARM_RULES:
@@ -730,6 +740,7 @@ def main():
         "rules": [{"group": r["group"], "sensor": r["sensor"], "key": r["key"], "unit": r["unit"],
                    "boundaries": {side: th[(r["group"], side)] for side in r["sides"]}} for r in ALARM_RULES],
         "history_period_alarms": {g: len(v) for g, v in by_group.items()},
+        "normal_ranges": normal_ranges(hist_rows),
     }
     (data / "alarm_rules.json").write_text(json.dumps(rules, ensure_ascii=False, indent=1), encoding="utf-8")
 

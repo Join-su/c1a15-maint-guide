@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# P-16 평가 실행(FLOW-12): 격리된 시험 스택(무작위 비밀값 · fixture 모드 · 끝나면 down -v)에서 평가 카드 30건을 평가 모드로 돌리고
+# 지표 6개 보고서를 쓴다. 정답 자료 파일 열기 감시(api 컨테이너) · 이력 색인 행 수 불변 · 분리 검사(AC-15-C1)도 함께 기록한다.
+# 사용: scripts/eval-run <보고서.json>   (8081/8082를 쓰므로 dev 스택 · verify-e2e와 동시에 돌리지 않는다)
+set -euo pipefail
+cd "$(dirname "$0")/.."
+OUT="${1:?보고서 경로가 필요합니다}"
+export COMPOSE_PROJECT_NAME=c1a15-eval DB_HOST_PORT="${DB_HOST_PORT:-55436}" APP_MODE=fixture
+export COMPOSE_FILE=docker-compose.yml:scripts/eval-compose.yml
+gen() { python3 -c 'import secrets; print(secrets.token_urlsafe(16))'; }
+export POSTGRES_PASSWORD="$(gen)" C1A15_TECH_PASSWORD="$(gen)" C1A15_LEAD_PASSWORD="$(gen)" C1A15_INTERNAL_TOKEN="$(gen)"
+trap 'docker compose down -v --remove-orphans >/dev/null 2>&1 || true' EXIT
+npm run --silent build >/dev/null
+docker compose up -d --build --wait web >/dev/null
+for _ in $(seq 1 90); do curl -fsS http://127.0.0.1:8081/api/health >/dev/null 2>&1 && break; sleep 1; done
+q() { docker compose exec -T db psql -U c1a15 -d c1a15 -tAc "$1"; }
+HIST_BEFORE=$(q "select count(*) from knowledge.history_records")
+python3 scripts/eval_run.py --out "$OUT"
+HIST_AFTER=$(q "select count(*) from knowledge.history_records")
+EVAL_ALARMS=$(q "select count(*) from ops.alarms where eval_mode")
+UDIS=$(q "select coalesce(string_agg(record->'source'->>'udi', ','), '') from knowledge.history_records")
+FORBIDDEN=$(docker compose logs --no-color api 2>&1 | grep -c "FORBIDDEN_OPEN" || true)
+WATCH_ON=$(docker compose exec -T api python -c "import sys; print(int('forbidden_open' in sys.modules))")
+python3 - "$OUT" "$HIST_BEFORE" "$HIST_AFTER" "$EVAL_ALARMS" "$FORBIDDEN" "$WATCH_ON" "$UDIS" <<'PY'
+import json, sys
+out, before, after, alarms, forbidden, watch, udis = sys.argv[1:]
+rep = json.load(open(out))
+cards_udi = set(json.load(open("eval/cards/card_udi_map.json")).values())
+hist_udi = {u for u in udis.split(",") if u}
+rep["isolation"] = {
+    "history_rows_before": int(before), "history_rows_after": int(after),  # R12: 평가 모드 보고서는 이력에 안 들어감
+    "eval_mode_alarms": int(alarms),
+    "forbidden_open_in_api": int(forbidden), "file_watch_active_in_api": bool(int(watch)),  # AC-15-C2 실행 감시
+    "history_udi_x_card_udi": len(hist_udi & cards_udi), "history_udi_count": len(hist_udi),  # AC-15-C1 분리
+}
+json.dump(rep, open(out, "w"), ensure_ascii=False, indent=1)
+print(json.dumps(rep["isolation"], ensure_ascii=False))
+PY
+echo "eval-run: done"
