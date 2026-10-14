@@ -1,0 +1,23 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "gate": "G1",
+ "artifact": "use_case",
+ "artifact_version": "v2",
+ "decision": "approved",
+ "approved_scope": [
+  "scenario 35개(정비자 앱 21 · 파트장 앱 10 · 비UI 4)",
+  "수용 기준 AC-01~AC-36",
+  "logical system contract FLOW-01~FLOW-12",
+  "timeout_expiry not_applicable(근거에 만료 규칙 없음)",
+  "시연 알람 발생: 명령(또는 시연용 버튼), 버튼 여부·위치는 G2A에서 결정"
+ ],
+ "excluded_scope": [
+  "화면 구조·시각 디자인(G2A·G2B)",
+  "기술 구조·framework·DB(PBC)"
+ ],
+ "reviewer_note": "사용자 승인(2026-10-11): G1 Use Case v2 승인",
+ "selection_export_path": "",
+ "selected_direction_id": "",
+ "selected_visual_rules_path": "",
+ "decided_at": "2026-10-11T20:58:04+09:00"
+}

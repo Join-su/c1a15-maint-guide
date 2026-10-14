@@ -1,0 +1,89 @@
+{
+ "gate": "G1",
+ "attempt": 1,
+ "subject": {
+  "artifact": "use_case",
+  "path": "use-case/v1/use-case-packet.md",
+  "version": "v1",
+  "sha256": "4207adbbf87dbbe62ff0ddead2123f1084f530b0717f5513d605fc82a60af78e"
+ },
+ "input_bundle": {
+  "path": "critics/G1-1-input.json",
+  "sha256": "d625e274e492118dcba0e5d4dc096d498f657acf713e1bbefac7a5658d976587"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "evidence_pack",
+   "path": "evidence-pack-v1.md",
+   "version": "v1",
+   "sha256": "c5df80d7377ad856d0f65bc1410e366d6eb7e91f46c116f288b36a2c9c74c93f"
+  },
+  {
+   "artifact": "g0_gate_decision",
+   "path": "decisions/G0-evidence-pack.json",
+   "version": "v1",
+   "sha256": "fa182757f58e3215969d56c019ec10ee771c993da3c44e0c5bc7b643c20275d0"
+  },
+  {
+   "artifact": "subject_bundle_use_case_map",
+   "path": "use-case/v1/use-case-map.svg",
+   "version": "v1",
+   "sha256": "3c95ac63cd2ba2c69647ccd4bac87b81481b9039f853103bbd442d4d5b0a6aad"
+  },
+  {
+   "artifact": "subject_bundle_scenario_coverage",
+   "path": "use-case/v1/scenario-coverage.json",
+   "version": "v1",
+   "sha256": "55675f93d6630bcb4514d331e5a32fb33dcf51ff2ec604b8a375125fdf500d34"
+  },
+  {
+   "artifact": "subject_bundle_acceptance_criteria",
+   "path": "use-case/v1/acceptance-criteria.json",
+   "version": "v1",
+   "sha256": "060b91424f884e6bbf02f0ab86a1ba24a8e65513445861e890860b9697de5d07"
+  },
+  {
+   "artifact": "subject_bundle_logical_system_contract",
+   "path": "use-case/v1/logical-system-contract.json",
+   "version": "v1",
+   "sha256": "15f3d2b97cb41513ccb6dd6a8ff68d291c3568ccba0f89acd3744ae4802ed05a"
+  },
+  {
+   "artifact": "subject_bundle_logical_system_overview",
+   "path": "use-case/v1/logical-system-overview.svg",
+   "version": "v1",
+   "sha256": "afbfe0cfff7fb58fc011c28ed8fa98730d08eb1f5ab1afa3a36786836df239f3"
+  },
+  {
+   "artifact": "subject_bundle_logical_scenario_flow",
+   "path": "use-case/v1/logical-scenario-flow.svg",
+   "version": "v1",
+   "sha256": "d3c60092fde83fec5907321512a68ccdfbe707ba82a1661e304cf5e5d764cad8"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "category": "unsafe-assumption",
+   "subject_location": "use-case-packet.md Non-goals 4번째 항목('시연용 알람 발생 버튼 화면… 이번에는 명령으로 하고, 가이드에 없는 버튼 화면은 만들지 않는다'). 이 선택이 logical-system-contract.json FLOW-01(entry_surface cli, '알람 발생 명령')과 SC-50 trigger('명령으로')에도 이어짐",
+   "comparison_location": "evidence-pack-v1.md Actors 표 '알람 발생기 | 비UI(명령 또는 시연용 버튼)', Data and system context Entry surface('명령 또는 시연용 버튼으로 각본 알람 한 건씩'), EV-026('명령·버튼으로 \"지금\" 발생', decision D7 + proposal(경로·구성))",
+   "why_not_mechanical": "Evidence Pack은 알람을 일으키는 진입을 '명령 또는 시연용 버튼'으로 열어 두었고, 둘 중 하나만 요구한다거나 버튼을 빼기로 정한 결정은 없다. Use Case가 '명세는 둘 중 하나만 요구한다'고 해석한 뒤 버튼을 빼기로 정한 것은 source에 없는 제품 범위 결정이다. 시연 진입 방식(시연자가 무엇을 누르는지)을 바꾸므로 의미를 따져야 하는 문제이며, 형식 검사로는 알 수 없다.",
+   "minimum_resolution": "Non-goals에서 이 항목을 빼고 Evidence Pack 표현대로 '알람 발생기: 명령 또는 시연용 버튼(EV-026)'으로 되돌린다. SC-50 trigger와 FLOW-01 trigger도 '명령(또는 시연용 버튼)'으로 맞춘다. 둘 중 하나를 고르는 일은 이후 단계로 넘기거나, 꼭 지금 정해야 하면 사용자에게 묻는다."
+  },
+  {
+   "id": "ISS-002",
+   "category": "missing-traceability",
+   "subject_location": "use-case-packet.md Product constraints 'Authority boundary', Actor 표 정비자 권한 요약, acceptance-criteria.json 전체(AC-01~AC-34), scenario-coverage.json permission_authority(SC-10, SC-11, SC-20, SC-30, SC-36)",
+   "comparison_location": "evidence-pack-v1.md Actors and authority boundary 표 정비자 '할 수 없는 일': '지시된 점검 건너뛰기'",
+   "why_not_mechanical": "Evidence Pack이 정비자에게 금지한 행동 중 '지시된 점검 건너뛰기'만 Use Case 어디에도 없다. 권한 경계, scenario, AC 어느 곳에도 없다. 나머지 금지 항목(잠금 전 지시, C·D 진행, 확정 뒤 수정, 등급 변경, 파트장 앱 로그인)은 모두 반영됐다. 이 경계가 빠지면 정비자가 지시를 무시하고 다른 점검 결과를 넣어도 되는지 판정 기준이 없다. 그러면 '한 번에 하나씩 지시된 점검을 따른다'는 핵심 성공 결과와 안전 경계를 관찰할 수 없다. 금지 행동이 반영됐는지 판단하는 일이라 형식 검사로는 잡히지 않는다.",
+   "minimum_resolution": "Authority boundary에 '정비자는 지시된 점검을 건너뛸 수 없다(대안은 확인 불가 입력뿐)(EV-007·EV-008 행)'를 넣는다. 관찰 조건도 하나 넣는다. 기존 AC(예: AC-04 또는 AC-19)에 넣거나 새 AC로 만든다. 예: '지시되지 않은 점검의 결과 입력이나 다음 점검으로 넘어가기 요청이 거부되고 순위가 바뀌지 않는다'. 이 조건을 해당 scenario(SC-04 또는 SC-10)와 FLOW-03에 연결한다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "AC-02-C1('C·D 점검·조치가 지시 화면에 나오지 않는다')은 문장만 보면 AC-08-C2('승인 후 진행' 뒤 C등급 지시가 열림)와 부딪친다. Evidence Pack constraint의 예외 문구('파트장이 \"승인 후 진행\"으로 답하면 그 C등급만 열림, D는 예외 없음')를 AC-02 statement와 C1에 넣어 두 AC가 서로 어긋나 보이지 않게 하는 것이 좋다.",
+  "AC-29는 statement에서 '진단·보고서·파트장 목록에 표시'라고 약속하지만, 관찰 조건에는 세션 화면 표시만 있다. 보고서와 파트장 목록 표시도 관찰 조건에 넣는 것이 좋다(EV-042). Product constraints와 FLOW-11에 적은 '비밀번호·키 원문을 저장하지 않는다'(EV-054)에도 관찰 조건(예: 저장소·적재 결과에 원문이 없음)이 없다.",
+  "다음 세부 값은 Evidence Pack 본문에는 없고 명세(002)에서 온 것으로 보인다. AC-28-C2의 '같으면 사용자 ID 순' 동점 규칙, SC-38·AC-25-C3의 '낮춤 경고를 C에서 B·A로 낮출 때로 한정', AC-03의 순위 수치(50·28·11·11 → 57·22·21). 재작성할 때 각 값의 출처(002 절)를 evidence_refs나 주석으로 남겨 두는 것이 좋다."
+ ]
+}

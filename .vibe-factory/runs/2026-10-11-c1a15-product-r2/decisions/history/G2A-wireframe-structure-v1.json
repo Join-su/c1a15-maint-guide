@@ -1,0 +1,22 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "gate": "G2A",
+ "artifact": "wireframe_structure",
+ "artifact_version": "v1",
+ "decision": "approved",
+ "approved_scope": [
+  "후보 guide-a(사용 가이드 화면 그대로) 47개 화면 전체 선택",
+  "후보 1개 예외(D17)",
+  "시연 알람은 명령으로만 발생, 버튼 화면 없음(SC-50 non_ui)",
+  "가이드와 다른 문구: 추이 '최근 12회 측정'(D12), 등급표 실제 절 수, 확인 질문은 결과 버튼 없는 메모(D11)"
+ ],
+ "excluded_scope": [
+  "시각 디자인(G2B)",
+  "기능·권한·AC 변경"
+ ],
+ "reviewer_note": "사용자 전체 승인(2026-10-11)",
+ "selection_export_path": "wireframes/g2a-page-state-selection.json",
+ "selected_direction_id": "",
+ "selected_visual_rules_path": "",
+ "decided_at": "2026-10-11T21:27:23+09:00"
+}

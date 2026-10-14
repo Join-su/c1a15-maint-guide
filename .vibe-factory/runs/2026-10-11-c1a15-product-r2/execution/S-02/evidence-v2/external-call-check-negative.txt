@@ -1,0 +1,13 @@
+# 결함 주입 1: 허용 목록 밖 제품 파일에 urllib 사용 → exit 1 기대
+EXTERNAL code server/src/c1a15/_probe_external.py:1: urllib.request
+EXTERNAL code server/src/c1a15/_probe_external.py:2: urllib.request
+EXTERNAL code server/src/c1a15/_probe_external.py:2: http://example.com
+external_call_check: 3 hit(s)
+exit=1
+# 결함 주입 2: 허용 파일(alarms/__main__.py)에 urllib3 추가 → 정확 비교로 exit 1 기대
+EXTERNAL code server/src/c1a15/alarms/__main__.py:98: import urllib3
+external_call_check: 1 hit(s)
+exit=1
+# 정리 뒤
+external_call_check: 0 hit(s)
+exit=0

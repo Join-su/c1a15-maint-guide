@@ -1,0 +1,74 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prebuild_contract",
+ "version": "v3",
+ "status": "approved",
+ "contents": [
+  {
+   "role": "prebuild_contract",
+   "path": "prebuild/v3/prebuild-contract.md",
+   "sha256": "e7647f5254b618a850bb1cc9dd1b08cac48f80fdaee74a969c3eaa4d420e9188"
+  },
+  {
+   "role": "pbc_consistency_check",
+   "path": "prebuild/v3/pbc-consistency-check.json",
+   "sha256": "f294d506fe04efc9356d0e1a3c9c49f72a9bb45f1660d8977a5b6b239101a2b0"
+  },
+  {
+   "role": "change_summary",
+   "path": "prebuild/v3/change-summary.md",
+   "sha256": "9311350ce5c83f479ceadd14b534c5b4a75665f0dd375cdcfacad58248d80581"
+  }
+ ],
+ "sources": [
+  {
+   "path": "approved-inputs/approved-artifact-manifest.json",
+   "reason": "PBC-0 승인 입력 잠금(Use Case v6 · Prototype v16)"
+  },
+  {
+   "path": "discovery/planning-baseline.json",
+   "reason": "PBC-0/1 기준선 v2"
+  },
+  {
+   "path": "discovery/engineering-discovery.md",
+   "reason": "PBC-1 조사 v2"
+  },
+  {
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "reason": "PBC-2 FP-01 · FP-02"
+  },
+  {
+   "path": "coding-plan/v1/decisions/pbc4-user-decisions.md",
+   "reason": "사용자 결정: validator shim · OOS-01"
+  },
+  {
+   "path": "critics/PBC4-1-review.json",
+   "reason": "PBC4-A1 revise 지적"
+  },
+  {
+   "path": "coding-plan/v2/decisions/pbc4-a2-user-decisions.md",
+   "reason": "revise 뒤 사용자 결정"
+  },
+  {
+   "path": "coding-plan/v3/coding-plan.json",
+   "reason": "Coding Plan v3"
+  },
+  {
+   "path": "coding-plan/v3/selection-register.json",
+   "reason": "Selection Register v3"
+  },
+  {
+   "path": "coding-plan/v3/verification-matrix.json",
+   "reason": "Verification Matrix v3"
+  },
+  {
+   "path": "critics/PBC4-2-review.json",
+   "reason": "PBC4-A2 revise 지적"
+  },
+  {
+   "path": "coding-plan/v3/decisions/pbc4-a3-user-decisions.md",
+   "reason": "A2 revise 뒤 사용자 결정"
+  }
+ ],
+ "supersedes": "v2"
+}

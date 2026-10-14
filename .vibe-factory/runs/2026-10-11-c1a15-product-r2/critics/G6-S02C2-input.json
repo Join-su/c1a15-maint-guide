@@ -1,0 +1,70 @@
+{
+ "gate": "G6",
+ "attempt": 1,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-02/cycle-2/verification-report.json",
+  "version": "v1",
+  "sha256": "2eeda42d87d73efbd97b99862dadaf10ce73410c2c164d5555ef628676d50096"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-02/cycle-2/slice-execution-packet.json",
+   "version": "v4",
+   "sha256": "5eadade19f81a99ece54be6fb52cb88b0d678fa836f021167beb0e599f0ec593"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-02/cycle-2/implementation-contract.md",
+   "version": "v4",
+   "sha256": "1237cfc0f96ce2d4027d0bb04d86c8c6b1b70ced6c2fd8afc85e53914cc70fb9"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-02/cycle-2/execution-ledger.json",
+   "version": "v1",
+   "sha256": "272338f15ba21358c858fa7204f66083b3592f59b57d0ca5c0df960aa4a63590"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-02/cycle-2/verification-report.json",
+   "version": "v1",
+   "sha256": "2eeda42d87d73efbd97b99862dadaf10ce73410c2c164d5555ef628676d50096"
+  }
+ ],
+ "supporting_records": [
+  {
+   "path": "execution/S-02/cycle-2/g5-stop.md",
+   "sha256": "906aad0dd660720e3bc5c343993eb681848d053d2a9a39bcb8d5b9bc41cb44a9"
+  },
+  {
+   "path": "execution/S-02/cycle-2/g5-stop-2.md",
+   "sha256": "5d25dfb54bedcafac78ac027a359b7642c9eeafccf7bbe7dfd320743ec4bff77"
+  },
+  {
+   "path": "execution/S-02/cycle-2/separate-approvals.md",
+   "sha256": "9a78a9ee077d1f56912f8b48c756b3df071d2f42f422f72cf6c16bc3791c6c92"
+  },
+  {
+   "path": "execution/S-02/cycle-2/baseline-revalidation.json",
+   "sha256": "f874d1ffb450bb8cc992bd023be81b5398c605df9e21e59a48ca5378615a6334"
+  },
+  {
+   "path": "decisions/history/PBC-4-prebuild-contract-v9.json",
+   "sha256": "1f3f03f015368c3bdd2601c42385c8f7ff3a39407c8575ac98f49c907940d293"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/gate-applicability.md",
+   "sha256": "49fc2af693c29e515eefddcc7ec76b12b59c126ba6ddb6cf16fc86e581befb0a"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/prototype-structure-checklist.json",
+   "sha256": "274db5153e81b1782483ea12c28eda8e305d82d68dea619be594dc66ab6b9bad"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/hash-changes.json",
+   "sha256": "98f76fd1cb6211fbd3f6b3f2de85e53d8f3832bdfb85f57d5b894669e862302f"
+  }
+ ]
+}

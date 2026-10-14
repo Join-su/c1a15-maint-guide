@@ -1,0 +1,74 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A9",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v9/prebuild-contract.md",
+  "version": "v9",
+  "sha256": "cd9d241e26e87dfad07a5400f9dfff211473bbb544009868647d062ddc71778a"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-9-input.json",
+  "sha256": "203ea3df8688c90b8c961b79ebf5421abf5c8072d193c6e651a528ca0db96270"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v8/coding-plan.json",
+   "version": "v8",
+   "sha256": "c0e963b2f5ab02e865f12f8ee6fbcc908fda384e0e66ec848592b2d43302ed3f"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v8/verification-matrix.json",
+   "version": "v8",
+   "sha256": "b9e008ab7099982e244b6ae18805c0d8ef4396cdb90c4a855bc5f0410f0bb151"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v8/selection-register.json",
+   "version": "v8",
+   "sha256": "af11067b754b3982627e1eec4be1cdf05c56ccfe11e33638a4d8889a89a43072"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v9/pbc-consistency-check.json",
+   "version": "v9",
+   "sha256": "f95b2408f30315e93bd31821ad752e54c00f73901fe53f3af5bc19179111b03f"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v9/prebuild-contract.md",
+   "version": "v9",
+   "sha256": "cd9d241e26e87dfad07a5400f9dfff211473bbb544009868647d062ddc71778a"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "P-19 selected_approach에서 ⑨ cause_names가 ⑧ 데이터 앞에 있다. 번호 순서만 어긋나고 뜻은 같다. 다음 판에서 순서를 맞추면 된다.",
+  "T04 화면에는 원인 이름이 두 곳에 나온다. R-RANK는 매뉴얼 원인 표 이름(cause_names)을 쓰고, R-RECORDS는 이력 기록 값(similar_cards)을 쓴다. Prototype 예시 '냉각 팬 열화'는 두 곳이 같다. P-19 시험에서 같은 원인 코드면 두 이름 문자열이 같은지도 확인하기를 권한다.",
+  "T02 R-TOP 사용자 표시('김○○ · 야간 정비')는 로그인 응답 값을 기기에 두고 쓴다고 g5-stop-2가 말한다. 하지만 P-06 계약 문장에는 응답의 사용자 이름 · 역할 표시가 따로 적혀 있지 않다. 이번 읽기 범위로는 코드를 확인할 수 없었다. G5 영역 대조표에서 응답 필드를 확인하기를 권한다."
+ ]
+}

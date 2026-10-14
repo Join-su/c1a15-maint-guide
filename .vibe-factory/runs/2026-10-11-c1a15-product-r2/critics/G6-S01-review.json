@@ -1,0 +1,67 @@
+{
+ "gate": "G6",
+ "slice_id": "S-01",
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-01/verification-report.json",
+  "version": "v1",
+  "sha256": "53fd27b88f227662aa835ca6b6c52fdb9e8cded95f8c93090d22adeb77410538"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S01-input.json",
+  "sha256": "340705a604bcdad30237fab38904c875a9c473554e6b2bbf07ee28e483cc418b"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-01/slice-execution-packet.json",
+   "version": "v1",
+   "sha256": "f01eb9f3d327ac3425bdbd2c241213b6e279d9039ae96a547c0a021919afecb8"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-01/implementation-contract.md",
+   "version": "v1",
+   "sha256": "bb0d2434c78ccab1ff1ff9fed4f92067e3cdd7abcea9c2a49d3f2b1c23aff5c8"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-01/execution-ledger.json",
+   "version": "v1",
+   "sha256": "be330ae914de48ad63b3ca3f73c70e46a15b59b5bb11f3e2b622d9d01b04845d"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-01/verification-report.json",
+   "version": "v1",
+   "sha256": "53fd27b88f227662aa835ca6b6c52fdb9e8cded95f8c93090d22adeb77410538"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "G6-S01-B1",
+   "category": "unverifiable-plan",
+   "subject_location": "execution/S-01/verification-report.json adversarial_results[ADV-02](result: pass, '평가 행 ID 하나를 끼워 넣으면…') · server/tests/test_adversarial_s01.py::test_adv02_separation_detects_injected_overlap",
+   "comparison_location": "execution/S-01/slice-execution-packet.json adversarial_cases[ADV-02].risk('평가 정답 누수(AC-15) · 각본 행 겹침(AC-34-C3)') · injection('평가 카드 원본 행 ID 하나와 각본 행 하나를 끼워 넣고') · completion_plan_item_id P-02",
+   "why_not_mechanical": "packet은 ADV-02가 두 위험(평가 카드 누수, 각본 행 겹침)을 함께 덮도록 평가 행 ID와 각본 행을 둘 다 주입하라고 정했다. 그런데 실제 시험은 메모리 목록에 평가 행 ID(udi:9001) 하나만 넣고 각본 행 겹침은 주입하지 않는다. report도 평가 행만 말하면서 각본 부분을 뺐다는 사실은 적지 않고 결과를 pass로 둔다. ADV-02의 완료 item은 이번 slice의 P-02이므로 뒤 slice로 넘긴 것으로 볼 수도 없다. schema · 필수 field 검사는 모두 통과하므로, pass가 packet이 정한 위험 범위를 실제로 덮는지는 시험 내용과 packet을 의미로 대조해야만 드러난다.",
+   "minimum_resolution": "ADV-02 시험에 메모리 가짜 각본 행을 이력 사본에 끼워 넣는 주입을 더하고, 분리 검사가 그 겹침을 보고(실패 판정)하는지 assertion을 더한 뒤 report 요약을 고친다. 또는 각본 행 부분을 하지 않았다고 report에 밝히고 ADV-02를 pass가 아닌 부분 결과로 기록해 사람 판단을 받는다."
+  },
+  {
+   "id": "G6-S01-B2",
+   "category": "unverifiable-plan",
+   "subject_location": "execution/S-01/execution-ledger.json entries[P-01 · P-02].automatic_quality_gates[external_call_zero_in_fixture](result: pass, evidence_paths: execution/S-01/evidence/verify-e2e.txt) · execution/S-01/evidence/gate-applicability.md",
+   "comparison_location": "execution/S-01/implementation-contract.md 'Required automatic quality gates' 행(external_call_zero_in_fixture에는 '해당 없음' 표기 없음) · slice-execution-packet.json automatic_quality_gates · stop_conditions(failed_or_missing_automatic_gate) · implementation_authorization.prohibited_actions('fixture 시험 · 시연에서 외부 네트워크 호출')",
+   "why_not_mechanical": "근거로 적힌 scripts/verify-e2e와 그 출력에는 외부 호출을 세거나 네트워크를 막는 단계가 없다. 이 스크립트가 실제로 보는 것은 앱 화면 · X-App 덮어쓰기 · 8000 포트 · 이력 300건뿐이다. 게다가 verify-e2e의 `docker compose up --build`는 server/Dockerfile의 `pip install uv` · `uv sync`를 거치므로, 캐시가 없는 깨끗한 환경이면 PyPI로 나간다. 이번 실행은 그 단계가 모두 CACHED였을 뿐이다. gate-applicability.md는 대상이 없는 세 gate를 '통과로 부풀리지 않음'이라며 실제 확인 범위를 밝히는데, 같은 처지인 이 gate는 다루지 않는다. 계약서도 이 gate를 '해당 없음'으로 두지 않았다. 따라서 '관찰한 결과 0건'과 '아직 대상이 없음'을 구별하지 못한 채 pass로 기록되었다. 이것은 형식 검사가 아니라 증거의 의미를 대조해야 드러나는 문제다.",
+   "minimum_resolution": "gate-applicability.md(또는 ledger)에 S-01에서 이 gate로 실제 확인한 것을 증거와 함께 적는다. 예: 외부 LLM 클라이언트 의존성 · 코드가 없음, fixture compose에 키가 전달되지 않음, image build가 캐시만 사용함. 또는 네트워크를 막은 실행 같은 관찰을 더한다. 근거가 그 범위에 그치면 결과 표기도 그 범위에 맞춘다."
+  }
+ ],
+ "questions": [
+  "ledger의 P-01 commands에는 별도 승인 대상 행동이 들어 있습니다(npm install, uv python install 3.12, uv add, docker pull python:3.12-slim, 시험 DB · 시험 스택 컨테이너 실행). 그 밖에 Dockerfile 첫 build의 `pip install uv==0.12.17` · `uv sync`도 PyPI에서 내려받는 설치입니다. 이 행동들에 대한 사용자 승인 기록이 있다면 경로가 무엇입니까? 이번 bundle과 ledger에는 승인 기록 경로가 없어 authorization 준수 여부를 확인할 수 없었습니다."
+ ],
+ "non_blocking_notes": [
+  "ADV-01: packet의 fail_closed_assertion은 '종료 코드 1로 실패하고 파일 · 행을 보고'인데, 시험은 scan()이 찾은 파일 이름만 확인합니다. 종료 코드와 행 번호는 직접 assert하지 않습니다(코드상 `sys.exit(1 if found else 0)`이라 실질 위험은 낮음). ADV-03도 적재기의 결함 사본 대신 SQL로 원문 행을 직접 넣어 흉내 냅니다. 대응 관계는 성립하지만, report에 그 차이를 한 줄 적으면 더 정확합니다.",
+  "AC-36-C1의 근거인 secret_scan.py는 `runs/`(.vibe-factory/runs) · `*.lock` · package-lock.json · 이진 파일을 건너뜁니다. report에 스캔 범위를 밝히는 것이 좋습니다. 또 .gitignore의 `.env.*`가 `.env.example`까지 제외합니다. P-01 selected_approach와 CLAUDE.md는 `.env` 예시 파일을 말하지만 ledger changed_files에는 그 파일이 없습니다.",
+  "UF-03(typescript 7 · vite 8 · react 19.3)은 ledger 스스로 EP-C1-WS-001 · EP-C1-APITYPE-001의 재검토 조건에 걸린다고 적었습니다. S-01 안에서 영향 'none'은 타당하지만, API 타입 경로를 처음 쓰는 slice로 재확인을 넘긴다는 기록이 없습니다. 또 AC-34 부분 증거의 'source.udi 보존'은 record JSONB에 원본 행을 통째로 넣는 코드로만 뒷받침되고, 그것을 확인하는 assertion은 없습니다."
+ ]
+}

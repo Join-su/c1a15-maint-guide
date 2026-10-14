@@ -1,0 +1,102 @@
+{
+ "T01": {
+  "default": "wireframes/v3/structure/guide-a/T01--default.html",
+  "role_error": "wireframes/v3/structure/guide-a/T01--role_error.html"
+ },
+ "T02": {
+  "empty": "wireframes/v3/structure/guide-a/T02--empty.html",
+  "new_alarm": "wireframes/v3/structure/guide-a/T02--new_alarm.html",
+  "in_progress": "wireframes/v3/structure/guide-a/T02--in_progress.html",
+  "rejected": "wireframes/v3/structure/guide-a/T02--rejected.html"
+ },
+ "T03": {
+  "default": "wireframes/v3/structure/guide-a/T03--default.html"
+ },
+ "T04": {
+  "default": "wireframes/v3/structure/guide-a/T04--default.html",
+  "low_evidence": "wireframes/v3/structure/guide-a/T04--low_evidence.html"
+ },
+ "T05": {
+  "before_lock": "wireframes/v3/structure/guide-a/T05--before_lock.html",
+  "locked": "wireframes/v3/structure/guide-a/T05--locked.html"
+ },
+ "T06": {
+  "default": "wireframes/v3/structure/guide-a/T06--default.html",
+  "fallback": "wireframes/v3/structure/guide-a/T06--fallback.html",
+  "unable_next": "wireframes/v3/structure/guide-a/T06--unable_next.html",
+  "llm_repeat": "wireframes/v3/structure/guide-a/T06--llm_repeat.html",
+  "b_precheck": "wireframes/v3/structure/guide-a/T06--b_precheck.html"
+ },
+ "T07": {
+  "confirm_question": "wireframes/v3/structure/guide-a/T07--confirm_question.html",
+  "out_of_scope": "wireframes/v3/structure/guide-a/T07--out_of_scope.html"
+ },
+ "T08": {
+  "action_a": "wireframes/v3/structure/guide-a/T08--action_a.html",
+  "checklist_b": "wireframes/v3/structure/guide-a/T08--checklist_b.html",
+  "restart_check": "wireframes/v3/structure/guide-a/T08--restart_check.html"
+ },
+ "T09": {
+  "draft": "wireframes/v3/structure/guide-a/T09--draft.html",
+  "check_failed": "wireframes/v3/structure/guide-a/T09--check_failed.html",
+  "confirmed": "wireframes/v3/structure/guide-a/T09--confirmed.html"
+ },
+ "T10": {
+  "summary": "wireframes/v3/structure/guide-a/T10--summary.html",
+  "waiting": "wireframes/v3/structure/guide-a/T10--waiting.html",
+  "sent": "wireframes/v3/structure/guide-a/T10--sent.html",
+  "ans_approved": "wireframes/v3/structure/guide-a/T10--ans_approved.html",
+  "ans_daytime": "wireframes/v3/structure/guide-a/T10--ans_daytime.html",
+  "ans_direct": "wireframes/v3/structure/guide-a/T10--ans_direct.html"
+ },
+ "T11": {
+  "expert_handover": "wireframes/v3/structure/guide-a/T11--expert_handover.html",
+  "monitor_close": "wireframes/v3/structure/guide-a/T11--monitor_close.html",
+  "unable_repeat": "wireframes/v3/structure/guide-a/T11--unable_repeat.html"
+ },
+ "L01": {
+  "default": "wireframes/v3/structure/guide-a/L01--default.html",
+  "role_error": "wireframes/v3/structure/guide-a/L01--role_error.html"
+ },
+ "L02": {
+  "list": "wireframes/v3/structure/guide-a/L02--list.html",
+  "empty": "wireframes/v3/structure/guide-a/L02--empty.html"
+ },
+ "L03": {
+  "review": "wireframes/v3/structure/guide-a/L03--review.html",
+  "edit": "wireframes/v3/structure/guide-a/L03--edit.html",
+  "edit_failed": "wireframes/v3/structure/guide-a/L03--edit_failed.html",
+  "reject": "wireframes/v3/structure/guide-a/L03--reject.html"
+ },
+ "L04": {
+  "list": "wireframes/v3/structure/guide-a/L04--list.html",
+  "call_detail": "wireframes/v3/structure/guide-a/L04--call_detail.html",
+  "handover_detail": "wireframes/v3/structure/guide-a/L04--handover_detail.html"
+ },
+ "L05": {
+  "default": "wireframes/v3/structure/guide-a/L05--default.html",
+  "lower_warning": "wireframes/v3/structure/guide-a/L05--lower_warning.html",
+  "raise_warning": "wireframes/v3/structure/guide-a/L05--raise_warning.html"
+ },
+ "L06": {
+  "default": "wireframes/v3/structure/guide-a/L06--default.html",
+  "filtered": "wireframes/v3/structure/guide-a/L06--filtered.html"
+ },
+ "T12": {
+  "list": "wireframes/v3/structure/guide-a/T12--list.html",
+  "empty": "wireframes/v3/structure/guide-a/T12--empty.html"
+ },
+ "T13": {
+  "default": "wireframes/v3/structure/guide-a/T13--default.html"
+ },
+ "T14": {
+  "default": "wireframes/v3/structure/guide-a/T14--default.html"
+ },
+ "T15": {
+  "alarm": "wireframes/v3/structure/guide-a/T15--alarm.html",
+  "diagnosis": "wireframes/v3/structure/guide-a/T15--diagnosis.html",
+  "check": "wireframes/v3/structure/guide-a/T15--check.html",
+  "check_current": "wireframes/v3/structure/guide-a/T15--check_current.html",
+  "action": "wireframes/v3/structure/guide-a/T15--action.html"
+ }
+}

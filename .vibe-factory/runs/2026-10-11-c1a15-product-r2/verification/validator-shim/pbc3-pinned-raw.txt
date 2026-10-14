@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/insujo/Documents/repo/c1a15-maint-guide/.vibe-factory/runs/2026-10-11-c1a15-product-r2/factory-profile/snapshot/skill/scripts/validate_artifacts.py", line 2745, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/insujo/Documents/repo/c1a15-maint-guide/.vibe-factory/runs/2026-10-11-c1a15-product-r2/factory-profile/snapshot/skill/scripts/validate_artifacts.py", line 2721, in main
+    verification_plan(state, run_dir, plan)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/insujo/Documents/repo/c1a15-maint-guide/.vibe-factory/runs/2026-10-11-c1a15-product-r2/factory-profile/snapshot/skill/scripts/validate_artifacts.py", line 798, in verification_plan
+    has_l3_surface_delivery = {delivery["ui_surface_id"]: False for delivery in surface_delivery}
+                                                                                ^^^^^^^^^^^^^^^^
+NameError: name 'surface_delivery' is not defined

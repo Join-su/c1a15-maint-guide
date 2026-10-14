@@ -1,0 +1,90 @@
+{
+ "gate": "G6",
+ "attempt": 3,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-02/cycle-2/verification-report.json",
+  "version": "v3",
+  "sha256": "4af9fe3a45d4bdbd589599ffde011733f9897477550c6a88259a64e89a471c24"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-02/cycle-2/slice-execution-packet.json",
+   "version": "v4",
+   "sha256": "5eadade19f81a99ece54be6fb52cb88b0d678fa836f021167beb0e599f0ec593"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-02/cycle-2/implementation-contract.md",
+   "version": "v4",
+   "sha256": "1237cfc0f96ce2d4027d0bb04d86c8c6b1b70ced6c2fd8afc85e53914cc70fb9"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-02/cycle-2/execution-ledger.json",
+   "version": "v3",
+   "sha256": "d138191f9d6825abe6adeabef0e7f13cd897ab13ebbb5ad900dab816283e761e"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-02/cycle-2/verification-report.json",
+   "version": "v3",
+   "sha256": "4af9fe3a45d4bdbd589599ffde011733f9897477550c6a88259a64e89a471c24"
+  }
+ ],
+ "prior_review": {
+  "path": "critics/G6-S02C2-2-review.json",
+  "sha256": "7ddb7da502d3db5632a4cc26a2b506cd08f8a7d3a954b62ad48a52261e8ec4be"
+ },
+ "supporting_records": [
+  {
+   "path": "execution/S-02/cycle-2/g5-stop.md",
+   "sha256": "906aad0dd660720e3bc5c343993eb681848d053d2a9a39bcb8d5b9bc41cb44a9"
+  },
+  {
+   "path": "execution/S-02/cycle-2/g5-stop-2.md",
+   "sha256": "5d25dfb54bedcafac78ac027a359b7642c9eeafccf7bbe7dfd320743ec4bff77"
+  },
+  {
+   "path": "execution/S-02/cycle-2/separate-approvals.md",
+   "sha256": "9a78a9ee077d1f56912f8b48c756b3df071d2f42f422f72cf6c16bc3791c6c92"
+  },
+  {
+   "path": "execution/S-02/cycle-2/baseline-revalidation.json",
+   "sha256": "f874d1ffb450bb8cc992bd023be81b5398c605df9e21e59a48ca5378615a6334"
+  },
+  {
+   "path": "execution/S-02/cycle-2/g6-revise-decision.md",
+   "sha256": "62fdaf7c2805d83404c494d742a5845a764ff79ec3e618af13cd8defd176462f"
+  },
+  {
+   "path": "decisions/history/PBC-4-prebuild-contract-v9.json",
+   "sha256": "1f3f03f015368c3bdd2601c42385c8f7ff3a39407c8575ac98f49c907940d293"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/gate-applicability.md",
+   "sha256": "15c5e2d4066a59aaabb6c69ce370cd5bdf84f182bec97309a953fc85aed53e95"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/prototype-structure-checklist.json",
+   "sha256": "57a5d2baff5e8cd9715d7afec6be8b83083d74715f3417ddac0a613478ebcc16"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/hash-changes.json",
+   "sha256": "98f76fd1cb6211fbd3f6b3f2de85e53d8f3832bdfb85f57d5b894669e862302f"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/memo-restore-mutation.txt",
+   "sha256": "16fd92b8aca2b37fe1ba76cb20a5f0d4684a5f04f1a16413a0e2925c6c667e2f"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/evidence-secret-check.txt",
+   "sha256": "01d57213e003ae3b7996d4c7dc8f494feba9220a625bfc5d4a7563d60b99d4d8"
+  },
+  {
+   "path": "execution/S-02/cycle-2/evidence/secret-check-fault-injection.txt",
+   "sha256": "d1e6ee6c3cc0831dfbcd5ba684394246884f10119a8e40deb4a62574c7c04405"
+  }
+ ]
+}

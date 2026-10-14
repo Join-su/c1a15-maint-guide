@@ -1,0 +1,656 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "slice_execution_packet",
+ "version": "v1",
+ "slice_id": "S-01",
+ "plan_version": "v3",
+ "plan_item_ids": [
+  "P-01",
+  "P-02"
+ ],
+ "plan_items": [
+  {
+   "id": "P-01",
+   "selection_refs": [
+    "SEL-HARNESS",
+    "SEL-PY",
+    "SEL-OPS",
+    "SEL-LOOP",
+    "SEL-DEVMODEL"
+   ],
+   "boundary_refs": [
+    "B-12"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02",
+    "FLOW-07"
+   ],
+   "slice_id": "S-01",
+   "acceptance_ids": [
+    "AC-36",
+    "AC-16"
+   ],
+   "prototype_refs": [
+    {
+     "page_id": "T01",
+     "state": "default",
+     "region_id": "R-LOGIN"
+    },
+    {
+     "page_id": "L01",
+     "state": "default",
+     "region_id": "R-LOGIN"
+    }
+   ],
+   "compiled_product_contract": {
+    "behavior": "AC-36: 키·비밀번호 원문이 저장소에 없다 — AC-36-C1: 저장소 파일에 계정 비밀번호 원문과 OpenAI 키 원문이 없다 / AC-36-C2: 적재된 계정 기록에 비밀번호 원문이 없다\nAC-16: fixture 모드에서 OpenAI 키 없이 시연 10건이 모두 보고서까지 간다 — AC-16-C1: 키가 없는 환경에서 시연 각본 10건 각각이 보고서 확정(또는 감시·인계 마감 보고서)까지 간다 / AC-16-C2: 외부 LLM 호출이 0건",
+    "ui_state_interaction": "화면을 그리지 않는다. 이 item은 두 앱이 각자 포트(정비자 8081 · 파트장 8082)로 첫 화면(T01 / L01 로그인)을 내주고 깊은 경로 새로고침도 그 앱 첫 문서로 돌아오게 하는 실행 구성이다.",
+    "authority_data": "외부로 나가는 호출은 live 모드의 OpenAI(문장·임베딩)뿐이며 사용자 승인 뒤에만 쓴다. 기본 fixture 모드는 외부 호출이 0건이다. 계정 비밀번호와 OpenAI 키의 원문은 저장소에 두지 않는다. nginx는 정적 파일과 중계만 하고 업무 판정을 하지 않는다(EP-C1-WEB-001).",
+    "logical_flow_behavior": "FLOW-02(ui) 시작: 정비자가 정비자 앱에서 로그인·알람 선택, 세션 중 홈으로 갔다가 이어서 하기 | 책임: 정비자 앱: 로그인, 홈 주기 조회, 세션 시작·재개, 상단 홈 버튼(보내지 않은 입력은 기기에 둠) ; 진단 처리: 역할 확인, 세션 생성·복원 | 성공: 세션이 열리고 알람 화면이 보인다(재개 시 같은 단계, 홈으로 갔다 와도 떠난 화면 · 보내지 않은 입력 그대로) | 실패 · 취소 · 재시도: 역할이 다르면 로그인 거부. 조회 실패 시 다음 주기에 다시 조회 | 상태: 운영 기록(계정·세션 단계) · durable · 다시 읽기: 다시 열면 같은 세션 단계·잠금 시각·입력 결과를 읽어 보임 | 외부 의존: 없음\nFLOW-07(ui) 시작: 파트장이 파트장 앱에서 로그인·검토 | 책임: 파트장 앱: 로그인, 승인 대기 목록 주기 조회, 검토·결정 ; 진단 처리: 역할 확인, 수정 문장 근거 검사, 승인 시 이력 형식 변환·색인 추가(평가 모드 제외) | 성공: 그대로 승인·수정 후 승인 → 이력 추가, 반려 → 작성자에게 돌아감 | 실패 · 취소 · 재시도: 수정 문장 근거 검사 실패 → 승인되지 않음. 반려 사유 없음 → 저장 거부. 역할 불일치 → 로그인 거부 | 상태: 운영 기록(검토 결정·감사), 지식 저장소(승인 보고서 이력 추가) · durable · 다시 읽기: 승인 보고서가 다음 진단 검색에서 후보로 읽힘, 반려가 정비자 앱에 읽힘 | 외부 의존: 없음"
+   },
+   "status": "decided",
+   "requirement_signal": "greenfield 저장소에 실행 · 검증 명령이 없다. 비밀 원문이 저장소에 들어가면 안 된다(AC-36), 키 없이 fixture로 끝까지 가야 한다(AC-16).",
+   "selected_approach": "저장소 골격: npm workspaces(apps/tech · apps/lead · packages/ui · e2e), uv 프로젝트(Python 3.12 · uv.lock), Docker Compose(db → init → api → web), nginx 앱별 server 블록 8081/8082 + 각자 /api 중계(앱 표시 header를 nginx가 덮어씀, API 포트 비공개), `.env` 예시만(값 없음), 짧은 CLAUDE.md, scripts/check-fast · scripts/verify-e2e, 비밀값 스캔.",
+   "rejected_approaches": [
+    "pnpm · 경로 분리 nginx · venv + pip(사용자 결정으로 제외)",
+    "canary · SBOM · attestation(배포 없는 local 시연, EP-OPS-003)"
+   ],
+   "trigger": "S-01 시작",
+   "non_trigger": "제품 기능 구현(다음 slice)",
+   "preconditions": [
+    "사용자 승인: npm · uv 패키지 설치, Python 3.12 내려받기, Docker image pull(python · node 빌드 image)"
+   ],
+   "authority_boundary": "저장소 안에서만 쓴다. 비밀값 · 키 원문을 파일에 쓰지 않는다. 설치 · pull은 승인 뒤.",
+   "verifier": "깨끗한 checkout에서 `npm ci` · `uv sync --frozen` · `scripts/check-fast` 통과, `docker compose config` 검증, 비밀값 스캔 0건(가짜 secret 주입 시 실패), 8081/8082 첫 화면 · 깊은 경로 · /api 왕복 smoke.",
+   "review_requirement": "automatic",
+   "review_rationale": "권한 · 외부 행동 변경 없음, 결정적 명령으로 판정 가능.",
+   "stop_or_escalation": "설치 · pull 승인이 없으면 멈춤. check-fast 실패 3회 수리 뒤에도 실패면 멈춤.",
+   "revalidation_trigger": "Node · Python 주 버전, Compose · nginx image가 바뀔 때."
+  },
+  {
+   "id": "P-02",
+   "selection_refs": [
+    "SEL-DB",
+    "SEL-DATALOAD",
+    "SEL-RET",
+    "SEL-AUTH",
+    "SEL-TEST-API",
+    "SEL-TEST-NEG",
+    "SEL-LOOP",
+    "SEL-SUBAGENT"
+   ],
+   "boundary_refs": [
+    "B-08",
+    "B-09",
+    "B-06"
+   ],
+   "logical_flow_refs": [
+    "FLOW-11"
+   ],
+   "slice_id": "S-01",
+   "acceptance_ids": [
+    "AC-15",
+    "AC-34",
+    "AC-36",
+    "AC-09"
+   ],
+   "prototype_refs": [
+    {
+     "page_id": "T13",
+     "state": "default",
+     "region_id": "R-RECORD"
+    },
+    {
+     "page_id": "T14",
+     "state": "default",
+     "region_id": "R-MANUAL"
+    },
+    {
+     "page_id": "L05",
+     "state": "default",
+     "region_id": "R-GRADES"
+    }
+   ],
+   "compiled_product_contract": {
+    "behavior": "AC-15: 평가 데이터(10~12월 카드)의 ID가 이력 색인에 0건이다 — AC-15-C1: 분리 검사에서 이력 색인 ID와 평가 카드 원본 행의 교집합이 0 / AC-15-C2: agent 처리 코드가 평가 폴더를 읽지 않는다 / AC-15-C3: 검색 조건에 원인 필터가 없다\nAC-34: 시연 알람은 현재 시각과 각본 행의 센서 값으로 등록되고, 각본 행은 이력·평가 카드와 겹치지 않는다 — AC-34-C1: 알람 시각 = 발생 시점의 실제 현재 시각 / AC-34-C2: 센서 값 = 각본이 가리키는 행의 값 / AC-34-C3: 각본 10건의 원본 행이 이력(1~9월)과 평가 카드 원본 행에 없다\nAC-36: 키·비밀번호 원문이 저장소에 없다 — AC-36-C1: 저장소 파일에 계정 비밀번호 원문과 OpenAI 키 원문이 없다 / AC-36-C2: 적재된 계정 기록에 비밀번호 원문이 없다\nAC-09: 승인한 보고서가 다음 같은 증상군 알람에서 비슷한 과거 기록 후보로 검색된다(평가 모드 제외) — AC-09-C1: 승인 뒤 같은 증상군 알람의 검색 후보에 그 보고서(출처 승인 보고서)가 포함된다 / AC-09-C2: 평가 모드에서 만든 보고서는 이력에 들어가지 않는다",
+    "ui_state_interaction": "화면을 그리지 않는다. 적재한 값이 과거 기록 창(T13 / default / R-RECORD) · 매뉴얼 원문 창(T14 / default / R-MANUAL) · 권한 등급 표(L05 / default / R-GRADES)의 값이 된다(화면 값은 데이터에서 나온다, AC-17-C2).",
+    "authority_data": "센서 값은 AI4I 공개 합성 데이터(라벨 삭제)의 기록 행이다. 설비·시각·매뉴얼·이력·등급표·계정은 가상(fixture)이다. 평가 카드와 원인 비율표는 정답 자료라 진단 처리·색인이 읽지 않는다. 이력은 1~9월 생성 기록과 승인 보고서뿐이다. 계정 비밀번호와 OpenAI 키의 원문은 저장소에 두지 않는다. 적재 · migration은 운영 외 작업이다(EP-C1-DB-001).",
+    "logical_flow_behavior": "FLOW-11(cli) 시작: 운영자가 적재를 한 번 실행 | 책임: 적재기: 매뉴얼·이력·초기 등급표·계정·설비 담당표 적재, 이력 색인 생성 | 성공: 적재가 끝나 진단이 가능해진다 | 실패 · 취소 · 재시도: 평가 카드·원인 비율표는 적재하지 않음. 비밀번호 원문은 저장하지 않음. 실패 시 다시 실행 | 상태: 지식 저장소(매뉴얼·이력·색인), 운영 기록(등급표·계정·담당표) · durable · 다시 읽기: 진단 처리가 매뉴얼·이력·등급을 읽음 | 외부 의존: 외부 임베딩(live 모드에서만, 사용자 승인 후)"
+   },
+   "status": "decided",
+   "requirement_signal": "운영 기록 · 지식 저장소를 처음 만든다. 평가 카드 · 원인 비율표 누수 금지(AC-15), 각본 행 분리(AC-34-C3), 비밀번호 원문 금지(AC-36-C2).",
+   "selected_approach": "PostgreSQL 1개(`ops` · `knowledge` schema, `knowledge`에만 pgvector), SQLAlchemy 모델 + Alembic(upgrade/downgrade), 적재기 CLI: data/manuals · data/history · 초기 등급표(부록 B) · 공통 시작 전 확인 목록(2.5 · 5.5 · 6.1 항목) · 사전 등록 계정(argon2id, 비밀번호는 적재 시 환경 변수) · 설비 담당표 · BM25 색인 입력 · 가짜(결정적) 임베딩. 평가 폴더 · generation/은 읽지 않는다.",
+   "rejected_approaches": [
+    "번호 SQL 파일(사용자 결정)",
+    "원인 필드를 색인 · 필터에 쓰기(EP-PACK-DATA-002 금지)"
+   ],
+   "trigger": "S-01, P-01 뒤",
+   "non_trigger": "live 임베딩(승인 전)",
+   "preconditions": [
+    "P-01 완료",
+    "Docker DB 실행 승인"
+   ],
+   "authority_boundary": "eval/cards · generation/cause_ratio_table.json을 열지 않는다. 계정 비밀번호 원문을 DB · 로그에 남기지 않는다.",
+   "verifier": "깨끗한 DB에서 upgrade head → downgrade base → upgrade head, 적재 뒤 건수(매뉴얼 절 · 이력 300건) 일치, pgvector 확인, 분리 검사(이력 ID ∩ 평가 카드 원본 행 = 0, 각본 10행 ∩ 이력 · 카드 = 0), 적재 코드의 평가 폴더 접근 정적 검사, 계정 저장값 argon2id 형식.",
+   "review_requirement": "independent_critic",
+   "review_rationale": "data migration · 저장 데이터 경계(public_contract_or_migration, sensitive).",
+   "stop_or_escalation": "분리 검사 실패 · 원문 비밀번호 발견 시 즉시 멈춤.",
+   "revalidation_trigger": "schema · 임베딩 차원 · 데이터 manifest hash가 바뀔 때."
+  }
+ ],
+ "acceptance_criteria": [
+  {
+   "id": "AC-09",
+   "statement": "승인한 보고서가 다음 같은 증상군 알람에서 비슷한 과거 기록 후보로 검색된다(평가 모드 제외)",
+   "scenario_refs": [
+    "SC-33",
+    "SC-34",
+    "SC-02"
+   ],
+   "observable_conditions": [
+    {
+     "id": "AC-09-C1",
+     "expected": "승인 뒤 같은 증상군 알람의 검색 후보에 그 보고서(출처 승인 보고서)가 포함된다"
+    },
+    {
+     "id": "AC-09-C2",
+     "expected": "평가 모드에서 만든 보고서는 이력에 들어가지 않는다"
+    }
+   ]
+  },
+  {
+   "id": "AC-15",
+   "statement": "평가 데이터(10~12월 카드)의 ID가 이력 색인에 0건이다",
+   "scenario_refs": [
+    "SC-52",
+    "SC-53"
+   ],
+   "observable_conditions": [
+    {
+     "id": "AC-15-C1",
+     "expected": "분리 검사에서 이력 색인 ID와 평가 카드 원본 행의 교집합이 0"
+    },
+    {
+     "id": "AC-15-C2",
+     "expected": "agent 처리 코드가 평가 폴더를 읽지 않는다"
+    },
+    {
+     "id": "AC-15-C3",
+     "expected": "검색 조건에 원인 필터가 없다"
+    }
+   ]
+  },
+  {
+   "id": "AC-16",
+   "statement": "fixture 모드에서 OpenAI 키 없이 시연 10건이 모두 보고서까지 간다",
+   "scenario_refs": [
+    "SC-50",
+    "SC-53",
+    "SC-06"
+   ],
+   "observable_conditions": [
+    {
+     "id": "AC-16-C1",
+     "expected": "키가 없는 환경에서 시연 각본 10건 각각이 보고서 확정(또는 감시·인계 마감 보고서)까지 간다"
+    },
+    {
+     "id": "AC-16-C2",
+     "expected": "외부 LLM 호출이 0건"
+    }
+   ]
+  },
+  {
+   "id": "AC-34",
+   "statement": "시연 알람은 현재 시각과 각본 행의 센서 값으로 등록되고, 각본 행은 이력·평가 카드와 겹치지 않는다",
+   "scenario_refs": [
+    "SC-50",
+    "SC-53"
+   ],
+   "observable_conditions": [
+    {
+     "id": "AC-34-C1",
+     "expected": "알람 시각 = 발생 시점의 실제 현재 시각"
+    },
+    {
+     "id": "AC-34-C2",
+     "expected": "센서 값 = 각본이 가리키는 행의 값"
+    },
+    {
+     "id": "AC-34-C3",
+     "expected": "각본 10건의 원본 행이 이력(1~9월)과 평가 카드 원본 행에 없다"
+    }
+   ]
+  },
+  {
+   "id": "AC-36",
+   "statement": "키·비밀번호 원문이 저장소에 없다",
+   "scenario_refs": [
+    "SC-53"
+   ],
+   "observable_conditions": [
+    {
+     "id": "AC-36-C1",
+     "expected": "저장소 파일에 계정 비밀번호 원문과 OpenAI 키 원문이 없다"
+    },
+    {
+     "id": "AC-36-C2",
+     "expected": "적재된 계정 기록에 비밀번호 원문이 없다"
+    }
+   ]
+  }
+ ],
+ "verification_entries": [
+  {
+   "acceptance_id": "AC-09",
+   "acceptance_criterion": {
+    "id": "AC-09",
+    "statement": "승인한 보고서가 다음 같은 증상군 알람에서 비슷한 과거 기록 후보로 검색된다(평가 모드 제외)",
+    "scenario_refs": [
+     "SC-33",
+     "SC-34",
+     "SC-02"
+    ],
+    "observable_conditions": [
+     {
+      "id": "AC-09-C1",
+      "expected": "승인 뒤 같은 증상군 알람의 검색 후보에 그 보고서(출처 승인 보고서)가 포함된다"
+     },
+     {
+      "id": "AC-09-C2",
+      "expected": "평가 모드에서 만든 보고서는 이력에 들어가지 않는다"
+     }
+    ]
+   },
+   "plan_item_ids": [
+    "P-02",
+    "P-04",
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "verification": [
+    {
+     "level": "L2",
+     "method": "integration",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화)",
+     "expected_evidence": "승인 트랜잭션 뒤 이력 행 + 두 색인 갱신, 평가 모드 보고서는 이력 · 색인에 없음"
+    },
+    {
+     "level": "L3",
+     "method": "e2e",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화) + Playwright 1.63.0 두 browser context · 외부 요청 차단",
+     "expected_evidence": "승인 되먹임 대표 journey(SC-33 · S-04, 완료 P-13): 파트장 앱 승인 → 다음 같은 증상군 알람의 정비자 진단 과거 기록 후보에 그 보고서(출처 승인 보고서)가 다시 읽힘"
+    },
+    {
+     "level": "L4",
+     "method": "manual",
+     "fixture_or_live_boundary": "증거 연결만(새 시험 아님)",
+     "expected_evidence": "AC-09의 모든 관찰 조건이 위 시험 결과 파일 · E2E 기록 · 대조 체크리스트에 조건 ID로 연결된 execution ledger 행"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-15",
+   "acceptance_criterion": {
+    "id": "AC-15",
+    "statement": "평가 데이터(10~12월 카드)의 ID가 이력 색인에 0건이다",
+    "scenario_refs": [
+     "SC-52",
+     "SC-53"
+    ],
+    "observable_conditions": [
+     {
+      "id": "AC-15-C1",
+      "expected": "분리 검사에서 이력 색인 ID와 평가 카드 원본 행의 교집합이 0"
+     },
+     {
+      "id": "AC-15-C2",
+      "expected": "agent 처리 코드가 평가 폴더를 읽지 않는다"
+     },
+     {
+      "id": "AC-15-C3",
+      "expected": "검색 조건에 원인 필터가 없다"
+     }
+    ]
+   },
+   "plan_item_ids": [
+    "P-02",
+    "P-04",
+    "P-16"
+   ],
+   "completion_plan_item_id": "P-16",
+   "verification": [
+    {
+     "level": "L2",
+     "method": "integration",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화)",
+     "expected_evidence": "분리 검사: 이력 색인 ID ∩ 평가 카드 원본 행 = 0"
+    },
+    {
+     "level": "L1",
+     "method": "unit",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩)",
+     "expected_evidence": "정적 검사: 진단 처리 · 색인 코드가 eval/ · generation/ 경로를 열지 않음, 검색 조건에 원인 필드 없음"
+    },
+    {
+     "level": "L4",
+     "method": "manual",
+     "fixture_or_live_boundary": "증거 연결만(새 시험 아님)",
+     "expected_evidence": "AC-15의 모든 관찰 조건이 위 시험 결과 파일 · E2E 기록 · 대조 체크리스트에 조건 ID로 연결된 execution ledger 행"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-16",
+   "acceptance_criterion": {
+    "id": "AC-16",
+    "statement": "fixture 모드에서 OpenAI 키 없이 시연 10건이 모두 보고서까지 간다",
+    "scenario_refs": [
+     "SC-50",
+     "SC-53",
+     "SC-06"
+    ],
+    "observable_conditions": [
+     {
+      "id": "AC-16-C1",
+      "expected": "키가 없는 환경에서 시연 각본 10건 각각이 보고서 확정(또는 감시·인계 마감 보고서)까지 간다"
+     },
+     {
+      "id": "AC-16-C2",
+      "expected": "외부 LLM 호출이 0건"
+     }
+    ]
+   },
+   "plan_item_ids": [
+    "P-01",
+    "P-05",
+    "P-17"
+   ],
+   "completion_plan_item_id": "P-17",
+   "verification": [
+    {
+     "level": "L3",
+     "method": "e2e",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화) + Playwright 1.63.0 두 browser context · 외부 요청 차단 · OpenAI 키 없음 · 네트워크 차단",
+     "expected_evidence": "깨끗한 환경 compose up → 시연 각본 10건 각각 보고서 확정(또는 감시 · 인계 마감 보고서)까지, 외부 LLM 호출 0건 기록"
+    },
+    {
+     "level": "L4",
+     "method": "manual",
+     "fixture_or_live_boundary": "증거 연결만(새 시험 아님)",
+     "expected_evidence": "AC-16의 모든 관찰 조건이 위 시험 결과 파일 · E2E 기록 · 대조 체크리스트에 조건 ID로 연결된 execution ledger 행"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-34",
+   "acceptance_criterion": {
+    "id": "AC-34",
+    "statement": "시연 알람은 현재 시각과 각본 행의 센서 값으로 등록되고, 각본 행은 이력·평가 카드와 겹치지 않는다",
+    "scenario_refs": [
+     "SC-50",
+     "SC-53"
+    ],
+    "observable_conditions": [
+     {
+      "id": "AC-34-C1",
+      "expected": "알람 시각 = 발생 시점의 실제 현재 시각"
+     },
+     {
+      "id": "AC-34-C2",
+      "expected": "센서 값 = 각본이 가리키는 행의 값"
+     },
+     {
+      "id": "AC-34-C3",
+      "expected": "각본 10건의 원본 행이 이력(1~9월)과 평가 카드 원본 행에 없다"
+     }
+    ]
+   },
+   "plan_item_ids": [
+    "P-02",
+    "P-07"
+   ],
+   "completion_plan_item_id": "P-07",
+   "verification": [
+    {
+     "level": "L2",
+     "method": "integration",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화)",
+     "expected_evidence": "알람 시각 = 실행 시각, 센서 값 = 각본 행, 각본 10행 ∩ 이력 · 평가 카드 원본 행 = 0"
+    },
+    {
+     "level": "L4",
+     "method": "manual",
+     "fixture_or_live_boundary": "증거 연결만(새 시험 아님)",
+     "expected_evidence": "AC-34의 모든 관찰 조건이 위 시험 결과 파일 · E2E 기록 · 대조 체크리스트에 조건 ID로 연결된 execution ledger 행"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-36",
+   "acceptance_criterion": {
+    "id": "AC-36",
+    "statement": "키·비밀번호 원문이 저장소에 없다",
+    "scenario_refs": [
+     "SC-53"
+    ],
+    "observable_conditions": [
+     {
+      "id": "AC-36-C1",
+      "expected": "저장소 파일에 계정 비밀번호 원문과 OpenAI 키 원문이 없다"
+     },
+     {
+      "id": "AC-36-C2",
+      "expected": "적재된 계정 기록에 비밀번호 원문이 없다"
+     }
+    ]
+   },
+   "plan_item_ids": [
+    "P-01",
+    "P-02"
+   ],
+   "completion_plan_item_id": "P-02",
+   "verification": [
+    {
+     "level": "L1",
+     "method": "unit",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩)",
+     "expected_evidence": "저장소 비밀값 스캔 0건(가짜 secret 주입 시 실패)"
+    },
+    {
+     "level": "L2",
+     "method": "integration",
+     "fixture_or_live_boundary": "fixture(APP_MODE=fixture, 외부 호출 0, 결정적 가짜 임베딩) + 시험용 PostgreSQL 컨테이너(매 시험 초기화)",
+     "expected_evidence": "적재된 계정 기록이 argon2id 해시이고 원문 없음"
+    },
+    {
+     "level": "L4",
+     "method": "manual",
+     "fixture_or_live_boundary": "증거 연결만(새 시험 아님)",
+     "expected_evidence": "AC-36의 모든 관찰 조건이 위 시험 결과 파일 · E2E 기록 · 대조 체크리스트에 조건 ID로 연결된 execution ledger 행"
+    }
+   ]
+  }
+ ],
+ "adversarial_cases": [
+  {
+   "id": "ADV-01",
+   "plan_item_ids": [
+    "P-01"
+   ],
+   "completion_plan_item_id": "P-01",
+   "risk": "비밀 원문이 저장소에 들어감(AC-36)",
+   "injection": "임시 파일에 가짜 키 패턴(`sk-test-FAKE…`)과 가짜 비밀번호 문자열을 쓰고 비밀값 스캔 실행",
+   "safe_target_kind": "temporary_local_file",
+   "safe_target_reference": "pytest tmp_path 아래 가짜 저장소 사본",
+   "containment": "임시 디렉터리 안에서만, 실제 키 · 계정 없음",
+   "prohibited_real_actions": [
+    "외부 네트워크",
+    "실서비스 · live OpenAI",
+    "실제 secret · 민감 데이터",
+    "평가 카드 원본을 진단 처리에 넣기"
+   ],
+   "allows_external_network": false,
+   "allows_live_service": false,
+   "allows_secret_or_sensitive_data": false,
+   "fail_closed_assertion": "스캔이 종료 코드 1로 실패하고 파일 · 행을 보고해야 통과",
+   "cleanup": "tmp_path 자동 삭제"
+  },
+  {
+   "id": "ADV-02",
+   "plan_item_ids": [
+    "P-02"
+   ],
+   "completion_plan_item_id": "P-02",
+   "risk": "평가 정답 누수(AC-15) · 각본 행 겹침(AC-34-C3)",
+   "injection": "시험용 이력 사본에 평가 카드 원본 행 ID 하나와 각본 행 하나를 끼워 넣고 분리 검사 실행",
+   "safe_target_kind": "in_memory_fixture",
+   "safe_target_reference": "분리 검사 함수에 넘기는 메모리 목록(가짜 행)",
+   "containment": "실제 eval/cards 파일을 열지 않고 행 ID만 쓴 가짜 목록",
+   "prohibited_real_actions": [
+    "외부 네트워크",
+    "실서비스 · live OpenAI",
+    "실제 secret · 민감 데이터",
+    "평가 카드 원본을 진단 처리에 넣기"
+   ],
+   "allows_external_network": false,
+   "allows_live_service": false,
+   "allows_secret_or_sensitive_data": false,
+   "fail_closed_assertion": "분리 검사가 교집합 1건을 보고하며 실패해야 통과",
+   "cleanup": "메모리 객체만"
+  },
+  {
+   "id": "ADV-03",
+   "plan_item_ids": [
+    "P-02"
+   ],
+   "completion_plan_item_id": "P-02",
+   "risk": "비밀번호 원문 저장(AC-36-C2)",
+   "injection": "적재기 계정 입력에 가짜 비밀번호를 주고, 저장 계층을 원문 저장으로 바꾼 결함 사본으로 적재 검사 실행",
+   "safe_target_kind": "isolated_process",
+   "safe_target_reference": "시험용 PostgreSQL 컨테이너(매 시험 초기화)의 ops.accounts",
+   "containment": "시험 DB만, 가짜 계정",
+   "prohibited_real_actions": [
+    "외부 네트워크",
+    "실서비스 · live OpenAI",
+    "실제 secret · 민감 데이터",
+    "평가 카드 원본을 진단 처리에 넣기"
+   ],
+   "allows_external_network": false,
+   "allows_live_service": false,
+   "allows_secret_or_sensitive_data": false,
+   "fail_closed_assertion": "결함 사본에서 '저장값이 argon2id 형식이 아님' 검사가 실패해야 통과",
+   "cleanup": "컨테이너 DB 초기화"
+  }
+ ],
+ "implementation_authorization": {
+  "allowed_plan_version": "v3",
+  "allowed_plan_item_ids": [
+   "P-01",
+   "P-02",
+   "P-03",
+   "P-04",
+   "P-05",
+   "P-06",
+   "P-07"
+  ],
+  "execution_mode": "per_slice_gated",
+  "stop_conditions": [
+   "failed_or_missing_automatic_gate",
+   "L1_or_out_of_scope_contract_change",
+   "new_external_or_separate_approval_action",
+   "baseline_drift",
+   "repair_cap_exceeded"
+  ],
+  "prohibited_actions": [
+   "승인 Use Case Bundle v6 · Prototype Bundle v16의 AC · 사용자 흐름 · 권한 의미 · 데이터 의미 · 화면 구조 · 시각 규칙 변경",
+   "OOS-01(첫 판정이 바로 호출인 진단 화면)을 사용자 결정 없이 만들기",
+   "eval/cards · generation/cause_ratio_table.json을 진단 처리 · 색인 · 적재기에서 읽기",
+   "비밀번호 · API 키 원문을 저장소 · 로그 · DB에 쓰기",
+   "fixture 시험 · 시연에서 외부 네트워크 호출",
+   "plan item 밖 파일 · 다른 저장소 수정, Wiki 쓰기",
+   "배포 · 외부 메시지 전송"
+  ],
+  "separate_approval_required_for": [
+   "live OpenAI 문장 · 임베딩 smoke(소수 · 격리, 키는 사용자 제공)",
+   "live 모드 평가 실행",
+   "npm · uv 패키지 설치, Python 3.12 내려받기",
+   "Docker image pull(python · node 빌드 image 등 로컬에 없는 것)",
+   "Playwright 브라우저 내려받기(1.63.0 밖의 판을 쓸 때)",
+   "git commit · push",
+   "Docker 컨테이너로 시험 DB · 시험 스택 실행(첫 실행 전 한 번)"
+  ],
+  "approver_role": "사용자(프로젝트 소유자)",
+  "authorized": true,
+  "approved_by": "사용자(프로젝트 소유자)",
+  "approved_at": "2026-10-12T22:19:07+09:00"
+ },
+ "planning_baseline": {
+  "run_id": "2026-10-11-c1a15-product-r2",
+  "artifact": "planning_baseline",
+  "version": "v2",
+  "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+  "dependency_revision": "unavailable: 저장소에 제품 코드 · lockfile 없음(첫 slice에서 생성)",
+  "environment_facts": [
+   "git branch main, HEAD f73c240 TW-4를 공구 편마모로 바꾸고 데이터·평가 카드를 맞춘다",
+   "작업 트리: 추적 안 된 변경 ?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v2.md; ?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v3.md; ?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v4.md; ?? .vibe-factory/runs/",
+   "OS darwin arm64, Python 3.14.2, Node v26.9.0, Docker version 29.1.3, build f52814d",
+   "제품 데이터: data/manifest.json sha256 7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d, data/alarm_rules.json sha256 ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042, data/manuals · data/history",
+   "평가 자료 eval/cards · generation/cause_ratio_table.json은 저장소에 있으나 agent · index 접근 금지 대상",
+   "이 제품용 앱 의존성 · DB · Docker image 없음(로컬 Docker에 다른 프로젝트 image 27개, Postgres 계열 pgvector/pgvector:0.8.6-pg16-bookworm, postgres:latest, postgres:15 — 재사용 · 설치 · pull은 사용자 승인 필요), OpenAI 키는 저장소 밖",
+   "Engineering Playbook: .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v4.md sha256 5420be68c37528bd80323188e3ebd84296a99a7f03c45314a0329b940b8460a7(c1a15-supplement-v4 = v3 규칙 + 인용 ID 색인, 2026-10-12 사용자 결정 반영 · 사용 승인) + v1 018da82d… · pack-supplement-v1 48fa80df…(다른 저장소, 내용 그대로 사용 승인)",
+   "로컬 도구: uv(/opt/homebrew/bin/uv), pip 25.3(Python 3.14), Docker 로컬 image nginx:latest · node:18 · pgvector/pgvector:0.8.6-pg16-bookworm, Playwright 브라우저 캐시(~/Library/Caches/ms-playwright: chromium-1208 · 1234 · 1243) 있음, Python playwright 모듈 · node_modules 없음",
+   "Playwright: 로컬 브라우저 캐시 chromium 1243에 맞는 판은 @playwright/test 1.63.0(FP-02에서 확인). 1.64.0은 chromium 1248을 요구해 브라우저 내려받기(별도 승인)가 필요"
+  ],
+  "recorded_at": "2026-10-12T19:35:56+09:00",
+  "revalidate_before_implementation_when": [
+   "repository revision or dependency revision changes",
+   "selected model, framework, or external contract changes",
+   "data/manifest.json · alarm_rules.json · Engineering Playbook hash가 바뀔 때"
+  ],
+  "supersedes": "v1 (discovery/history/planning-baseline-v1.json)",
+  "change_reason": "PBC-1 앞 · 중 사용자 결정(discovery/pbc1-user-decisions.md)으로 Engineering Playbook 보충판이 v3가 되어 v1의 재검토 조건('Engineering Playbook hash가 바뀔 때')에 해당. 저장소 HEAD · 의존성은 그대로"
+ },
+ "baseline_revalidation": {
+  "checked_at": "2026-10-13T09:09:30+09:00",
+  "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+  "dependency_revision": "unavailable: 저장소에 lockfile 없음(기준선과 같음)",
+  "environment_facts": [
+   "HEAD · 작업 트리(추적 안 된 것: playbooks v2~v4 · runs/) · Python · Node · Docker · 데이터 hash · Playbook v4 hash가 기준선 v2와 같다",
+   "uv 0.12.17(Homebrew) 확인"
+  ],
+  "result": "pass",
+  "evidence_paths": [
+   "execution/S-01/baseline-revalidation.json"
+  ]
+ },
+ "automatic_quality_gates": [
+  "scope_traceability",
+  "ac_verifier",
+  "static_check",
+  "typecheck",
+  "unit_and_property",
+  "api_negative_authority",
+  "integration_real_postgres",
+  "e2e_surface_journey",
+  "prototype_structure_checklist",
+  "secret_scan",
+  "external_call_zero_in_fixture",
+  "leakage_check"
+ ],
+ "review_requirement": "independent_critic",
+ "stop_conditions": [
+  "failed_or_missing_automatic_gate",
+  "L1_or_out_of_scope_contract_change",
+  "new_external_or_separate_approval_action",
+  "baseline_drift",
+  "repair_cap_exceeded"
+ ],
+ "execution_interpretations": [
+  "실행 해석 3가지(PBC4-A3 비차단 의견 반영, 사용자 '이 해석대로'): ① P-07 완료 때의 판정 gate는 item verifier · ADV-01 ~ 07 · check-fast(S-02 화면 gate · 첫 end-to-end L3는 새 판에서) / ② P-06은 C · D 차례에 '다음 단계 = 호출, 지시 내용 없음'만 돌려주고, 호출 요약 본문은 새 판의 P-09가 만든다 / ③ P-04 ~ P-07 진행 중 화면 결정으로 Prototype Bundle이 바뀌기 시작하면 남은 item은 v16 잠금 그대로 계속하지 않고 L1_or_out_of_scope_contract_change로 멈춰 변경 범위를 확인한다. P-03 계산표 대상은 시연 각본 10건 + R5 예시 입력"
+ ],
+ "unresolved_questions": [],
+ "missing_information": [],
+ "expansion_rule": "If approved PBC artifacts lack required information, stop for an L1 amendment or an out-of-scope contract-change record; do not reread pre-PBC product artifacts during G4-G7."
+}

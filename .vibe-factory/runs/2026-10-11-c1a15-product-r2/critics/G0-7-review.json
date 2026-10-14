@@ -1,0 +1,127 @@
+{
+ "gate": "G0",
+ "attempt": 2,
+ "cycle": 4,
+ "subject": {
+  "artifact": "evidence_pack",
+  "path": "evidence-pack-v7.md",
+  "version": "v7",
+  "sha256": "080ee33d3779b2c147f46481c559da59403334e26bd2b9daecece24eb548cb6c"
+ },
+ "input_bundle": {
+  "path": "critics/G0-7-input.json",
+  "sha256": "f1e5f87326dc83eac64d2a7951e21a58c0afa3be6ca4e64614ac033ff3d3b72f"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "context_packet",
+   "path": "context-packet-v7.md",
+   "version": "v7",
+   "sha256": "e16ba7cc3342b883b655d0dc398593dae63f5e7ee533c5cfb64df7be4bdbb3d9"
+  },
+  {
+   "artifact": "source_manifest",
+   "path": "source-manifest.json",
+   "version": "v6",
+   "sha256": "3ee553c573af4c30f384f52cbec2e41e73af7b2e3c6a11a356e5b6f77f837083"
+  },
+  {
+   "artifact": "prior_evidence_pack",
+   "path": "evidence-pack-v5.md",
+   "version": "v5",
+   "sha256": "d77aa3cf9a2c20041e045f5774d96b1d3f23ded93cdf76a7665ca56c40f38ea0"
+  },
+  {
+   "artifact": "intent_010",
+   "path": "sources/intent/010.md",
+   "version": "2026-10-12",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "intent_011",
+   "path": "sources/intent/011.md",
+   "version": "2026-10-12",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "task_evidence_T01",
+   "path": "sources/task/T01-user-guide-text.txt",
+   "version": "f73c240",
+   "sha256": "ba5432ebdc070ff5017f7670ba2d17972b71cfff1a56f36ca2a4026f1a4fdd7b"
+  },
+  {
+   "artifact": "task_evidence_T02",
+   "path": "sources/task/T02-manual_sections.json",
+   "version": "f73c240",
+   "sha256": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598"
+  },
+  {
+   "artifact": "task_evidence_T03",
+   "path": "sources/task/T03-data-manifest.json",
+   "version": "f73c240",
+   "sha256": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d"
+  },
+  {
+   "artifact": "task_evidence_T04",
+   "path": "sources/task/T04-alarm_rules.json",
+   "version": "f73c240",
+   "sha256": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
+  },
+  {
+   "artifact": "task_evidence_T05",
+   "path": "sources/task/T05-eval-cards-README.md",
+   "version": "f73c240",
+   "sha256": "31b6110b58ef6a2c017dfe80b6f0a25ce709ebe89451b07229f3d9c152d13f10"
+  },
+  {
+   "artifact": "task_evidence_T06",
+   "path": "sources/task/T06-architecture-text.txt",
+   "version": "f73c240",
+   "sha256": "0e39003fe9da03b755effdde3e77beb83e90e1b17faedbd77848567f701778ca"
+  },
+  {
+   "artifact": "intent_007",
+   "path": "sources/intent/007.md",
+   "version": "2026-10-12",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "intent_004",
+   "path": "sources/intent/004.md",
+   "version": "2026-10-11",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "intent_008",
+   "path": "sources/intent/008.md",
+   "version": "2026-10-12",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g0_review",
+   "path": "critics/G0-5-review.json",
+   "version": "v5",
+   "sha256": "110881392e9992e5b15541400325de67eb89ded9d423da426c50602d2976136b"
+  },
+  {
+   "artifact": "prior_evidence_pack_v6",
+   "path": "evidence-pack-v6.md",
+   "version": "v6",
+   "sha256": "0c8d490f026080a335e2f387e6adf9a724291520c5a65adcffad1e3a2d85439b"
+  },
+  {
+   "artifact": "prior_g0_review_v6",
+   "path": "critics/G0-6-review-original.json",
+   "version": "v6",
+   "sha256": "1a1d4e0f1ebbe80127fc2797b0393eb138c355d7d7ace9ef2baa52b40f2beedd"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "011 답은 EV-071~074, Actors, Open questions Q-06~09(답함 표시)에 정확히 옮겨졌다. 다만 Constraints의 EV-069 행과 Data and system context의 Durable state 행에는 EV-072(정정마다 감사 기록이 쌓이고, 화면에는 최신 값과 '정정 n회'가 보임)와 EV-074(경계 확인 · 확인 질문 답 · B 체크 · 숙련자 인계는 정정하지 않음)가 직접 적혀 있지 않다. EV-069 행의 Evidence 칸도 EV-069 하나뿐이다. EV-069 행은 '정비자가 입력한 값만'이라고 적고 있어 의미는 같다. 그래도 G1에서 정정 AC와 state/readback을 쓸 때는 EV-072~074를 직접 근거로 인용하는 것이 안전하다.",
+  "Q-09/EV-074에 적힌 목록 밖에도 정정 여부가 명시되지 않은 정비자 행위가 남아 있다. 사전 확인 '완료' 행위 자체(측정값과는 별개), R7(c)에서 '계속'을 고른 것, '호출하지 않고 대기', 조치 · 재가동 체크리스트가 그렇다. 010의 '만'에 따르면 이것들은 정정할 수 없다. Evidence Pack도 이 부분을 결정처럼 지어 적지 않았다. 다만 이것들에도 '메모 덧붙이기'가 되는지는 010 · 011 어디에서도 정하지 않았다. 따라서 G1은 이것들을 '정정 불가'로만 다뤄야 한다. 메모 덧붙이기까지 허용하는 AC는 새로 만들지 말고, 필요하면 질문으로 올리는 것이 좋다.",
+  "머리말 문장 'v5의 내용은 그대로 두고, 010으로 바뀌는 것(…)만 더하거나 고쳤다'는 v6 때의 범위 설명이 그대로 남은 것이다. v7은 011(EV-071~074)도 더했으므로 이 문장만 읽으면 011 반영 범위를 놓칠 수 있다. 같은 줄 앞부분에 '011 반영판'이라는 말이 있어 의미가 왜곡되지는 않는다. 다음 판을 만들 때 함께 다듬으면 된다."
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "use_case",
+ "version": "v5",
+ "status": "approved",
+ "supersedes": "v4",
+ "contents": [
+  {
+   "role": "use_case_packet",
+   "path": "use-case/v5/use-case-packet.md",
+   "sha256": "0a1f19a79a2b94018ec6c7bab9f1d525153642c505bf63206e494648e699f763"
+  },
+  {
+   "role": "use_case_map",
+   "path": "use-case/v5/use-case-map.svg",
+   "sha256": "105aa44b3eaa5aa8cf42d427d351dae1adefd3f93e374a30c1dc91d2ffaf4852"
+  },
+  {
+   "role": "scenario_coverage",
+   "path": "use-case/v5/scenario-coverage.json",
+   "sha256": "c23661471beeb493ec8b84b21582af0efcc4c729674ce3b2c5cc866358acdc5c"
+  },
+  {
+   "role": "acceptance_criteria",
+   "path": "use-case/v5/acceptance-criteria.json",
+   "sha256": "8b9cde56b12730af6a466ebe7ae1ef0b190afcf69c08ff55b86c760a8f511b44"
+  },
+  {
+   "role": "logical_system_contract",
+   "path": "use-case/v5/logical-system-contract.json",
+   "sha256": "a42cad7af48e27fa06c78be75832173755d83c1ec90efec1138a955b6f548f34"
+  },
+  {
+   "role": "logical_system_overview",
+   "path": "use-case/v5/logical-system-overview.svg",
+   "sha256": "d12767c7d1662265cebdc33a05e65aec972638a3815542ad43aad5154e9d9a29"
+  },
+  {
+   "role": "logical_scenario_flow",
+   "path": "use-case/v5/logical-scenario-flow.svg",
+   "sha256": "0a42701e25ed4056ebac994abbd58ce385a4f4a58ff63cf0bdef445f29acdb32"
+  }
+ ],
+ "sources": [
+  {
+   "path": "evidence-pack-v5.md",
+   "reason": "Evidence Pack v5(critic pass)"
+  },
+  {
+   "path": "decisions/G1-use-case.json",
+   "reason": "v3 승인 결정"
+  },
+  {
+   "path": "sources/intent/007.md",
+   "reason": "사용자 결정 007"
+  },
+  {
+   "path": "sources/intent/008.md",
+   "reason": "Q-05 사용자 답"
+  },
+  {
+   "path": "critics/G1-4-review.json",
+   "reason": "v4 revise 지적"
+  }
+ ]
+}

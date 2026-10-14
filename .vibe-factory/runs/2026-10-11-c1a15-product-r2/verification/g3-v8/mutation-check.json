@@ -1,0 +1,540 @@
+{
+ "run_at": "2026-10-12T00:14:43+09:00",
+ "prototype_sha256": "d2b131e6c4776cae65a40942eae5ef57ca5313d995009e3eb83707ce2dbe5fd2",
+ "command": "scratch 생성기 mutants_v8.py: 결함을 하나씩 넣은 복사본마다 ?selftest=1 실행. 조작 점검(audit_v8.py)도 W-1 · W-2 · U-6 · V-8 · V-2 복사본에 실행. W-3(인계 내용이 경로와 다름)은 화면 내용 판단이라 조작 점검이 아니라 selftest CTL-15가 맡는다",
+ "rule": "assigned_tests(그 결함을 맡은 시험)가 모두 실패하면 detected. other_failed는 같은 기능을 거치는 흐름의 함께 실패",
+ "mutants": [
+  {
+   "id": "MUT-1",
+   "defect": "확정 · 재가동 잠금 무시 · 반려 사유 없이 저장 · 답 전 4.4 노출(결함 4종, v5부터 유지)",
+   "assigned_tests": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24"
+   ],
+   "failed_tests": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24",
+    "AC-32"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-32"
+   ],
+   "other_failed_reason": "AC-32도 같은 조치 체크리스트 잠금을 본다"
+  },
+  {
+   "id": "MUT-2",
+   "defect": "로그인이 ID 칸 대신 비밀번호 칸을 읽음(v4 사용자 발견 결함)",
+   "assigned_tests": [
+    "AC-12"
+   ],
+   "failed_tests": [
+    "AC-12"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "MUT-4",
+   "defect": "ID 칸을 입력할 수 없는 승인 마크업으로 되돌림(v4 사용자 발견 결함의 마크업 쪽)",
+   "assigned_tests": [
+    "AC-12"
+   ],
+   "failed_tests": [
+    "AC-02",
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-12",
+    "AC-19",
+    "AC-20",
+    "AC-21",
+    "AC-22",
+    "AC-23",
+    "AC-24",
+    "AC-25",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40",
+    "CTL-01",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-07",
+    "CTL-08",
+    "CTL-09",
+    "CTL-10",
+    "CTL-11",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-02",
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-19",
+    "AC-20",
+    "AC-21",
+    "AC-22",
+    "AC-23",
+    "AC-24",
+    "AC-25",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40",
+    "CTL-01",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-07",
+    "CTL-08",
+    "CTL-09",
+    "CTL-10",
+    "CTL-11",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-15"
+   ],
+   "other_failed_reason": "로그인이 막혀 로그인 뒤의 모든 시험이 함께 실패(판별력 증거로 쓰지 않음, AC-12 판별은 MUT-2와 같은 결과)"
+  },
+  {
+   "id": "U-1",
+   "defect": "사용자 발견 ① 홈 '보기' 무반응(확정한 M-03 행)",
+   "assigned_tests": [
+    "CTL-01"
+   ],
+   "failed_tests": [
+    "CTL-01"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-2a",
+   "defect": "사용자 발견 ② 근거 n · 과거 기록 3건의 기준 문구 없음",
+   "assigned_tests": [
+    "AC-40"
+   ],
+   "failed_tests": [
+    "AC-40"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-2b",
+   "defect": "사용자 발견 ② 과거 기록 카드를 눌러도 기록이 안 열림",
+   "assigned_tests": [
+    "AC-38"
+   ],
+   "failed_tests": [
+    "AC-38"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-3",
+   "defect": "사용자 발견 ③ 결과 버튼 선택이 안 보임(선택 색 class 없음)",
+   "assigned_tests": [
+    "CTL-03"
+   ],
+   "failed_tests": [
+    "AC-38",
+    "AC-39",
+    "CTL-03",
+    "CTL-06",
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-38",
+    "AC-39",
+    "CTL-06",
+    "CTL-13"
+   ],
+   "other_failed_reason": "AC-38 · AC-39 · CTL-06 · CTL-13은 창을 닫은 뒤 '보이는 선택'을 계산된 색으로 보므로 같은 결함으로 실패"
+  },
+  {
+   "id": "U-4a",
+   "defect": "사용자 발견 ④ 재가동 체크 칸을 눌러도 안 바뀜",
+   "assigned_tests": [
+    "CTL-04"
+   ],
+   "failed_tests": [
+    "AC-07",
+    "AC-11",
+    "AC-21",
+    "AC-24",
+    "AC-29",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "CTL-01",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-08",
+    "CTL-10",
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-07",
+    "AC-11",
+    "AC-21",
+    "AC-24",
+    "AC-29",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "CTL-01",
+    "CTL-05",
+    "CTL-06",
+    "CTL-08",
+    "CTL-10",
+    "CTL-15"
+   ],
+   "other_failed_reason": "체크 칸이 안 바뀌면 재가동 · 보고서 · 재가동 경계 밖 인계로 가는 흐름이 모두 막혀 그 흐름을 쓰는 시험이 함께 실패"
+  },
+  {
+   "id": "U-4b",
+   "defect": "사용자 발견 ④ 자동 검사가 누르는 체크 칸처럼 보임(상자 · 손가락 커서)",
+   "assigned_tests": [
+    "CTL-04"
+   ],
+   "failed_tests": [
+    "CTL-04"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-5",
+   "defect": "사용자 발견 ⑤ '홈으로' 무반응",
+   "assigned_tests": [
+    "CTL-05"
+   ],
+   "failed_tests": [
+    "CTL-01",
+    "CTL-05"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-01"
+   ],
+   "other_failed_reason": "CTL-01은 '홈으로'를 거쳐 홈 '보기'를 시험"
+  },
+  {
+   "id": "U-6",
+   "defect": "사용자 발견 ⑥ 상단 바 종 무반응",
+   "assigned_tests": [
+    "AC-37"
+   ],
+   "failed_tests": [
+    "AC-37",
+    "CTL-06",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-06",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14"
+   ],
+   "other_failed_reason": "CTL-06 · CTL-12 · CTL-13 · CTL-14는 종 패널을 열고 닫아 보존 · 잠금을 시험"
+  },
+  {
+   "id": "U-7",
+   "defect": "사용자 발견 ⑦ 등급 선택칸이 4.4 행만 동작",
+   "assigned_tests": [
+    "CTL-07"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "CTL-07"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-25"
+   ],
+   "other_failed_reason": "AC-25는 1.2 행의 등급 변경으로 변경 기록을 시험"
+  },
+  {
+   "id": "V-1",
+   "defect": "G3-6 ISS-001 창 · 패널 · 안내를 닫으면 고른 결과 · 메모 · 체크가 사라짐",
+   "assigned_tests": [
+    "AC-38",
+    "AC-39",
+    "CTL-06"
+   ],
+   "failed_tests": [
+    "AC-38",
+    "AC-39",
+    "CTL-06",
+    "CTL-12",
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-12",
+    "CTL-13"
+   ],
+   "other_failed_reason": "CTL-12 · CTL-13도 종을 열고 닫은 뒤 고친 요약 · 고른 결과가 남는지 본다"
+  },
+  {
+   "id": "V-2",
+   "defect": "G3-6 ISS-002 ① M-01 '검토'가 M-03 보고서를 열고 결정이 M-01에 저장됨",
+   "assigned_tests": [
+    "CTL-10"
+   ],
+   "failed_tests": [
+    "CTL-10"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-3",
+   "defect": "G3-6 ISS-002 ② M-03 숙련자 인계 뒤 호출 표 행이 파트장 호출 그대로 · 답하기가 M-20 상세",
+   "assigned_tests": [
+    "CTL-11"
+   ],
+   "failed_tests": [
+    "CTL-11",
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-15"
+   ],
+   "other_failed_reason": "CTL-15도 인계 뒤 파트장 호출 표의 M-03 행 제목을 본다"
+  },
+  {
+   "id": "V-4",
+   "defect": "G3-6 ISS-003 (1) 수정 실패 화면에서 문장을 고쳐도 저장이 안 열림",
+   "assigned_tests": [
+    "CTL-08"
+   ],
+   "failed_tests": [
+    "CTL-08"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-5",
+   "defect": "G3-6 ISS-003 (2) 감사 기록 필터가 목록 없이 고정 상태로만 바뀜",
+   "assigned_tests": [
+    "CTL-09"
+   ],
+   "failed_tests": [
+    "CTL-09"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-6",
+   "defect": "G3-6 ISS-003 (3) '고칠 수 있음' 요약을 고칠 수 없음",
+   "assigned_tests": [
+    "CTL-12"
+   ],
+   "failed_tests": [
+    "CTL-12"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-7",
+   "defect": "G3-6 ISS-003 (4) 근거 링크가 번호 둘을 보이지만 첫 번호만 엶",
+   "assigned_tests": [
+    "AC-38"
+   ],
+   "failed_tests": [
+    "AC-38"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-8",
+   "defect": "v7 점검에서 찾은 '결정 저장' 처리 두 번(저장 + 샘플 없음 안내)",
+   "assigned_tests": [
+    "CTL-08"
+   ],
+   "failed_tests": [
+    "CTL-08"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-1",
+   "defect": "G3-7 ISS-001 ① 종 '이어서 하기'가 지금 화면을 다시 열어 보이는 선택은 지워지고 보낼 값은 남음",
+   "assigned_tests": [
+    "CTL-13"
+   ],
+   "failed_tests": [
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-2",
+   "defect": "G3-7 ISS-001 ② '인계 보냄' 잠김이 다시 그리면 풀리고 인계가 두 번 기록됨",
+   "assigned_tests": [
+    "CTL-14"
+   ],
+   "failed_tests": [
+    "CTL-14"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-3",
+   "defect": "G3-7 ISS-002 재가동 경계 밖 · LLM 연속 실패 인계에도 '맞지 않는 소견(냉각수 고임)' 내용",
+   "assigned_tests": [
+    "CTL-15"
+   ],
+   "failed_tests": [
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  }
+ ],
+ "control_audit_on_mutants": {
+  "W-1": {
+   "summary": {
+    "editable": 151,
+    "works": 905,
+    "NOOP": 52,
+    "display": 553,
+    "covered": 177,
+    "locked": 10,
+    "hidden": 48,
+    "panel_closed": 157
+   },
+   "mismatch": 2,
+   "examples": [
+    "T06:default · 이어서 하기 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 보이는 결과 선택 [] ≠ 보낼 값 이상",
+    "T06:default · 이어서 하기 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 보이는 결과 선택 [] ≠ 보낼 값 이상"
+   ]
+  },
+  "W-2": {
+   "summary": {
+    "editable": 151,
+    "works": 907,
+    "NOOP": 52,
+    "display": 553,
+    "covered": 177,
+    "locked": 8,
+    "hidden": 48,
+    "panel_closed": 157
+   },
+   "mismatch": 33,
+   "examples": [
+    "T11:expert_handover · 숙련자 인계 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림",
+    "T11:unable_repeat · 숙련자 인계 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림",
+    "T11:expert_handover · 02:31 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림"
+   ]
+  },
+  "U-6": {
+   "summary": {
+    "editable": 144,
+    "works": 758,
+    "NOOP": 39,
+    "DEAD": 56,
+    "display": 466,
+    "covered": 165,
+    "locked": 9,
+    "hidden": 40,
+    "ERROR": 13
+   },
+   "mismatch": 0,
+   "examples": []
+  },
+  "V-8": {
+   "summary": {
+    "editable": 151,
+    "works": 905,
+    "NOOP": 53,
+    "display": 553,
+    "covered": 177,
+    "locked": 10,
+    "hidden": 48,
+    "panel_closed": 157
+   },
+   "mismatch": 3,
+   "examples": [
+    "L03:review · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)",
+    "L03:edit · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)",
+    "L03:edit · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)"
+   ]
+  },
+  "V-2": {
+   "summary": {
+    "editable": 151,
+    "works": 907,
+    "NOOP": 50,
+    "display": 553,
+    "covered": 177,
+    "locked": 10,
+    "hidden": 48,
+    "panel_closed": 157
+   },
+   "mismatch": 64,
+   "examples": [
+    "L02:list · 검토 · 누른 행 설비 M-01 ≠ 열린 화면 M-03",
+    "L02:list · 검토 · 누른 행 설비 M-20 ≠ 열린 화면 M-03",
+    "L02:list · 검토 · 누른 행 설비 M-01 ≠ 열린 화면 M-03"
+   ]
+  }
+ }
+}

@@ -1,0 +1,44 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "pbc_consistency_check",
+  "plan_version": "v1",
+  "checked_artifacts": [
+    {"artifact": "coding_plan", "path": "coding-plan/v1/coding-plan.json", "sha256": "{{SHA-256}}"},
+    {"artifact": "selection_register", "path": "coding-plan/v1/selection-register.json", "sha256": "{{SHA-256}}"},
+    {"artifact": "verification_plan", "path": "verification/v1/verification-matrix.json", "sha256": "{{SHA-256}}"},
+    {"artifact": "prebuild_contract", "path": "prebuild/v1/prebuild-contract.md", "sha256": "{{SHA-256}}"}
+  ],
+  "checks": [
+    {
+      "id": "selected_vs_rejected",
+      "status": "pass | conflict",
+      "scope_ids": ["P-01"],
+      "finding": ""
+    },
+    {
+      "id": "plan_vs_verification",
+      "status": "pass | conflict",
+      "scope_ids": ["P-01", "AC-01"],
+      "finding": ""
+    },
+    {
+      "id": "logical_flow_compilation",
+      "status": "pass | conflict",
+      "scope_ids": ["FLOW-01", "P-01", "AC-01"],
+      "finding": ""
+    },
+    {
+      "id": "change_representation",
+      "status": "pass | conflict",
+      "scope_ids": ["P-01"],
+      "change_artifacts": [],
+      "finding": ""
+    },
+    {
+      "id": "feasibility_preflight",
+      "status": "pass | conflict",
+      "scope_ids": ["P-01"],
+      "finding": ""
+    }
+  ]
+}

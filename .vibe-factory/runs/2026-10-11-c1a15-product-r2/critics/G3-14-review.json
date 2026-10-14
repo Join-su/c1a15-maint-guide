@@ -1,0 +1,286 @@
+{
+ "gate": "G3",
+ "attempt": 1,
+ "cycle": 9,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v14/prototype-slice.md",
+  "version": "v14",
+  "sha256": "a6dce262305b762943d1ecf6aac518835477e3c052c134dbac77a9b9807e1f04"
+ },
+ "input_bundle": {
+  "path": "critics/G3-14-input.json",
+  "sha256": "b6a57e501bded4a5290553363fb3509c1dd62bea5653d4eb5b030e4e0ee33113"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v6.json",
+   "version": "v6",
+   "sha256": "e1e83738a6af85c947da4a107af1740f8da4456bdd4535ade1576d2d37137979"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v6/acceptance-criteria.json",
+   "version": "v6",
+   "sha256": "b7eb4367ba65bb3ed2848d5d50edf833dec89c34a249331327a7228b6ac9428d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v6/scenario-coverage.json",
+   "version": "v6",
+   "sha256": "05a2ae0ebefdbca685326aed2054c2dcf3e1bf0113606b8cab713b57dec25640"
+  },
+  {
+   "artifact": "use_case_packet",
+   "path": "use-case/v6/use-case-packet.md",
+   "version": "v6",
+   "sha256": "baa45580041fad76a3aaccab3ad727d16ea0b4b68fc5eb3a68575c41a078a8c6"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected.md",
+   "version": "v4",
+   "sha256": "896d471a5d40e3d2b9fbb43aad73cd03672c1685c090e3f44942e869a9cf44a7"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-structure-contract.json",
+   "version": "v4",
+   "sha256": "e94db4a75cbb3ac9dbb8892acf99c7a7d061f0db8834ee26e2e3c43cdfa83be3"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-visual-baseline.json",
+   "version": "v4",
+   "sha256": "3be81abf77220c9a1f18566d6877d712f76e15b6708565cfdcd49270d985a3f0"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v4/design/selected-visual-rules.md",
+   "version": "v4",
+   "sha256": "1f23f7c4d5e66793603b45838575b5d4b3c59629f92588292235160ce5f9a631"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "prior_g3_review_8",
+   "path": "critics/G3-8-review.json",
+   "version": "v8",
+   "sha256": "7bfd2b5c99ad7a89376131c5a0bbc2f1f747cedac0cb3d11d2fbf4118bd7879b"
+  },
+  {
+   "artifact": "prior_g3_review_9",
+   "path": "critics/G3-9-review.json",
+   "version": "v9",
+   "sha256": "a2bbfc9dd60b1b38ff672eefe24bea4660b310f494aec713ad17caf02f5144c4"
+  },
+  {
+   "artifact": "user_decision_004",
+   "path": "sources/intent/004.md",
+   "version": "004",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "user_decision_006",
+   "path": "sources/intent/006.md",
+   "version": "006",
+   "sha256": "6c8e83bb47d150428dc5499147fbfa014a77c66d4974ca39cdb8544ec7edf8a4"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "user_decision_008",
+   "path": "sources/intent/008.md",
+   "version": "008",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g3_review_10",
+   "path": "critics/G3-10-review.json",
+   "version": "v10",
+   "sha256": "fd5838c51720cba83ae1e2fadb7899d698415c8ad3f74fb2f0c74e37f2769754"
+  },
+  {
+   "artifact": "prior_g3_review_11",
+   "path": "critics/G3-11-review.json",
+   "version": "v11",
+   "sha256": "fb9851c1e306fd5ab3fdead04acf2643f7320516bef9d783b61212955fbf0857"
+  },
+  {
+   "artifact": "user_decision_009",
+   "path": "sources/intent/009.md",
+   "version": "009",
+   "sha256": "434eab487342cc79d5c625c63470606f7b592151fe3ab7093eecc9059681e13c"
+  },
+  {
+   "artifact": "prior_g3_review_12",
+   "path": "critics/G3-12-review.json",
+   "version": "v12",
+   "sha256": "83aa8d9878f4a2db8b087d80bfe350e41406f4829f01a4e93ff3af13f405ddbe"
+  },
+  {
+   "artifact": "prior_g3_review_13",
+   "path": "critics/G3-13-review.json",
+   "version": "v13",
+   "sha256": "fad3e86470e394e48acc883801f897675fda0b8008ec3374ad602e96f98c6e80"
+  },
+  {
+   "artifact": "user_decision_010",
+   "path": "sources/intent/010.md",
+   "version": "010",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "user_decision_011",
+   "path": "sources/intent/011.md",
+   "version": "011",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v14/prototype-coverage.json",
+   "version": "v14",
+   "sha256": "dbe65dcdbcef6325d54a57445920151dc64f93aaa7dd249e20f20eb41bde87c6"
+  },
+  {
+   "artifact": "subject_bundle_index",
+   "path": "prototype/v14/index.html",
+   "version": "v14",
+   "sha256": "10657733c1acce187446ab38b7faf3407c5211ad39890ac906342286ce7c85dc"
+  },
+  {
+   "artifact": "subject_bundle_regions",
+   "path": "prototype/v14/regions.json",
+   "version": "v14",
+   "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  },
+  {
+   "artifact": "subject_bundle_markup_check",
+   "path": "prototype/v14/markup-check.json",
+   "version": "v14",
+   "sha256": "dfad128a24d4525e21884d141ee54c54e486de56eb02d63b582301599cf07d5b"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v14/selftest-result.json",
+   "version": "v14",
+   "sha256": "6ed1482255b778d58fe6da98723b9a48e1125317dd4895f6cfd5b56e5523a26a"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v14/mutation-check.json",
+   "version": "v14",
+   "sha256": "0fb736d39ebc90b5615133fb9d42ca239bdb9540b986752cf20551febae9df1f"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v14/structure-check.json",
+   "version": "v14",
+   "sha256": "c3b9606733365e64d4698dc771bf4b04979247909d1ca7b1f27e80caa29e231b"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v14/control-audit.json",
+   "version": "v14",
+   "sha256": "638b2e7c0c23f5e64d03c0243c4b6ac0054a65a98ced67c9e294f673adc111cd"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v14/axes.json",
+   "version": "v14",
+   "sha256": "81531bc1efa23a7f83041b496da5588d7e91a32fedcb67b3f894fba7f2940c53"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "category": "missing-traceability",
+   "subject_location": "prototype-coverage.json AC-48(asserted_condition_ids에 AC-48-C1) · selftest-result.json AC-48-C1 observed('잠금 · 조치 · 파트장 호출 기록') · index.html selftest t(\"AC-48\")(906~912행: lk · act · cl만 판정) · slice Clickable transitions 381행(넘기는 기록: 점검 = 잠금 · 사전 확인 · 각 점검 · 파트장 호출, 조치 = 조치 완료 · 재가동)",
+   "comparison_location": "use-case/v6/acceptance-criteria.json AC-48-C1('잠금 완료 · 조치 완료 · 재가동(경계 확인 포함) · 파트장 호출 · 확인 질문 답 · B 시작 전 체크 · 숙련자 인계 기록에는 '이 기록 정정'이 없고 '메모 덧붙이기'만 있다') · use-case-packet P1 · 011 Q-09",
+   "why_not_mechanical": "AC-48-C1은 covered로 적혔지만 assertion과 실행 증거는 일곱 기록 가운데 잠금 · 조치(한 기록) · 파트장 호출만 본다. 재가동(경계 확인 포함), 확인 질문 답, B 시작 전 체크, 숙련자 인계에는 판정이 없다. 특히 숙련자 인계 기록은 지난 화면에서 넘기는 기록 목록(381행)에 없다. 그래서 '메모 덧붙이기만 있음'이 prototype 어디에도 표현되지 않고 deferred에도 없다. 확인 질문 답과 B 체크는 점검 기록 안에 들어 있고 그 기록에는 '이 기록 정정'이 있다. 따라서 정정 창으로 이 값을 바꿀 수 없다는 사실을 따로 보여야 조건이 성립한다. 형식 검사로는 알 수 없고, 관찰 조건과 증거가 어떤 의미로 대응하는지의 문제다.",
+   "minimum_resolution": "AC-48-C1의 나머지 네 종류를 각각 assertion으로 판정하고 그 결과를 observed에 남긴다. 판정 대상은 다음과 같다. ① 조치 단계의 조치 완료 · 재가동 두 기록 모두 '메모 덧붙이기'만 있음. ② 확인 질문 답 · B 시작 전 체크가 든 점검 기록의 정정 창에 그 값을 바꾸는 칸이 없음. ③ 숙련자 인계 기록을 보는 경로와 '메모 덧붙이기'. ③을 표현하려면 승인 T15 / lock 구조를 보존하는 파생 상태를 근거와 함께 더한다(T15 / call과 같은 방식). 표현하지 않으려면 그 부분을 이유와 함께 deferred/partial_conditions로 옮기고 Human Gate에 알린다. 음성 시험에도 이 종류를 하나 이상 더한다."
+  },
+  {
+   "id": "ISS-002",
+   "category": "missing-traceability",
+   "subject_location": "prototype-coverage.json AC-41(AC-41-C4 asserted) · selftest-result.json AC-41-C4 observed('돌아온 4.5의 보내지 않은 입력을 고쳐 보내면 그 값이 기록') · mutation-check.json removed_in_v14 X-3('수정 가능' 행 제거)",
+   "comparison_location": "acceptance-criteria.json AC-41-C4('현재 단계에서 고르고 아직 보내지 않은 결과 선택 · 메모는 '수정 가능'으로 표시되고 고칠 수 있다') · use-case-packet A10 · G2A v4 R-PASTBAR('지금 단계에 보내지 않은 입력이 있으면 '그대로' 칩')",
+   "why_not_mechanical": "C4에는 두 부분이 있다. '수정 가능'으로 표시되는 것과 고칠 수 있는 것이다. selftest는 고쳐 보낼 수 있는지만 판정한다. v14에서는 '수정 가능' 표시를 노리던 음성 시험 X-3을 '없어진 기능'이라며 뺐다. 표시 부분의 증거가 없는데 조건 전체를 covered로 주장한 셈이다. 승인 G2A의 '그대로' 칩이 이 표시를 맡는지는 의미를 대응시켜 봐야 판단할 수 있다.",
+   "minimum_resolution": "AC-41-C4의 표시 부분을 실제 화면 요소에 연결하고 판정한다. 예를 들어 승인 R-PASTBAR '그대로' 칩(문구 · 위치)과, 돌아온 현재 단계 화면에서 입력이 편집 가능한 상태를 함께 판정한다. 이를 assertion · observed에 적고, 그 표시를 없애는 음성 시험을 하나 둔다. 승인 화면의 '그대로' 칩이 '수정 가능' 표시를 대신한다고 볼 수 없다면 C4를 partial로 적고 Human Gate에 묻는다."
+  },
+  {
+   "id": "ISS-003",
+   "category": "missing-traceability",
+   "subject_location": "selftest-result.json AC-45-C3 observed · index.html t(\"AC-45\") 876행(감사 항목은 '정정 · 4.3 메모' 시작 · 김○○ · 사유 포함만, L06은 '정정 · 4.3 메모' 행 존재만 판정)",
+   "comparison_location": "acceptance-criteria.json AC-45-C3('감사 기록에 원래 값 · 정정 값 · 사유 · 시각 · 정비자가 기록되며 파트장 앱 감사 기록에서 보인다') · use-case-packet A13 · Data meaning(덧붙임 기록 = 원래 값 · 정정 값 · 사유 · 시각 · 정비자)",
+   "why_not_mechanical": "원래 값은 세션 상태(corr.oldMemo)에서만 확인한다. 감사 기록과 파트장 L06 행에 원래 값 · 정정 값 · 시각이 보이는지는 판정하지 않는다. 그래서 파트장 화면에 다섯 항목이 보인다는 조건이 증거에 연결되지 않는다. 어느 항목이 화면에 실제로 보여야 하는지는 의미를 대응시켜 봐야 확인할 수 있다.",
+   "minimum_resolution": "AC-45-C3 assertion에 판정을 더한다. 정비자 감사 항목과 파트장 L06 / correction 행에 원래 값 · 정정 값 · 사유 · 시각 · 정비자가 모두 보이는지 판정한다. 대상은 메모 정정 1건 이상과 결과 정정 1건 이상이다. 항목이 하나 빠지는 음성 시험(Y-18 확장 등)도 둔다."
+  },
+  {
+   "id": "ISS-004",
+   "category": "deferred-scope-handoff",
+   "subject_location": "prototype-coverage.json AC-45 · AC-48(partial_conditions · deferred_condition_ids 없음) · slice 488행('PBC 인계와 G3 excluded_scope는 deferred_condition_ids와 partial_conditions를 기준으로 읽는다', 'AC-45-C3 감사 기록과 AC-48-C1 · C2의 서버 거부는 UI 수준만 확인')",
+   "comparison_location": "acceptance-criteria.json AC-48-C1('서버도 이 기록의 정정 요청을 거부') · AC-48-C2('서버도 정정 요청을 거부한다') · AC-45-C3(감사 기록 저장) · logical-system-contract FLOW-14(정정 대상 · 확정 여부 검사, 정정 덧붙임 기록 저장)",
+   "why_not_mechanical": "slice는 서버 부분을 UI 수준만 확인하고 PBC로 넘긴다고 적었다. 같은 slice는 PBC 인계와 excluded_scope를 deferred_condition_ids와 partial_conditions로만 읽는다고 정했다. 그런데 이 세 조건은 둘 중 어디에도 없다. 이대로면 서버의 정정 거부와 감사 저장이 G3 excluded_scope와 PBC에서 빠질 수 있다. AC-02-C1 등은 같은 상황을 partial_conditions로 처리했다. 이것은 미룬 범위의 의미가 보존되는지의 문제다.",
+   "minimum_resolution": "AC-45-C3 · AC-48-C1 · AC-48-C2를 AC-02-C1과 같은 방식으로 partial_conditions에 적는다(화면 부분은 selftest로 확인, 서버 부분은 이월). Gate Brief의 excluded_scope 목록에도 이 세 조건을 넣는다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "[생성자 해석 세 가지 판단] ① 지금 단계(점검 · 조치)에서 이미 보낸 기록을 여는 해석은 승인 G2A의 T15 / check_current와 같다. AC-41-C6과도 충돌하지 않는다. ③ 확정한 세션에서 '메모 덧붙이기'까지 잠그는 해석은 승인 T15 / closed('보고서를 확정한 세션은 정정 수단 없이 안내만'), 011 Q-08, FLOW-14와 맞는다. ② 조치 뒤 정정 호출에 '승인 후 진행'으로 답하면 정정 때 하던 단계로 돌아가는 해석은 승인 기준과 충돌하지 않는다. 다만 근거도 없다. AC-08 · A5의 '승인 후 진행'은 C등급 작업을 여는 뜻이다. AC-47 selftest는 '주간 처리' 답만 판정한다. Gate Brief에서 이 동작을 사용자 확인 질문으로 따로 올리고, 이 경로에 판정 하나를 더하기를 권한다.",
+  "[AC-48-C2 범위] 조건은 '승인 대기 · 승인'인 세션을 모두 말한다. selftest는 확정 직후(승인 대기)만 T15 / closed로 판정한다. 파트장이 '그대로 승인'한 뒤에도 정정 수단이 없는지 한 줄 판정을 더하기를 권한다.",
+  "[T15 / call 파생 상태] 승인 R-PASTBAR 규칙은 점검 단계에서 넘기는 기록을 '잠금 · 사전 확인 · 각 점검'으로 적었다. prototype은 여기에 파트장 호출 기록을 더했다. AC-48-C1 · AC-47-C2를 근거로 한 확장이고 띠 · 보기 · 창 골격은 같다(structure-check t15_past_skeleton.call pass). 그래도 넘기는 순서가 바뀌므로 derived_states 설명과 Gate Brief에 이 점을 밝혀 사람이 확인하게 하기를 권한다."
+ ]
+}

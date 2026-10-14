@@ -1,0 +1,422 @@
+{
+ "config": {
+  "argv": [
+   "/Users/insujo/.hermes/node/bin/node",
+   "/Users/insujo/Documents/repo/c1a15-maint-guide/node_modules/.bin/playwright",
+   "test"
+  ],
+  "configFile": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/playwright.config.ts",
+  "rootDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/tests",
+  "failOnFlakyTests": false,
+  "forbidOnly": false,
+  "fullyParallel": false,
+  "globalSetup": null,
+  "globalTeardown": null,
+  "globalTimeout": 0,
+  "grep": {},
+  "grepInvert": null,
+  "maxFailures": 0,
+  "metadata": {
+   "actualWorkers": 1
+  },
+  "preserveOutput": "always",
+  "projects": [
+   {
+    "outputDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/test-results",
+    "repeatEach": 1,
+    "retries": 0,
+    "metadata": {
+     "actualWorkers": 1
+    },
+    "id": "",
+    "name": "",
+    "testDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/tests",
+    "testIgnore": [],
+    "testMatch": [
+     "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+    ],
+    "timeout": 90000
+   }
+  ],
+  "quiet": false,
+  "reporter": [
+   [
+    "list",
+    null
+   ],
+   [
+    "json",
+    {
+     "outputFile": "/private/tmp/claude-501/-Users-insujo-Documents-repo/7be5e167-c54e-4acb-b0b9-cd9061065b83/scratchpad/s02c2/evidence/e2e-report.json"
+    }
+   ]
+  ],
+  "reportSlowTests": {
+   "max": 5,
+   "threshold": 300000
+  },
+  "shard": null,
+  "tags": [],
+  "updateSnapshots": "missing",
+  "updateSourceMethod": "patch",
+  "version": "1.63.0",
+  "workers": 1,
+  "webServer": null
+ },
+ "suites": [
+  {
+   "title": "tech.spec.ts",
+   "file": "tech.spec.ts",
+   "column": 0,
+   "line": 0,
+   "specs": [
+    {
+     "title": "AC-13 · AC-37: 새 알람이 5초 안에 홈(빨간 점 · 종 숫자), 종 목록 항목에서 알람 화면 · 이어서 하기",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [
+        {
+         "type": "AC-13-C1",
+         "description": "4826ms"
+        }
+       ],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 6204,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:41.064Z",
+         "annotations": [
+          {
+           "type": "AC-13-C1",
+           "description": "4826ms"
+          }
+         ],
+         "attachments": [
+          {
+           "name": "T02-new_alarm",
+           "contentType": "image/png",
+           "body": "(screens/T02-new_alarm.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-82c0c085d357a294d24a",
+     "file": "tech.spec.ts",
+     "line": 8,
+     "column": 5
+    },
+    {
+     "title": "첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠금 → 확인 불가 → 순위 그대로 · 다른 점검, 새로고침 · API 재시작 뒤 같은 단계",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 4782,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:47.506Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T03-default",
+           "contentType": "image/png",
+           "body": "(screens/T03-default.png)"
+          },
+          {
+           "name": "T04-default",
+           "contentType": "image/png",
+           "body": "(screens/T04-default.png)"
+          },
+          {
+           "name": "T13-default",
+           "contentType": "image/png",
+           "body": "(screens/T13-default.png)"
+          },
+          {
+           "name": "T05-before_lock",
+           "contentType": "image/png",
+           "body": "(screens/T05-before_lock.png)"
+          },
+          {
+           "name": "T05-locked",
+           "contentType": "image/png",
+           "body": "(screens/T05-locked.png)"
+          },
+          {
+           "name": "T06-default",
+           "contentType": "image/png",
+           "body": "(screens/T06-default.png)"
+          },
+          {
+           "name": "T14-default",
+           "contentType": "image/png",
+           "body": "(screens/T14-default.png)"
+          },
+          {
+           "name": "T06-unable_next",
+           "contentType": "image/png",
+           "body": "(screens/T06-unable_next.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-d399ec3b5ca1294f02e0",
+     "file": "tech.spec.ts",
+     "line": 34,
+     "column": 5
+    },
+    {
+     "title": "AC-14: 앱을 닫았다 다시 열어도 '이어서 하기'로 같은 단계 · 잠금 시각 · 입력 결과",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1260,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:52.294Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          },
+          {
+           "name": "AC-14-reopened",
+           "contentType": "image/png",
+           "body": "(screens/AC-14-reopened.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-68dcb426064eb3814f8f",
+     "file": "tech.spec.ts",
+     "line": 103,
+     "column": 5
+    },
+    {
+     "title": "AC-02(P-08): 첫 판정 호출 — T04 / first_call → 잠금 → T05 / locked '다음: 파트장 호출 요약(…, C등급)', 절차 · 판정 기준 없음",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1053,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:53.559Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T04-first_call",
+           "contentType": "image/png",
+           "body": "(screens/T04-first_call.png)"
+          },
+          {
+           "name": "T05-locked-first_call",
+           "contentType": "image/png",
+           "body": "(screens/T05-locked-first_call.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-7a030cc55cb2fa4689de",
+     "file": "tech.spec.ts",
+     "line": 134,
+     "column": 5
+    },
+    {
+     "title": "AC-31: LLM 실패 시뮬레이션 세션 — T06 / fallback(원문 대체) · T06 / llm_repeat(인계 권함), 진행은 계속",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 3934,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          },
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:54.618Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T06-fallback",
+           "contentType": "image/png",
+           "body": "(screens/T06-fallback.png)"
+          },
+          {
+           "name": "T06-llm_repeat",
+           "contentType": "image/png",
+           "body": "(screens/T06-llm_repeat.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-77eb61d13cdb92bf51b5",
+     "file": "tech.spec.ts",
+     "line": 157,
+     "column": 5
+    },
+    {
+     "title": "AC-12(정비자 앱 부분): 파트장 계정은 거부 배너, 정비자 계정은 로그인",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 578,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T07:18:58.558Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T01-role_error",
+           "contentType": "image/png",
+           "body": "(screens/T01-role_error.png)"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-13efe01acb9bbfdc46c1",
+     "file": "tech.spec.ts",
+     "line": 186,
+     "column": 5
+    }
+   ]
+  }
+ ],
+ "errors": [],
+ "stats": {
+  "startTime": "2026-10-13T07:18:40.849Z",
+  "duration": 18317.31,
+  "expected": 6,
+  "skipped": 0,
+  "unexpected": 0,
+  "flaky": 0
+ }
+}

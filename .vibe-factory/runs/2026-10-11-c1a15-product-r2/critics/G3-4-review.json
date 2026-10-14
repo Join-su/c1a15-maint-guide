@@ -1,0 +1,130 @@
+{
+ "gate": "G3",
+ "attempt": 2,
+ "cycle": 2,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v4/prototype-slice.md",
+  "version": "v4",
+  "sha256": "f3cbf8b6455683ff920c777493106328eefa3e50d70a289ce76a5b3d00b395d1"
+ },
+ "input_bundle": {
+  "path": "critics/G3-4-input.json",
+  "sha256": "e4352ad64442a72b82c90aa6ee0d7e330f6b4a25a1aee887b84417d2c5ebe833"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v2.json",
+   "version": "v2",
+   "sha256": "397b80fb7bb64147371d0d49c76b13c7571784f9e3636164938f9897c7172c06"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v2/acceptance-criteria.json",
+   "version": "v2",
+   "sha256": "53ae892a230bf2fa4af6c661b7281fd7feb81356d7d2440d86cb6c456d1db27d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v2/scenario-coverage.json",
+   "version": "v2",
+   "sha256": "57d83411cce988ef2bff686061952486f73b9b27770ce3776a73efd7cc29ca15"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/structure/selected.md",
+   "version": "v1",
+   "sha256": "422983539f4d5cb4aac078e87ad9be87dd210d6ae8b1c36895d566d83996ec2a"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/structure/selected-structure-contract.json",
+   "version": "v1",
+   "sha256": "abbd2d88ae421d3854ae94c665acf0610307b14f0aa16e70133ecfa04b55c1d2"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/structure/selected-visual-baseline.json",
+   "version": "v1",
+   "sha256": "d216b925696377259cd9a838f1f7bc34cc7f38ddd3bf41cb27473b08110e8333"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/design/selected-visual-rules.md",
+   "version": "v1",
+   "sha256": "0931c63ba32f3a58cb0df94964439c910cf651b56ac8287cc65af23191c8ea71"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v4/prototype-coverage.json",
+   "version": "v4",
+   "sha256": "07bbabaa553d66d9e299f6cb068947fd6365701cc0112a35a47fc4dc4d41cf83"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v4/index.html",
+   "version": "v4",
+   "sha256": "98b947f8146633b678a10c171a71777c551f03d46bfce8401e1af589226b508d"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v4/selftest-result.json",
+   "version": "v4",
+   "sha256": "eb373a92153f8fc4633e7c3c7406563a2f69a54faf870c56335d4a067e6880dc"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v4/mutation-check.json",
+   "version": "v4",
+   "sha256": "af44e1d68f4a25098715b25d42ae5a5e1627488a8319b392de2a8b4a0c753ac1"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v4/structure-check.json",
+   "version": "v4",
+   "sha256": "fc0483a6756f72d3384cf707de6cce9d8a6041fe5deccdc380a46f3e4b6b07fb"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v4/axes.json",
+   "version": "v4",
+   "sha256": "2556ec143279be11906bdc79cdd3ecb76388a8ddf0d89cc0750f3066f2cfbaf2"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "(a) 해소 확인: G3-3 ISS-001은 선택지 (a)로 해소됐다. prototype-coverage.json AC-23에서 AC-23-C1이 deferred_condition_ids(C4 · C2 · C1)와 partial_conditions에 들어갔다. 이유는 조건 ID 단위로 적혔다: 화면 부분('주간 처리로 결정 · 저부하 감시 운전' 표시)은 selftest로 확인, 보고서 '미확인 · 요청' 기록 부분은 서버 저장으로 이월하며, '고정 sample 값이라 답 반영을 판별하지 못함'도 밝혔다. per_condition과 slice AC 표 AC-23 행('AC-23-C1(화면 부분)')도 같은 구분이다. G3-3 비차단 2건도 반영됐다. 첫째, note는 selftest_output 밖의 generator_annotations로 옮겨졌고 '생성자 주석(selftest 출력 아님)'이라고 적혔다(selftest-result.json · axes.json · coverage interaction_axes). 둘째, label은 'partial_conditions · deferred_condition_ids 기준'으로 바뀌었고, per_condition이 조건마다 '전체'와 '화면 부분'을 구분하며, slice 312행이 그 읽는 기준을 밝힌다. renderable hash(98b947…)와 structure-check hash(fc0483…)는 v3와 같다. 따라서 G3-1 6건 · G3-2 1건의 해소 상태도 그대로이고(AC-19-C1 · AC-02-C1 · AC-23-C2 partial, 로그인 4개 차이 문구, 미룬 AC 23개), 새 과장 · 범위 확대 · 구조 변경은 보이지 않는다. 숫자도 다시 맞춰 봤다. covered 13 + deferred 23 = 36, 미룬 AC 안의 화면 조건 11개, compiled_structure_contract와 structure_coverage는 각각 158개, derived_states 4개의 근거 · 구조 보존 기록, ui_surface_coverage 2개, 축 5개가 모두 맞다.",
+  "screen_condition_checks.observed와 selftest-result의 AC-23-C1 문구 '보고서 미확인 · 요청에 냉각 팬 점검'은 selftest 원 출력이라 그대로 남아 있다. 같은 AC의 partial_conditions reason은 이 행이 답 반영을 판별하지 못한다고 적는다. PBC 인계 때 이 observed 문구를 보고서 기록의 증거로 읽지 않도록, per_condition · partial_conditions를 기준으로 삼는다는 slice 312행의 원칙을 그대로 따르면 된다.",
+  "mutation-check.json은 v4에서 다시 실행하지 않았다. renderable이 같은 파일(SHA-256 같음)이라는 근거로 v3 결과를 그대로 썼고, note에 그렇게 밝혀 두었다. 판정에는 영향이 없다. 다만 Gate Brief에서는 '재실행 아님, 같은 hash 재사용'으로 적어 두면 증거를 읽는 사람이 혼동하지 않는다."
+ ],
+ "label_correction": {
+  "original_input_bundle": {
+   "path": "critics/G3-4-input-original.json",
+   "sha256": "0262ff606b19bb7c31a4b9df888c4d3766ccac363e50c71e863649dd3e798cbb"
+  },
+  "original_review": "critics/G3-4-review-original.json",
+  "change": "comparison_sources 두 항목의 artifact 이름표만 validator 규칙 이름 'wireframe_structure'로 바꿈(경로 · version · sha256 · 판정 내용 그대로)",
+  "at": "2026-10-11T22:16:49+09:00"
+ }
+}

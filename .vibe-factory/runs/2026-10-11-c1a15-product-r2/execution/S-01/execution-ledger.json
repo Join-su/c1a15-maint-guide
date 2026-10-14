@@ -1,0 +1,358 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "execution_ledger",
+ "plan_version": "v3",
+ "slice_id": "S-01",
+ "plan_item_ids": [
+  "P-01",
+  "P-02"
+ ],
+ "entries": [
+  {
+   "plan_item_id": "P-01",
+   "changed_files": [
+    "CLAUDE.md",
+    "apps/lead/index.html",
+    "apps/lead/package.json",
+    "apps/lead/src/main.tsx",
+    "apps/lead/tsconfig.json",
+    "apps/lead/vite.config.ts",
+    "apps/tech/index.html",
+    "apps/tech/package.json",
+    "apps/tech/src/main.tsx",
+    "apps/tech/tsconfig.json",
+    "apps/tech/vite.config.ts",
+    "docker-compose.yml",
+    "infra/nginx/nginx.conf",
+    "package-lock.json",
+    "package.json",
+    "packages/ui/package.json",
+    "packages/ui/src/index.ts",
+    "packages/ui/tsconfig.json",
+    "scripts/check-fast",
+    "scripts/forbidden_paths_check.py",
+    "scripts/secret_scan.py",
+    "scripts/verify-db",
+    "scripts/verify-e2e",
+    "server/.dockerignore",
+    "server/.python-version",
+    "server/Dockerfile",
+    "server/pyproject.toml",
+    "server/src/c1a15/__init__.py",
+    "server/src/c1a15/api/__init__.py",
+    "server/src/c1a15/api/main.py",
+    "server/src/c1a15/config.py",
+    "server/tests/conftest.py",
+    "server/tests/test_adversarial_s01.py",
+    "server/tests/test_health.py",
+    "server/uv.lock",
+    ".gitignore (수정)"
+   ],
+   "commands": [
+    "npm install(react · react-dom · vite · @vitejs/plugin-react · typescript · @types/react · @types/react-dom)",
+    "uv python install 3.12 · uv add(fastapi · uvicorn · sqlalchemy · alembic · psycopg[binary] · pgvector · argon2-cffi) · uv add --dev(pytest · ruff · httpx)",
+    "docker pull python:3.12-slim",
+    "scripts/check-fast",
+    "docker compose config --quiet",
+    "scripts/verify-e2e",
+    "uv lock --check",
+    "npm ci --dry-run"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/gate-applicability.md",
+      "execution/S-01/implementation-contract.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt",
+      "execution/S-01/evidence/verify-db.txt",
+      "execution/S-01/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-db.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-db.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-01/evidence/check-fast.txt",
+    "execution/S-01/evidence/verify-e2e.txt",
+    "execution/S-01/evidence/compose-config.txt",
+    "execution/S-01/evidence/uv-lock-check.txt",
+    "execution/S-01/evidence/npm-ci-dryrun.txt"
+   ],
+   "l0_decisions": [
+    "두 앱은 실행 구성 확인용 빈 앱 골격(문서 제목 · data-surface만, 승인 화면은 P-08 이후)",
+    "packages/ui에는 앱별 포트 · 세션 쿠키 이름 상수만(SURFACES)",
+    "API는 /api/health 하나(X-App 그대로 돌려줌, 권한 판정 아님)",
+    "uv 프로젝트는 package=false + pythonpath=src(빌드 백엔드 설치 없이)",
+    "시험 스택 포트 127.0.0.1: DB 55432(실행) · 55433(verify-db) · 55434(verify-e2e), 비밀값은 시험마다 무작위 생성해 환경 변수로만",
+    "ruff line-length 120, 가짜 비밀값은 시험 안에서만 조립(저장소에 탐지 패턴을 남기지 않음)"
+   ]
+  },
+  {
+   "plan_item_id": "P-02",
+   "changed_files": [
+    "server/alembic.ini",
+    "server/migrations/env.py",
+    "server/migrations/script.py.mako",
+    "server/migrations/versions/0001_initial.py",
+    "server/src/c1a15/checks/__init__.py",
+    "server/src/c1a15/checks/passwords.py",
+    "server/src/c1a15/checks/separation.py",
+    "server/src/c1a15/db/__init__.py",
+    "server/src/c1a15/db/models.py",
+    "server/src/c1a15/db/session.py",
+    "server/src/c1a15/loader/__init__.py",
+    "server/src/c1a15/loader/__main__.py",
+    "server/src/c1a15/loader/core.py",
+    "server/src/c1a15/loader/embedding.py",
+    "server/tests/test_db.py",
+    "server/tests/test_loader_core.py"
+   ],
+   "commands": [
+    "scripts/verify-db(alembic upgrade head → downgrade base → upgrade head → alembic check, python -m c1a15.loader, 건수 · pgvector · argon2id · ADV-03)",
+    "scripts/verify-e2e(init 컨테이너 migration · 적재 → 이력 300건)"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/gate-applicability.md",
+      "execution/S-01/implementation-contract.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt",
+      "execution/S-01/evidence/verify-db.txt",
+      "execution/S-01/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-db.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-db.txt",
+      "execution/S-01/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-01/evidence/check-fast.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-01/evidence/verify-db.txt",
+    "execution/S-01/evidence/verify-e2e.txt",
+    "execution/S-01/evidence/check-fast.txt"
+   ],
+   "l0_decisions": [
+    "시연 계정: 정비자 tech.kim · tech.lee · tech.choi · tech.jung, 파트장 lead.park(기본안 정비자 4 + 파트장 1), 비밀번호는 C1A15_TECH_PASSWORD · C1A15_LEAD_PASSWORD 환경 변수 → argon2id",
+    "설비 담당표: 이력의 설비 M-01 ~ M-20을 번호순으로 정비자 4명에게 차례로",
+    "공통 시작 전 확인 목록: 2.5 · 5.5 · 6.1 체크리스트에서 '이물질' · '커버' · '작업자'가 든 첫 항목(주변 공구·이물질을 치웠다 · 커버가 모두 닫혔다 · 주변 작업자가 없다)",
+    "가짜 임베딩 fake-hash-bigram-v1: 공백 뺀 글자 2-gram hash → 256차원 · 길이 1",
+    "적재는 한 트랜잭션, 다시 실행하면 적재 표를 비우고 다시 넣음",
+    "이력 원본 행 전체를 record(JSONB)에 보존 — source.udi는 이후 분리 검사(P-07 · P-16)의 입력"
+   ]
+  }
+ ],
+ "unexpected_facts": [
+  {
+   "id": "UF-01",
+   "observation": "매뉴얼 조치 절(x.y.2) 11개는 text가 없고 parent(상위 점검 절)만 있어 첫 적재가 KeyError로 실패",
+   "evidence_paths": [
+    "execution/S-01/evidence/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-02"
+   ],
+   "affected_assumptions_or_controls": [
+    "knowledge.manual_sections 표 구조(text NOT NULL 가정)"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "아직 아무 item도 쓰지 않는 첫 migration 안의 열 정의(parent_section 추가, text nullable)라 공개 계약 · 데이터 의미가 바뀌지 않는다. 단위 시험에 조치 절 확인을 더했고 verify-db가 다시 통과"
+  },
+  {
+   "id": "UF-02",
+   "observation": "FastAPI TestClient가 'httpx 대신 httpx2를 쓰라'는 StarletteDeprecationWarning을 낸다",
+   "evidence_paths": [
+    "execution/S-01/evidence/check-fast.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-01"
+   ],
+   "affected_assumptions_or_controls": [
+    "승인된 개발 의존성 httpx"
+   ],
+   "impact": "none",
+   "recheck_result": "pass",
+   "rationale": "경고일 뿐 시험은 통과한다. httpx2로 바꾸려면 새 패키지 승인이 필요하므로 지금은 바꾸지 않고, 의존성을 올리는 slice에서 다시 본다"
+  },
+  {
+   "id": "UF-03",
+   "observation": "npm이 typescript 7.0.2 · vite 8.3.4 · react 19.3.0을 설치(주 버전이 높음)",
+   "evidence_paths": [
+    "execution/S-01/evidence/check-fast.txt",
+    "execution/S-01/evidence/verify-e2e.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-01"
+   ],
+   "affected_assumptions_or_controls": [
+    "EP-C1-WS-001 · EP-C1-APITYPE-001 재검토 조건(도구 주 버전)"
+   ],
+   "impact": "none",
+   "recheck_result": "pass",
+   "rationale": "typecheck · 두 앱 빌드 · smoke가 통과. package-lock.json에 고정"
+  }
+ ],
+ "loop": {
+  "used": true,
+  "cap": "같은 verifier 3회",
+  "outcome": "verify-db 2회 수리(시험의 PYTHONPATH 누락, UF-01 조치 절 열) 뒤 통과. 시험 파일의 가짜 비밀값이 secret_scan에 걸려 실행 중 조립으로 1회 수리 뒤 통과"
+ }
+}

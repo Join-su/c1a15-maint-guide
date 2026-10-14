@@ -1,0 +1,268 @@
+{
+ "gate": "G3",
+ "attempt": 2,
+ "cycle": 9,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v15/prototype-slice.md",
+  "version": "v15",
+  "sha256": "950b2fd744ccb34dd03e3d044805c670f53bfb2676556f8f3677d69180711dd1"
+ },
+ "input_bundle": {
+  "path": "critics/G3-15-input.json",
+  "sha256": "90e3cdce503150ce70c1b52616ecf8bfea5406eb84e7a69b07984f03c295e5af"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v6.json",
+   "version": "v6",
+   "sha256": "e1e83738a6af85c947da4a107af1740f8da4456bdd4535ade1576d2d37137979"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v6/acceptance-criteria.json",
+   "version": "v6",
+   "sha256": "b7eb4367ba65bb3ed2848d5d50edf833dec89c34a249331327a7228b6ac9428d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v6/scenario-coverage.json",
+   "version": "v6",
+   "sha256": "05a2ae0ebefdbca685326aed2054c2dcf3e1bf0113606b8cab713b57dec25640"
+  },
+  {
+   "artifact": "use_case_packet",
+   "path": "use-case/v6/use-case-packet.md",
+   "version": "v6",
+   "sha256": "baa45580041fad76a3aaccab3ad727d16ea0b4b68fc5eb3a68575c41a078a8c6"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected.md",
+   "version": "v4",
+   "sha256": "896d471a5d40e3d2b9fbb43aad73cd03672c1685c090e3f44942e869a9cf44a7"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-structure-contract.json",
+   "version": "v4",
+   "sha256": "e94db4a75cbb3ac9dbb8892acf99c7a7d061f0db8834ee26e2e3c43cdfa83be3"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-visual-baseline.json",
+   "version": "v4",
+   "sha256": "3be81abf77220c9a1f18566d6877d712f76e15b6708565cfdcd49270d985a3f0"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v4/design/selected-visual-rules.md",
+   "version": "v4",
+   "sha256": "1f23f7c4d5e66793603b45838575b5d4b3c59629f92588292235160ce5f9a631"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "prior_g3_review_8",
+   "path": "critics/G3-8-review.json",
+   "version": "v8",
+   "sha256": "7bfd2b5c99ad7a89376131c5a0bbc2f1f747cedac0cb3d11d2fbf4118bd7879b"
+  },
+  {
+   "artifact": "prior_g3_review_9",
+   "path": "critics/G3-9-review.json",
+   "version": "v9",
+   "sha256": "a2bbfc9dd60b1b38ff672eefe24bea4660b310f494aec713ad17caf02f5144c4"
+  },
+  {
+   "artifact": "user_decision_004",
+   "path": "sources/intent/004.md",
+   "version": "004",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "user_decision_006",
+   "path": "sources/intent/006.md",
+   "version": "006",
+   "sha256": "6c8e83bb47d150428dc5499147fbfa014a77c66d4974ca39cdb8544ec7edf8a4"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "user_decision_008",
+   "path": "sources/intent/008.md",
+   "version": "008",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g3_review_10",
+   "path": "critics/G3-10-review.json",
+   "version": "v10",
+   "sha256": "fd5838c51720cba83ae1e2fadb7899d698415c8ad3f74fb2f0c74e37f2769754"
+  },
+  {
+   "artifact": "prior_g3_review_11",
+   "path": "critics/G3-11-review.json",
+   "version": "v11",
+   "sha256": "fb9851c1e306fd5ab3fdead04acf2643f7320516bef9d783b61212955fbf0857"
+  },
+  {
+   "artifact": "user_decision_009",
+   "path": "sources/intent/009.md",
+   "version": "009",
+   "sha256": "434eab487342cc79d5c625c63470606f7b592151fe3ab7093eecc9059681e13c"
+  },
+  {
+   "artifact": "prior_g3_review_12",
+   "path": "critics/G3-12-review.json",
+   "version": "v12",
+   "sha256": "83aa8d9878f4a2db8b087d80bfe350e41406f4829f01a4e93ff3af13f405ddbe"
+  },
+  {
+   "artifact": "prior_g3_review_13",
+   "path": "critics/G3-13-review.json",
+   "version": "v13",
+   "sha256": "fad3e86470e394e48acc883801f897675fda0b8008ec3374ad602e96f98c6e80"
+  },
+  {
+   "artifact": "user_decision_010",
+   "path": "sources/intent/010.md",
+   "version": "010",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "user_decision_011",
+   "path": "sources/intent/011.md",
+   "version": "011",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "prior_g3_review_14",
+   "path": "critics/G3-14-review.json",
+   "version": "v14",
+   "sha256": "27027da4585a802427ad2bc0a0dad2633bf614ce27d3b9d44fd2498ba56d5d5f"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v15/prototype-coverage.json",
+   "version": "v15",
+   "sha256": "afeb5e757847791e7ebd12d5e0cba5d4f092b648982a5f340942adab8b547ca2"
+  },
+  {
+   "artifact": "subject_bundle_index",
+   "path": "prototype/v15/index.html",
+   "version": "v15",
+   "sha256": "34f6c149092c3abf7d7d96f5b75a7d8e472801be4bf2025c778592c99e3136a0"
+  },
+  {
+   "artifact": "subject_bundle_regions",
+   "path": "prototype/v15/regions.json",
+   "version": "v15",
+   "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  },
+  {
+   "artifact": "subject_bundle_markup_check",
+   "path": "prototype/v15/markup-check.json",
+   "version": "v15",
+   "sha256": "dfad128a24d4525e21884d141ee54c54e486de56eb02d63b582301599cf07d5b"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v15/selftest-result.json",
+   "version": "v15",
+   "sha256": "88c18c2cba7f01d76df75757a1574d5b8ab17abbcddad03fa1c727f391e12674"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v15/mutation-check.json",
+   "version": "v15",
+   "sha256": "8cdcf0ee5b8577e60402db669ef678d2c1eedc2dc92b9df7a8ee804709065aec"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v15/structure-check.json",
+   "version": "v15",
+   "sha256": "e0ac94fdaa19ea84df55f653f9320c9fa890b9cdc324a1af4180e4c88ab0982d"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v15/control-audit.json",
+   "version": "v15",
+   "sha256": "ddcb78a695426d01846f2756c3f4454f47eba75ba78269da3e49cdc77559323f"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v15/axes.json",
+   "version": "v15",
+   "sha256": "329723122885146a47bd5dbe9a632300af7b579b79468ce5c664171ea6b51445"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "category": "visual-baseline-drift",
+   "subject_location": "prototype/v15/index.html 20행 <style>(.ap-body.past .act.pre 패딩 4px · .act.pre .ck min-height 20px · font-size 14px, .act.pre ~ .proc li font-size 14px · line-height 1.3 · 패딩 2px, .ins-h · .hint 여백 축소) · prototype-slice.md 15행('prototype 쪽 표시 조정 2건은 v13과 같다(승인 화면 모양은 같음)') · 418행과 prototype-coverage.json derived_states T15 / check_b('승인 T06 / b_precheck의 시작 전 체크리스트 패널을 그때 상태로 넣었다')",
+   "comparison_location": "wireframes/v4/design/selected-visual-rules.md Global visual rules Typography and density('본문 15px, 태블릿은 큰 터치 버튼과 넉넉한 행 간격') · Component foundation '시작 전 체크리스트(.act.pre)'('사람이 누르는 체크 행 32px 이상 · 상자 24px', 예외: B 점검 지시 T06 / b_precheck에만) · '보기 상태(.ap-body.past)'(밀도 예외 없음) · 프로토콜 G3 규칙(G2B 최종 시각 표현 · 승인 Component foundation 보존)",
+   "why_not_mechanical": "이번 판에서 B 기록 지난 화면의 간격을 조정했다. 그 결과 지난 화면(T15 / check_b와, B 기록일 때의 check_current · corrected · closed) 안 시작 전 체크리스트 행이 승인 토큰(32px 이상)보다 낮은 20px가 됐다. 체크 행과 절차 행 글자도 G2B 본문 15px에서 14px로 줄었다. 그런데 slice는 표시 조정이 v13의 2건뿐이고 승인 화면 모양은 같다고 적었다. derived_states도 승인 T06 / b_precheck 패널을 그대로 넣었다고만 적었다. 공개된 v13의 CO-31(4단계 이상 절차 행 여백, PBC에서 다시 봄)과 달리, 이 조정은 범위 · 이유 · PBC 재확인 어디에도 적혀 있지 않다. 이대로면 PBC가 G2B 토큰과 prototype CSS 중 어느 것을 따를지 정할 수 없다. 숨은 G2B 이탈이 그대로 넘어갈 수 있다. 보기 상태에서 누를 수 없는 체크 행에도 32px 규칙을 적용할지, 글자 14px를 허용할지는 승인 시각 기준과 의미를 대응시켜야 판단할 수 있다. hash · 형식 검사로는 알 수 없다(structure-check의 골격 비교는 태그 · class만 보므로 이 차이를 잡지 못한다).",
+   "minimum_resolution": "둘 중 하나를 한다. ① 지난 화면의 B 체크리스트 · 절차 행을 G2B 토큰(본문 15px, .act.pre 행 모양)으로 되돌린다. 화면 틀에 맞추는 일은 공개된 방식으로 처리한다. ② 이 조정을 prototype 쪽 표시 조정 ③으로 공개한다. 대상 상태(T15 / check_b와, B 기록일 때의 check_current · corrected · closed), 바뀐 값(행 20px · 글자 14px · 여백), 이유(1080 × 740 틀 넘침 등), 'PBC에서 실제 화면 높이로 다시 본다'를 slice Visual design rules · derived_states T15 / check_b · Gate Brief에 적는다. 그리고 G2B 이탈로 Human Gate에서 확인받는다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "[G3-14 지적 해소 확인] ISS-001은 해소됐다. selftest t(\"AC-48\")가 잠금 · 조치(조치 완료 · 재가동 · 경계 이내를 한 기록으로) · 파트장 호출 · 숙련자 인계(T15 / call)에 '이 기록 정정'이 없고 '메모 덧붙이기'만 있음을 판정한다. B 체크(T15 / check_b 3 / 3)와 확인 질문 답이 든 점검 기록의 정정 창 칸은 원래 · 정정할 결과 · 정정할 메모 · 사유뿐임도 판정한다. 음성 시험 Y-19 · Y-20이 있다. ISS-002도 해소됐다. 띠 칩 '…(보내지 않음)은 그대로 · 수정 가능'과 돌아온 현재 단계의 편집 가능 상태를 판정하고, 음성 시험 Y-21이 있다. ISS-003도 해소됐다. 메모 정정과 결과 정정 각각에 대해 파트장 L06 화면 행에서 시각 · 김○○ · 원래 값 · 정정 값 · 사유를 has5로 판정하고, 음성 시험 Y-22가 있다. ISS-004는 해소됐다. AC-45-C3 · AC-48-C1 · C2가 partial_conditions에 있다. 다만 Gate Brief(decisions/G3-human-brief-v15.md)는 이 bundle 밖이라 excluded_scope에 실렸는지 확인하지 못했다. slice 499행 '다음 행동'도 deferred_condition_ids만 G3 excluded_scope로 적었다. 489행과 맞춰 partial_conditions의 서버 부분 세 건도 그 문장에 명시하기를 권한다.",
+  "[지난 화면 칩 문구] '그대로' 칩(승인 template의 .ch.amber)에 '수정 가능'을 붙였다. 승인 R-PASTBAR의 '그대로' 칩 의미는 보존된다. 다만 G2B Color and state language에는 '수정 가능 = 흰 칩 · 주황 테두리 + 연필' 토큰이 따로 있다. 같은 말이 다른 모양으로 보이는 셈이다. Gate Brief에서 이 칩 모양을 그대로 둘지 한 줄로 확인받기를 권한다.",
+  "[T15 / check_b 골격 증거] structure-check.json t15_past_skeleton.check_b는 diff []로 통과했다. 그런데 이 상태는 T15 / check에 없는 .act.pre 패널을 R-PASTVIEW에 더한다. 비교 기준이 T15 / check인지, b_precheck 패널을 합친 기준인지 적혀 있지 않다. 기준(어떤 승인 template 조합과 비교했는지)을 structure-check의 checks 설명에 밝혀 두기를 권한다."
+ ]
+}

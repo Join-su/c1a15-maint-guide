@@ -1,0 +1,36 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "selection_register",
+  "version": "v1",
+  "available_skills": [
+    {"name": "{{installed-skill-name}}", "source": "{{environment-inventory-path-or-command}}", "verified_at": "{{ISO-8601}}"}
+  ],
+  "engineering_playbook": {
+    "path": "{{absolute path to the versioned Engineering Playbook}}",
+    "version": "{{playbook version}}",
+    "content_sha256": "{{SHA-256 of the exact Playbook content}}",
+    "reviewed_at": "{{ISO-8601}}"
+  },
+  "not_applicable_categories": [],
+  "records": [
+    {
+      "id": "SEL-HARNESS",
+      "category": "harness | loop | graph | workflow | subagent | hook | mcp | worktree | test | state_data | resilience_ops | frontend | skill | model_product | model_development",
+      "decision": "selected | excluded",
+      "requirement_signals": [],
+      "candidates": [],
+      "decision_reason": "",
+      "usage": "required for selected; optional for excluded",
+      "plan_item_ids": ["P-01"],
+      "trigger": "required for selected; optional for excluded",
+      "non_trigger": "required for selected; excluded records state why it is not applicable",
+      "preconditions": [],
+      "authority_boundary": "required for selected; optional for excluded",
+      "verifier": "required for selected; optional for excluded",
+      "limit_or_stop": "selected stop condition or excluded revalidation trigger",
+      "playbook_refs": ["EP-{{decision-rule-id}}"],
+      "currentness": {"verified_at": "{{ISO-8601}}", "version_or_environment": ""},
+      "product_behavior_change": "none | outside_factory_scope"
+    }
+  ]
+}

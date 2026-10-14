@@ -1,0 +1,1143 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "execution_ledger",
+ "plan_version": "v4",
+ "slice_id": "S-02",
+ "plan_item_ids": [
+  "P-03",
+  "P-04",
+  "P-05",
+  "P-06",
+  "P-07"
+ ],
+ "entries": [
+  {
+   "plan_item_id": "P-03",
+   "changed_files": [
+    "server/src/c1a15/engine/__init__.py",
+    "server/src/c1a15/engine/knowledge.py",
+    "server/src/c1a15/engine/rules.py",
+    "server/src/c1a15/engine/session.py",
+    "server/src/c1a15/engine/graph.py",
+    "server/src/c1a15/engine/checkpoint.py",
+    "server/tests/test_engine_rules.py (G6 repair: 범위 밖 선택 handover · continue 시험)",
+    "server/tests/test_engine_graph.py",
+    "server/tests/conftest.py (수정: data_dir_module fixture)",
+    "server/pyproject.toml (수정: langgraph · langgraph-checkpoint-postgres · hypothesis)",
+    "server/uv.lock (수정)"
+   ],
+   "commands": [
+    "uv add langgraph langgraph-checkpoint-postgres · uv add --dev hypothesis(uv.lock 고정 1.2.15 · 3.1.3 · 6.169.0) — 별도 승인: execution/S-02/separate-approvals.md",
+    "scripts/check-fast",
+    "scripts/verify-db",
+    "execution/S-02/oos01-first-judgment-scenarios.py(OOS-01 계산표)"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/implementation-contract.md",
+      "execution/S-02/separate-approvals.md",
+      "execution/S-02/langgraph-decision.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/openapi-negative.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/evidence-v2/verify-db.txt"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/external-call-check-negative.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/demo-separation.txt",
+      "execution/S-02/evidence-v2/scenario-regenerate.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/unit-test-list.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt",
+    "execution/S-02/oos01-first-judgment.md",
+    "execution/S-02/oos01-decision.md"
+   ],
+   "l0_decisions": [
+    "매뉴얼 지식은 적재된 절 text에서 읽는다: x.1 원인표, '연결 원인 CODE(확정|선별)', 사전 확인 절, 조치 절(하위 절 또는 '**조치** … X 절')",
+    "확률은 최대 잔여 반올림으로 합 100, 동률은 매뉴얼 원인 순서",
+    "다음 점검 = 확률 ÷ 분 최댓값, 동률이면 '확인 불가' 0회 점검 우선(AC-19-C1 '다른 점검 제안'), 2회면 제외(AC-19-C2)",
+    "정정은 memo_only · rejudge(뒤 기록 void) · call_with_correction(조치 뒤) · attach_to_call 네 방식, 잠금 기록은 정정 불가",
+    "R13 열린 단계는 step_opened event로 저장(등급이 바뀌어도 열린 지시는 그대로, 다음 판정부터 새 등급)",
+    "LangGraph graph = decide → wait(interrupt) 반복, 같은 업무 key(세션 ID:seq)는 한 번만, 결과 입력은 graph 안에서도 다시 검사",
+    "checkpoint 표는 PostgreSQL public 스키마(PostgresSaver 기본, alembic include_name이 ops · knowledge만 비교), init에서 python -m c1a15.engine.checkpoint"
+   ],
+   "acceptance_condition_ids": [
+    "AC-01-C1",
+    "AC-01-C2",
+    "AC-01-C3",
+    "AC-02-C1",
+    "AC-02-C2",
+    "AC-02-C3",
+    "AC-03-C1",
+    "AC-03-C2",
+    "AC-03-C3",
+    "AC-04-C1",
+    "AC-04-C2",
+    "AC-05-C1",
+    "AC-05-C2",
+    "AC-19-C1",
+    "AC-19-C2",
+    "AC-19-C3",
+    "AC-20-C1",
+    "AC-20-C2",
+    "AC-20-C3",
+    "AC-22-C1",
+    "AC-25-C1",
+    "AC-25-C2",
+    "AC-25-C3",
+    "AC-25-C4",
+    "AC-28-C1",
+    "AC-28-C2",
+    "AC-28-C3",
+    "AC-29-C1",
+    "AC-29-C2",
+    "AC-29-C3",
+    "AC-29-C4",
+    "AC-35-C1",
+    "AC-35-C2",
+    "AC-42-C1",
+    "AC-42-C2",
+    "AC-43-C1",
+    "AC-43-C2",
+    "AC-43-C3",
+    "AC-43-C4",
+    "AC-46-C1",
+    "AC-46-C2",
+    "AC-46-C3",
+    "AC-46-C4",
+    "AC-46-C5",
+    "AC-47-C1",
+    "AC-47-C2"
+   ]
+  },
+  {
+   "plan_item_id": "P-04",
+   "changed_files": [
+    "server/src/c1a15/retrieval/__init__.py",
+    "server/src/c1a15/retrieval/tokens.py",
+    "server/src/c1a15/retrieval/bm25.py",
+    "server/src/c1a15/retrieval/search.py",
+    "server/src/c1a15/retrieval/db.py",
+    "server/tests/test_retrieval.py (G6 repair: 재검색 후보 · index.docs 시험)",
+    "server/tests/test_db.py (수정: pgvector 순위 · LangGraph PostgresSaver 시험 추가)"
+   ],
+   "commands": [
+    "scripts/check-fast",
+    "scripts/verify-db"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/implementation-contract.md",
+      "execution/S-02/separate-approvals.md",
+      "execution/S-02/langgraph-decision.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/openapi-negative.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/evidence-v2/verify-db.txt"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/external-call-check-negative.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/demo-separation.txt",
+      "execution/S-02/evidence-v2/scenario-regenerate.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/unit-test-list.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt"
+   ],
+   "l0_decisions": [
+    "토큰 = 공백 단어 + 한글 2-gram(실행 해석 ⑤)",
+    "재정렬 점수 = 0.5 · rrf/max(rrf) + 0.5 · (1 − d/max(d)), d = 표준화 센서 거리(1 ~ 9월 이력 평균 · 표준편차)",
+    "fixture 임베딩 = fake-hash-bigram-v1(256차원, 결정적), 질의문 = 증상군 이름 + 경계 방향",
+    "검색 필터는 symptom_group만 허용, 그 밖 키는 LeakageError(ADV-04)",
+    "세션 시작 때 상위 10건을 diag_sessions.similar에 저장해 그 세션의 판정 입력을 고정(API 시험에서 10건 확인)",
+    "세션 시작 검색의 의미 순위는 메모리 cosine(시작 때 DB에서 읽은 임베딩)으로 계산. pgvector `<=>` 순위와 같음은 test_pgvector_ranks_match_in_memory_cosine으로 확인(retrieval/db.vector_ranks는 같은 필터 · 누수 검사를 가진 DB 경로)",
+    "verifier '승인 뒤 재검색 후보 포함 · 평가 모드 제외 통합 시험': 이번 slice는 메모리 색인 재검색 시험(test_approved_report_becomes_search_candidate_except_eval_mode)까지. 승인 보고서의 DB 저장 · 색인 갱신 통합 경로는 승인 흐름이 생기는 P-13(AC-09 완료 item)에서"
+   ],
+   "acceptance_condition_ids": [
+    "AC-09-C1",
+    "AC-09-C2",
+    "AC-15-C1",
+    "AC-15-C2",
+    "AC-15-C3",
+    "AC-40-C1",
+    "AC-40-C2"
+   ]
+  },
+  {
+   "plan_item_id": "P-05",
+   "changed_files": [
+    "server/src/c1a15/llm/__init__.py",
+    "server/src/c1a15/llm/base.py",
+    "server/src/c1a15/llm/fixture.py",
+    "server/src/c1a15/llm/grounding.py",
+    "server/src/c1a15/llm/live.py",
+    "server/tests/test_llm.py",
+    "server/pyproject.toml (수정: openai)",
+    "server/uv.lock (수정)",
+    "scripts/external_call_check.py (수정: live.py의 openai만 허용 · ALLOWED_PY_DEPS, G6 repair: 모듈 이름 정확 비교)",
+    "server/src/c1a15/api/sessions.py (G6 repair: 고른 이유 R8 검사 · 메모 해석 오류 계속 · 인계 권함)"
+   ],
+   "commands": [
+    "uv add openai(uv.lock 고정 3.29.0) — 별도 승인: execution/S-02/separate-approvals.md(live 호출 없음)",
+    "scripts/check-fast",
+    "scripts/verify-db"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/implementation-contract.md",
+      "execution/S-02/separate-approvals.md",
+      "execution/S-02/langgraph-decision.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/openapi-negative.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/evidence-v2/verify-db.txt"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/external-call-check-negative.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/demo-separation.txt",
+      "execution/S-02/evidence-v2/scenario-regenerate.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/unit-test-list.txt",
+    "execution/S-02/evidence-v2/external-call-check-negative.txt"
+   ],
+   "l0_decisions": [
+    "fixture = 템플릿 문장 + 단어 규칙 메모 해석(R7), 기본 모드",
+    "근거 검사(R8) = 문장의 절 번호 · 수치가 facts와 일치, 실패 시 한 번 다시 쓰기 → 다시 실패하면 원문 + '원문으로 대체됨', 같은 세션 3회 연속 실패면 숙련자 인계 권함",
+    "live adapter는 코드만(키 · 모델 ID가 없으면 AdapterError), 이번 slice에서 호출하지 않음",
+    "API 경로(G6 repair, UF-14): 진단 미리보기 '고른 이유'는 grounding.checked(허용 절 = 지시 절 + 다른 점검 절, 수치 = 확률 · 분, 사례 ID = 상위 10건) — 실패 시 코드 템플릿 + reason_label '원문으로 대체됨'. 메모 해석 provider 오류는 신호 없음으로 계속하고 결과 event에 서버 전용 llm_fallback을 남김, 같은 세션 연속 3회면 view.recommend_handover(문장 생성 실패의 세션 누적은 화면 item P-08에서 더함)",
+    "fixture 전체 흐름 외부 호출 0은 Python 소켓 연결을 막고 세는 시험(test_fixture_full_flow_makes_no_external_call). DB 연결은 libpq(C)라 세지 않음(UF-13)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-06-C1",
+    "AC-06-C2",
+    "AC-16-C1",
+    "AC-16-C2",
+    "AC-31-C1",
+    "AC-31-C2"
+   ]
+  },
+  {
+   "plan_item_id": "P-06",
+   "changed_files": [
+    "server/src/c1a15/api/main.py (S-01 health → 업무 API)",
+    "server/src/c1a15/api/deps.py",
+    "server/src/c1a15/api/sessions.py",
+    "server/src/c1a15/api/schemas.py",
+    "server/src/c1a15/db/models.py (S-01 파일 수정: login_sessions · alarms · diag_sessions · session_events · audit_log 모델)",
+    "server/migrations/versions/0002_sessions.py",
+    "server/openapi.json (OpenAPI 정본)",
+    "scripts/openapi_check.py",
+    "server/tests/test_api.py (G6 repair: ADV-07 API 음성 · 원문 절 제한 · 새 알람 항목 · 근거 대체 · 필수 필드 · checkpoint 앞섬)",
+    "docker-compose.yml (수정: api C1A15_INTERNAL_TOKEN, init에 checkpoint setup)",
+    ".env.example (수정: C1A15_INTERNAL_TOKEN 빈 값)",
+    "scripts/verify-db (수정: 내부 토큰 무작위 생성)",
+    "scripts/verify-e2e (수정: ADV-06 nginx 경계 · nginx 경유 내부 등록 거부 · LangGraph 재시작 재개 L3)",
+    "scripts/check-fast (수정: openapi_check)",
+    "server/pyproject.toml (수정: ruff B008 Depends 허용)"
+   ],
+   "commands": [
+    "scripts/check-fast",
+    "scripts/verify-db",
+    "scripts/verify-e2e",
+    "python3 scripts/openapi_check.py --write(정본 생성) · 결함 주입 음성 확인"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/implementation-contract.md",
+      "execution/S-02/separate-approvals.md",
+      "execution/S-02/langgraph-decision.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/openapi-negative.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/evidence-v2/verify-db.txt"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/external-call-check-negative.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/demo-separation.txt",
+      "execution/S-02/evidence-v2/scenario-regenerate.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/verify-e2e.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt",
+    "execution/S-02/evidence-v2/openapi-negative.txt",
+    "execution/S-02/langgraph-decision.md"
+   ],
+   "l0_decisions": [
+    "업무 기록(ops.session_events, append-only) = 정본, 다음 단계 = LangGraph resume(사용자 결정 execution/S-02/langgraph-decision.md), 화면 상태 = 업무 기록 fold",
+    "checkpoint가 업무 기록과 어긋나면 업무 기록으로 thread를 다시 세움, 경로는 step_opened.via(resume | rebuild)",
+    "idempotency key = 세션 ID + seq: 같은 seq · 같은 내용 재전송은 기록 1건, 다른 내용은 409 stale_seq",
+    "요청 본문은 Pydantic strict 모델(extra = forbid): 서버만 쓰는 void · signal · at, 서버가 정하는 symptom_group · occurred_at은 422(UF-07)",
+    "알람 등록은 내부 호출만: X-App 없음 + X-Internal-Token(환경 변수, 시험마다 무작위)",
+    "진단 미리보기(T04)는 다음 단계 종류 · 절 · 이유만, 절차 · 판정 기준 없음(R1)",
+    "OpenAPI 정본 = server/openapi.json(재생성 diff 검사 check-fast). 앱 TypeScript 타입 생성(openapi-typescript 설치)은 앱 화면 item(P-08)에서",
+    "ORM 선택은 select(Model.__table__)(UF-02), ruff B008는 FastAPI Depends 기본값이라 허용",
+    "매뉴얼 원문 API는 잠금 뒤 이 세션에서 지시로 열린 절(사전 확인 · 점검 · 조치, 지금 · 이전)만, 호출(C · D) 단계 절 · 지시되지 않은 절은 409 not_instructed(G6 repair, UF-15)",
+    "event 요청은 type별 필수 필드(result: section, b_checklist_done: section · checked, confirm_answer: yes, out_of_scope_choice: choice)가 없으면 422",
+    "checkpoint는 별도 연결 autocommit이라 API 트랜잭션 rollback 시 checkpoint가 앞설 수 있음 → 다음 입력에서 key 비교로 rebuild(test_checkpoint_ahead_of_business_record_rebuilds)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-01-C1",
+    "AC-01-C2",
+    "AC-01-C3",
+    "AC-12-C1",
+    "AC-12-C2",
+    "AC-12-C3",
+    "AC-13-C1",
+    "AC-14-C1",
+    "AC-35-C1",
+    "AC-35-C2",
+    "AC-37-C1",
+    "AC-37-C2",
+    "AC-37-C3",
+    "AC-38-C1",
+    "AC-38-C2",
+    "AC-39-C1",
+    "AC-39-C2",
+    "AC-43-C1",
+    "AC-43-C2",
+    "AC-43-C3",
+    "AC-43-C4",
+    "AC-44-C1",
+    "AC-44-C2",
+    "AC-44-C3"
+   ]
+  },
+  {
+   "plan_item_id": "P-07",
+   "changed_files": [
+    "server/src/c1a15/alarms/__init__.py",
+    "server/src/c1a15/alarms/__main__.py",
+    "server/src/c1a15/engine/alarm_rules.py",
+    "scripts/build_demo_scenarios.py",
+    "scripts/check_demo_separation.py",
+    "data/demo/scenarios.json",
+    "server/tests/test_alarms.py",
+    "docker-compose.yml (수정: api에 DATA_DIR · ./data 읽기 전용 mount)",
+    "scripts/external_call_check.py (수정: alarms/__main__.py의 urllib 허용)",
+    "scripts/check-fast (수정: check_demo_separation)",
+    "scripts/verify-e2e (수정: 발생기 → 정비자 홈 5초)"
+   ],
+   "commands": [
+    "python3 scripts/build_demo_scenarios.py(../manifact_10 CSV 읽기만 · card_udi_map UDI만 — 사용자 결정 separate-approvals.md)",
+    "python3 scripts/check_demo_separation.py",
+    "scripts/check-fast",
+    "scripts/verify-db",
+    "scripts/verify-e2e",
+    "docker compose exec api python -m c1a15.alarms DEMO-01(verify-e2e 안)"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/implementation-contract.md",
+      "execution/S-02/separate-approvals.md",
+      "execution/S-02/langgraph-decision.md"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/openapi-negative.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/unit-test-list.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/db-test-list.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/gate-applicability.md",
+      "execution/S-02/evidence-v2/verify-db.txt"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/external-call-check-negative.txt",
+      "execution/S-02/evidence-v2/verify-db.txt",
+      "execution/S-02/evidence-v2/verify-e2e.txt",
+      "execution/S-02/evidence-v2/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-02/evidence-v2/check-fast.txt",
+      "execution/S-02/evidence-v2/demo-separation.txt",
+      "execution/S-02/evidence-v2/scenario-regenerate.txt"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/verify-e2e.txt",
+    "execution/S-02/evidence-v2/demo-separation.txt",
+    "execution/S-02/oos01-first-judgment.md"
+   ],
+   "l0_decisions": [
+    "경계 판정 · 증상군은 서버(engine/alarm_rules.py)가 data/alarm_rules.json(priority PW → CL → LD → TW)으로 정한다(FLOW-01 '진단 처리: 경계 판정 · 증상군 결정')",
+    "각본 행 = scenario_id · udi · equipment_id · 센서 값 · 추이 12회. 제품은 원본 CSV를 읽지 않으므로 행의 센서 값을 각본에 함께 둔다(UF-09). 재가동 값(선택 필드)은 두지 않음 → 경계 + 여유 10% 기본(P-09 · P-10)",
+    "CLI = python -m c1a15.alarms DEMO-01 … | --all | --list, 주소는 http 127.0.0.1 · localhost · api(compose 내부)만, 토큰은 환경 변수, 실패 시 오류 · 종료 코드 1",
+    "시연 실행 = docker compose exec api python -m c1a15.alarms DEMO-01(api 컨테이너 안, 새 서비스 없음)",
+    "증상군 배분은 10 ~ 12월 행에서 증상군별 시간순 첫 알람 행(평가 카드 · 이력 행 제외)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-13-C1",
+    "AC-28-C1",
+    "AC-28-C2",
+    "AC-28-C3",
+    "AC-34-C1",
+    "AC-34-C2",
+    "AC-34-C3"
+   ]
+  }
+ ],
+ "unexpected_facts": [
+  {
+   "id": "UF-01",
+   "observation": "근거 검사 절 번호 정규식이 '4.3절'(뒤에 한글)을 놓침",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-05"
+   ],
+   "affected_assumptions_or_controls": [
+    "R8 근거 검사"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "정규식 `(?<![\\d.])\\d\\.\\d(?:\\.\\d)?(?![\\d.])`로 고치고 시험 추가. 계약 의미 같음"
+  },
+  {
+   "id": "UF-02",
+   "observation": "SQLAlchemy Connection.execute(select(Model))가 ORM 객체가 아닌 열 행을 돌려줌",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "DB 읽기"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "select(Model.__table__)로 통일. 동작 의미 같음"
+  },
+  {
+   "id": "UF-03",
+   "observation": "alembic check가 이름 없는 UniqueConstraint를 naming convention 차이로 drift 보고",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "0002 migration"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "모델 · migration 이름을 맞춤, 첫 판 migration이라 데이터 영향 없음"
+  },
+  {
+   "id": "UF-04",
+   "observation": "사전 확인 지시가 감사 기록에 instruct로 남지 않음",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "감사 기록(AC-26 일부)"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "precheck도 instruct로 기록, 시험 추가"
+  },
+  {
+   "id": "UF-05",
+   "observation": "verify-e2e의 curl JSON이 셸 brace 확장으로 쪼개짐",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "시험 스크립트"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "creds() Python 도우미로 JSON 생성"
+  },
+  {
+   "id": "UF-06",
+   "observation": "package=false 프로젝트라 `uv run python` 스크립트에 PYTHONPATH=src가 필요",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-03",
+    "P-07"
+   ],
+   "affected_assumptions_or_controls": [
+    "시험 · 계산 스크립트 실행"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "스크립트 · 시험 subprocess에 PYTHONPATH 지정"
+  },
+  {
+   "id": "UF-07",
+   "observation": "G5 자체 점검: 클라이언트가 event에 서버 전용 필드(void · signal · at)를 넣으면 그대로 저장돼 지난 기록 무효화 · 메모 해석(R7) 우회가 가능했음",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt",
+    "execution/S-02/evidence-v2/openapi-negative.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "권한 경계",
+    "업무 기록 무결성"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "요청 본문을 strict Pydantic 모델로 바꿔 422로 거부, 음성 시험 test_server_only_fields_rejected 추가. 승인 계약(OpenAPI 정본 · 지시된 점검만 접수) 안의 수리"
+  },
+  {
+   "id": "UF-08",
+   "observation": "API 요청 경로가 LangGraph graph를 쓰지 않고 업무 기록 fold만으로 다음 단계를 정함 — 명세 002 §API · EP-C1-HITL-001과 다름",
+   "evidence_paths": [
+    "execution/S-02/langgraph-decision.md",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/verify-e2e.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-03",
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "EP-C1-HITL-001",
+    "AC-14"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정 'S-02 안에서 API에 연결'(execution/S-02/langgraph-decision.md)로 승인 방식으로 되돌림. 재시작 재개 · 어긋남 재구성 시험과 verify-e2e L3 추가"
+  },
+  {
+   "id": "UF-09",
+   "observation": "R11 각본 항목 키({scenario_id, udi, equipment_id, 재가동 값})만으로는 제품이 센서 값을 얻을 수 없음(원본 CSV는 저장소 밖 · 제품이 읽지 않음)",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-07"
+   ],
+   "affected_assumptions_or_controls": [
+    "R11 각본 파일 형식",
+    "AC-34-C2"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "각본에 그 행의 센서 값 · 추이를 함께 두고 경계 판정은 서버가 함. 숨은 원인 없음 · 행 번호 유지로 R11 의미 같음. 사용자 결정(separate-approvals.md: '각본 파일에 센서 값과 추이 12회를 함께 남긴다')과 일치"
+  },
+  {
+   "id": "UF-10",
+   "observation": "초기 등급표에서 각본 10건 모두 첫 판정이 점검 지시(A) — OOS-01 화면(첫 판정 호출)은 초기 상태 시연에 나오지 않음",
+   "evidence_paths": [
+    "execution/S-02/oos01-first-judgment.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-03",
+    "P-07"
+   ],
+   "affected_assumptions_or_controls": [
+    "OOS-01 · G3 v17 입력"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "S-02 계약 영향 없음. 계산표를 oos01-first-judgment.md에 덧붙이고 사용자 보고(G3 v17 범위 판단 입력)"
+  },
+  {
+   "id": "UF-11",
+   "observation": "온도 차 저하 각본 5건은 센서 값이 비슷해(7.8 ~ 7.9K) 상위 10건 · 첫 판정(4.3)이 같음",
+   "evidence_paths": [
+    "execution/S-02/oos01-first-judgment.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-04",
+    "P-07"
+   ],
+   "affected_assumptions_or_controls": [
+    "시연 다양성"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "L0 검색 정의 그대로의 결과. 사용자 보고만"
+  },
+  {
+   "id": "UF-12",
+   "observation": "ADV-05 시험의 accept 스레드가 listener 종료 때 ConnectionAbortedError 경고",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-05"
+   ],
+   "affected_assumptions_or_controls": [
+    "시험 위생"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "불필요한 accept 스레드 제거, 경고 0"
+  },
+  {
+   "id": "UF-13",
+   "observation": "fixture 전체 흐름 소켓 감시는 Python socket.connect만 셈 — psycopg(libpq) DB 연결은 C 계층이라 세지 않음",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/check-fast.txt",
+    "execution/S-02/evidence-v2/external-call-check-negative.txt",
+    "execution/S-02/evidence-v2/verify-e2e.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-05"
+   ],
+   "affected_assumptions_or_controls": [
+    "external_call_zero_in_fixture 확인 범위"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "DB는 시험 컨테이너 127.0.0.1만. HTTP 클라이언트 · SDK는 Python 소켓을 쓰므로 감시 대상. 정적 검사(external_call_check) · 컨테이너 환경 검사와 함께 판정"
+  },
+  {
+   "id": "UF-14",
+   "observation": "G6-S02-review B2: API 경로가 R8 근거 검사 · 원문 대체를 거치지 않았음(미리보기 '고른 이유'를 adapter 결과 그대로, 메모 해석 provider 오류는 500)",
+   "evidence_paths": [
+    "critics/G6-S02-review.json",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-05",
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "R5-6 · R8",
+    "AC-06",
+    "AC-31"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "preview를 grounding.checked로 감싸고 메모 해석 오류는 계속 · 실패 수 누적으로 고침. 시험 test_reason_grounding_and_llm_failure_continue. 승인 계약으로 되돌리는 수리"
+  },
+  {
+   "id": "UF-15",
+   "observation": "G6-S02-review B5: 매뉴얼 원문 API가 잠금만 확인해 지시되지 않은 C · D 절 절차도 내려줬음",
+   "evidence_paths": [
+    "critics/G6-S02-review.json",
+    "execution/S-02/evidence-v2/verify-db.txt",
+    "execution/S-02/evidence-v2/db-test-list.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-06"
+   ],
+   "affected_assumptions_or_controls": [
+    "R1 · R2 권한 의미",
+    "AC-39"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "지시로 열린 절만 허용, 음성 시험 test_manual_only_for_instructed_sections_and_new_alarm_notification · ADV-07 도우미. 승인 계약으로 되돌리는 수리"
+  },
+  {
+   "id": "UF-16",
+   "observation": "G6 repair 중 v1 증거 폴더의 external-call-check-negative.txt를 v2 내용(urllib3 주입 포함)으로 덮어씀",
+   "evidence_paths": [
+    "execution/S-02/evidence-v2/external-call-check-negative.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-05",
+    "P-07"
+   ],
+   "affected_assumptions_or_controls": [
+    "증거 보존"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "v1 판정 증거의 다른 파일은 그대로. 새 증거는 evidence-v2/에 따로 두고 v1 critic 입력 hash와 다름을 기록"
+  }
+ ],
+ "loop": {
+  "used": true,
+  "cap": "같은 verifier 3회",
+  "outcome": "check-fast: 음성 시험 assertion 재설계 1회, grounding 정규식 1회, lint(줄 길이 · import 순서) 수리 뒤 통과. verify-db: ORM 선택 · alembic drift · 감사 누락 각 1회 수리 뒤 통과. verify-e2e: JSON 인용 1회 수리 뒤 통과. G5 자체 점검 뒤 UF-07(strict 스키마) · UF-08(LangGraph 연결, 사용자 결정) 반영하고 세 검사 다시 통과. G6-S02 1차 revise(B1 ~ B5) 뒤 G7 repair 1회: 시험 assertion 보강 · R8 API 연결 · 원문 절 제한 · ADV-07 API 음성 · 비차단 일부(필수 필드 422 · 정확 모듈 비교 · checkpoint 앞섬 · listener finally · nginx 경유 내부 등록 거부), verify-db 2회(예약어 similar 인용 · 시험 순서) 수리 뒤 세 검사 다시 통과. 같은 verifier 3회를 넘긴 반복 없음"
+ },
+ "scope_notes": [
+  "실행 카드 허용 목록 밖 파일 수정: server/src/c1a15/db/models.py(P-06 업무 기록 모델, 괄호 목록 밖) · docker-compose.yml(P-06 내부 토큰 · checkpoint setup, P-07 data mount) · .env.example(빈 값 한 줄) · server/openapi.json(P-06 OpenAPI 정본 새 파일) · server/pyproject.toml · server/uv.lock(승인 패키지). 모두 승인 plan item P-06 · P-07의 동작에 필요한 실행 구성이며 plan item 밖 기능은 없다",
+  "S-01 파일 수정분(commit 전이라 git으로 되돌릴 수 없음)의 되돌림: docker-compose.yml에서 api의 DATA_DIR · C1A15_INTERNAL_TOKEN · volumes 3줄과 init command의 '&& python -m c1a15.engine.checkpoint' 제거, .env.example의 C1A15_INTERNAL_TOKEN 줄 제거, scripts/check-fast의 check_demo_separation · openapi_check 두 줄 제거, scripts/verify-db · verify-e2e의 C1A15_INTERNAL_TOKEN 생성과 ADV-06 · P-07 · L3 블록 제거, scripts/external_call_check.py의 ALLOWED · ALLOWED_PY_DEPS를 S-01 값({})으로, server/pyproject.toml · uv.lock은 uv remove langgraph langgraph-checkpoint-postgres openai hypothesis, ruff B008 ignore 제거, server/tests/conftest.py의 data_dir_module 제거, api/main.py는 S-01 health 하나로, server/src/c1a15/db/models.py는 0002 대상 모델(LoginSession · Alarm · DiagSession · SessionEvent · AuditEntry)과 ops 스키마 정의 제거, server/tests/test_db.py는 test_pgvector_ranks_match_in_memory_cosine · test_langgraph_postgres_checkpoint_resume 제거. 새 파일은 삭제, migration은 alembic downgrade 0001. LangGraph checkpoint 표(public.checkpoints · checkpoint_blobs · checkpoint_writes · checkpoint_migrations)는 alembic이 관리하지 않으므로 DROP TABLE로 지우거나 compose down -v(volume 삭제)로 지운다",
+  "S-01 G6 2차 비차단 의견 처리: ① uv 부트스트랩 설치 범위는 execution/S-01/separate-approvals.md에 사용자 승인으로 기록됨 ② AC-34 증거 경로 — 이번 report의 AC-34는 check-fast(단위 · 분리 검사) · verify-db(저장값) · verify-e2e를 함께 가리킴 ③ 되돌림 기록 — 위 항목으로 수정 파일별 원상 복구 방법을 적음"
+ ],
+ "version_note": "v2: critics/G6-S02-review.json(revise) B1 ~ B5와 비차단 일부를 같은 slice에서 수리(G7 repair). v1은 execution/S-02/execution-ledger.json"
+}

@@ -1,0 +1,1199 @@
+{
+ "run_at": "2026-10-12T15:51:19+09:00",
+ "prototype_sha256": "10657733c1acce187446ab38b7faf3407c5211ad39890ac906342286ce7c85dc",
+ "command": "scratch 생성기 mutants_v14.py: 결함을 하나씩만 넣은 복사본마다 ?selftest=1 실행(병렬 4, Chrome profile 분리)",
+ "removed_in_v14": {
+  "X-3": "지난 단계 보기 창의 '수정 가능' 행(010으로 창이 그때 화면으로 바뀌어 없어진 기능)",
+  "X-4": "'이 화면에서 고치기'(같은 이유)"
+ },
+ "v13_mutants_changed_for_v14": {
+  "W-4": "pathRows가 정정 표시를 더해 다시 정의되어 '이상' 점 색 자리 2곳(옛 정의 포함)",
+  "U-2a": "지난 화면(T15 / diagnosis)도 진단 화면 안내 문구를 가져 바꿀 곳이 4 · 3곳"
+ },
+ "new_in_v14": {
+  "Y-1": "010 ① '홈'으로 갔다 '이어서 하기'로 돌아오면 넣던 입력이 사라짐",
+  "Y-2": "010 ① 상단 '홈'이 눌리지 않음",
+  "Y-3": "010 ② 지난 화면의 보낸 메모를 그 자리에서 고쳐 쓸 수 있음(정정 창 우회)",
+  "Y-4": "010 ② '현재 단계로'로 돌아오면 넣던 입력이 사라짐",
+  "Y-5": "010 ③ 사유 없이 정정이 저장됨(저장 버튼이 잠기지 않고 사유 검사도 없음)",
+  "Y-6": "010 ③ 정정이 원래 값을 덮어쓰고 이력을 남기지 않음",
+  "Y-7": "010 ④ 결과를 정정해도 다시 판정하지 않음",
+  "Y-8": "010 ④ 정정한 점검 뒤 기록을 지움('정정으로 무효'로 남기지 않음)",
+  "Y-9": "011 Q-06 열린 지시가 바뀌어도 확인 없이 보내지 않은 입력을 지움",
+  "Y-10": "010 ④ 조치를 마친 뒤 정정도 그대로 다시 판정함",
+  "Y-11": "010 ④ 보낸 호출이 있어도 정정을 붙이지 않고 다시 판정함",
+  "Y-12": "011 Q-08 보고서를 확정한 세션도 정정할 수 있음",
+  "Y-13": "010 ③ 메모 덧붙이기를 저장해도 남지 않음",
+  "Y-14": "011 메모만 정정해도 다시 판정함",
+  "Y-15": "G2A '이전 · 다음'이 처음 · 끝 기록에서도 잠기지 않음",
+  "Y-16": "점검 중 지금 단계(점검)의 이미 보낸 기록을 열 수 없음",
+  "Y-17": "010 ④ 파트장 호출 상세에 붙은 정정이 안 보임",
+  "Y-18": "010 ③ 정정이 감사 기록에 남지 않음"
+ },
+ "mutants": [
+  {
+   "id": "MUT-1",
+   "defect": "확정 · 재가동 잠금 무시 · 반려 사유 없이 저장 · 답 전 4.4 노출(결함 4종, v5부터 유지; v10은 호출 처리가 sendCall로 옮겨 마지막 바꾸기를 그 자리에)",
+   "assigned_tests": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24"
+   ],
+   "failed_tests": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24",
+    "AC-32",
+    "AC-43",
+    "AC-47"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-32",
+    "AC-43",
+    "AC-47"
+   ],
+   "other_failed_reason": "B 조치 진행 잠금이 같은 문장(big.classList.toggle)이라 함께 풀려 AC-32 · AC-43(B 조치 잠김)이 실패, 호출 처리 결함(답 전 승인 화면)으로 조치 뒤 정정 호출의 보냄 화면을 보는 AC-47도 실패"
+  },
+  {
+   "id": "MUT-2",
+   "defect": "로그인이 ID 칸 대신 비밀번호 칸을 읽음(v4 사용자 발견 결함)",
+   "assigned_tests": [
+    "AC-12"
+   ],
+   "failed_tests": [
+    "AC-12"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "MUT-4",
+   "defect": "ID 칸을 입력할 수 없는 승인 마크업으로 되돌림(v4 사용자 발견 결함의 마크업 쪽)",
+   "assigned_tests": [
+    "AC-12"
+   ],
+   "failed_tests": [
+    "AC-02",
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-12",
+    "AC-19",
+    "AC-20",
+    "AC-21",
+    "AC-22",
+    "AC-23",
+    "AC-24",
+    "AC-25",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40",
+    "AC-41",
+    "AC-42",
+    "AC-43",
+    "AC-44",
+    "AC-45",
+    "AC-46",
+    "AC-47",
+    "AC-48",
+    "CTL-01",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-07",
+    "CTL-08",
+    "CTL-09",
+    "CTL-10",
+    "CTL-11",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-15",
+    "CTL-16",
+    "CTL-17",
+    "CTL-18",
+    "CTL-19",
+    "CTL-20"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-02",
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-19",
+    "AC-20",
+    "AC-21",
+    "AC-22",
+    "AC-23",
+    "AC-24",
+    "AC-25",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40",
+    "AC-41",
+    "AC-42",
+    "AC-43",
+    "AC-44",
+    "AC-45",
+    "AC-46",
+    "AC-47",
+    "AC-48",
+    "CTL-01",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-07",
+    "CTL-08",
+    "CTL-09",
+    "CTL-10",
+    "CTL-11",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-15",
+    "CTL-16",
+    "CTL-17",
+    "CTL-18",
+    "CTL-19",
+    "CTL-20"
+   ],
+   "other_failed_reason": "로그인이 막혀 로그인 뒤의 모든 시험이 함께 실패(판별력 증거로 쓰지 않음, AC-12 판별은 MUT-2와 같은 결과)"
+  },
+  {
+   "id": "U-1",
+   "defect": "사용자 발견 ① 홈 '보기' 무반응(확정한 M-03 행)",
+   "assigned_tests": [
+    "CTL-01"
+   ],
+   "failed_tests": [
+    "CTL-01"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-2a",
+   "defect": "사용자 발견 ② 근거 n · 과거 기록 3건의 기준 문구 없음",
+   "assigned_tests": [
+    "AC-40"
+   ],
+   "failed_tests": [
+    "AC-40"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-2b",
+   "defect": "사용자 발견 ② 과거 기록 카드를 눌러도 기록이 안 열림",
+   "assigned_tests": [
+    "AC-38"
+   ],
+   "failed_tests": [
+    "AC-38"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-3",
+   "defect": "사용자 발견 ③ 결과 버튼 선택이 안 보임(선택 색 class 없음)",
+   "assigned_tests": [
+    "CTL-03"
+   ],
+   "failed_tests": [
+    "AC-38",
+    "AC-39",
+    "CTL-03",
+    "CTL-06",
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-38",
+    "AC-39",
+    "CTL-06",
+    "CTL-13"
+   ],
+   "other_failed_reason": "AC-38 · AC-39 · CTL-06 · CTL-13은 창을 닫은 뒤 '보이는 선택'을 계산된 색으로 보므로 같은 결함으로 실패"
+  },
+  {
+   "id": "U-4a",
+   "defect": "사용자 발견 ④ 재가동 체크 칸을 눌러도 안 바뀜(v10: B 시작 전 확인 처리와 같은 문장이라 재가동 쪽만)",
+   "assigned_tests": [
+    "CTL-04"
+   ],
+   "failed_tests": [
+    "AC-07",
+    "AC-11",
+    "AC-21",
+    "AC-24",
+    "AC-29",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-41",
+    "AC-42",
+    "AC-43",
+    "AC-45",
+    "AC-47",
+    "AC-48",
+    "CTL-01",
+    "CTL-04",
+    "CTL-05",
+    "CTL-06",
+    "CTL-08",
+    "CTL-10",
+    "CTL-15",
+    "CTL-16",
+    "CTL-19"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-07",
+    "AC-11",
+    "AC-21",
+    "AC-24",
+    "AC-29",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-41",
+    "AC-42",
+    "AC-43",
+    "AC-45",
+    "AC-47",
+    "AC-48",
+    "CTL-01",
+    "CTL-05",
+    "CTL-06",
+    "CTL-08",
+    "CTL-10",
+    "CTL-15",
+    "CTL-16",
+    "CTL-19"
+   ],
+   "other_failed_reason": "재가동 체크 칸이 안 바뀌면 재가동 · 보고서까지 가는 모든 흐름이 막혀 그 흐름을 쓰는 시험(보고서 단계의 정정 · 확정 뒤 정정 불가 · 확정 뒤 '홈' 포함)이 함께 실패"
+  },
+  {
+   "id": "U-4b",
+   "defect": "사용자 발견 ④ 자동 검사가 누르는 체크 칸처럼 보임(상자 · 손가락 커서)",
+   "assigned_tests": [
+    "CTL-04"
+   ],
+   "failed_tests": [
+    "CTL-04"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "U-5",
+   "defect": "사용자 발견 ⑤ '홈으로' 무반응",
+   "assigned_tests": [
+    "CTL-05"
+   ],
+   "failed_tests": [
+    "CTL-01",
+    "CTL-05",
+    "CTL-16"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-01",
+    "CTL-16"
+   ],
+   "other_failed_reason": "'홈으로' 뒤 홈 최근 보고서를 보는 CTL-16(확정 보고서 값 잇기)도 함께 실패"
+  },
+  {
+   "id": "U-6",
+   "defect": "사용자 발견 ⑥ 상단 바 종 무반응",
+   "assigned_tests": [
+    "AC-37"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-37",
+    "AC-44",
+    "CTL-06",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-16"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-25",
+    "AC-44",
+    "CTL-06",
+    "CTL-12",
+    "CTL-13",
+    "CTL-14",
+    "CTL-16"
+   ],
+   "other_failed_reason": "종 '이어서 하기'로 다시 판정하는 AC-25-C4 확인, 반려 뒤 종 항목을 보는 CTL-16, 홈에서 종 목록으로 돌아오는 AC-44-C3과 종을 쓰는 조작 시험이 함께 실패"
+  },
+  {
+   "id": "U-7",
+   "defect": "사용자 발견 ⑦ 등급 선택칸이 4.4 행만 동작",
+   "assigned_tests": [
+    "CTL-07"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-43",
+    "AC-44",
+    "CTL-07"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-25",
+    "AC-43",
+    "AC-44"
+   ],
+   "other_failed_reason": "등급 선택칸이 4.4 행만 동작하면 4.3 · 1.2 · 7.1 · 4.6.2를 바꾸는 AC-25 · AC-43과 4.3을 B로 바꿔 시작 전 체크를 보는 AC-44-C3이 함께 실패"
+  },
+  {
+   "id": "V-1",
+   "defect": "G3-6 ISS-001 창 · 패널 · 안내를 닫으면 고른 결과 · 메모 · 체크가 사라짐",
+   "assigned_tests": [
+    "AC-38",
+    "AC-39",
+    "CTL-06"
+   ],
+   "failed_tests": [
+    "AC-38",
+    "AC-39",
+    "AC-41",
+    "AC-44",
+    "AC-46",
+    "CTL-06",
+    "CTL-12",
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-41",
+    "AC-44",
+    "AC-46",
+    "CTL-12",
+    "CTL-13"
+   ],
+   "other_failed_reason": "같은 화면을 다시 그릴 때 입력을 되살리는 처리라, 홈 · 종에서 돌아오는 AC-44와 확인 창을 닫고 돌아온 4.5 입력을 보는 AC-46-C4가 함께 실패"
+  },
+  {
+   "id": "V-2",
+   "defect": "G3-6 ISS-002 ① M-01 '검토'가 M-03 보고서를 열고 결정이 M-01에 저장됨",
+   "assigned_tests": [
+    "CTL-10"
+   ],
+   "failed_tests": [
+    "CTL-10"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-3",
+   "defect": "G3-6 ISS-002 ② M-03 숙련자 인계 뒤 호출 표 행이 파트장 호출 그대로 · 답하기가 M-20 상세",
+   "assigned_tests": [
+    "CTL-11"
+   ],
+   "failed_tests": [
+    "CTL-11",
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-15"
+   ],
+   "other_failed_reason": "CTL-15도 인계 뒤 파트장 호출 표의 M-03 행 제목을 본다"
+  },
+  {
+   "id": "V-4",
+   "defect": "G3-6 ISS-003 (1) 수정 실패 화면에서 문장을 고쳐도 저장이 안 열림",
+   "assigned_tests": [
+    "CTL-08"
+   ],
+   "failed_tests": [
+    "CTL-08"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-5",
+   "defect": "G3-6 ISS-003 (2) 감사 기록 필터가 목록 없이 고정 상태로만 바뀜",
+   "assigned_tests": [
+    "CTL-09"
+   ],
+   "failed_tests": [
+    "CTL-09"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-6",
+   "defect": "G3-6 ISS-003 (3) '고칠 수 있음' 요약을 고칠 수 없음",
+   "assigned_tests": [
+    "CTL-12"
+   ],
+   "failed_tests": [
+    "CTL-12"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-7",
+   "defect": "G3-6 ISS-003 (4) 근거 링크가 번호 둘을 보이지만 첫 번호만 엶",
+   "assigned_tests": [
+    "AC-38"
+   ],
+   "failed_tests": [
+    "AC-38"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "V-8",
+   "defect": "v7 점검에서 찾은 '결정 저장' 처리 두 번(저장 + 샘플 없음 안내)",
+   "assigned_tests": [
+    "CTL-08"
+   ],
+   "failed_tests": [
+    "CTL-08"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-1",
+   "defect": "G3-7 ISS-001 ① 종 '이어서 하기'가 지금 화면을 다시 열어 보이는 선택은 지워지고 보낼 값은 남음(v10: 다시 판정 처리 포함 블록)",
+   "assigned_tests": [
+    "CTL-13"
+   ],
+   "failed_tests": [
+    "CTL-13"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-2",
+   "defect": "G3-7 ISS-001 ② '인계 보냄' 잠김이 다시 그리면 풀리고 인계가 두 번 기록됨",
+   "assigned_tests": [
+    "CTL-14"
+   ],
+   "failed_tests": [
+    "CTL-14"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-4",
+   "defect": "G3-8 비차단 ① 경로별 인계 화면의 '이상' 단계가 초록 점(v14: 정정 표시를 더한 pathRows, 옛 정의 포함 2곳)",
+   "assigned_tests": [
+    "CTL-15"
+   ],
+   "failed_tests": [
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-5",
+   "defect": "G3-8 비차단 ② 인계 요약이 실제 경로 대신 고정 문장(v10: handoverVals)",
+   "assigned_tests": [
+    "CTL-15"
+   ],
+   "failed_tests": [
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "W-3",
+   "defect": "G3-7 ISS-002 재가동 경계 밖 · LLM 연속 실패 인계에도 '맞지 않는 소견(냉각수 고임)' 내용",
+   "assigned_tests": [
+    "CTL-15"
+   ],
+   "failed_tests": [
+    "CTL-15"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-1",
+   "defect": "피드백 ① 파트장 승인 뒤 '점검 시작'이 안내만 띄우고 4.4를 열지 않음",
+   "assigned_tests": [
+    "AC-42",
+    "AC-22"
+   ],
+   "failed_tests": [
+    "AC-19",
+    "AC-22",
+    "AC-42",
+    "CTL-16",
+    "CTL-17",
+    "CTL-18"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-19",
+    "CTL-16",
+    "CTL-17",
+    "CTL-18"
+   ],
+   "other_failed_reason": "승인 뒤 4.4를 여는 경로를 쓰는 AC-19-C3(남은 대안 없음 경로) · CTL-16(4.4.2 경로 보고서) · CTL-17(승인 뒤 D) · CTL-18(승인 뒤 B)도 함께 실패"
+  },
+  {
+   "id": "X-2",
+   "defect": "피드백 ② 진행 표시의 지나온 단계를 눌러도 아무 일 없음",
+   "assigned_tests": [
+    "AC-41"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-41",
+    "AC-47",
+    "AC-48",
+    "CTL-19"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-25",
+    "AC-47",
+    "AC-48",
+    "CTL-19"
+   ],
+   "other_failed_reason": "진행 표시 단계가 연결되지 않으면 지난 화면을 여는 모든 시험(AC-25-C1의 진단 확인 · AC-47 · AC-48 · CTL-19)이 함께 실패"
+  },
+  {
+   "id": "X-5",
+   "defect": "피드백 ③ 옛 규칙: C에서 B · A로 낮출 때만 경고, 나머지는 바로 저장",
+   "assigned_tests": [
+    "AC-25",
+    "CTL-07"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-43",
+    "AC-44",
+    "CTL-07",
+    "CTL-17"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-43",
+    "AC-44",
+    "CTL-17"
+   ],
+   "other_failed_reason": "옛 규칙에서는 경고 없이 바로 저장되는 변경이 있어 AC-43 · CTL-17과 4.3을 B로 바꾸는 AC-44-C3의 등급 변경 도우미(경고 저장 버튼)가 함께 실패"
+  },
+  {
+   "id": "X-6",
+   "defect": "피드백 ④ 바꾼 등급이 정비자 판정에 반영되지 않음(고정 등급)",
+   "assigned_tests": [
+    "AC-25",
+    "AC-43"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-43",
+    "AC-44",
+    "AC-46",
+    "CTL-17",
+    "CTL-18"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-44",
+    "AC-46",
+    "CTL-17",
+    "CTL-18"
+   ],
+   "other_failed_reason": "등급이 판정에 반영되지 않으면 4.4를 D · B로 바꿔도 그대로라 CTL-17 · CTL-18, 4.3을 B로 바꿔 시작 전 체크를 보는 AC-44-C3, 4.3.2가 C일 때 정정 뒤 호출을 보는 AC-46-C1이 함께 실패"
+  },
+  {
+   "id": "X-7",
+   "defect": "R13 위반: 열린 지시 화면의 '최대 n'이 등급 변경 즉시 바뀜",
+   "assigned_tests": [
+    "AC-25"
+   ],
+   "failed_tests": [
+    "AC-25"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-8",
+   "defect": "B 점검 시작 전 체크리스트를 확인하지 않아도 결과 입력이 열림",
+   "assigned_tests": [
+    "AC-43"
+   ],
+   "failed_tests": [
+    "AC-43",
+    "CTL-18"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-18"
+   ],
+   "other_failed_reason": "B 시작 전 확인 잠금을 무시하면 승인 뒤 B가 된 점검의 잠금을 보는 CTL-18도 함께 실패"
+  },
+  {
+   "id": "X-9",
+   "defect": "자체 목록 없는 절을 B로 바꿨는데 공통 시작 전 확인 대신 '그 절 체크리스트'로 표시",
+   "assigned_tests": [
+    "AC-43"
+   ],
+   "failed_tests": [
+    "AC-43",
+    "CTL-18"
+   ],
+   "detected": true,
+   "other_failed": [
+    "CTL-18"
+   ],
+   "other_failed_reason": "승인 뒤 B가 된 4.4의 목록 머리 '공통 시작 전 확인'을 보는 CTL-18도 함께 실패"
+  },
+  {
+   "id": "X-11",
+   "defect": "G3-10 ISS-001 진단 화면 '다음 점검'이 바꾼 등급과 무관하게 승인 sample(4.3 · A) 그대로",
+   "assigned_tests": [
+    "AC-25",
+    "AC-43"
+   ],
+   "failed_tests": [
+    "AC-25",
+    "AC-43"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-12",
+   "defect": "G3-10 ISS-002 확정한 보고서 값이 홈 · 종 · 파트장 표 · 검토로 이어지지 않음(sample 값 그대로)",
+   "assigned_tests": [
+    "CTL-16"
+   ],
+   "failed_tests": [
+    "AC-11",
+    "CTL-16"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-11"
+   ],
+   "other_failed_reason": "확정 값 저장을 통째로 끄면 기본 경로에서 고친 값을 보는 AC-11-C2도 함께 실패"
+  },
+  {
+   "id": "X-13",
+   "defect": "G3-11 ISS-001 승인 sample 경로에서 고친 보고서 행이 파트장 쪽으로 이어지지 않음",
+   "assigned_tests": [
+    "AC-11"
+   ],
+   "failed_tests": [
+    "AC-11"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-14",
+   "defect": "승인 뒤 그 절이 D로 바뀌어도 승인을 계속 씀",
+   "assigned_tests": [
+    "CTL-17"
+   ],
+   "failed_tests": [
+    "CTL-17"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-15",
+   "defect": "G3-12 ISS-001 승인 기록이 있으면 B 점검도 시작 전 체크리스트 없이 열림",
+   "assigned_tests": [
+    "CTL-18"
+   ],
+   "failed_tests": [
+    "CTL-18"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "X-10",
+   "defect": "승인 뒤 4.4 '이상'의 C등급 조치를 다시 호출 없이 진행(승인을 조치까지 넓힘)",
+   "assigned_tests": [
+    "AC-42"
+   ],
+   "failed_tests": [
+    "AC-42",
+    "AC-46",
+    "CTL-16"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-46",
+    "CTL-16"
+   ],
+   "other_failed_reason": "승인을 조치까지 넓히면 4.4.2가 두 번째 호출 없이 진행돼 CTL-16의 경로(두 번째 승인)와, 4.3.2가 C일 때 정정 뒤 호출 요약을 기대하는 AC-46-C1이 함께 실패"
+  },
+  {
+   "id": "Y-1",
+   "defect": "010 ① '홈'으로 갔다 '이어서 하기'로 돌아오면 넣던 입력이 사라짐",
+   "assigned_tests": [
+    "AC-44"
+   ],
+   "failed_tests": [
+    "AC-44"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-2",
+   "defect": "010 ① 상단 '홈'이 눌리지 않음",
+   "assigned_tests": [
+    "AC-44",
+    "CTL-19"
+   ],
+   "failed_tests": [
+    "AC-44",
+    "CTL-19"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-3",
+   "defect": "010 ② 지난 화면의 보낸 메모를 그 자리에서 고쳐 쓸 수 있음(정정 창 우회)",
+   "assigned_tests": [
+    "AC-41"
+   ],
+   "failed_tests": [
+    "AC-41"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-4",
+   "defect": "010 ② '현재 단계로'로 돌아오면 넣던 입력이 사라짐",
+   "assigned_tests": [
+    "AC-41"
+   ],
+   "failed_tests": [
+    "AC-41",
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-46"
+   ],
+   "other_failed_reason": "'현재 단계로'가 입력을 지우면 확인 창 취소 뒤 4.5 입력을 보는 AC-46-C4도 같은 복귀 처리를 써서 함께 실패"
+  },
+  {
+   "id": "Y-5",
+   "defect": "010 ③ 사유 없이 정정이 저장됨(저장 버튼이 잠기지 않고 사유 검사도 없음)",
+   "assigned_tests": [
+    "AC-45"
+   ],
+   "failed_tests": [
+    "AC-45"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-6",
+   "defect": "010 ③ 정정이 원래 값을 덮어쓰고 이력을 남기지 않음",
+   "assigned_tests": [
+    "AC-45"
+   ],
+   "failed_tests": [
+    "AC-45",
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-46"
+   ],
+   "other_failed_reason": "정정 이력이 남지 않으면 정정 기록으로 지난 화면 상태(T15 / corrected)와 점검 경로 '정정 1회'를 정하는 AC-46도 함께 실패"
+  },
+  {
+   "id": "Y-7",
+   "defect": "010 ④ 결과를 정정해도 다시 판정하지 않음",
+   "assigned_tests": [
+    "AC-46"
+   ],
+   "failed_tests": [
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-8",
+   "defect": "010 ④ 정정한 점검 뒤 기록을 지움('정정으로 무효'로 남기지 않음)",
+   "assigned_tests": [
+    "AC-46"
+   ],
+   "failed_tests": [
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-9",
+   "defect": "011 Q-06 열린 지시가 바뀌어도 확인 없이 보내지 않은 입력을 지움",
+   "assigned_tests": [
+    "AC-46"
+   ],
+   "failed_tests": [
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-10",
+   "defect": "010 ④ 조치를 마친 뒤 정정도 그대로 다시 판정함",
+   "assigned_tests": [
+    "AC-47"
+   ],
+   "failed_tests": [
+    "AC-47"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-11",
+   "defect": "010 ④ 보낸 호출이 있어도 정정을 붙이지 않고 다시 판정함",
+   "assigned_tests": [
+    "AC-47"
+   ],
+   "failed_tests": [
+    "AC-47"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-12",
+   "defect": "011 Q-08 보고서를 확정한 세션도 정정할 수 있음",
+   "assigned_tests": [
+    "AC-48"
+   ],
+   "failed_tests": [
+    "AC-48"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-13",
+   "defect": "010 ③ 메모 덧붙이기를 저장해도 남지 않음",
+   "assigned_tests": [
+    "AC-48"
+   ],
+   "failed_tests": [
+    "AC-48"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-14",
+   "defect": "011 메모만 정정해도 다시 판정함",
+   "assigned_tests": [
+    "AC-46"
+   ],
+   "failed_tests": [
+    "AC-45",
+    "AC-46"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-45"
+   ],
+   "other_failed_reason": "메모만 바꿔도 다시 판정하면 메모 정정 뒤 T15 / corrected를 기대하는 AC-45-C3 · C4도 함께 실패"
+  },
+  {
+   "id": "Y-15",
+   "defect": "G2A '이전 · 다음'이 처음 · 끝 기록에서도 잠기지 않음",
+   "assigned_tests": [
+    "AC-41"
+   ],
+   "failed_tests": [
+    "AC-41"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-16",
+   "defect": "점검 중 지금 단계(점검)의 이미 보낸 기록을 열 수 없음",
+   "assigned_tests": [
+    "AC-41",
+    "AC-45"
+   ],
+   "failed_tests": [
+    "AC-41",
+    "AC-45",
+    "AC-46",
+    "AC-47",
+    "AC-48",
+    "CTL-20"
+   ],
+   "detected": true,
+   "other_failed": [
+    "AC-46",
+    "AC-47",
+    "AC-48",
+    "CTL-20"
+   ],
+   "other_failed_reason": "지금 단계(점검)의 이미 보낸 기록을 열 수 없으면 그 기록을 정정 · 메모 덧붙이기하는 AC-46 · AC-47 · AC-48 · CTL-20도 함께 실패"
+  },
+  {
+   "id": "Y-17",
+   "defect": "010 ④ 파트장 호출 상세에 붙은 정정이 안 보임",
+   "assigned_tests": [
+    "AC-47"
+   ],
+   "failed_tests": [
+    "AC-47"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  },
+  {
+   "id": "Y-18",
+   "defect": "010 ③ 정정이 감사 기록에 남지 않음",
+   "assigned_tests": [
+    "AC-45"
+   ],
+   "failed_tests": [
+    "AC-45"
+   ],
+   "detected": true,
+   "other_failed": [],
+   "other_failed_reason": ""
+  }
+ ],
+ "control_audit_on_mutants": {
+  "W-1": {
+   "summary": {
+    "editable": 202,
+    "works": 2272,
+    "NOOP": 137,
+    "display": 1048,
+    "covered": 400,
+    "locked": 31,
+    "hidden": 88,
+    "panel_closed": 230
+   },
+   "mismatch": 2,
+   "examples": [
+    "T06:default · 이어서 하기 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 보이는 결과 선택 [] ≠ 보낼 값 이상",
+    "T06:default · 이어서 하기 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 보이는 결과 선택 [] ≠ 보낼 값 이상"
+   ]
+  },
+  "W-2": {
+   "summary": {
+    "editable": 202,
+    "works": 2274,
+    "NOOP": 137,
+    "display": 1048,
+    "covered": 400,
+    "locked": 29,
+    "hidden": 88,
+    "panel_closed": 230
+   },
+   "mismatch": 34,
+   "examples": [
+    "T11:expert_handover · 숙련자 인계 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림",
+    "T11:unable_repeat · 숙련자 인계 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림",
+    "T11:expert_handover · 02:31 · 다시 그린 뒤 보이는 상태와 내부 상태가 다름: 인계를 보냈는데 '숙련자 인계' 버튼이 다시 열림"
+   ]
+  },
+  "U-6": {
+   "summary": {
+    "editable": 194,
+    "works": 2039,
+    "NOOP": 121,
+    "DEAD": 116,
+    "display": 945,
+    "covered": 380,
+    "locked": 30,
+    "hidden": 80,
+    "ERROR": 16
+   },
+   "mismatch": 0,
+   "examples": []
+  },
+  "V-8": {
+   "summary": {
+    "editable": 202,
+    "works": 2272,
+    "NOOP": 138,
+    "display": 1048,
+    "covered": 400,
+    "locked": 31,
+    "hidden": 88,
+    "panel_closed": 230
+   },
+   "mismatch": 7,
+   "examples": [
+    "L03:review · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)",
+    "L03:edit · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)",
+    "L03:edit · 결정 저장 · 이동과 안내가 함께 일어남(처리 두 번)"
+   ]
+  },
+  "V-2": {
+   "summary": {
+    "editable": 202,
+    "works": 2274,
+    "NOOP": 135,
+    "display": 1048,
+    "covered": 400,
+    "locked": 31,
+    "hidden": 88,
+    "panel_closed": 230
+   },
+   "mismatch": 122,
+   "examples": [
+    "L02:list · 검토 · 누른 행 설비 M-01 ≠ 열린 화면 M-03",
+    "L02:list · 검토 · 누른 행 설비 M-20 ≠ 열린 화면 M-03",
+    "L02:list · 검토 · 누른 행 설비 M-01 ≠ 열린 화면 M-03"
+   ]
+  },
+  "X-1": {
+   "summary": {
+    "editable": 191,
+    "works": 1964,
+    "NOOP": 120,
+    "display": 898,
+    "covered": 395,
+    "locked": 29,
+    "hidden": 56,
+    "panel_closed": 219,
+    "ERROR": 18
+   },
+   "mismatch": 0,
+   "examples": []
+  },
+  "X-2": {
+   "summary": {
+    "editable": 197,
+    "works": 1898,
+    "NOOP": 114,
+    "display": 957,
+    "DEAD": 201,
+    "covered": 391,
+    "locked": 26,
+    "hidden": 88,
+    "panel_closed": 230,
+    "ERROR": 11
+   },
+   "mismatch": 0,
+   "examples": []
+  },
+  "Y-2": {
+   "summary": {
+    "editable": 204,
+    "works": 2162,
+    "NOOP": 137,
+    "DEAD": 116,
+    "display": 1044,
+    "covered": 397,
+    "locked": 31,
+    "hidden": 88,
+    "panel_closed": 234
+   },
+   "mismatch": 0,
+   "examples": []
+  },
+  "Y-16": {
+   "summary": {
+    "editable": 193,
+    "works": 2023,
+    "NOOP": 117,
+    "display": 940,
+    "covered": 281,
+    "locked": 22,
+    "hidden": 88,
+    "panel_closed": 230,
+    "ERROR": 15
+   },
+   "mismatch": 0,
+   "examples": []
+  }
+ }
+}

@@ -1,0 +1,33 @@
+# S-06 판별력 기록(점검표 C7) — 수리 전 실패 · 결함 사본에서 실패를 직접 확인한 것
+# 2026-10-14. 시험 DB · dev 스택 · tmp_path에서만. 넣은 결함은 실행 뒤 지웠다.
+
+[결정 020 ④ 감사 중복 행] test_call_required_audit_once_per_call_step
+  수리 전(지금 코드): 1 failed — test_lead.py:484 assert s["step"]["call_status"] == "sent" and call_rows() == [first] (보낸 뒤 '호출 필요' 한 줄 더)
+  수리 뒤: passed
+
+[결정 020 ⑬ commit 시점] test_commit_before_response_is_sent
+  수리 전: AssertionError ['response', 'commit'] (응답을 보낸 뒤 commit)
+  수리 뒤: passed. 평가 실행: 수리 전 실행마다 다른 카드 실패(EC-01 stale_seq / EC-05 stale_seq · EC-09 no_session), 수리 뒤 30건 3회 실행 모두 실패 0
+
+[결정 020 ⑯ 두 번째 호출 화면 값] test_second_call_view_is_not_previous_answer
+  수리 전: AssertionError ('4.4.2', 'answered', …) != ('4.4.2', 'none', None)
+  수리 뒤: passed. 시연 E2E DEMO-02: 수리 전 '파트장 호출' 버튼 없음(150초 시간 초과), 수리 뒤 통과
+
+[결정 020 ⑮ 조치 · 재가동 체크 유지] e2e/tests/s06.spec.ts 첫 시험
+  수리 전: expect(locator('.act .ck.on')).toHaveCount(1) — Received 0(홈 → 이어서 하기 뒤 체크 사라짐)
+  수리 뒤: passed
+
+[결정 020 ⑰ 잠금 전 진행 표시 pick] past.test.tsx '잠금 전 세션 … 완료 단계도 pick'
+  수리 전: 1 failed(className 'sp done' — pick 없음), 전 화면 대조 미분류 5건(T04 · T05 · T13 R-STEP '- div.done.pick.sp / + div.done.sp')
+  수리 뒤: 66 passed, 전 화면 대조 미분류 0
+
+[ADV-09] test_adv09_file_watch_catches_defect_copy · test_adv09_static_check_catches_defect_copy
+  지금 코드: 파일 열기 감시 0건 · 정적 검사 0 hit
+  결함 사본(검색이 tmp_path 가짜 eval/cards/cards.jsonl을 엶 · tmp 사본 search.py에 평가 카드 경로): 감시가 그 경로를 잡음 · 정적 검사 exit 1
+  평가 실행(api 컨테이너 sitecustomize 감시 켬): FORBIDDEN_OPEN 0건, 감시 켜짐 확인(file_watch_active_in_api true)
+
+[AC-17-C2 예시 값 하드코딩] scripts/example_value_check.py
+  지금 앱 소스: 0건(설명 주석 속 형식 예시 5건은 화면 값이 아니라 주석을 빼고 셈)
+  결함 주입(apps/tech/src/zz_fault.tsx에 "H-0300 · 8.3 K"): 2건 잡음 → 파일 지움
+
+[지표 계산] server/tests/test_eval.py 7개 — 손으로 정한 정답 기록과 계산 결과를 비교(분자 · 분모 · 미달 표시), 결과 표시 문구는 제품 flow.OUTCOME_CAUSE와 대조

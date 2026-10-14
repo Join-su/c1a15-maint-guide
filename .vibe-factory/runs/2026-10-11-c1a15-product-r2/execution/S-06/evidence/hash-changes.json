@@ -1,0 +1,68 @@
+{
+ "checked_at": "2026-10-14T16:26:36+09:00",
+ "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+ "head_unchanged": true,
+ "files": [
+  {
+   "path": "package-lock.json",
+   "g4_baseline": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+   "now": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+   "changed": false
+  },
+  {
+   "path": "server/uv.lock",
+   "g4_baseline": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997",
+   "now": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997",
+   "changed": false
+  },
+  {
+   "path": "data/manifest.json",
+   "g4_baseline": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+   "now": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+   "changed": false
+  },
+  {
+   "path": "data/alarm_rules.json",
+   "g4_baseline": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+   "now": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+   "changed": false
+  },
+  {
+   "path": "data/demo/scenarios.json",
+   "g4_baseline": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "now": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "changed": false
+  },
+  {
+   "path": "server/openapi.json",
+   "g4_baseline": "4f84020dd2b4659128c9d62067a556537f83a9ebc9c2362b87e3469122919585",
+   "now": "fe037eb4ce81ea6b180a2dbab578e62b5b691d4fc2f26a16bc6ea6c4455427f8",
+   "changed": true,
+   "cause": "P-16 내부 알람 등록 AlarmBody.eval_mode(평가 실행기 알람, 결정 017 ②) — 승인 item의 예상 변경"
+  },
+  {
+   "path": "eval/cards/cards.jsonl",
+   "g4_baseline": "e928e398446ece28bd4a4cb904fa50a3e67cfd0ac9500217c5eda5a19aaf46c1",
+   "now": "e928e398446ece28bd4a4cb904fa50a3e67cfd0ac9500217c5eda5a19aaf46c1",
+   "changed": false
+  },
+  {
+   "path": "eval/cards/card_inputs.json",
+   "g4_baseline": "b19fe67278f81655893db47ca56576beddbf467368e9134dbdca1bd0287eeeb1",
+   "now": "b19fe67278f81655893db47ca56576beddbf467368e9134dbdca1bd0287eeeb1",
+   "changed": false
+  },
+  {
+   "path": "eval/cards/card_udi_map.json",
+   "g4_baseline": "13be1ae3c8c99cd6545edce8b52bd70a923d2528070ad179acb96339deb1f484",
+   "now": "13be1ae3c8c99cd6545edce8b52bd70a923d2528070ad179acb96339deb1f484",
+   "changed": false
+  },
+  {
+   "path": "data/demo/scenarios.json",
+   "g4_baseline": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "now": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "changed": false
+  }
+ ]
+}

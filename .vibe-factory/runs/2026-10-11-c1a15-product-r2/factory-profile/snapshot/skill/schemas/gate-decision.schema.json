@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vibe Factory Gate Decision",
+  "type": "object",
+  "required": ["run_id", "gate", "artifact", "artifact_version", "decision", "approved_scope", "excluded_scope", "reviewer_note"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "gate": {"enum": ["G1", "G2A", "G2B", "G3", "PBC-4", "G4"]},
+    "artifact": {"type": "string"},
+    "artifact_version": {"type": "string"},
+    "decision": {"enum": ["approved", "rejected", "revise"]},
+    "approved_scope": {"type": "array", "items": {"type": "string"}},
+    "excluded_scope": {"type": "array", "items": {"type": "string"}},
+    "reviewer_note": {"type": "string"},
+    "implementation_authorization": {
+      "type": "object",
+      "properties": {
+        "authorized": {"type": "boolean"},
+        "allowed_plan_version": {"type": "string"},
+        "allowed_plan_item_ids": {"type": "array", "items": {"type": "string"}},
+        "execution_mode": {"enum": ["continuous_batch", "per_slice_gated"]},
+        "stop_conditions": {"type": "array", "items": {"type": "string"}},
+        "prohibited_actions": {"type": "array", "items": {"type": "string"}},
+        "separate_approval_required_for": {"type": "array", "items": {"type": "string"}},
+        "approver_role": {"type": "string"},
+        "approved_by": {"type": "string"},
+        "approved_at": {"type": "string"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"gate": {"const": "PBC-4"}}},
+      "then": {"required": ["implementation_authorization"]},
+      "else": {"not": {"required": ["implementation_authorization"]}}
+    }
+  ],
+  "additionalProperties": true
+}

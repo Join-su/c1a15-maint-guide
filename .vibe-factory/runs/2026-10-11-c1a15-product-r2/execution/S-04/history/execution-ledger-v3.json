@@ -1,0 +1,803 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "execution_ledger",
+ "plan_version": "v10",
+ "slice_id": "S-04",
+ "plan_item_ids": [
+  "P-11",
+  "P-12",
+  "P-13"
+ ],
+ "entries": [
+  {
+   "plan_item_id": "P-11",
+   "changed_files": [
+    "server/migrations/versions/0004_lead_review.py(새: reports.approval · alarms.eval_mode · ops.grade_changes)",
+    "server/src/c1a15/db/models.py(Report.approval · Alarm.eval_mode · GradeChange)",
+    "server/src/c1a15/api/lead.py(새: 파트장 API — 승인 대기 · 검토 · 근거 검사 · 결정 · 호출 · 답 · 등급 · 경고 · 감사)",
+    "server/src/c1a15/api/main.py(파트장 router)",
+    "server/src/c1a15/api/schemas.py(EditsBody · DecisionBody · AnswerBody · GradeBody)",
+    "server/src/c1a15/api/responses.py(Lead* 응답)",
+    "server/src/c1a15/engine/session.py(결정 018 ③ ④: 직접 확인 답 → 보고서, 숙련자 인계 보냄 → 답 대기 → 답 뒤 보고서)",
+    "server/src/c1a15/api/flow.py(직접 확인 확정 원인 · 답 이름표 · 미확인 · 요청에 답과 처리 메모)",
+    "server/src/c1a15/api/deps.py(요청 transaction의 after_commit — 승인 이력 메모리 색인을 commit 뒤에, G6-S04 비차단 ②)",
+    "server/openapi.json",
+    "server/tests/test_lead.py(새, 16)",
+    "server/tests/test_api.py(S-03 시험 2개를 결정 018 ③ ④ 동작으로)"
+   ],
+   "commands": [
+    "scripts/verify-db",
+    "python3 scripts/openapi_check.py --write",
+    "npm run -w tools/api-types gen",
+    "scripts/check-fast"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/gate-applicability.md",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt",
+      "execution/S-04/evidence/e2e-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json",
+      "execution/S-04/evidence/e2e-test-list.txt",
+      "execution/S-04/evidence/screens/L02-list.png",
+      "execution/S-04/evidence/screens/T02-rejected.png"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/prototype-structure-checklist.json",
+      "execution/S-04/evidence/structure-dom-capture.mjs",
+      "execution/S-04/evidence/structure-compare.mjs",
+      "execution/S-04/evidence/structure-classify.py",
+      "execution/S-04/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/evidence-secret-check.txt",
+      "execution/S-04/evidence/secret-check-fault-injection.txt",
+      "execution/S-04/evidence/evidence-secret-check.py"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/db-test-list.txt",
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/hash-changes.json"
+   ],
+   "l0_decisions": [
+    "파트장 API는 /api/lead 아래 한 router(lead.py). 역할 확인 = 기존 앱 · 쿠키 경계(X-App lead + lead_session) 위에 파트장 역할, 업무 규칙 거부는 S-02 G6-1과 같은 별도 transaction 감사(audit_rejection)",
+    "승인 대기 목록(L02): 타일 = 승인 대기 보고서 수 · 답 안 한 호출 수 · 권한 위반 1건 이상인 승인 대기 보고서 수(사용자 결정 018 ①, 확정 전 확인 ②와 같은 계산). 행 = 설비 · 알람(증상군 이름) · 확정 원인 · 작성자 · 확정 시각 · 근거 기록 수 · 근거 적음 · 위반 수",
+    "검토(L03): 보고서 다섯 행(확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인) = Prototype L03 행 구성, 값은 확정 보고서 항목. 수정 후 승인 문장은 /check에서 R8 검사(수치 = 세션 입력 · 매뉴얼 문장 · 센서 값, 절 번호 · 기록 번호) — 실패 문구는 근거 없는 수치 토큰을 단위까지 인용",
+    "결정: 그대로 승인 · 수정 후 승인(고친 항목 · 전 · 후 · 메모를 감사 행에, AC-10) · 반려(사유 필수 409 reason_required). 반려 = S-03 시험 DB 형식 그대로(ops.reports 반려 · rejection + report_rejected + 세션 · 알람 진행 중 + 보고서 단계 다시 열기). 이미 결정한 보고서 다시 결정 409",
+    "승인 → 정비 이력(사용자 결정 018 ⑤): record_id R-{보고서 번호 4자리}, 단계 · 결과 · 센서 = 업무 기록, 원인 · 조치 · 정지 시간 · 미확인 = 승인 보고서 항목(수정 후 승인이면 고친 문장), 승인 = 파트장 · 시각, 서술 = 항목 문장 이어 붙임, 출처 approved_report + report_id. 같은 transaction에서 history_records · history_embeddings(fixture 가짜 임베딩)를 넣고, 메모리 색인(BM25 · 문서 목록)에는 DB commit이 끝난 뒤에 더함(deps.conn after_commit — rollback되면 색인에도 없음, G6-S04 비차단 ②)",
+    "평가 모드(사용자 결정 017 ②): alarms.eval_mode가 참이면 승인해도 이력 · 색인에 넣지 않음. S-04 시험은 표시를 시험 DB에 넣어 확인, 실제 평가 실행 경로는 S-06 P-16",
+    "호출 답(L04): 파트장 호출 = 승인 후 진행 · 주간 처리 · 직접 확인(호출을 보낼 때 저장한 등급이 D면 승인 후 진행 빼고, 보내면 409 answer_not_allowed — 보낸 뒤 그 절을 D로 바꿔도 열린 호출은 그대로: AC-25-C4와 같은 규칙, G6-S04 비차단 ② 사용자 결정으로 유지), 숙련자 인계 = 주간 숙련자 배정 · 직접 확인. 답 = S-03 시험 DB 형식 그대로(ops.calls.answer · call_answer 업무 기록 · 다음 단계 다시 열기) + 감사, 같은 호출 두 번 409",
+    "직접 확인(사용자 결정 018 ③): 답 저장 때 처리 메모 = 처리 결과 → 정비자 보고서 확정 원인 '원인 미상' · 미확인 · 요청 '파트장 직접 확인 · 메모'. 숙련자 인계(018 ④): 보냄 → 답 대기 → 답이 오면 보고서(원인 미상, 미확인 · 요청에 답 · 메모). S-03의 '직접 확인 대기' · '인계 보내면 바로 보고서' 동작을 바꿈",
+    "권한 등급(L05): 등급표 전부를 절 번호 순(사용자 결정 018 ②, 'n절 중 n절 표시'), 경고 문구는 서버가 줌(올림 · 낮춤 방향, D 포함), confirmed 없이 저장 409 warning_not_confirmed, 같은 등급 422. 저장 = 등급표 갱신 + ops.grade_changes(누가 · 언제 · 전 · 후) + 감사. 진행 중 세션은 다음 판정부터 새 등급, 이미 열린 지시는 그대로(기존 열린 단계 유지 동작)",
+    "감사 기록(L06): 설비 · 사용자 · 날짜 필터, 시간 역순. 행동 문구 · 대상 · 사용자 이름을 서버가 만듦(시스템 지시 · 호출 필요 행 = '시스템' · system, 알람 등록 = '알람 등록 · 배정 {이름}'). 로그인 · 로그아웃 행은 감사 화면에서 뺌(Prototype L06 행 구성)",
+    "종 목록 반려 항목(AC-37 A-05)은 S-03 API 그대로 실제 반려 경로가 채움. 정비자가 call_answer · report_rejected type을 보내면 422(S-03 G6 2차 비차단 의견)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-06-C1",
+    "AC-06-C2",
+    "AC-08-C1",
+    "AC-08-C2",
+    "AC-09-C1",
+    "AC-09-C2",
+    "AC-10-C1",
+    "AC-11-C1",
+    "AC-11-C2",
+    "AC-12-C1",
+    "AC-12-C2",
+    "AC-12-C3",
+    "AC-23-C1",
+    "AC-23-C2",
+    "AC-23-C3",
+    "AC-23-C4",
+    "AC-24-C1",
+    "AC-25-C1",
+    "AC-25-C2",
+    "AC-25-C3",
+    "AC-25-C4",
+    "AC-26-C1",
+    "AC-26-C2",
+    "AC-27-C1",
+    "AC-27-C2",
+    "AC-27-C3",
+    "AC-29-C1",
+    "AC-29-C2",
+    "AC-29-C3",
+    "AC-29-C4",
+    "AC-37-C1",
+    "AC-37-C2",
+    "AC-37-C3",
+    "AC-42-C1",
+    "AC-42-C2"
+   ]
+  },
+  {
+   "plan_item_id": "P-12",
+   "changed_files": [
+    "apps/lead/src/main.tsx · App.tsx(경로 6개, 10초 다시 읽기)",
+    "apps/lead/src/screens/Frame.tsx · Login.tsx · Approvals.tsx · Calls.tsx · Grades.tsx · Audit.tsx(새: L01 ~ L06)",
+    "apps/lead/src/app.css · device.ts · hooks.ts · vite-env.d.ts",
+    "apps/lead/package.json(test 명령) · vitest.config.ts",
+    "apps/lead/src/__tests__/screens.test.tsx(새, 15) · fixtures/*.json(실제 API 응답 16)",
+    "packages/ui/src/icons.tsx(settings) · format.ts(dateDay)",
+    "packages/ui/src/api/schema.d.ts(생성물)",
+    "scripts/check-fast(파트장 앱 component 시험)"
+   ],
+   "commands": [
+    "npm run typecheck",
+    "npm test -w @c1a15/lead",
+    "npm run build",
+    "scripts/check-fast",
+    "fixture 받기: evidence/fixture-capture.py(dev 스택, 파트장 답 · 반려는 실제 파트장 API)",
+    "구조 대조: structure-dom-capture → structure-compare → structure-classify"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/gate-applicability.md",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt",
+      "execution/S-04/evidence/e2e-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json",
+      "execution/S-04/evidence/e2e-test-list.txt",
+      "execution/S-04/evidence/screens/L02-list.png",
+      "execution/S-04/evidence/screens/T02-rejected.png"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/prototype-structure-checklist.json",
+      "execution/S-04/evidence/structure-dom-capture.mjs",
+      "execution/S-04/evidence/structure-compare.mjs",
+      "execution/S-04/evidence/structure-classify.py",
+      "execution/S-04/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/evidence-secret-check.txt",
+      "execution/S-04/evidence/secret-check-fault-injection.txt",
+      "execution/S-04/evidence/evidence-secret-check.py"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/component-test-list-lead.txt",
+    "execution/S-04/evidence/prototype-structure-checklist.json",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L02-list.png",
+    "execution/S-04/evidence/screens/L03-review.png",
+    "execution/S-04/evidence/screens/L04-call_detail.png",
+    "execution/S-04/evidence/screens/L05-raise_warning.png",
+    "execution/S-04/evidence/screens/L06-filtered.png"
+   ],
+   "l0_decisions": [
+    "Prototype template(packet 부록) 마크업 구조 · class를 React로 옮김(정비자 앱과 같은 방식, 앱끼리 import 없음 — 공통은 packages/ui). 조작 요소는 span + role=button, 보낼 수 없을 때 .dis",
+    "화면 값은 모두 API 응답(타일 · 행 · 칩 · 경고 문구 · 감사 문구), 기기에는 고른 결정 · 고친 문장 · 열린 드롭다운만 둠",
+    "검토 수정 후 승인: 행을 누르면 글 상자(textarea, I-5), 고칠 때마다 서버 /check로 R8 검사 → 실패면 빨간 행 · 실패 배너 · 저장 잠김. 반려는 사유가 비면 '반려 사유를 입력해야 저장됩니다' · 저장 잠김",
+    "호출 상세: 서버가 준 선택지만 보임(D면 승인 후 진행 없음), 처리 메모는 답과 함께 저장",
+    "권한 등급: 행 드롭다운 → 서버 경고(올림 info · 낮춤 warn) → 취소 / 변경 저장(confirmed). 경고가 떠 있는 동안 드롭다운 표시 유지",
+    "감사 기록: 필터 3개(설비 · 사용자 · 기간 7일)를 고르면 곧바로 그 조건으로 다시 읽음",
+    "파트장 앱은 10초마다 지금 화면 값을 다시 읽음(승인 대기 · 호출 새 행)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-10-C1",
+    "AC-12-C1",
+    "AC-12-C2",
+    "AC-12-C3",
+    "AC-17-C1",
+    "AC-17-C2",
+    "AC-24-C1",
+    "AC-25-C1",
+    "AC-25-C2",
+    "AC-25-C3",
+    "AC-25-C4",
+    "AC-26-C1",
+    "AC-26-C2",
+    "AC-27-C1",
+    "AC-27-C2",
+    "AC-27-C3",
+    "AC-29-C1",
+    "AC-29-C2",
+    "AC-29-C3",
+    "AC-29-C4",
+    "AC-37-C1",
+    "AC-37-C2",
+    "AC-37-C3"
+   ]
+  },
+  {
+   "plan_item_id": "P-13",
+   "changed_files": [
+    "e2e/tests/cross.spec.ts(새, 교차 6)",
+    "e2e/tests/helpers.ts(파트장 로그인 · 초기화에 calls · reports · 공통 도우미 옮김 · 캡처 root .ap 또는 .wb)",
+    "e2e/tests/tech-s03.spec.ts(결정 018 ③ ④ 화면, AC-23 답 전 설비 정지 대기)",
+    "scripts/verify-e2e(이름표 · 주석)",
+    "e2e/sim_lead_answer.py(숙련자 인계 답 assign)",
+    "apps/tech/src/screens/Home.tsx(T02 / rejected 배너 · 이어서 하기, T12 반려된 보고서 묶음 · 보고서 보기 — 결정 017 ①)",
+    "apps/tech/src/screens/Flow.tsx(직접 확인 처리 결과 배너 · 보고서 작성, 숙련자 인계 보냄 · 답 온 상태 — 결정 018 ③ ④)",
+    "apps/tech/src/screens/Session.tsx(답 화면 → 보고서 작성 기기 표시)",
+    "apps/tech/src/App.tsx(반려 이어서 하기)",
+    "apps/tech/src/__tests__/flow.test.tsx(S-04 4) · fixtures(s04-* · home-rejected · notifications-rejected, s03-* 다시 받음)"
+   ],
+   "commands": [
+    "scripts/verify-e2e(Playwright 21 — 교차 6)",
+    "npm test -w @c1a15/tech",
+    "scripts/check-fast"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/gate-applicability.md",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "fail",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt",
+      "execution/S-04/evidence/e2e-test-list.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/unit-test-list.txt",
+      "execution/S-04/evidence/component-test-list-lead.txt",
+      "execution/S-04/evidence/component-test-list-tech.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt",
+      "execution/S-04/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-db.txt",
+      "execution/S-04/evidence/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json",
+      "execution/S-04/evidence/e2e-test-list.txt",
+      "execution/S-04/evidence/screens/L02-list.png",
+      "execution/S-04/evidence/screens/T02-rejected.png"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/prototype-structure-checklist.json",
+      "execution/S-04/evidence/structure-dom-capture.mjs",
+      "execution/S-04/evidence/structure-compare.mjs",
+      "execution/S-04/evidence/structure-classify.py",
+      "execution/S-04/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/evidence-secret-check.txt",
+      "execution/S-04/evidence/secret-check-fault-injection.txt",
+      "execution/S-04/evidence/evidence-secret-check.py"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/verify-e2e.txt",
+      "execution/S-04/evidence/e2e-report.json"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-04/evidence/check-fast.txt",
+      "execution/S-04/evidence/hash-changes.json"
+     ]
+    }
+   ],
+   "verifier_result": "fail",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/e2e-report.json",
+    "execution/S-04/evidence/e2e-test-list.txt",
+    "execution/S-04/evidence/component-test-list-tech.txt",
+    "execution/S-04/evidence/screens/T04-next_alarm-after_approve.png",
+    "execution/S-04/evidence/screens/T04-low_evidence.png",
+    "execution/S-04/evidence/screens/T09-low_evidence.png",
+    "execution/S-04/evidence/screens/T06-open_after_grade_change.png",
+    "execution/S-04/evidence/screens/T06-second_check-after_approved.png",
+    "execution/S-04/evidence/screens/T02-rejected.png",
+    "execution/S-04/evidence/screens/T12-list.png",
+    "execution/S-04/evidence/screens/T12-list-rejected.png",
+    "execution/S-04/evidence/screens/L05-lower_warning.png",
+    "execution/S-04/evidence/screens/L03-reject.png"
+   ],
+   "l0_decisions": [
+    "교차 E2E는 두 browser context(정비자 8081 · 파트장 8082)로 실제 nginx · api · PostgreSQL을 거침. 파트장 답 · 반려 · 등급 변경은 파트장 앱 화면 조작으로만 함(시험 DB 시뮬레이션 없음). 시간 의존 없음",
+    "verifier_result fail = verifier ②만: 승인 → 이력 R-번호 · 출처 approved_report → 같은 증상군 다음 알람의 진단 화면 카드에 R-번호 없음(합친 순위 10위 밖) → 기록 창이 쓰는 같은 API로 R-번호가 열림. verifier ② 문장 '다음 같은 증상군 알람 후보 포함'과 Matrix AC-09 L3 '진단 과거 기록 후보에 다시 읽힘'은 화면으로 충족되지 않음(UF-S04-01 L1, G7 amendment). ① · ③ · ④ · AC-37은 통과",
+    "verifier ① = C 호출 → 승인 후 진행 → 종 답 보기 → 4.4 지시 → 정상 → 남은 후보 다음 단계(AC-08 · AC-42) / ③ = 올림 · 낮춤 경고 → 확인해야 저장 → 다음 판정 반영 · 열린 지시 절(4.3)까지 올려도 열린 지시 화면 그대로 · 변경 기록(AC-25) / ④ = 사유 없는 반려 저장 안 됨 → 사유 반려 → 정비자 홈 · 종 → 보고서 고쳐 다시 확정 → 승인 대기 목록에 다시(SC-35)",
+    "정비자 반려 화면(사용자 결정 017 ①): 최근 보고서 반려 칩 · 반려 사유 배너(파트장 · 시각) · '이어서 하기' = 반려 보고서 세션. 종 '반려된 보고서' → '보고서 보기' = 그 세션. 현재 반려와 지난 반려는 report.status로 구분(S-03 G6 2차 비차단 의견)",
+    "근거 적음(AC-29): S-02 · S-03과 같은 score 시뮬레이션을 진단 화면을 열기 전에 넣고 그 세션 checkpoint를 지워 다시 세움 → 진단 배너 · 순위 칩 → 다음 지시가 나옴 → 보고서 근거 사례 칩 → 파트장 목록 행 칩"
+   ],
+   "acceptance_condition_ids": [
+    "AC-08-C1",
+    "AC-08-C2",
+    "AC-09-C1",
+    "AC-09-C2",
+    "AC-11-C1",
+    "AC-11-C2",
+    "AC-23-C1",
+    "AC-23-C2",
+    "AC-23-C3",
+    "AC-23-C4",
+    "AC-24-C1",
+    "AC-25-C1",
+    "AC-25-C2",
+    "AC-25-C3",
+    "AC-25-C4",
+    "AC-37-C1",
+    "AC-37-C2",
+    "AC-37-C3",
+    "AC-42-C1",
+    "AC-42-C2"
+   ]
+  }
+ ],
+ "unexpected_facts": [
+  {
+   "id": "UF-S04-01",
+   "observation": "AC-09-C1 '승인 뒤 같은 증상군 알람의 검색 후보에 그 보고서가 포함된다'를 R3 상위 10건 포함으로 시험하자 실패 — fixture 가짜 임베딩에서 승인 보고서의 합친 순위 19위(BM25 2위, G5 때 세션 질의 — 018 ⑥ 기록). 진단 과거 기록 후보 = 세션을 만들 때 한 번 검색한 상위 10건(카드는 그중 score ≥ 0.5), 정비자 기록 창은 그 카드 · 지시 근거 번호로만 열림. G5 중 사용자 결정 018 ⑥('검색 대상에 들어 순위가 매겨짐')으로 판정했으나 이 해석은 packet에 없고, Matrix L3 '다음 같은 증상군 알람의 진단 과거 기록 후보에 다시 읽힘'과 P-13 verifier ②는 화면으로 충족되지 않음(G6-S04 1차 B1). 1차 L2 시험의 의미 색인 확인(cosine_rank 결과에 포함)은 pool 전체를 돌려받아 늘 참이었음",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/ac09-r3-positions.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/e2e-report.json",
+    "execution/S-04/evidence/screens/T04-next_alarm-after_approve.png"
+   ],
+   "affected_plan_item_ids": [
+    "P-11",
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-09-C1",
+    "P-13 verifier ②",
+    "Matrix AC-09 L3"
+   ],
+   "impact": "L1",
+   "recheck_result": "amendment_required",
+   "rationale": "사용자 결정(g6-revise-decision.md B1 'L1로 고치고 G7 amendment'): Matrix L3 · C1 문구를 G7 amendment로. 지금 확인한 것: L2 = 서버 경로 그대로(BM25 메모리 색인 + DB vector_ranks → RRF) 승인 전에는 어느 순위에도 없고 승인 뒤 BM25 3위 · pgvector 82위 · 합친 20위(시험 질의 '온도 차 저하 경계 아래', evidence/ac09-r3-positions.txt — pgvector 순위는 같은 증상군 전체를 돌려줘 그 자체로는 판별하지 않고, 판별은 승인 전 · 뒤 대조에서 나옴)(test_lead_overview_rows_and_approve_adds_history의 r3_positions), L3 = 교차 E2E에서 다음 같은 증상군 알람 진단 화면 카드 목록을 기록(next-alarm-cards: H-0248 · H-0295 · H-0262, R-0001 없음 — 단언하지 않고 기록만, 들어오면 바람직한 변화이므로) · 기록 창이 쓰는 같은 API로 R-번호가 열림(g6-revise-decision.md 추가 질문 '다음 알람 + 기록 API로'). AC-09-C2(평가 모드)는 통과"
+  },
+  {
+   "id": "UF-S04-02",
+   "observation": "기록 정리 중 AC 관찰 조건과 시험을 하나씩 맞추다가 API 시험이 없는 조건 다섯 가지를 발견: AC-23-C4 숙련자 인계 '직접 확인' 답 · AC-26-C1 반려 · 호출 · 호출 답 · 등급 변경 감사 행 · AC-25-C4 열린 호출 화면 · AC-25-C3 D 등급 경고 · AC-27-C1 권한 위반 타일 0이 아닌 값",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/db-test-list.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-11"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-23-C4",
+    "AC-25-C3 · C4",
+    "AC-26-C1",
+    "AC-27-C1"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "구현은 그대로 두고 시험만 더함(모두 첫 실행 통과, 시험의 응답 필드 이름 1건만 고침): test_lead_handover_direct_answer · test_lead_audit_records_review_call_and_grade · test_lead_grade_change_keeps_open_call · test_lead_grade_change(C → D 경고 · 확인 없는 저장 409) · test_lead_violation_tile_counts_reports(시험 DB에서 결과 하나의 절을 지시받지 않은 절로 바꿈). verify-db 55 다시 통과"
+  },
+  {
+   "id": "UF-S04-03",
+   "observation": "감사 화면 대조 중 알람 등록 행 · 시스템 지시 행에 행동 문구 · 사용자 표시가 없음, R8 실패 문구가 '1,850 rpm' 대신 '850'만 인용",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/check-fast.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-11"
+   ],
+   "affected_assumptions_or_controls": [
+    "L06 행 구성",
+    "L03 / edit_failed 문구"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "알람 등록 '알람 등록 · 배정 {이름}', 시스템 행 '시스템' · system으로, 실패 문구는 숫자 · 단위 토큰 전체 인용으로 고치고 시험에 고정(test_lead_audit_and_filters · test_lead_edit_approve_r8_and_audit)"
+  },
+  {
+   "id": "UF-S04-04",
+   "observation": "결정 018 ③ ④로 S-03 동작(직접 확인 답 → 설비 정지 대기, 숙련자 인계 보내면 바로 보고서)이 바뀌어 S-03 API 시험 2개 · E2E · component fixture가 옛 동작을 기대함",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/component-test-list-tech.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-09",
+    "P-10",
+    "P-11",
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "S-03 AC-23 부분 기록(직접 확인 대기)",
+    "T10 / ans_direct · T11 보낸 상태"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "G4 사용자 결정 018 ③ ④ 그대로 — S-03 시험(test_s03_direct_answer_goes_to_report · 인계 시험) · tech-s03 E2E · s03 fixture를 새 동작으로 바꾸고 다시 받음. 답 전 '설비 정지 대기' 표시는 남음(AC-23-C2)"
+  },
+  {
+   "id": "UF-S04-05",
+   "observation": "구조 대조에서 L06 필터 드롭다운에 Prototype에 없는 class(pos-r)가 붙어 차이로 잡힘",
+   "evidence_paths": [
+    "execution/S-04/evidence/prototype-structure-checklist.json"
+   ],
+   "affected_plan_item_ids": [
+    "P-12"
+   ],
+   "affected_assumptions_or_controls": [
+    "prototype_structure_checklist"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "위치 지정을 class 대신 inline style로 바꿔 template class 구성과 같게 함, 다시 대조 미분류 0"
+  },
+  {
+   "id": "UF-S04-06",
+   "observation": "E2E 준비 중 ① 시험 초기화(resetOps)가 로그인 세션도 지움 ② 화면 캡처 root가 정비자 앱(.ap)만 ③ 근거 적음 score 시뮬레이션을 보고서 확정 뒤에 넣어 목록 행 칩이 안 나옴 ④ 종 목록 component 시험이 항목 순서에 기댐",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/check-fast.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-13",
+    "P-12"
+   ],
+   "affected_assumptions_or_controls": [
+    "E2E · component 시험 도구"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "제품 동작이 아니라 시험 도구 문제 — 초기화 뒤 다시 로그인, 캡처 root .ap 또는 .wb, 시뮬레이션을 확정 전으로, 순서와 무관한 비교로 고침"
+  },
+  {
+   "id": "UF-S04-07",
+   "observation": "구조 대조 T12 / empty 3영역은 S-04 상태(반려 · 답 뒤)에서 종 목록이 비지 않아 대조할 DOM이 없음",
+   "evidence_paths": [
+    "execution/S-04/evidence/prototype-structure-checklist.json"
+   ],
+   "affected_plan_item_ids": [
+    "P-12",
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "prototype_structure_checklist(3영역 not_in_slice)"
+   ],
+   "impact": "none",
+   "recheck_result": "pass",
+   "rationale": "T12 / empty 빈 목록 안내는 S-02 E2E · component(AC-37-C3)로 확인됨. 전 화면 대조는 P-17(AC-17 완료)"
+  },
+  {
+   "id": "UF-S04-08",
+   "observation": "AC-23-C2 문구의 '파트장 확인 중 · 설비 정지 대기' 표시가 앱에 없음 — 사용자 결정 018 ③(packet lead_value_definitions)으로 파트장이 확인을 끝낸 뒤 '직접 확인' + 처리 메모를 한 번에 저장하므로 '확인 중' 상태가 없고, 답 전 화면은 호출 보냄(T10 / sent: 답 대기 · 요약 '설비는 정지 상태로 대기 중'), 답 뒤는 '파트장 직접 확인 · 처리 결과'",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/T10-ans_direct.png"
+   ],
+   "affected_plan_item_ids": [
+    "P-11",
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-23-C2 문구",
+    "T10 / ans_direct template 배너"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "packet에 있는 사용자 결정 018 ③ 그대로(G6-S04 1차 검토도 결정대로 들어갔다고 확인). 답 전 설비 정지 대기 문구를 E2E로 직접 확인(tech-s03 AC-23 시험)하고, 처리 결과는 보고서 미확인 · 요청에 기록. AC-23-C2 문장을 결정 018 ③과 맞추는 것은 다음 plan 판에 적음(scope_notes)"
+  },
+  {
+   "id": "UF-S04-09",
+   "observation": "G6-S04 1차 B2: 이번에 끝나는 AC-29의 L3(진단 · 보고서 근거 적음 · 다음 지시 그대로)를 E2E로 확인하지 않았고, AC-25-C4 E2E는 열린 지시 절의 등급을 바꾸지 않아 판별하지 못함",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/e2e-report.json",
+    "execution/S-04/evidence/screens/T04-low_evidence.png",
+    "execution/S-04/evidence/screens/T09-low_evidence.png",
+    "execution/S-04/evidence/screens/T06-open_after_grade_change.png"
+   ],
+   "affected_plan_item_ids": [
+    "P-12",
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-29 L3",
+    "AC-25-C4 L3"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정(g6-revise-decision.md B2 'S-04에서 E2E 보강'): 교차 E2E에 근거 적음 세션의 진단 배너 · 다음 지시 · 보고서 칩, 열린 지시 절(4.3)을 C로 올린 뒤 열린 지시 화면(제목 · 등급 표시) 그대로를 더해 verify-e2e 21 다시 통과. 제품 코드 변경 없음"
+  },
+  {
+   "id": "UF-S04-10",
+   "observation": "G6-S04 1차 B3: 결정 018 ③ ④ 화면(직접 확인 답 뒤 · 숙련자 인계 보낸 상태)이 packet 부록에도 구조 대조에도 없는데 gate를 '미분류 0'으로 적음. 부록 보충 중 결정 018 ④ 기록의 '시제품 T10 / sent 구조를 따름'과 앱(인계 화면 T11 같은 틀)이 어긋남을 발견",
+   "evidence_paths": [
+    "execution/S-04/evidence/prototype-structure-checklist.json",
+    "execution/S-04/evidence/structure-dom/T10--ans_direct.html",
+    "execution/S-04/evidence/structure-dom/T11--handover_sent.html",
+    "execution/S-04/evidence/gate-applicability.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-13"
+   ],
+   "affected_assumptions_or_controls": [
+    "prototype_structure_checklist",
+    "packet prototype_appendix",
+    "결정 018 ④ 기록"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정(g6-revise-decision.md B3 'G4 부록 보충 뒤 대조', 추가 질문 'T11 구조 유지 · 기록 고침'): G4가 PBC-0 잠금 Prototype(sha256 확인)에서 T10 / ans_direct · T11 / unable_repeat template · 영역을 부록 v2에 더하고(packet v2, 이전 판 history), 결정 018에 7(정정: 보낸 뒤 = T11 같은 틀에서 버튼 자리만 보냄 배너 · 안내)을 적음. 두 상태를 대조해 X-1 · X-2 규칙(그 상태에만)으로 분류, 미분류 0. 앱 코드 변경 없음"
+  },
+  {
+   "id": "UF-S04-11",
+   "observation": "G6-S04 1차 비차단 ②: 승인 때 메모리 색인을 DB commit 전에 갱신 — 이후 실패하면 DB에 없는 문서가 색인에 남음. 호출 D 판정은 보낼 때 저장한 등급을 봄",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/check-fast.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-11"
+   ],
+   "affected_assumptions_or_controls": [
+    "R12 색인 갱신",
+    "AC-23-C3 · AC-25-C4"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정(비차단 '①③ 고치고 ② 색인만'): 요청 transaction에 after_commit을 두어 색인은 commit 뒤에만 더함(실패하면 버림 — test_approve_index_only_after_commit: 승인 감사에서 실패시키면 이력 행 · 색인 문서 없음 · 보고서 승인 대기 그대로, G6-S04-2 비차단 ③). 호출 D 판정은 열린 호출 화면 불변(AC-25-C4)과 같은 규칙이라 그대로 두고 기록만"
+  }
+ ],
+ "loop": {
+  "used": true,
+  "cap": "같은 verifier 3회",
+  "outcome": "verify-db: 등급표 model 이름(GradeEntry) · 시험 초기화 뒤 다시 로그인 · AC-09 상위 10건(UF-S04-01, 사용자 결정 018 ⑥) · 감사 문구 · 실패 인용(UF-S04-03) 수리, 기록 정리 중 빠진 조건 시험 5개 추가(UF-S04-02), 다시 통과. G6 1차 revise(B1 AC-09 L1 · B2 L3 근거 · B3 구조 대조 누락 · 비차단 3) → 사용자 결정 g6-revise-decision.md → AC-09 L2 시험을 실제 검색 경로로 · E2E 보강(다음 알람 · 근거 적음 · 열린 지시 절 등급 · 답 전 설비 정지 대기) · 부록 v2 대조 · 색인 commit 뒤 · 감사 확인 질문 답 · 기간 필터 시험, 세 검사 다시 통과(verify-e2e는 dev 스택 포트 충돌로 한 번 더 실행). component: 순서 의존 1건. E2E: 캡처 root · 근거 적음 시뮬레이션 순서(UF-S04-06) 수리. 구조 대조: pos-r(UF-S04-05) 수리. 같은 verifier 3회를 넘긴 반복 없음"
+ },
+ "scope_notes": [
+  "G4 사용자 결정 017(sources/intent/017.md) · 018 ① ~ ⑤(sources/intent/018.md, run-state DEV-25)는 packet 실행 해석, G5 중 018 ⑥(AC-09-C1 판정 — packet에 없어 UF-S04-01 L1), G6 1차 revise 수리 중 018 7(④ 보낸 뒤 화면 구조 정정, packet v2 부록에 반영)",
+  "실행 카드 허용 목록(implementation-contract v1)의 apps/tech 범위 문장은 결정 017 ① 반려 화면만 적었고 결정 018 ③ ④ 화면(직접 확인 처리 결과 · 인계 답 대기)은 packet lead_value_definitions에 있음 — 이 slice의 apps/tech 변경은 두 결정 화면에 한정. e2e(시험 · 시뮬레이션 도구) · scripts/check-fast · scripts/verify-e2e는 P-12 · P-13 verifier 실행 구성",
+  "server/openapi.json hash 변경 = 승인 item P-11의 예상 변경(evidence/hash-changes.json). data · lockfile hash 그대로",
+  "구조 대조 기준 = packet 부록만(결정 017 ③). 부록 T02 / rejected template의 예시 값(사유 문장 등)은 데이터와 달라 D-2(값)로 분류. L04 R-CALLS 영역 selector는 첫 호출 카드만 대조(파생 L04 / call_detail_d가 D 상세를 대조)",
+  "정비자 단독 E2E(tech-s03)의 답 · 정정은 S-03과 같은 시험 DB 시뮬레이션(숙련자 인계 답 assign 더함) — 실제 파트장 답 경로는 교차 E2E · test_lead_*",
+  "S-05로 넘기는 일: 정정 입력 · 기록(P-14) · T10 / summary_corrected · 정정 호출 승인 답 뒤 이어 가기(UF-S03-10, A-06), 반려 뒤 추가 점검 경로(정정 · 지난 단계), L06 / correction 행(P-15)",
+  "S-06으로 넘기는 일: 평가 실행 경로가 alarms.eval_mode를 씀(결정 017 ②, P-16)",
+  "P-17로 넘기는 일: AC-17 전 화면 대조(이 slice 68영역 미분류 0)",
+  "S-02 ledger scope_notes 이어받을 일(live 전 실패 셈 정의): 파트장 수정 문장도 R8 대상 — fixture 기본 동작 유지, live slice에서 다시 정함",
+  "plan execution_status 구조 필드 · note 경로 정리(PBC4-A11 실행 해석 ③)는 다음 plan 판에서",
+  "다음 plan 판에 적을 것: AC-23-C2 문장을 결정 018 ③(확인 중 상태 없음 · 답 전 = 보냄 · 설비 정지 대기)과 맞춤(UF-S04-08)"
+ ],
+ "version_note": "S-04(packet v3, plan v10) v3 — G6 1차 revise · 2차 비차단 반영"
+}

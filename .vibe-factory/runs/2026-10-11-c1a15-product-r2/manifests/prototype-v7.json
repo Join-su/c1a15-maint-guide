@@ -1,0 +1,85 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype",
+ "version": "v7",
+ "status": "draft",
+ "supersedes": "v6",
+ "contents": [
+  {
+   "role": "prototype_slice",
+   "path": "prototype/v7/prototype-slice.md",
+   "sha256": "afebe361b524a304b698f337c441a1262fb3b987cd20e8e550fc5acbaef3ec61"
+  },
+  {
+   "role": "prototype_coverage",
+   "path": "prototype/v7/prototype-coverage.json",
+   "sha256": "cb395d7ee506a69f0a97b66da113465945f69541a15cb4307065c7c5450662a0"
+  },
+  {
+   "role": "prototype_renderable",
+   "path": "prototype/v7/index.html",
+   "sha256": "6646314114546dac10dfdbfdae8da719c7d3e2abfcee0ddb9b661d148ffc0c9f"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v7/regions.json",
+   "sha256": "fa09ab859c315bc4bea1cbfcb7e8c92ea35023318993a22a4ca05335dcf0739f"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v7/markup-check.json",
+   "sha256": "b6f892ea878d2a8c0c9af924bd664e7ad0f52aa9faa51e16c528b00ee20d388a"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v7/selftest-result.json",
+   "sha256": "10f2037ad8492c3817aaae9318bdf53da5c9f70cd3b878199ddee5bc7e3e8538"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v7/mutation-check.json",
+   "sha256": "df6ed75994451292f3ec88aab76b45d1c781fea50a640fb94875c2bfbe5337a5"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v7/structure-check.json",
+   "sha256": "a1910aca6d3066c7bbc794bf1f9cfc3c5dd6fd781fd5cd53f7f8ef998b275a1d"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v7/control-audit.json",
+   "sha256": "acddb5da25165399266c99ff6f23e705c2d289d6377a3cc00723019e39fc0307"
+  },
+  {
+   "role": "variation_evidence",
+   "path": "verification/g3-v7/axes.json",
+   "sha256": "13b3a97eaca03b4550ebb17935c828fc33017d7bfb57477294544122bc69313d"
+  }
+ ],
+ "sources": [
+  {
+   "path": "manifests/use_case-v3.json",
+   "reason": "승인 Use Case Bundle v3"
+  },
+  {
+   "path": "wireframes/v2/structure/selected-visual-baseline.json",
+   "reason": "G2A v2 구조 기준선"
+  },
+  {
+   "path": "wireframes/v2/structure/selected-structure-contract.json",
+   "reason": "G2A v2 구조 계약"
+  },
+  {
+   "path": "wireframes/v2/design/selected-visual-rules.md",
+   "reason": "G2B v2 시각 규칙"
+  },
+  {
+   "path": "sources/intent/004.md",
+   "reason": "G3 Human Gate(v5) 사용자 결정"
+  },
+  {
+   "path": "critics/G3-6-review.json",
+   "reason": "v6 검토 revise 지적 4건"
+  }
+ ]
+}

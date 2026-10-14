@@ -1,0 +1,143 @@
+{
+ "gate": "G3",
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v8/prototype-slice.md",
+  "version": "v8",
+  "sha256": "04366ffd3c00cba557ece888708da9b64655c1a647c105e72d0c8de8763c9b39"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v3.json",
+   "version": "v3",
+   "sha256": "61577260b7dce67beb3777d5ca65924e285ca4b72d6c80251dd83c532d3c6efb"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v3/acceptance-criteria.json",
+   "version": "v3",
+   "sha256": "6a46719847f0cc6b6e73ecedd7208c000c7a6a5ad67809f4d5c493079b24f000"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v3/scenario-coverage.json",
+   "version": "v3",
+   "sha256": "08e7feb1e6d7db9c76747aa6c2949467e2d91f5782a2957466e54f99a172728a"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected.md",
+   "version": "v2",
+   "sha256": "2c30a2d1894224dd16838811e738a833f9890090e1ad1a1f8456d581c890aafb"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-structure-contract.json",
+   "version": "v2",
+   "sha256": "c8dca1f43ebf050fae4d14029a863570e1a89e196a2a608a115c2183d3a4ba01"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-visual-baseline.json",
+   "version": "v2",
+   "sha256": "9e53627e1facfec03017b1a696f9c5f67b23379e40023bc0c203c0ce614477ad"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v2/design/selected-visual-rules.md",
+   "version": "v2",
+   "sha256": "307b18a8ee583b595fdef4d1542e0ec85c3e6d5c354eb5b8b07297cc55834a52"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v8/prototype-coverage.json",
+   "version": "v8",
+   "sha256": "c0a25dd0a86114155d87b34609a4f114253b3674e7ed0e52e1c9ab27b3420031"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v8/index.html",
+   "version": "v8",
+   "sha256": "d2b131e6c4776cae65a40942eae5ef57ca5313d995009e3eb83707ce2dbe5fd2"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v8/selftest-result.json",
+   "version": "v8",
+   "sha256": "89678c6f59d7bc5d7c7a1f2b14b77680b5536972f9bbb05951472ace05a760ee"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v8/mutation-check.json",
+   "version": "v8",
+   "sha256": "5f73762b6c25a0f9cf0b45c446a209468f810f0ca649e1ef536c21a2700135c7"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v8/structure-check.json",
+   "version": "v8",
+   "sha256": "65e652de3b4fb078b198ac0c9490001e80ae00d2a60de27c9ae152837df4f590"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v8/axes.json",
+   "version": "v8",
+   "sha256": "9614aab96fdc4187ece834314b46d02c90dd9bc4ae320f48eaa7789ca6850fb3"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v8/control-audit.json",
+   "version": "v8",
+   "sha256": "9bedc1a6a59bcf7b125504629ddb94f7645bcd2fbbb9b963fabd5c63de314d4d"
+  }
+ ]
+}

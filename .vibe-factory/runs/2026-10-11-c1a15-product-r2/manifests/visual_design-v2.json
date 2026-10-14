@@ -1,0 +1,58 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "visual_design",
+ "version": "v2",
+ "status": "approved",
+ "supersedes": "v1",
+ "contents": [
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/direction-guide/T04.html",
+   "sha256": "5ba70d45d052bacaf2a5559fb9e3dd2b2c719375351ce3d88cd4c54c664f8ed1"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/direction-guide/T09.html",
+   "sha256": "99193df062fa83204983d6ca1c86542deacc3959a18eadd63e70ecdb63c028c1"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/direction-guide/L03.html",
+   "sha256": "9ff16f7cb6587155cdca8e0296cc0ccf2ee588a080367d35d0bc48452be3aafc"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/direction-guide.css",
+   "sha256": "1f26112abee3827262af801f93e15b8c24dc8a0c104d40b52cf8bd5376d87aab"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/direction-guide.md",
+   "sha256": "84d4a2a41045481b086da88ba3637ce36f34d22c2ca66321cf32775aed6b1e35"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/design-review.html",
+   "sha256": "3b4508654805e552395ad1fd102750190dff12d2f13c91092bfcc6c326526418"
+  },
+  {
+   "role": "g2b_file",
+   "path": "wireframes/v2/design/directions.md",
+   "sha256": "0a8f33741d4301df59af53c22ff9010816b832a066e001de223f000f58adb7f6"
+  }
+ ],
+ "sources": [
+  {
+   "path": "wireframes/v2/structure/selected-visual-baseline.json",
+   "reason": "G2A v2 구조 기준선"
+  },
+  {
+   "path": "factory-profile/snapshot/skill/references/07-design-playbook.md",
+   "reason": "G2B Design Playbook"
+  },
+  {
+   "path": "sources/intent/004.md",
+   "reason": "사용자 결정(자동 검사 표시)"
+  }
+ ]
+}

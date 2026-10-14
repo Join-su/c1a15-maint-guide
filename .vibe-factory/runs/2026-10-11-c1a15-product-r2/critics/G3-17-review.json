@@ -1,0 +1,290 @@
+{
+ "gate": "G3",
+ "attempt": 1,
+ "cycle": 11,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v17/prototype-slice.md",
+  "version": "v17",
+  "sha256": "58339254828034315cffcb1189a61a2c0166c2e0e0caee4b9666dac3bd0f0523"
+ },
+ "input_bundle": {
+  "path": "critics/G3-17-input.json",
+  "sha256": "fb3ca20b1f807db650a95fa81bbc7aeb70a38d9965ab1b4ca8c4bf7e9148c94e"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v6.json",
+   "version": "v6",
+   "sha256": "e1e83738a6af85c947da4a107af1740f8da4456bdd4535ade1576d2d37137979"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v6/acceptance-criteria.json",
+   "version": "v6",
+   "sha256": "b7eb4367ba65bb3ed2848d5d50edf833dec89c34a249331327a7228b6ac9428d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v6/scenario-coverage.json",
+   "version": "v6",
+   "sha256": "05a2ae0ebefdbca685326aed2054c2dcf3e1bf0113606b8cab713b57dec25640"
+  },
+  {
+   "artifact": "use_case_packet",
+   "path": "use-case/v6/use-case-packet.md",
+   "version": "v6",
+   "sha256": "baa45580041fad76a3aaccab3ad727d16ea0b4b68fc5eb3a68575c41a078a8c6"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected.md",
+   "version": "v4",
+   "sha256": "896d471a5d40e3d2b9fbb43aad73cd03672c1685c090e3f44942e869a9cf44a7"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-structure-contract.json",
+   "version": "v4",
+   "sha256": "e94db4a75cbb3ac9dbb8892acf99c7a7d061f0db8834ee26e2e3c43cdfa83be3"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-visual-baseline.json",
+   "version": "v4",
+   "sha256": "3be81abf77220c9a1f18566d6877d712f76e15b6708565cfdcd49270d985a3f0"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v4/design/selected-visual-rules.md",
+   "version": "v4",
+   "sha256": "1f23f7c4d5e66793603b45838575b5d4b3c59629f92588292235160ce5f9a631"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "prior_g3_review_8",
+   "path": "critics/G3-8-review.json",
+   "version": "v8",
+   "sha256": "7bfd2b5c99ad7a89376131c5a0bbc2f1f747cedac0cb3d11d2fbf4118bd7879b"
+  },
+  {
+   "artifact": "prior_g3_review_9",
+   "path": "critics/G3-9-review.json",
+   "version": "v9",
+   "sha256": "a2bbfc9dd60b1b38ff672eefe24bea4660b310f494aec713ad17caf02f5144c4"
+  },
+  {
+   "artifact": "user_decision_004",
+   "path": "sources/intent/004.md",
+   "version": "004",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "user_decision_006",
+   "path": "sources/intent/006.md",
+   "version": "006",
+   "sha256": "6c8e83bb47d150428dc5499147fbfa014a77c66d4974ca39cdb8544ec7edf8a4"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "user_decision_008",
+   "path": "sources/intent/008.md",
+   "version": "008",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g3_review_10",
+   "path": "critics/G3-10-review.json",
+   "version": "v10",
+   "sha256": "fd5838c51720cba83ae1e2fadb7899d698415c8ad3f74fb2f0c74e37f2769754"
+  },
+  {
+   "artifact": "prior_g3_review_11",
+   "path": "critics/G3-11-review.json",
+   "version": "v11",
+   "sha256": "fb9851c1e306fd5ab3fdead04acf2643f7320516bef9d783b61212955fbf0857"
+  },
+  {
+   "artifact": "user_decision_009",
+   "path": "sources/intent/009.md",
+   "version": "009",
+   "sha256": "434eab487342cc79d5c625c63470606f7b592151fe3ab7093eecc9059681e13c"
+  },
+  {
+   "artifact": "prior_g3_review_12",
+   "path": "critics/G3-12-review.json",
+   "version": "v12",
+   "sha256": "83aa8d9878f4a2db8b087d80bfe350e41406f4829f01a4e93ff3af13f405ddbe"
+  },
+  {
+   "artifact": "prior_g3_review_13",
+   "path": "critics/G3-13-review.json",
+   "version": "v13",
+   "sha256": "fad3e86470e394e48acc883801f897675fda0b8008ec3374ad602e96f98c6e80"
+  },
+  {
+   "artifact": "user_decision_010",
+   "path": "sources/intent/010.md",
+   "version": "010",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "user_decision_011",
+   "path": "sources/intent/011.md",
+   "version": "011",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "prior_g3_review_14",
+   "path": "critics/G3-14-review.json",
+   "version": "v14",
+   "sha256": "27027da4585a802427ad2bc0a0dad2633bf614ce27d3b9d44fd2498ba56d5d5f"
+  },
+  {
+   "artifact": "prior_g3_review_15",
+   "path": "critics/G3-15-review.json",
+   "version": "v15",
+   "sha256": "a97290526ecbda58e6f02546865827d5081e6c266e4447c296e715f8db17b842"
+  },
+  {
+   "artifact": "user_decision_012",
+   "path": "sources/intent/012.md",
+   "version": "012",
+   "sha256": "b8e0ce618ccaa09cb19d9f1c9da7ad2d496d61e1fa2924ededb5df92f33a43ad"
+  },
+  {
+   "artifact": "prior_g3_review_16",
+   "path": "critics/G3-16-review.json",
+   "version": "v16",
+   "sha256": "312393a090733921dc98df6df52cf961d16d68d73148158d32d5e8eec922fa02"
+  },
+  {
+   "artifact": "user_decision_013",
+   "path": "sources/intent/013.md",
+   "version": "013",
+   "sha256": "568e6f1a4adb90669aa345b9c69b76965ec50faa3dd7966732283fba647d2ef9"
+  },
+  {
+   "artifact": "prior_approved_prototype_v16",
+   "path": "prototype/v16/prototype-slice.md",
+   "version": "v16",
+   "sha256": "c9eb7f04a0057fa1e70dc72881beaa852a2d31902384556e9a69ee220fb1e457"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v17/prototype-coverage.json",
+   "version": "v17",
+   "sha256": "d447241d21eaee9784f6ba029788d7759c3d04df642919d7ef6e0e3bbc9a1f86"
+  },
+  {
+   "artifact": "subject_bundle_index",
+   "path": "prototype/v17/index.html",
+   "version": "v17",
+   "sha256": "3463b0d16625670bb96597a0139e606927a83894655cf600df1b87270f5fcf98"
+  },
+  {
+   "artifact": "subject_bundle_regions",
+   "path": "prototype/v17/regions.json",
+   "version": "v17",
+   "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  },
+  {
+   "artifact": "subject_bundle_markup_check",
+   "path": "prototype/v17/markup-check.json",
+   "version": "v17",
+   "sha256": "dfad128a24d4525e21884d141ee54c54e486de56eb02d63b582301599cf07d5b"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v17/selftest-result.json",
+   "version": "v17",
+   "sha256": "74f45b7f4384525bc9f1155bb872b8e207b59ab90cfb71bfc9401c11a4665db4"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v17/mutation-check.json",
+   "version": "v17",
+   "sha256": "2d2bcab595f6c3a1870e46de06037f4c5b1ccfd28f27bdee79c67e4e1b1bd682"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v17/structure-check.json",
+   "version": "v17",
+   "sha256": "38c75c53ccc99a117c97e68ec3ef3d4c3ed3a74e5784dfc3b442db12a89c62be"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v17/control-audit.json",
+   "version": "v17",
+   "sha256": "29672be9bcb822cd120e0ac82976222dc0cb729a2ab30cb1411b7567a879c5bb"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v17/axes.json",
+   "version": "v17",
+   "sha256": "83e19ab2a147e2b24959cd52f9608e3caaa04340d44c8250cd82d1c902cef627"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "근거 문구 두 곳이 증거와 맞지 않는다. 결정을 바꾸는 정도는 아니다. 첫째, prototype-slice.md 438행은 조작 요소 전수 점검이 잡은 결함 복사본을 '9개(W-1 … Y-16)'라고 적었지만 mutation-check.json의 control_audit_on_mutants에는 Z-3까지 10개가 있다. 둘째, 같은 줄은 결함 복사본 수를 65개로 맞게 적었지만 새로 넣은 결함 Z-1 ~ Z-5는 이름을 들지 않았다. 444행 AC-02는 Z-1 ~ Z-4만 적는데, Z-5는 CTL-21에 배정돼 있어 이 표기는 맞다.",
+  "승인 구조 계약의 T04 R-NEXT 규칙은 'A · B 점검 하나만 보이며 C · D는 여기 나오지 않는다'인데 first_call 화면은 이 카드에 C 배지 · 4.4절 · 점검 이름 · 소요 분을 보인다. G2B 규칙 '경고 변형은 C · D 호출 행동에만'과 달리 '점검 시작' 버튼에 warnb를 썼다. 두 가지 모두 결정 013의 문장(확인 점검 4.4 C등급, 호출 경고 버튼 토큰)이 근거라 차단하지 않는다. slice derived_states에 '이 상태에서만 R-NEXT 규칙의 예외(결정 013)'를 분명히 적고, 소요 분 표시는 결정 문장보다 조금 더 나간 값이라는 점도 함께 적기를 권한다.",
+  "fixture '첫 판정 호출 세션'에서 비슷한 과거 기록 카드는 승인 sample 3건을 그대로 쓰는데, 그중 H-0235는 '이상 없음 · 감시 마감'이다. 순위의 근거 수(6 · 2 · 1 · 1)는 상위 10건을 모두 네 원인에 나눠 담으므로 '이상 없음' 기록이 상위 3건 안에 들 수 없다(control-audit rows의 T04:first_call 기록 카드). 값 수준의 fixture 불일치이니 기록 카드 값을 맞추거나 fixture 경계로 적어 두기를 권한다."
+ ],
+ "recorded_by": "generator(독립 critic agent가 돌려준 JSON 내용을 그대로 저장)"
+}

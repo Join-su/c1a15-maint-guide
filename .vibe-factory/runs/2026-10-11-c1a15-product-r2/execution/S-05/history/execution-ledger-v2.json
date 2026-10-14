@@ -1,0 +1,693 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "execution_ledger",
+ "plan_version": "v11",
+ "slice_id": "S-05",
+ "plan_item_ids": [
+  "P-14",
+  "P-15"
+ ],
+ "entries": [
+  {
+   "plan_item_id": "P-14",
+   "changed_files": [
+    "server/migrations/versions/0005_corrections.py(새: ops.calls.correction jsonb · corrections jsonb 기본 [])",
+    "server/src/c1a15/db/models.py(Call.correction · Call.corrections)",
+    "server/src/c1a15/api/sessions.py(정정 · 메모 덧붙이기 API post_correction · post_note, 업무 기록 읽기 logical — 정정을 최신 값 · 정정 이력 · 무효 · 판정 값으로 반영, 그래프 key에 정정 수 · 무효, 진단 그때 값 preview_shown, 확정 세션 거부 _closed_deny)",
+    "server/src/c1a15/engine/session.py(correction_mode 반영 방식 5가지, 정정 호출 상태 correction_call, 정정 호출 답 분기, CORRECTABLE_TYPES · NOTE_TYPES — 옛 correct() 뺌)",
+    "server/src/c1a15/api/flow.py(점검 경로 · 보고서 점검 경로 정정 표기 · 정정으로 무효, 정정 호출 요약 · 조치 줄, 정정 호출 답 미확인 줄, 호출 보냄 · 대기의 정정 표시, 열린 호출에 정정 붙임, T08 다시 판정 배너는 다시 판정 정정일 때만)",
+    "server/src/c1a15/api/history.py(새: 지난 화면 조회 — 5단계 · 기록 종류 · 띠 · n / m · 정정 가능 · 메모 가능 · 정정 이력 · 덧붙인 메모)",
+    "server/src/c1a15/api/lead.py(호출 상세 정정 상자 · 필요한 작업 · 승인 설명(019 ⑧), 감사 문구(정정 · 메모 덧붙이기), 승인 이력 정정 n회(019 ④))",
+    "server/src/c1a15/api/screen.py(점검 n / m 셈에서 무효 지시 뺌)",
+    "server/src/c1a15/api/schemas.py(CorrectionBody · NoteBody) · responses.py(Past* · CallCorrection · ActionDone · CheckDone.note · LeadCall.need · corrections) · main.py(GET …/history · POST …/corrections · POST …/notes)",
+    "server/openapi.json · packages/ui/src/api/schema.d.ts(생성물)",
+    "server/tests/test_correction.py(새, 9 — ADV-08 포함) · test_engine_rules.py(정정 시험을 correction_mode · logical 기준으로) · test_api.py(S-03 정정 점검 경로 시험을 정정 API로)"
+   ],
+   "commands": [
+    "scripts/verify-db(65)",
+    "python3 scripts/openapi_check.py --write",
+    "npm run -w tools/api-types gen",
+    "scripts/check-fast",
+    "결함 주입: 시험 DB에서 test_non_correctable_kinds_by_session_state만(evidence/test-fault-injection.txt)"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/gate-applicability.md",
+      "execution/S-05/evidence/hash-changes.json"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/unit-test-list.txt",
+      "execution/S-05/evidence/db-test-list.txt",
+      "execution/S-05/evidence/component-test-list-lead.txt",
+      "execution/S-05/evidence/component-test-list-tech.txt",
+      "execution/S-05/evidence/e2e-test-list.txt",
+      "execution/S-05/evidence/test-discrimination.md",
+      "execution/S-05/evidence/test-fault-injection.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/unit-test-list.txt",
+      "execution/S-05/evidence/component-test-list-lead.txt",
+      "execution/S-05/evidence/component-test-list-tech.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/db-test-list.txt",
+      "execution/S-05/evidence/test-fault-injection.txt",
+      "execution/S-05/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/e2e-report.json",
+      "execution/S-05/evidence/e2e-test-list.txt",
+      "execution/S-05/evidence/screens/T15-corrected.png",
+      "execution/S-05/evidence/screens/L04-call_corrected.png"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/prototype-structure-checklist.json",
+      "execution/S-05/evidence/structure-dom-capture.mjs",
+      "execution/S-05/evidence/structure-compare.mjs",
+      "execution/S-05/evidence/structure-classify.py",
+      "execution/S-05/evidence/co38-metrics.json",
+      "execution/S-05/evidence/screens/CO-39-chips.png",
+      "execution/S-05/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/evidence-secret-check.txt",
+      "execution/S-05/evidence/secret-check-fault-injection.txt",
+      "execution/S-05/evidence/evidence-secret-check.py"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/e2e-report.json"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/hash-changes.json"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/db-test-list.txt",
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/unit-test-list.txt",
+    "execution/S-05/evidence/hash-changes.json",
+    "execution/S-05/evidence/test-discrimination.md",
+    "execution/S-05/evidence/test-fault-injection.txt"
+   ],
+   "l0_decisions": [
+    "정정 = 덧붙임 업무 기록 correction(target_seq · target_type · section · before · after · reason · by · mode, 호출에 붙으면 call_id). 원래 기록은 그대로 두고 sessions.logical이 읽을 때 최신 값 · corrections(이력) · corrected_from(처음 값 · 시각 · 횟수)을 붙임. 메모 덧붙이기 = note_append 기록(target_seq · section · memo), 읽을 때 notes",
+    "반영 방식(engine correction_mode, 검사 순서): 대상 뒤 답 없는 보낸 호출 → attach_to_call(다시 판정 · 새 호출 없음, 그 호출 corrections에 붙임 — AC-47-C2 · 019 ②) / 결과 값 그대로 → memo_only(AC-46-C5) / 대상 뒤 조치 완료 → call_with_correction(정정 호출 — AC-47-C1) / 대상 뒤 답한 호출 → attach_answered(기록만 — 019 ③) / 그 밖 → rejudge(그 점검부터 R4 · R5, 사이 기록 void — AC-46-C1 · C2)",
+    "다시 판정하지 않는 방식(호출 · 조치 뒤)은 judged_value에 원래 값을 두고 엔진은 그 값으로 판정을 이어 감 — 보이는 값은 최신 값(AC-47 '다시 판정 없이')",
+    "다시 판정으로 지금 열린 지시가 바뀌면 confirmed 없이 409 detail {reason: confirm_required, current, next, target} — 감사하지 않고 아무것도 바꾸지 않음(AC-46-C3 · C4). 확인 뒤 저장",
+    "정정 호출(T10 / summary_corrected): 엔진 상태 correction_call → decide {kind: call, corrected, section, reason: corrected_after_action}, 호출 행 correction jsonb · 등급 없음, 파트장 답 corrected: 승인 → 정정 때 하던 단계(결정 012 ② · A-06), 주간 처리 · 직접 확인 → 보고서 확정 원인 '원인 미상' · 조치 그대로 · 미확인 '정정 확인 · …'(019 ①)",
+    "정정 대상 = 결과(값 · 메모) · 사전 확인 측정값만(API 분기 + 엔진 CORRECTABLE_TYPES 두 층), 그 밖 기록은 not_correctable · 메모 덧붙이기만(NOTE_TYPES). 확정 세션(승인 대기 · 승인)은 정정 · 메모 모두 session_closed(생성자 해석 ③), 반려로 다시 열리면 다시 됨. 거부는 별도 transaction 감사(S02-G6-1)",
+    "지난 화면 조회(GET …/history)는 읽기만(업무 기록 · 단계 그대로 — AC-41-C6). 진단 단계의 '그때 원인 순위 · 첫 지시'는 세션을 만들 때 남긴 preview_shown 스냅숏(없으면 다시 계산)",
+    "보고서 점검 경로 '… (정정 n회)' · '(…, 정정으로 무효)'(019 ⑤), 승인 이력은 최신 값 · 무효 뺌 · 정정 n회(019 ④), 덧붙인 메모는 지난 화면 · 감사에만(019 ⑥), 파트장 호출 '필요한 작업' '정정 확인 · {절} {이름}({전} → {후})' · 승인 설명(019 ⑧)",
+    "LangGraph checkpoint key에 정정 수 · 무효 여부를 넣어 정정 뒤 그래프를 다시 세움. 무효 기록은 LLM 실패 수에서 뺌(S02-G6-4)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-41-C1",
+    "AC-41-C2",
+    "AC-41-C3",
+    "AC-41-C4",
+    "AC-41-C5",
+    "AC-41-C6",
+    "AC-45-C1",
+    "AC-45-C2",
+    "AC-45-C3",
+    "AC-45-C4",
+    "AC-45-C5",
+    "AC-46-C1",
+    "AC-46-C2",
+    "AC-46-C3",
+    "AC-46-C4",
+    "AC-46-C5",
+    "AC-47-C1",
+    "AC-47-C2",
+    "AC-48-C1",
+    "AC-48-C2",
+    "AC-48-C3"
+   ]
+  },
+  {
+   "plan_item_id": "P-15",
+   "changed_files": [
+    "apps/tech/src/screens/Past.tsx(새: T15 지난 화면 — 띠 · 기록 종류별 보기 · 보낸 결과 카드 · 기록 카드 · 정정 · 확인 · 메모 창)",
+    "apps/tech/src/screens/Session.tsx(지난 화면 열기 · 진행 표시 연결 · 보내지 않은 입력 칩 · 확인 저장 뒤 입력 지움)",
+    "apps/tech/src/screens/Alarm.tsx · Diagnosis.tsx(past 보기 상태) · Flow.tsx(정정 호출 왼쪽 카드 · 답 배너 문구)",
+    "apps/tech/src/main.tsx(past-adjust.css)",
+    "packages/ui/src/components.tsx(StepBar pick · view · currentPickable) · icons.tsx(chevron-left · chevron-right · message-square-plus) · styles/past-adjust.css(새: 표시 조정 ③)",
+    "apps/lead/src/screens/Calls.tsx(L04 정정 상자 corr-box · 전 → 후 문구)",
+    "apps/tech/src/__tests__/past.test.tsx(새, 15) · fixtures/s05-*.json(실제 API 응답 13 — 숙련자 인계 지난 화면은 G6 1차 비차단 ③으로 더함)",
+    "apps/lead/src/__tests__/screens.test.tsx(L04 정정 4) · fixtures(call-corrected · handover-corrected · correction-call-detail · audit-correction)",
+    "e2e/tests/s05.spec.ts(새, 6 — AC-44-C3 두 경로 · AC-41-C4 바꾸기는 G6 1차 B1 · B2) · helpers.ts(apiCorrection — 정정 시뮬레이션 대신) · tech-s03.spec.ts(정정 API) · cross.spec.ts(첫 시험 제목 · 주석, G6-S04-3 비차단)",
+    "e2e/sim_correction.py(뺌 — 시험 DB 정정 시뮬레이션 도구) · scripts/verify-e2e(이름표 P-15)"
+   ],
+   "commands": [
+    "npm run typecheck",
+    "npm test -w @c1a15/tech",
+    "npm test -w @c1a15/lead",
+    "scripts/check-fast",
+    "scripts/verify-e2e(Playwright 27 — S-05 6)",
+    "fixture 받기: evidence/fixture-capture.py · fixture-capture-handover.py(dev 스택, 정정 · 메모 · 파트장 답은 실제 API)",
+    "구조 대조: structure-dom-capture → structure-compare → structure-classify"
+   ],
+   "automatic_quality_gates": [
+    {
+     "name": "scope_traceability",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/gate-applicability.md",
+      "execution/S-05/evidence/hash-changes.json"
+     ]
+    },
+    {
+     "name": "ac_verifier",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/unit-test-list.txt",
+      "execution/S-05/evidence/db-test-list.txt",
+      "execution/S-05/evidence/component-test-list-lead.txt",
+      "execution/S-05/evidence/component-test-list-tech.txt",
+      "execution/S-05/evidence/e2e-test-list.txt",
+      "execution/S-05/evidence/test-discrimination.md",
+      "execution/S-05/evidence/test-fault-injection.txt"
+     ]
+    },
+    {
+     "name": "static_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "typecheck",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt"
+     ]
+    },
+    {
+     "name": "unit_and_property",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/unit-test-list.txt",
+      "execution/S-05/evidence/component-test-list-lead.txt",
+      "execution/S-05/evidence/component-test-list-tech.txt"
+     ]
+    },
+    {
+     "name": "api_negative_authority",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/db-test-list.txt",
+      "execution/S-05/evidence/test-fault-injection.txt",
+      "execution/S-05/evidence/verify-e2e.txt"
+     ]
+    },
+    {
+     "name": "integration_real_postgres",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-db.txt",
+      "execution/S-05/evidence/db-test-list.txt"
+     ]
+    },
+    {
+     "name": "e2e_surface_journey",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/e2e-report.json",
+      "execution/S-05/evidence/e2e-test-list.txt",
+      "execution/S-05/evidence/screens/T15-corrected.png",
+      "execution/S-05/evidence/screens/L04-call_corrected.png"
+     ]
+    },
+    {
+     "name": "prototype_structure_checklist",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/prototype-structure-checklist.json",
+      "execution/S-05/evidence/structure-dom-capture.mjs",
+      "execution/S-05/evidence/structure-compare.mjs",
+      "execution/S-05/evidence/structure-classify.py",
+      "execution/S-05/evidence/co38-metrics.json",
+      "execution/S-05/evidence/screens/CO-39-chips.png",
+      "execution/S-05/evidence/gate-applicability.md"
+     ]
+    },
+    {
+     "name": "secret_scan",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/evidence-secret-check.txt",
+      "execution/S-05/evidence/secret-check-fault-injection.txt",
+      "execution/S-05/evidence/evidence-secret-check.py"
+     ]
+    },
+    {
+     "name": "external_call_zero_in_fixture",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/verify-e2e.txt",
+      "execution/S-05/evidence/e2e-report.json"
+     ]
+    },
+    {
+     "name": "leakage_check",
+     "result": "pass",
+     "evidence_paths": [
+      "execution/S-05/evidence/check-fast.txt",
+      "execution/S-05/evidence/hash-changes.json"
+     ]
+    }
+   ],
+   "verifier_result": "pass",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/component-test-list-tech.txt",
+    "execution/S-05/evidence/component-test-list-lead.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/e2e-report.json",
+    "execution/S-05/evidence/e2e-test-list.txt",
+    "execution/S-05/evidence/prototype-structure-checklist.json",
+    "execution/S-05/evidence/co38-metrics.json",
+    "execution/S-05/evidence/screens/T15-check_b.png",
+    "execution/S-05/evidence/screens/CO-39-chips.png",
+    "execution/S-05/evidence/screens/T15-correct_confirm.png",
+    "execution/S-05/evidence/screens/T15-corrected.png",
+    "execution/S-05/evidence/screens/T08-corrected_path.png",
+    "execution/S-05/evidence/screens/T09-draft_corrected.png",
+    "execution/S-05/evidence/screens/T10-summary_corrected.png",
+    "execution/S-05/evidence/screens/L04-call_corrected.png",
+    "execution/S-05/evidence/screens/L04-correction_call_detail.png",
+    "execution/S-05/evidence/screens/L06-correction.png",
+    "execution/S-05/evidence/screens/T15-closed.png"
+   ],
+   "l0_decisions": [
+    "지난 화면 = 그 단계 원래 화면 component를 보기 상태로(.ap-body.past — 결과 · 보내기 · 진단 보기 · 점검 시작 잠김) + 위 띠(지난 화면 · 단계 · 제출 시각 · n / m · 이전 · 다음 · 현재 단계로) + 오른쪽 카드(보낸 결과 · 이 기록 정정 / 기록 · 메모 덧붙이기 / 확정 안내). 값은 모두 /history 응답",
+    "진행 표시(StepBar): 완료 단계 pick(누르면 그 단계 마지막 기록), 보는 단계 view, 지금 단계도 보낸 기록이 있으면 누름(생성자 해석 ①). '현재 단계로'는 기기에 둔 보내지 않은 입력을 그대로 돌려놓음(AC-41-C3 · AC-44-C3)",
+    "보내지 않은 입력 칩 '지금 n.n 입력(보내지 않음)은 그대로' = Prototype 호박색 .ch.amber(CO-39 — G2B 흰 칩 토큰과 나란히 캡처해 보고, 모양이 다름)",
+    "정정 창: 사유가 비면 정정 저장 잠김, 저장 응답이 409 confirm_required면 확인 창(바뀌는 지시 · 지워질 보내지 않은 입력) → confirmed로 다시 보냄, 확인 저장이면 그 지시의 기기 입력을 지움. 측정값 정정 창은 결과 버튼 없이 정정할 값(T15 / correct_value)",
+    "표시 조정 ③(CO-38): B 점검 기록 지난 화면에만(.ap-body.past:has(.act.pre)) plan P-15 값 그대로 — 체크 행 20px · 체크 · 절차 글자 14px · 여백 축소 · 절차 줄 높이 1.3. 체크 상자는 이 화면에서만 18px(20px 행을 지키려면 24px 상자를 줄여야 함, 값 출처 '체크 행 20px')",
+    "파트장 L04 정정 상자: 서버 corrections 그대로(시각 · 절 · 점검 이름 · 전 → 후 · 사유 · '이 호출을 보낸 뒤라 다시 판정하지 않았습니다'), 필요한 작업 · 승인 설명은 서버 문구",
+    "E2E의 정정 · 메모 · 파트장 답 · 반려는 모두 화면 조작. S-03 단독 E2E의 정정 점검 경로 시험은 시험 DB 시뮬레이션 대신 정정 API(apiCorrection)"
+   ],
+   "acceptance_condition_ids": [
+    "AC-17-C1",
+    "AC-17-C2",
+    "AC-41-C1",
+    "AC-41-C2",
+    "AC-41-C3",
+    "AC-41-C4",
+    "AC-41-C5",
+    "AC-41-C6",
+    "AC-44-C1",
+    "AC-44-C2",
+    "AC-44-C3",
+    "AC-45-C1",
+    "AC-45-C2",
+    "AC-45-C3",
+    "AC-45-C4",
+    "AC-45-C5",
+    "AC-46-C1",
+    "AC-46-C2",
+    "AC-46-C3",
+    "AC-46-C4",
+    "AC-46-C5",
+    "AC-47-C1",
+    "AC-47-C2",
+    "AC-48-C1",
+    "AC-48-C2",
+    "AC-48-C3"
+   ]
+  }
+ ],
+ "unexpected_facts": [
+  {
+   "id": "UF-S05-01",
+   "observation": "표시 조정 ③(G3 승인 · 생성자 해석 ④)의 CSS가 packet 부록이 옮긴 Prototype CSS에 없음 — plan P-15 문장에 값(체크 행 20px · 글자 14px · 여백 축소)만 있음. 그대로 줄이면 24px 체크 상자 때문에 행이 20px이 안 됨",
+   "evidence_paths": [
+    "execution/S-05/evidence/co38-metrics.json",
+    "execution/S-05/evidence/screens/T15-check_b.png",
+    "execution/S-05/evidence/structure-dom/T15--check_b.html"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "CO-38",
+    "표시 조정 ③"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "plan 값 그대로 packages/ui/src/styles/past-adjust.css를 새로 만들고(B 기록 지난 화면에만), 상자만 18px(L0). 실제 화면 1080 × 740 틀에서 지난 화면 본문 548px · 넘침 없음 · 체크 행 20px · 글자 14px · 절차 줄 높이 18.2px(co38-metrics.json)"
+  },
+  {
+   "id": "UF-S05-02",
+   "observation": "구조 대조 중 G4 부록의 결정 파생 상태 T10 / corrected_ans_daytime · direct 규칙이 화면 전체를 ans_* 기준으로 적음 — 앱 왼쪽 카드는 그 정정 호출의 summary_corrected 머리(정정 · 조치 칩 · 지금까지 점검 · 조치)",
+   "evidence_paths": [
+    "execution/S-05/evidence/prototype-structure-checklist.json",
+    "execution/S-05/evidence/structure-dom/T10--corrected_ans_daytime.html"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "packet prototype_appendix decision_derived_states"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "결정 019 ① 그대로의 화면이고 제품 결정이 아님 — G4 기록 문구만 영역별 기준(R-CALLHEAD = T10 / summary_corrected)으로 정확히 적어 부록 v2 · packet v2(점검표 C6, 이전 판 history). template · 영역 · 기준 파일은 그대로"
+  },
+  {
+   "id": "UF-S05-03",
+   "observation": "증거 비밀값 검사 ④(22자 무작위 토큰 꼴)가 화면 상태 ID(예: 'T10--summary_corrected')를 잡음",
+   "evidence_paths": [
+    "execution/S-05/evidence/evidence-secret-check.py",
+    "execution/S-05/evidence/evidence-secret-check.txt",
+    "execution/S-05/evidence/secret-check-fault-injection.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "secret_scan(증거 폴더 검사)"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "상태 ID 꼴(^[A-Z]\\d{2}--[a-z_]+$)만 빼고, 가짜 토큰 · 가짜 비밀번호 칸을 넣은 결함 주입에서 ③ · ④가 그대로 잡음을 확인(기록에는 가짜 토큰을 가려 적음)"
+  },
+  {
+   "id": "UF-S05-04",
+   "observation": "S-03 단독 E2E의 정정 점검 경로 시험(T08 / corrected_path)이 시험 DB 정정 시뮬레이션 도구(e2e/sim_correction.py)를 씀 — 실제 정정 API가 생겨 시뮬레이션은 실제 경로와 다른 기록을 만듦",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/e2e-test-list.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "S-03 E2E 도구"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "helpers.ts apiCorrection(실제 정정 API)으로 바꾸고 도구는 저장소에서 뺌(사본은 작업 폴더). verify-e2e 26 통과"
+  },
+  {
+   "id": "UF-S05-05",
+   "observation": "진단 지난 화면(T15 / diagnosis '그때의 원인 순위 · 첫 지시')을 지금 업무 기록에서 다시 계산하면 결과 정정 뒤에는 정정한 순위가 보임 — 그때 화면이 아님",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/screens/T15-diagnosis.png"
+   ],
+   "affected_plan_item_ids": [
+    "P-14"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-41-C1 그때 값"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "세션을 만들 때 진단 화면 값(첫 지시 · 확률 · 근거 · 문장 대체 여부)을 preview_shown 기록으로 남기고 지난 화면은 그 값을 씀(없는 옛 세션은 다시 계산). test_history_steps_records_and_read_only가 그때 첫 지시 · 확률 합 100을 확인"
+  },
+  {
+   "id": "UF-S05-06",
+   "observation": "다시 판정 뒤 '점검 n / 최대 m'이 정정으로 무효가 된 지시까지 셈",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-14"
+   ],
+   "affected_assumptions_or_controls": [
+    "결정 014 ② 점검 n / m"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "screen.instructed_checks가 무효 지시를 빼게 고침 — 무효 기록은 셈에서 빠지고 기록은 지우지 않음(AC-46-C2와 같은 규칙). test_history_steps_records_and_read_only가 무효 기록 check_no를 확인"
+  },
+  {
+   "id": "UF-S05-07",
+   "observation": "조치 뒤 정정 호출에 파트장이 답한 뒤(보고서 단계) 정비자 답 화면에서 정정 · 조치 줄이 빠짐 — 화면 값이 지금 단계의 corrected만 봄",
+   "evidence_paths": [
+    "execution/S-05/evidence/component-test-list-tech.txt",
+    "execution/S-05/evidence/structure-dom/T10--corrected_ans_daytime.html",
+    "execution/S-05/evidence/structure-dom/T10--corrected_ans_direct.html"
+   ],
+   "affected_plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "T10 / corrected_ans_*(결정 019 ①)"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "마지막 보낸 호출이 정정 호출이면 정정 · 조치 값을 함께 주게 서버를 고치고 fixture를 다시 받음(component · 구조 대조 통과)"
+  },
+  {
+   "id": "UF-S05-08",
+   "observation": "G6 전 다시 검토에서 시험 빈틈 두 가지를 발견: ① P-14 verifier '기록 종류 7 × 세션 상태' 중 파트장 호출 · 확인 질문 답 · B 시작 전 체크 · 숙련자 인계 4종류의 정정 거부 · 메모 덧붙이기와 반려 상태가 API 시험에 없음(기존 시험은 잠금 · 조치 · 재가동 · 재가동 후 값 · 단계 기록만) ② AC-46-C4 E2E가 확인 창 취소 뒤 서버 단계만 보고 현재 단계의 보내지 않은 입력은 보지 않음",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/db-test-list.txt",
+    "execution/S-05/evidence/test-fault-injection.txt",
+    "execution/S-05/evidence/test-discrimination.md",
+    "execution/S-05/evidence/verify-e2e.txt"
+   ],
+   "affected_plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "P-14 verifier",
+    "AC-48-C1 ~ C3 L2",
+    "AC-46-C4 L3"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "구현은 그대로 두고 시험만 더함(test_non_correctable_kinds_by_session_state — 기록 종류 7(8 기록) × 진행 · 승인 대기 · 반려 · 승인, 첫 실행 통과는 호출 종류 이름 하나 고친 뒤). 결함 주입: 엔진 한 층만 바꾸면 API 층이 막아 통과(두 층 거부), API · 엔진 둘 다 바꾸면 실패, 메모 대상에서 B 체크를 빼면 실패. ② E2E에 취소 뒤 \"현재 단계로\" → 고른 결과 · 메모 그대로 단언을 더함. check-fast · verify-db · verify-e2e 다시 통과"
+  },
+  {
+   "id": "UF-S05-09",
+   "observation": "AC-48-C1 '확인 질문 답 · B 시작 전 체크 기록에는 이 기록 정정이 없고 메모 덧붙이기만 있다'에서 화면의 '메모 덧붙이기' 자리가 없음 — 승인 Prototype 지난 화면은 B 체크를 점검 기록 안 읽기 전용 패널(T15 / check_b)로만 보이고 확인 질문 답은 기록으로 보이지 않음(packet 부록 template)",
+   "evidence_paths": [
+    "execution/S-05/evidence/structure-dom/T15--check_b.html",
+    "execution/S-05/evidence/screens/T15-check_b.png",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/gate-applicability.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-48-C1 화면 문장",
+    "T15 / check_b"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정 019 ⑨ '화면은 Prototype대로 · 기록'(sources/intent/019.md, packet v3 실행 해석 — 점검표 C6): 두 기록의 정정 없음은 화면 · 서버 모두 충족, 메모 덧붙이기는 서버 API까지(UF-S05-08 시험). 앱 코드 변경 없음. AC-48-C1 문장 정렬은 다음 plan 판(scope_notes)"
+  },
+  {
+   "id": "UF-S05-10",
+   "observation": "구조 대조에서 Prototype 파생 3상태(T15 / check_b · call · correct_value)가 빠짐 — 부록 regions.json에 이 상태들의 영역이 없어(자기 template만) 대조 스크립트가 아무 말 없이 건너뜀. gate 문서는 24상태 대조라고 적었으나 실제 대조는 21상태 · 영역 89",
+   "evidence_paths": [
+    "execution/S-05/evidence/prototype-structure-checklist.json",
+    "execution/S-05/evidence/structure-compare.mjs",
+    "execution/S-05/evidence/structure-classify.py",
+    "execution/S-05/evidence/structure-dom/T15--call.html",
+    "execution/S-05/evidence/structure-dom/T15--correct_value.html",
+    "execution/S-05/evidence/gate-applicability.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "prototype_structure_checklist",
+    "점검표 C4"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "G6 전 다시 검토에서 상태별 대조 수를 세다 발견. 기준 상태(T15 / check · lock · correct)의 영역 selector로 자기 template과 대조하게 고쳐 영역 15 더함(같은 DOM, 앱 코드 변경 없음). 새 차이 3건을 좁은 규칙으로 분류: D-13 check_b 등급 배지(template이 예시 'A'를 그대로 둠, 앱은 그때 등급 B), X-3 T15 / call에 붙은 정정 상자(부록 L04 / call_corrected .corr-box와 구조 차이 0), X-4 T15 / correct_value 창 뒤 화면 = 정정하는 사전 확인 기록(부록 T15 / precheck 영역과 차이 0). 영역 104 — 일치 43 · 차이 61(모두 분류) · 기준 전용 14 · 미분류 0"
+  },
+  {
+   "id": "UF-S05-11",
+   "observation": "E2E · DOM 캡처 준비 중 ① 확인 창을 여는 409 응답이 콘솔 오류로 잡힘 ② 재가동 체크리스트 · B 체크 화면이 그리기 전에 캡처됨 ③ page.request가 정비자 앱 전체 URL을 요구 ④ 호출 기록까지 이전 · 다음 횟수가 모자람",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/e2e-report.json",
+    "execution/S-05/evidence/structure-dom-capture.mjs"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "E2E · 구조 대조 도구"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "제품 동작이 아니라 시험 도구 문제 — 확인 창 시험에서만 409를 허용 목록에, 화면 요소를 기다린 뒤 캡처, 전체 URL, 기록 수만큼 넘김"
+  },
+  {
+   "id": "UF-S05-12",
+   "observation": "G5 기록을 만들다 run 검증기가 packet 적대 사례 ADV-08(기록 종류 7 × 세션 상태 정정 요청 · 저장 계층을 덮어쓰기로 바꾼 결함 사본에서 '원래 값 남음' 검사 실패)을 보고서가 다루지 않음을 잡음 — G5 구현 중 ADV-08 결함 사본 시험을 만들지 않았음",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/db-test-list.txt",
+    "execution/S-05/evidence/test-discrimination.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-14"
+   ],
+   "affected_assumptions_or_controls": [
+    "ADV-08",
+    "adversarial_results"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "구현은 그대로 두고 시험만 더함: test_adv08_overwrite_defect_is_caught(앞 slice ADV-04와 같은 결함 사본 방식 — 시험 프로세스 안에서 저장 함수만 바꿈, 시험 DB만). 거부 부분은 UF-S05-08 시험. 첫 실행 통과, check-fast · verify-db 65 다시 통과"
+  },
+  {
+   "id": "UF-S05-13",
+   "observation": "G6-S05 1차 revise: B1 AC-44-C3 '체크리스트 그대로'를 확인하는 시험이 없음(홈 · 종 목록 두 경로 모두), report C3 문장은 체크리스트를 빼고 pass. B2 AC-41-C4 '고칠 수 있음(E2E)'은 값이 그대로인지만 보고 바꿔 보지 않음(지난 화면 잠김이 새어 들어가도 통과). 비차단 3: D-11 패턴이 넓음 · 019 ① 직접 확인 답 보고서 필드 서버 시험 없음 · 조치 · 재가동 · 인계 기록 버튼 단언 적음",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/e2e-report.json",
+    "execution/S-05/evidence/e2e-test-list.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/component-test-list-tech.txt",
+    "execution/S-05/evidence/prototype-structure-checklist.json",
+    "execution/S-05/evidence/test-discrimination.md"
+   ],
+   "affected_plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "AC-44-C3 L3",
+    "AC-41-C4 L3",
+    "prototype_structure_checklist D-11",
+    "019 ① L2",
+    "AC-48-C1 component"
+   ],
+   "impact": "L0",
+   "recheck_result": "pass",
+   "rationale": "사용자 결정(execution/S-05/g6-revise-decision.md): 앱 · 서버 코드는 바꾸지 않고 시험 · 도구만 더함 — E2E AC-44-C3 두 경로(체크 일부 → 결과 · 메모) · AC-41-C4 돌아와 바꾸기, 서버 시험 직접 확인 답, component 조치 · 인계 기록 버튼(인계 fixture는 dev 스택 실제 API), D-11은 정정 이력 요소만(T15 / call은 X-3 하나로). 새 단언 모두 첫 실행 통과. check-fast · verify-db 65 · verify-e2e 27 다시 통과, 구조 대조 미분류 0"
+  },
+  {
+   "id": "UF-S05-14",
+   "observation": "숙련자 인계 fixture를 받는 첫 시도에서 api가 준비되기 전에 로그인해 502가 났고, 받기 도구의 실패 메시지가 요청 본문(dev 스택 시험 비밀번호 원문)을 터미널에 찍음",
+   "evidence_paths": [
+    "execution/S-05/evidence/evidence-secret-check.txt",
+    "execution/S-05/evidence/fixture-capture.py",
+    "execution/S-05/evidence/fixture-capture-handover.py"
+   ],
+   "affected_plan_item_ids": [
+    "P-15"
+   ],
+   "affected_assumptions_or_controls": [
+    "fixture 받기 도구 · 비밀값 취급"
+   ],
+   "impact": "none",
+   "recheck_result": "pass",
+   "rationale": "그 값은 작업 폴더의 dev 스택 설정에만 있고 저장소 · run 기록 · 증거에는 없음을 바꾸기 전에 확인(0건). dev 스택 비밀값 4개를 모두 새로 만들고, 도구는 실패 때 메서드 · 경로 · 상태 코드만 찍게 고침. 다시 받기는 health 확인 뒤. 증거 비밀값 검사 0"
+  }
+ ],
+ "loop": {
+  "used": true,
+  "cap": "같은 verifier 3회",
+  "outcome": "verify-db: 두 결과 뒤 열린 지시 가정 · 반려 뒤 확정 세션 시험 순서 · 초기화 뒤 다시 로그인 · 메모 뒤 seq · 호출 종류 이름(approval) 수리. component: ui 선언 빌드 순서(tsc -b) · 답한 정정 호출 값(UF-S05-07) · 선택자 수리. E2E: 409 콘솔 · 기록 넘김 수(UF-S05-11). 구조 대조: 결정 파생 규칙 문구(UF-S05-02) · I-1 뺌 · D-10 정규식 · Prototype 파생 3상태 누락(UF-S05-10). 비밀값 검사 상태 ID 오탐(UF-S05-03). G6 전 다시 검토에서 시험 빈틈(UF-S05-08) · 화면 범위(UF-S05-09, 사용자 결정 019 ⑨) · 대조 누락(UF-S05-10) · 적대 사례 ADV-08 시험(UF-S05-12) 처리 뒤 check-fast · verify-db · verify-e2e 다시 통과. G6 1차 revise(B1 · B2 · 비차단 3, UF-S05-13) → 사용자 결정 → 시험 · 도구 보강 뒤 세 검사 다시 통과(인계 fixture 첫 받기 502 — UF-S05-14). 같은 verifier 3회를 넘긴 반복 없음"
+ },
+ "scope_notes": [
+  "G4 사용자 결정 019 ① ~ ⑧(sources/intent/019.md)은 packet 실행 해석, G5 중 019 ⑨(AC-48-C1 화면 범위)는 packet v3(점검표 C6). 부록 v2 · packet v2는 결정 파생 규칙 문구만(UF-S05-02)",
+  "실행 카드 허용 목록(implementation-contract v3) 안: server(api · engine · db · migrations · tests · openapi) · packages/ui · apps/tech · apps/lead(L04 정정 상자만 — L06 정정 행은 서버 문구라 앱 변경 없음) · e2e · scripts/verify-e2e(이름표)",
+  "server/openapi.json hash 변경 = 승인 item P-14의 예상 변경(evidence/hash-changes.json). data · lockfile hash 그대로",
+  "CO-38: 표시 조정 ③ 실제 화면 높이 통과(UF-S05-01). CO-39: 보내지 않은 입력 칩은 Prototype 호박색 .ch.amber로 만들고 G2B '수정 가능' 흰 칩 토큰과 나란히 캡처(screens/CO-39-chips.png) — 모양이 다름, 사용자 보고 대상(바꾸려면 범위 밖 변경 절차)",
+  "AC-41-C4 '수정 가능' 표시 = CO-39 칩('지금 n.n 입력(보내지 않음)은 그대로')과 현재 단계로 돌아가면 그 입력을 고칠 수 있음(E2E) — 문구는 승인 Prototype대로",
+  "G6-S04-3 비차단 이어받음: cross.spec.ts 첫 시험 제목 · 옛 주석 고침, S-04 evidence(검토받은 사본)는 고치지 않음 — 그 사본의 structure-dom-capture 주석은 S-05 사본(evidence/structure-dom-capture.mjs)에서 정리",
+  "S02-G6-4: 무효 기록은 LLM 실패 수에서 뺌(test_voided_records_leave_llm_failure_count)",
+  "다음 plan 판에 적을 것: AC-48-C1 문장을 결정 019 ⑨(확인 질문 답 · B 시작 전 체크의 메모 덧붙이기는 서버 API, 화면은 Prototype)와 맞춤(UF-S05-09) · S-04에서 이어 온 AC-23-C2 문장(UF-S04-08) · plan execution_status 구조 필드 정리",
+  "PBC4-A12 실행 해석 ③(LR-07 정밀도): 이 slice에는 학습 기록이 생기지 않아 다음 amendment의 학습 기록 정정 절로 이어 감",
+  "S-06으로 넘기는 일: 결정 019 ⑦(G4 전 대조 첫 일 — 시연 10건 완주 각본 · 파트장 답, 평가 실행기의 호출 처리 · 지표 정의), 평가 실행 경로의 alarms.eval_mode(결정 017 ②, P-16)",
+  "P-17로 넘기는 일: AC-17 전 화면 대조(이 slice 영역 104 미분류 0)",
+  "S-02 ledger scope_notes 이어받을 일(live 전 실패 셈 정의): fixture 기본 동작 유지, live slice에서 다시 정함"
+ ],
+ "version_note": "S-05(packet v3, plan v11) v2 — G6 1차 revise 반영"
+}

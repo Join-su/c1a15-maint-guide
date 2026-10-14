@@ -1,0 +1,67 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "gate": "PBC-4",
+ "artifact": "prebuild_contract",
+ "artifact_version": "v4",
+ "decision": "approved",
+ "approved_scope": [
+  "Pre-build Contract v4 · Coding Plan v4 · Verification Matrix v4 · Selection Register v4 · feasibility probe v1 · consistency check v4, approval attempt PBC4-A4(L1 amendment A-01, critic pass critics/PBC4-4-review.json)",
+  "L1 plan amendment A-01: 명세 4장 판정 규칙 R1 ~ R13 원문을 9개 item behavior에 컴파일(coding-plan/amendments/A-01/plan-amendment.md, 학습 기록 LR-01)",
+  "구현 승인: plan v4 P-03 ~ P-07, 실행 방식 per_slice_gated. P-01 · P-02는 plan v3 승인(decisions/history/PBC-4-prebuild-contract-v3.json)으로 S-01 완료",
+  "실행 해석 5가지(사용자 '이 해석대로'): ① P-07 완료 때의 판정 gate는 item verifier · ADV-01 ~ 07(이번 범위에 완료 item이 있는 것) · check-fast(S-02 화면 gate · 첫 end-to-end L3는 새 판에서) / ② P-06은 C · D 차례에 '다음 단계 = 호출, 지시 내용 없음'만 돌려주고, 호출 요약 본문은 새 판의 P-09가 만든다 / ③ P-04 ~ P-07 진행 중 화면 결정으로 Prototype Bundle이 바뀌기 시작하면 남은 item은 v16 잠금 그대로 계속하지 않고 L1_or_out_of_scope_contract_change로 멈춰 변경 범위를 확인한다. P-03 계산표 대상은 시연 각본 10건 + R5 예시 입력 / ④ 옮긴 규칙 원문(명세 4장)과 승인 AC · Prototype의 읽기가 갈리면 승인 AC · Prototype이 우선한다. 예: R2 'B 체크리스트 확인 후 지시'는 AC-43 · T06 R-INSTR대로 B 지시(절차 · 판정 기준)는 체크리스트와 함께 보이고 결과 입력 · 진행 버튼만 잠근다 / ⑤ R3 토큰 규칙은 '공백으로 나눈 단어 + 한글 2-gram'으로 읽어 P-04의 '글자 2-gram'(EP-C1-FUSE-001)과 함께 만족시킨다"
+ ],
+ "excluded_scope": [
+  "P-08 ~ P-17: OOS-01 화면 결정 → Prototype Bundle 변경 → PBC-0부터 바뀐 범위 재확인 → 새 plan version · 새 implementation authorization 뒤",
+  "다음 plan 판에서 정리(PBC4-A4 비차단): R11의 재가동 후 표시 값 · 추이 그래프 줄을 P-09 등에 원문 그대로 추가, plan OOS-01 문장의 'P-01 ~ P-07' v3 문구 정리",
+  "OOS-01(사용자 결정 2026-10-12, coding-plan/v1/decisions/pbc4-user-decisions.md · coding-plan/v2/decisions/pbc4-a2-user-decisions.md · coding-plan/v3/decisions/pbc4-a3-user-decisions.md): 첫 판정이 바로 파트장 호출인 진단 화면(T04에 보일 A · B 점검이 없음 — 1순위 원인을 확인할 점검이 C · D뿐이고 50% 이상이거나 A · B 점검이 없을 때)은 승인 화면에 없어 이 plan으로 구현하지 않는다. 멈춤 지점: P-03(S-02)이 완료되면 즉시 사용자에게 묻는다. 묻는 동안 화면이 없는 P-04 ~ P-07은 계속하고, P-08(진단 화면 T04를 포함한 정비자 앱 화면)은 시작하지 않는다. 물을 때 P-03 함수로 계산한 시연 각본 10건 · E2E fixture의 첫 판정 결과를 보이고, 등급 변경으로도 생길 수 있음을 알리며, 이 화면을 G3 파생 상태로 정하도록 사용자에게 묻는다. 그 결정은 Prototype Bundle 변경이므로 승인 입력이 바뀌고 PBC-0부터 바뀐 범위만 다시 확인한다. 그래서 이 plan의 구현 승인 요청은 P-01 ~ P-07뿐이며, P-08 이후는 화면 결정 뒤 새 plan version · 새 implementation authorization으로 승인받는다. 결정 전에는 이 경로를 앱에 넣지 않는다(빈 '다음 점검' 카드 · 임의 화면 · T10 건너뛰기 금지). 서버의 호출 판정 함수와 호출 요약 화면(T10)은 승인대로 만든다.",
+  "별도 승인(실행 직전): live OpenAI 문장 · 임베딩 smoke(소수 · 격리, 키는 사용자 제공)",
+  "별도 승인(실행 직전): live 모드 평가 실행",
+  "별도 승인(실행 직전): npm · uv 패키지 설치, Python 3.12 내려받기",
+  "별도 승인(실행 직전): Docker image pull(python · node 빌드 image 등 로컬에 없는 것)",
+  "별도 승인(실행 직전): Playwright 브라우저 내려받기(1.63.0 밖의 판을 쓸 때)",
+  "별도 승인(실행 직전): git commit · push",
+  "별도 승인(실행 직전): Docker 컨테이너로 시험 DB · 시험 스택 실행(첫 실행 전 한 번)"
+ ],
+ "reviewer_note": "사용자 승인(2026-10-13). AskUserQuestion: 구현 승인 '승인 (권장)', 실행 해석 '이 해석대로 (권장)'. A-01 사유: S-02 G4 판정 규칙 본문 누락(execution/S-02/g4-stop.md), 사용자 결정 'L1 계획 수정으로 채움 (권장)'. 검토 이력 PBC4-A1 revise → A2 revise → A3 pass(v3 승인) → A4 pass(v4).",
+ "decided_at": "2026-10-13T10:03:04+09:00",
+ "implementation_authorization": {
+  "allowed_plan_version": "v4",
+  "allowed_plan_item_ids": [
+   "P-03",
+   "P-04",
+   "P-05",
+   "P-06",
+   "P-07"
+  ],
+  "execution_mode": "per_slice_gated",
+  "stop_conditions": [
+   "failed_or_missing_automatic_gate",
+   "L1_or_out_of_scope_contract_change",
+   "new_external_or_separate_approval_action",
+   "baseline_drift",
+   "repair_cap_exceeded"
+  ],
+  "prohibited_actions": [
+   "승인 Use Case Bundle v6 · Prototype Bundle v16의 AC · 사용자 흐름 · 권한 의미 · 데이터 의미 · 화면 구조 · 시각 규칙 변경",
+   "OOS-01(첫 판정이 바로 호출인 진단 화면)을 사용자 결정 없이 만들기",
+   "eval/cards · generation/cause_ratio_table.json을 진단 처리 · 색인 · 적재기에서 읽기",
+   "비밀번호 · API 키 원문을 저장소 · 로그 · DB에 쓰기",
+   "fixture 시험 · 시연에서 외부 네트워크 호출",
+   "plan item 밖 파일 · 다른 저장소 수정, Wiki 쓰기",
+   "배포 · 외부 메시지 전송"
+  ],
+  "separate_approval_required_for": [
+   "live OpenAI 문장 · 임베딩 smoke(소수 · 격리, 키는 사용자 제공)",
+   "live 모드 평가 실행",
+   "npm · uv 패키지 설치, Python 3.12 내려받기",
+   "Docker image pull(python · node 빌드 image 등 로컬에 없는 것)",
+   "Playwright 브라우저 내려받기(1.63.0 밖의 판을 쓸 때)",
+   "git commit · push",
+   "Docker 컨테이너로 시험 DB · 시험 스택 실행(첫 실행 전 한 번)"
+  ],
+  "approver_role": "사용자(프로젝트 소유자)",
+  "authorized": true,
+  "approved_by": "사용자(프로젝트 소유자)",
+  "approved_at": "2026-10-13T10:03:04+09:00"
+ }
+}

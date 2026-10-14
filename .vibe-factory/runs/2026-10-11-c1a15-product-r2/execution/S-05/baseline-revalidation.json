@@ -1,0 +1,70 @@
+{
+ "checked_at": "2026-10-14T09:49:47+09:00",
+ "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+ "git_status_porcelain": [
+  "M .gitignore",
+  " M data/alarm_rules.json",
+  " M data/manifest.json",
+  " M scripts/build_data.py",
+  "?? .env.example",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v2.md",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v3.md",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v4.md",
+  "?? .vibe-factory/runs/",
+  "?? CLAUDE.md",
+  "?? apps/",
+  "?? data/demo/",
+  "?? docker-compose.yml",
+  "?? e2e/",
+  "?? infra/",
+  "?? package-lock.json",
+  "?? package.json",
+  "?? packages/",
+  "?? scripts/build_demo_scenarios.py",
+  "?? scripts/check-fast",
+  "?? scripts/check_demo_separation.py",
+  "?? scripts/external_call_check.py",
+  "?? scripts/forbidden_paths_check.py",
+  "?? scripts/openapi_check.py",
+  "?? scripts/secret_scan.py",
+  "?? scripts/verify-db",
+  "?? scripts/verify-e2e",
+  "?? server/",
+  "?? tools/"
+ ],
+ "python": "Python 3.14.2",
+ "node": "v26.9.0",
+ "docker": "Docker version 29.1.3, build f52814d",
+ "uv": "uv 0.12.17 (Homebrew 2026-09-18 aarch64-apple-darwin)",
+ "files": {
+  "package-lock.json": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+  "server/uv.lock": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997",
+  "data/manifest.json": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+  "data/alarm_rules.json": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+  "data/demo/scenarios.json": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+  "server/openapi.json": "a92637275ecf48eca2bc8dd98b05df053e465b1ab5a3578eb2ad66d4591d7597"
+ },
+ "playbook_v4": "5420be68c37528bd80323188e3ebd84296a99a7f03c45314a0329b940b8460a7",
+ "comparison": {
+  "HEAD": true,
+  "playbook": true,
+  "s04:package-lock.json": true,
+  "s04:server/uv.lock": true,
+  "s04:data/manifest.json": true,
+  "s04:data/alarm_rules.json": true,
+  "s04:data/demo/scenarios.json": true,
+  "s04:server/openapi.json": true
+ },
+ "explained_differences": [
+  {
+   "path": "server/openapi.json",
+   "g4_s04_baseline": "333fe59105a4f04c2981c030124d516e0e48cdd1f09e5a424ba224f5b84ca194",
+   "now": "a92637275ecf48eca2bc8dd98b05df053e465b1ab5a3578eb2ad66d4591d7597",
+   "cause": "P-11 파트장 API 응답 · 입력 스키마(LeadOverview · LeadReview · LeadCheck · LeadCalls · LeadGrades · LeadAudit 등, EditsBody · DecisionBody · AnswerBody · GradeBody) — 승인 item의 예상 변경"
+  },
+  {
+   "path": "apps/ · packages/ · server/src · server/tests · server/migrations · e2e/ · scripts/",
+   "cause": "S-01 ~ S-04 구현(commit 전) — execution/S-04/history/execution-ledger-v3.json changed_files"
+  }
+ ]
+}

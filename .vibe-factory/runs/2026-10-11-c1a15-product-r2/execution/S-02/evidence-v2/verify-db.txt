@@ -1,0 +1,12 @@
+2026-10-13T02:11:45Z
+ Network c1a15-test_default Creating 
+ Network c1a15-test_default Created 
+ Container c1a15-test-db-1 Creating 
+ Container c1a15-test-db-1 Created 
+ Container c1a15-test-db-1 Starting 
+ Container c1a15-test-db-1 Started 
+ Container c1a15-test-db-1 Waiting 
+ Container c1a15-test-db-1 Healthy 
+...................                                                      [100%]
+19 passed, 53 deselected in 6.89s
+verify-db: pass

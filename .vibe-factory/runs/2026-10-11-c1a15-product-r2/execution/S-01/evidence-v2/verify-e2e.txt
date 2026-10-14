@@ -1,0 +1,89 @@
+$ scripts/verify-e2e  (2026-10-13T09:30:51+09:00)
+ Image c1a15-e2e-init Building 
+ Image c1a15-e2e-api Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.02kB done
+#1 DONE 0.0s
+
+#2 [api internal] load build definition from Dockerfile
+#2 transferring dockerfile: 506B done
+#2 DONE 0.0s
+
+#3 [init internal] load metadata for docker.io/library/python:3.12-slim
+#3 DONE 0.0s
+
+#4 [api internal] load .dockerignore
+#4 transferring context: 90B done
+#4 DONE 0.0s
+
+#5 [init 1/8] FROM docker.io/library/python:3.12-slim
+#5 DONE 0.0s
+
+#6 [init internal] load build context
+#6 transferring context: 2.58kB done
+#6 DONE 0.0s
+
+#7 [init 6/8] COPY alembic.ini ./
+#7 CACHED
+
+#8 [init 3/8] WORKDIR /app
+#8 CACHED
+
+#9 [init 2/8] RUN pip install --no-cache-dir uv==0.12.17
+#9 CACHED
+
+#10 [init 7/8] COPY migrations ./migrations
+#10 CACHED
+
+#11 [init 5/8] RUN uv sync --frozen --no-dev
+#11 CACHED
+
+#12 [init 4/8] COPY pyproject.toml uv.lock .python-version ./
+#12 CACHED
+
+#13 [init 8/8] COPY src ./src
+#13 CACHED
+
+#14 [api] exporting to image
+#14 exporting layers done
+#14 writing image sha256:e31ef9d6748fc193c11486f770797f2d98361753030241682b14913700c75f7f done
+#14 naming to docker.io/library/c1a15-e2e-api done
+#14 DONE 0.0s
+
+#15 [init] exporting to image
+#15 exporting layers done
+#15 writing image sha256:24724f397c9871c81b574de5d55520a437416fd94f1430d39540868890f1926c done
+#15 naming to docker.io/library/c1a15-e2e-init done
+#15 DONE 0.0s
+
+#16 [api] resolving provenance for metadata file
+#16 DONE 0.0s
+
+#17 [init] resolving provenance for metadata file
+#17 DONE 0.0s
+ Image c1a15-e2e-init Built 
+ Image c1a15-e2e-api Built 
+ Network c1a15-e2e_default Creating 
+ Network c1a15-e2e_default Created 
+ Container c1a15-e2e-db-1 Creating 
+ Container c1a15-e2e-db-1 Created 
+ Container c1a15-e2e-init-1 Creating 
+ Container c1a15-e2e-init-1 Created 
+ Container c1a15-e2e-api-1 Creating 
+ Container c1a15-e2e-api-1 Created 
+ Container c1a15-e2e-web-1 Creating 
+ Container c1a15-e2e-web-1 Created 
+ Container c1a15-e2e-db-1 Starting 
+ Container c1a15-e2e-db-1 Started 
+ Container c1a15-e2e-db-1 Waiting 
+ Container c1a15-e2e-db-1 Healthy 
+ Container c1a15-e2e-init-1 Starting 
+ Container c1a15-e2e-init-1 Started 
+ Container c1a15-e2e-init-1 Waiting 
+ Container c1a15-e2e-init-1 Exited 
+ Container c1a15-e2e-api-1 Starting 
+ Container c1a15-e2e-api-1 Started 
+ Container c1a15-e2e-web-1 Starting 
+ Container c1a15-e2e-web-1 Started 
+verify-e2e(S-01 smoke): pass
+exit=0

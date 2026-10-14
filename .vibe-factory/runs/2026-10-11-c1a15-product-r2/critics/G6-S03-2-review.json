@@ -1,0 +1,61 @@
+{
+ "gate": "G6",
+ "slice_id": "S-03",
+ "attempt": 2,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-03/history/verification-report-v2.json",
+  "version": "v2",
+  "sha256": "1471609f5c2f5ca8d56449c3668a9dbca57325d904e7d61600a3d139bf67dfad"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S03-2-input.json",
+  "sha256": "6949f63404a772ab0dda0e47d50356b7cf87a40bae2b8adb6ebce8bf2afd23e7"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-03/history/slice-execution-packet-v1.json",
+   "version": "v1",
+   "sha256": "a8f1658bc7173a114283202a44682a30e77aa68596148e561da8a80474714b37"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-03/history/implementation-contract-v1.md",
+   "version": "v1",
+   "sha256": "bede853e78e67ff5a3aa1f40c9462dbdc2b07e37fa305e88626d42ff6107fac4"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-03/history/execution-ledger-v2.json",
+   "version": "v2",
+   "sha256": "8f5242995d4a8b40bc497690296706e874f75e4f55ff70e369457ea5b6865e95"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-03/history/verification-report-v2.json",
+   "version": "v2",
+   "sha256": "1471609f5c2f5ca8d56449c3668a9dbca57325d904e7d61600a3d139bf67dfad"
+  }
+ ],
+ "prior_blocking_resolution": [
+  {
+   "id": "B1",
+   "resolved": true,
+   "evidence": "e2e/tests/tech-s03.spec.ts:106-121: AC-03 L3 시험이 toFirstCheck의 onDiagnosis 콜백에서 진단 화면 '.rk .rv'가 [\"50%\",\"28%\",\"11%\",\"11%\"]인지 확인(119행)하고 T04-r5_example을 캡처(120행)한 뒤 4.3(123행), 57 · 22 · 21(127행)을 확인한다. e2e-report.json(시작 2026-10-13T09:38:40Z = 18:38:40 KST, expected 15 · unexpected 0)에서 tech-s03.spec.ts:106 시험이 passed이고 첨부가 T04-r5_example · T10-summary · T10-waiting · T10-sent · T10-ans_approved다. spec 파일 수정 시각(18:37:43)보다 실행이 뒤라 증거가 수정 뒤 실행이다. screens/T04-r5_example.png를 직접 보면 원인 후보 순위가 냉각 필터 막힘 50% · 냉각 팬 열화 28% · 냉각수 부족 11% · 냉각 설정 오류 11%, 다음 점검이 흡기 필터 육안 점검(4.3절)이다. report AC-03 assertion_summary · evidence_paths도 C1 L3와 캡처를 든다."
+  },
+  {
+   "id": "B2",
+   "resolved": true,
+   "evidence": "(a) 구현 · 시험됨. engine/session.py fold의 report_rejected가 report_confirmed를 풀고 report_rejected_seq를 남긴다(125-126행) → decide()가 다시 보고서 단계를 연다. api/flow.py report_view는 반려된 보고서를 확정했던 문장에서 다시 열고 반려 seq 뒤 수정만 R8 검사(462-472행), report_confirm은 같은 행을 승인 대기로 바꾸고 rejection은 남긴다(정정 없이 update, 반려 정보 유지). api/main.py는 최근 보고서에 반려 · 사유 · 파트장 이름 · 시각(196-200행), 처리 완료 수에서 rejected 제외(147행), 종 목록 rejected_report 항목(260-277행). migration 0003 ops.reports.rejection JSONB · status CHECK에 rejected. e2e/sim_report_reject.py는 시험 DB에 반려 · report_rejected · 세션 · 알람 진행 중을 넣는다. test_s03_rejected_report_resume_and_reconfirm(test_api.py:1248-1295)은 확정 → 반려 → 최근 보고서 반려 · 사유 · 이름 · 시각 · done 0 → 종 반려 항목 → 세션 in_progress · 보고서 단계 · 확정했던 문장 그대로 → 수정(근거 없는 수치는 can_confirm false) → 다시 확정 → 승인 대기 · 보고서 행 1개 · 세션 reported · rejection 남음 → 다시 report_edit 409 → done 1까지 확인한다. AC-33: 반려 전은 test_s03_action_restart_report_confirm(1019-1022행 409 session_closed · 항목 그대로), 다시 확정 뒤는 위 시험 1292행 409. verify-db 40 passed에 이 시험이 들어 있다(db-test-list.txt 33행). 권한 경계: sessions.py post_event는 row.status == 'reported'면 여전히 deny('session_closed')(447-448행)이고 flow.accept도 state.report_confirmed면 409라 반려되지 않은 확정 세션은 그대로 닫혀 있다. report_rejected · call_answer는 EventBody type Literal(schemas.py:38-55)과 sessions.CLIENT_TYPES에 없어 정비자가 보낼 수 없다(422). (b) ledger UF-S03-10이 P-09 생성자 해석 ②(정정 호출 '승인 후 진행' 답 → 정정 때 하던 단계로 이어 가기)를 서버 상태 전이로 구현하지 않은 사실, affected P-09 · P-14, impact L1, recheck_result amendment_required, G7 amendment, AC 완료 판정은 바뀌지 않음을 적었고 scope_notes 'S-05로 넘기는 일'에 같은 일이 들어 있다. 범위 서술은 사용자 결정(g6-revise-decision-v1.md ③)과 맞다. ledger P-09 l0_decisions · scope_notes(S-04: 반려 API가 같은 기록 형식을 써야 함 · T02 / rejected 화면 · 반려 종 묶음)와 report AC-11 assertion_summary도 그 범위로 고쳐졌다."
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "① 시험 범위 문구(차단 아님). test_s03_business_rejections_are_audited docstring과 ledger L0는 '확정 뒤 입력' · B 체크리스트 checklist_incomplete 감사도 시험으로 확인했다고 읽히지만, 시험이 확인하는 사유는 not_locked · nothing_pending · no_b_checklist_step(+ 기존 precheck_failed)뿐이고 session_closed 감사 행은 코드(deny)로만 보장된다 — 시험 한 줄을 더하거나 문구를 '코드 경로'로 줄인다. 또 report_rejected · call_answer를 정비자가 보낼 수 없다는 것은 EventBody Literal로 구조상 막혀 있으나, 'approval'처럼 이 두 type을 보내면 422라는 직접 시험이 없다 — S-04에서 실제 반려 · 답 API를 붙일 때 같이 넣는다.",
+  "② 기록 문구(차단 아님). ledger UF-S03-05 rationale은 '바이트 단위로 같음'이라 적지만 prototype-reread-check.json은 'strip 뒤 문자열 비교'이고 당시 비교는 대화 실행 기록뿐이라 재현 가능한 증거가 아니다 — G7 사용자 판단으로 넘긴 것은 맞으니 rationale 문구를 증거에 맞춘다. UF-S03-10 evidence_paths는 gate-applicability.md인데 그 파일에 이 사실이 적혀 있지 않다 — g6-revise-decision.md를 근거로 드는 편이 맞다.",
+  "③ S-04 주의(차단 아님). 다시 확정한 뒤에도 세션 응답의 report.rejection이 지난 반려 정보를 그대로 돌려준다(status awaiting_approval와 함께). 지금 정비자 앱 화면은 이 값을 쓰지 않아 영향이 없지만, S-04 T02 / rejected · 보고서 화면에서 '지난 반려'와 '현재 반려'를 status로 구분해 보여야 한다."
+ ]
+}

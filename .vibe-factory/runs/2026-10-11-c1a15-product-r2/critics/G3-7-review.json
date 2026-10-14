@@ -1,0 +1,162 @@
+{
+ "gate": "G3",
+ "attempt": 2,
+ "cycle": 4,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v7/prototype-slice.md",
+  "version": "v7",
+  "sha256": "afebe361b524a304b698f337c441a1262fb3b987cd20e8e550fc5acbaef3ec61"
+ },
+ "input_bundle": {
+  "path": "critics/G3-7-input.json",
+  "sha256": "b2d2acd928f15ebb00561f3b76e3c737696c72ca79c8ecae854638f5062292c7"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v3.json",
+   "version": "v3",
+   "sha256": "61577260b7dce67beb3777d5ca65924e285ca4b72d6c80251dd83c532d3c6efb"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v3/acceptance-criteria.json",
+   "version": "v3",
+   "sha256": "6a46719847f0cc6b6e73ecedd7208c000c7a6a5ad67809f4d5c493079b24f000"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v3/scenario-coverage.json",
+   "version": "v3",
+   "sha256": "08e7feb1e6d7db9c76747aa6c2949467e2d91f5782a2957466e54f99a172728a"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected.md",
+   "version": "v2",
+   "sha256": "2c30a2d1894224dd16838811e738a833f9890090e1ad1a1f8456d581c890aafb"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-structure-contract.json",
+   "version": "v2",
+   "sha256": "c8dca1f43ebf050fae4d14029a863570e1a89e196a2a608a115c2183d3a4ba01"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-visual-baseline.json",
+   "version": "v2",
+   "sha256": "9e53627e1facfec03017b1a696f9c5f67b23379e40023bc0c203c0ce614477ad"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v2/design/selected-visual-rules.md",
+   "version": "v2",
+   "sha256": "307b18a8ee583b595fdef4d1542e0ec85c3e6d5c354eb5b8b07297cc55834a52"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v7/prototype-coverage.json",
+   "version": "v7",
+   "sha256": "cb395d7ee506a69f0a97b66da113465945f69541a15cb4307065c7c5450662a0"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v7/index.html",
+   "version": "v7",
+   "sha256": "6646314114546dac10dfdbfdae8da719c7d3e2abfcee0ddb9b661d148ffc0c9f"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v7/selftest-result.json",
+   "version": "v7",
+   "sha256": "10f2037ad8492c3817aaae9318bdf53da5c9f70cd3b878199ddee5bc7e3e8538"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v7/mutation-check.json",
+   "version": "v7",
+   "sha256": "df6ed75994451292f3ec88aab76b45d1c781fea50a640fb94875c2bfbe5337a5"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v7/structure-check.json",
+   "version": "v7",
+   "sha256": "a1910aca6d3066c7bbc794bf1f9cfc3c5dd6fd781fd5cd53f7f8ef998b275a1d"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v7/axes.json",
+   "version": "v7",
+   "sha256": "13b3a97eaca03b4550ebb17935c828fc33017d7bfb57477294544122bc69313d"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v7/control-audit.json",
+   "version": "v7",
+   "sha256": "acddb5da25165399266c99ff6f23e705c2d289d6377a3cc00723019e39fc0307"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "category": "behavior-mismatch",
+   "subject_location": "index.html show()(87행: S.view만 초기화하고 S.result는 비우지 않음) · bellItems()(203행: '진행 중인 점검 · 이어서 하기'의 이동 대상 = S.lastWork = 지금 화면) · wire T06 '결과 보내기'(108~113행: 화면이 아니라 S.result로 판정) · wire T11 '숙련자 인계'(139행: 잠금과 '인계 보냄'을 DOM에만 적용) · render()(91행: 어느 앱을 조작해도 두 앱을 함께 다시 그림) · control-audit.json 시나리오 'result chosen + bell'의 '이어서 하기' 행(outcome at_tech T06:default만 기록) · 'T11 handover sent'(locked '인계 보냄'을 처음 상태에서만 기록) · selftest CTL-11(407~408행: 정비자 인계 뒤 파트장 '호출'을 누르지만 정비자 버튼은 확인 안 함) · prototype-slice.md 262 · 309행",
+   "comparison_location": "acceptance-criteria.json AC-38-C2 · AC-39-C2('닫으면 원래 화면과 단계가 그대로다') · G3-6 ISS-001 minimum_resolution('보존하지 않을 것이라면 S.result도 함께 비워 보이는 상태와 보내는 값이 어긋나지 않게') · 사용자 발견 결함 ③(결과 선택이 안 보임) · selected.md T11 R-STOP('숙련자 인계' → 파트장 앱 호출 목록) · slice 262행('창 · 패널 · 안내를 열고 닫아도 … 그대로이며, 결과 보내기는 보이는 선택대로 진행')",
+   "why_not_mechanical": "G3-6 ISS-001의 결함은 창 · 패널 · 안내를 열고 닫는 경로에서는 해소됐다. restoreView/trackView가 결과 버튼 · 선택지 · 체크 · 연필 클릭과 입력을 다시 재생하고, AC-38 · AC-39 · CTL-06 · CTL-12가 계산된 색 · 메모 · 다음 상태로 이를 확인하며, V-1 · U-3 음성 시험도 맡은 시험을 실패시킨다. 그러나 보이는 상태와 내부 상태가 어긋나는 같은 종류의 결함이 두 곳에 남았다. ① 종 패널의 '진행 중인 점검 · 이어서 하기'는 언제나 지금 화면으로 show()를 다시 부른다. 그래서 T06에서 '이상'을 고른 뒤 종 → '이어서 하기'를 누르면 보존 기록(view)이 지워져 화면에는 아무 버튼도 선택돼 있지 않다. 그런데 S.result='이상'은 남아 있어 '결과 보내기'가 T08:action_a로 진행한다. 결함 ③과 같은 현상이 두 번 눌러 다시 생기고, T08에서 체크한 칸 · T05 메모 · T10 고친 요약도 함께 사라진다. 조작 점검은 이 행을 at_tech T06:default라서 기대와 맞다고만 판정했고, 그 뒤의 보이는 선택과 보내는 값은 대조하지 않았다. ② T11에서 '숙련자 인계'를 누르면 버튼이 '인계 보냄'으로 잠긴다. 하지만 이 변화는 DOM에만 있어서, 종 · 안내를 열고 닫거나 파트장 화면에서 아무거나 누르면(render가 두 앱을 함께 다시 그림) 버튼이 다시 '숙련자 인계'로 열린다. 다시 누르면 인계가 또 기록된다(감사 기록 '숙련자 인계' 2건). CTL-11은 바로 그 순서(인계 → 파트장 '호출')를 밟지만 정비자 버튼을 보지 않는다. 조작 점검도 요소마다 새로 만든 상태에서 첫 클릭만 기록하므로 다시 그린 뒤의 상태와 처리 두 번을 잡지 못한다. 그래서 '이름표와 다른 결과 0건'은 이 두 경로를 포함하지 않는다. 화면 전환 여부는 기계가 판정하지만, 무엇이 사용자가 넣은 상태이고 그것이 보내는 값과 같은지는 의미 판단이다.",
+   "minimum_resolution": "①을 고친다. 지금 화면과 같은 대상으로 가는 패널 항목은 패널만 닫고 보존 기록을 유지하거나, 보존 기록을 초기화할 때 S.result도 함께 비운다. ②를 고친다. T11은 그릴 때마다 S.calls['M-03'].type==='handover'를 보고 '인계 보냄' 잠김을 다시 적용하고, 인계가 두 번 기록되지 않게 막는다. 시험을 더한다. T06에서 결과와 메모를 넣는다 → 종 → '이어서 하기' → 보이는 선택 · 메모와 '결과 보내기' 다음 상태가 같은지 assert한다. T11 인계 뒤 종을 열고 닫고, 파트장 '호출'을 누른다 → 정비자 버튼이 '인계 보냄' 잠김인지, 감사 기록 '숙련자 인계'가 1건인지 assert한다. 두 결함 각각에 음성 시험을 하나씩 붙인다. 조작 점검에는 두 대조를 더한다. 누른 뒤 다시 그린 화면의 보이는 선택 · 입력 · 잠김이 내부 상태와 같은지, 같은 처리가 두 번 기록되지 않는지다. 그다음 '이름표와 다른 결과' 건수를 다시 보고한다."
+  },
+  {
+   "id": "ISS-002",
+   "category": "behavior-mismatch",
+   "subject_location": "index.html wire T08:restart_check '여전히 밖' → T11:expert_handover(123행) · T06:llm_repeat '숙련자 인계' → T11:expert_handover(116행) · s-T11--expert_handover template(제목 '후보 원인과 맞지 않는 소견', 요약 '필터 정상, 냉각수 수위 정상이나 … 냉각수 고임', 점검 경로 4.3 정상 · 4.5 고임으로 고정) · T11 인계 task=txt(.warn-h h3)(139행) · L04:list M-03 인계 행(158행) · selftest AC-21-C3(283행: '원인 미상' 글자만 확인) · CTL-11(407~410행: 맞지 않는 소견 경로만) · prototype-slice.md 254 · 266행",
+   "comparison_location": "acceptance-criteria.json AC-21-C3('여전히 밖 선택 시 숙련자 인계 · 확정 원인 원인 미상') · scenario-coverage SC-15 · SC-13 · SC-17 · selected.md T11 R-STOP('멈춘 이유 · 인계 요약') · G3-6 ISS-002 minimum_resolution('L04 행이 유형 숙련자 인계 · 인계 요약 · 시각으로') · 사용자 결정(샘플 없는 흐름은 안내만)",
+   "why_not_mechanical": "T11 / expert_handover template은 '맞지 않는 소견(냉각수 고임)' 경로의 내용으로 고정돼 있다. 그런데 prototype은 '재가동 여전히 밖'과 'LLM 3회 실패 뒤 숙련자 인계'도 같은 화면으로 보낸다. 예를 들어 사용자가 4.3 '이상' → 필터 교체 → 재가동 → '여전히 밖'으로 왔다면, 화면에는 '후보 원인과 맞지 않는 소견 · 필터 정상 · 냉각수 고임'이라는 멈춘 이유 · 요약 · 점검 경로가 보인다. 사용자가 한 일과 다른 내용이다. v7에서 새로 만든 파트장 호출 표의 M-03 인계 행도 이 제목을 '인계 제목'으로 옮긴다. 그래서 재가동 실패로 인계한 경우에도 파트장은 '후보 원인과 맞지 않는 소견'을 본다. 이것은 G3-6 ISS-002의 '누른 대상 · 실제 일과 열린 내용이 맞는가'와 같은 종류다. 이번에는 누른 경로와 보인 사유가 어긋난다. AC-21-C3 시험은 '원인 미상' 글자만, CTL-11은 맞지 않는 소견 경로만 보므로 판별하지 못한다. 조작 점검은 '여전히 밖 → T11:expert_handover' 도착만 보고 내용은 대조하지 않는다. 승인 화면 구조를 문제 삼는 것이 아니다. 같은 구조 안에서 보인 값이 사용자가 지나온 경로와 맞는지는 의미 판단이다.",
+   "minimum_resolution": "재가동 경계 밖 · 지시 생성 연속 실패 경로에서 T11의 멈춘 이유 · 인계 요약 · 점검 경로를 그 경로의 값으로 보인다. 승인 T11 / expert_handover 구조를 그대로 쓰는 파생 상태나 값 치환이면 된다. L04 M-03 행의 인계 제목도 실제 사유로 바꾼다. 이 경로들을 표현하지 않을 것이라면 사용자 결정대로 샘플 없음 안내로 바꾸고 slice의 '샘플 없는 흐름'과 AC-21 근거에 밝힌다. 시험을 더한다. '여전히 밖' 경로에서 T11 제목 · 요약에 재가동 경계 밖 사유가 있고 '냉각수 고임'이 없는지, 파트장 표 M-03 행 제목이 같은 사유인지 assert한다. 음성 시험도 하나 붙인다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "(a)(c)에서 유지 · 해소를 확인한 사항이다. G3-6 ISS-001~004 가운데 위 두 건을 뺀 부분은 해소됐다. ISS-002: M-01 · M-20 '검토'는 'review-nosample'로 안내만 띄우고 보고서 상태는 그대로다(CTL-10, V-2 audit 대조 실패 60). M-03 인계 행은 유형 · 02:40으로 바뀌고 '답하기'는 안내를 띄우며, M-20 답은 M-20에 저장된다(CTL-11 · V-3). ISS-003: edit_failed에서 다시 검사해 L03:edit로 돌아가 저장이 열린다(CTL-08 · V-4). '결정 저장'은 data-act가 붙어 처리 두 번이 없다(V-8 audit 3건). L06 필터 목록 · 즉시 거르기(CTL-09 · V-5), '고칠 수 있음' .pv 입력(CTL-12 · V-6), 근거 번호별 .lkid(AC-38 · V-7)도 확인했다. ISS-004: U-1~U-7 · V-1~V-8은 결함 하나씩 넣은 복사본에서 맡은 시험이 실패한다. other_failed 이유도 흐름상 타당하다(U-4a 체크가 막히면 보고서 흐름 전체, U-5는 CTL-01이 '홈으로'를 거침, U-6은 종을 쓰는 CTL-06 · 12, U-7은 1.2 행을 쓰는 AC-25). U-1에서는 CTL-01만 실패해 '보기' 판별이 따로 보인다. G3-6 비차단 의견도 반영됐다. CTL-03이 테두리색까지 assert하고, AC-39가 점검 방법 · 소요 분 · 등급 배지를, AC-37이 지금 화면의 종을 쓴다. 40개 AC는 covered 17 · deferred 23이고 covered 조건 ID는 모두 selftest pass다. 172 Region, 파생 4, structure-check 46/51 같음(차이 5개 설명 일치)도 유지된다. T12~T14를 클릭으로 연 패널 · 창 시나리오로 점검한 것은 사용자가 보는 방식과 맞다. AC-27-C3을 fixture 상태로 확인한 것과 M-03 인계 답을 샘플 없음 안내로 둔 것은 사용자 결정과 맞고, slice 265~266 · 342 · 370행에 밝혀져 있다.",
+  "L03 수정 후 승인에서 edit ↔ edit_failed 전환은 show()로 다시 그린다. 그래서 문장을 고치는 중에 입력 위치(focus)가 사라지고, 먼저 적은 '고친 이유' 메모가 template 글로 돌아간다. wireCommon이 S.memos에 메모를 쓰지만 읽는 곳은 없다. T10 · T11에서 고친 요약도 파트장 호출 상세에 반영되지 않는다. 전환 때 이유 메모를 유지하고, 고친 요약을 호출 상세에 넣거나 반영 안 함을 slice에 밝히면 더 확실하다. 메뉴로 감사 기록에 돌아오면 S.flt가 남아 L06:default 상태에서도 걸러진 표가 보인다. 이 상태 이름 차이도 함께 정리할 만하다.",
+  "AC-37-C2의 '진행 중인 점검 · 이어서 하기' 확인(g2)은 지금 화면(T05:locked)에서 눌러 같은 화면이 되는지만 본다. 그래서 항목이 연결되지 않아도 통과한다. 다른 화면에서 누르거나 패널이 닫혔는지 · 보존 상태를 함께 보면 판별력이 생긴다. 조작 점검 summary의 works 1024에는 종 패널 시나리오에서 칩 · 자동 검사 아이콘을 눌러 패널만 닫힌 행(panel_outside)도 들어 있다. 이 행은 R-HOMEBG 규칙 확인으로 따로 집계하면 works 수가 과장돼 보이지 않는다."
+ ]
+}

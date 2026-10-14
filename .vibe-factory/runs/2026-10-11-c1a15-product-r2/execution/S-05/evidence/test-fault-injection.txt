@@ -1,0 +1,10 @@
+# 시험 판별력 확인(점검표 C7) — test_non_correctable_kinds_by_session_state
+# 2026-10-14, 시험 DB(verify-db와 같은 compose 시험 DB, 시험 하나만 실행). 넣은 결함은 실행 뒤 원래 파일로 되돌리고 cmp로 같음을 확인했다.
+
+결함 없음(지금 코드)                                  → 1 passed
+결함 1: 엔진 CORRECTABLE_TYPES에만 confirm_answer 추가 → 1 passed
+        (API post_correction이 결과 · 측정값 밖의 기록을 먼저 not_correctable로 거부 — 두 층 거부라 한 층 결함은 화면 · 응답에 드러나지 않음)
+결함 2: 엔진 CORRECTABLE_TYPES + API post_correction 둘 다 confirm_answer 허용
+                                                       → 1 failed: AssertionError ('진행', '확인 질문 답')
+결함 3: 엔진 NOTE_TYPES에서 b_checklist_done 뺌      → 1 failed: AssertionError ('진행', 'B 시작 전 체크', '{"detail":"not_note_target"}')
+되돌림: server/src/c1a15/engine/session.py · server/src/c1a15/api/sessions.py 모두 결함 넣기 전 사본과 cmp 같음(restored)

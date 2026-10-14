@@ -1,0 +1,115 @@
+{
+ "gate": "G1",
+ "attempt": 1,
+ "cycle": 4,
+ "subject": {
+  "artifact": "use_case",
+  "path": "use-case/v6/use-case-packet.md",
+  "version": "v6",
+  "sha256": "baa45580041fad76a3aaccab3ad727d16ea0b4b68fc5eb3a68575c41a078a8c6"
+ },
+ "input_bundle": {
+  "path": "critics/G1-6-input.json",
+  "sha256": "a781f8034e0a17e595dfb58e0d4eb07896f6a540013221062afe5f2be4d683b8"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "evidence_pack",
+   "path": "evidence-pack-v7.md",
+   "version": "v7",
+   "sha256": "080ee33d3779b2c147f46481c559da59403334e26bd2b9daecece24eb548cb6c"
+  },
+  {
+   "artifact": "prior_use_case_packet",
+   "path": "use-case/v5/use-case-packet.md",
+   "version": "v5",
+   "sha256": "0a1f19a79a2b94018ec6c7bab9f1d525153642c505bf63206e494648e699f763"
+  },
+  {
+   "artifact": "prior_g1_decision",
+   "path": "decisions/history/G1-use-case-v5.json",
+   "version": "v5",
+   "sha256": "b4436b3289f9ff0b5e03f709bfb737c3986b0ae13c6a8445cd24f67a3875e1d9"
+  },
+  {
+   "artifact": "prior_acceptance_criteria",
+   "path": "use-case/v5/acceptance-criteria.json",
+   "version": "v5",
+   "sha256": "8b9cde56b12730af6a466ebe7ae1ef0b190afcf69c08ff55b86c760a8f511b44"
+  },
+  {
+   "artifact": "prior_logical_system_contract",
+   "path": "use-case/v5/logical-system-contract.json",
+   "version": "v5",
+   "sha256": "a42cad7af48e27fa06c78be75832173755d83c1ec90efec1138a955b6f548f34"
+  },
+  {
+   "artifact": "subject_bundle_use_case_map",
+   "path": "use-case/v6/use-case-map.svg",
+   "version": "v6",
+   "sha256": "4a68bb9f396f1bab2455fc0427ea332069669eb82cf03a82c29ca6e8741a9d54"
+  },
+  {
+   "artifact": "subject_bundle_scenario_coverage",
+   "path": "use-case/v6/scenario-coverage.json",
+   "version": "v6",
+   "sha256": "05a2ae0ebefdbca685326aed2054c2dcf3e1bf0113606b8cab713b57dec25640"
+  },
+  {
+   "artifact": "subject_bundle_acceptance_criteria",
+   "path": "use-case/v6/acceptance-criteria.json",
+   "version": "v6",
+   "sha256": "b7eb4367ba65bb3ed2848d5d50edf833dec89c34a249331327a7228b6ac9428d"
+  },
+  {
+   "artifact": "subject_bundle_logical_system_contract",
+   "path": "use-case/v6/logical-system-contract.json",
+   "version": "v6",
+   "sha256": "0fc2c4dd8a232758f917f9b84efda2c73ef3a9ffb4538ca5767b470f8b69364a"
+  },
+  {
+   "artifact": "subject_bundle_logical_system_overview",
+   "path": "use-case/v6/logical-system-overview.svg",
+   "version": "v6",
+   "sha256": "9b9141acfa6343cd6ef3f43488d5ea5e6ca556f517c8f7fbf2a2317023298486"
+  },
+  {
+   "artifact": "subject_bundle_logical_scenario_flow",
+   "path": "use-case/v6/logical-scenario-flow.svg",
+   "version": "v6",
+   "sha256": "0a42701e25ed4056ebac994abbd58ce385a4f4a58ff63cf0bdef445f29acdb32"
+  },
+  {
+   "artifact": "user_decision_010",
+   "path": "sources/intent/010.md",
+   "version": "010",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "user_decision_011",
+   "path": "sources/intent/011.md",
+   "version": "011",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "g0_review_pass",
+   "path": "critics/G0-7-review.json",
+   "version": "v7",
+   "sha256": "cb9456f2dc37ca625dc16453ff24ba87bf97c67ff80d9c790cd68df961add47b"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "AC-35-C1('지시되지 않은 점검의 결과 입력 요청이 거부되고 순위가 바뀌지 않는다')은 v5 문장 그대로입니다. 그런데 v6에서는 이미 지시받아 제출한 점검 결과를 정정하면 순위가 다시 계산됩니다(AC-46). 이 문장만 글자 그대로 검증하면 정정 요청까지 거부 대상으로 읽힐 수 있습니다. EV-068과 SC-26에 따르면 AC-35는 '현재 지시를 건너뛰는 일'만 막습니다. 따라서 G2A · PBC에서 AC-35의 거부 대상에 '정정 경로(EV-069 · EV-070)는 포함하지 않는다'는 해석을 함께 넘기는 것이 안전합니다.",
+  "Product constraints의 Authority boundary는 '정비자는 자기가 입력해 제출한 점검 결과 · 메모 · 측정값만'이라고 씁니다. Evidence Pack EV-069와 010 원문은 '정비자가 입력해 제출한 값'이고, G0-6 검토에서 '본인' 표현을 원문대로 고친 일이 있습니다. 같은 뜻으로 읽히긴 하지만, 다음 판에서 '정비자가 입력해 제출한'으로 맞추면 '입력한 사람만 정정할 수 있다'는 새 권한 조건으로 오해할 여지가 사라집니다.",
+  "정정하지 않는 기록의 '메모 덧붙이기'(EV-069 · EV-074)는 AC-48-C1에서 버튼이 있는지만 관찰합니다. 덧붙인 메모가 저장된 뒤 어디에서 다시 읽히는지(지난 화면, 감사 기록, 보고서 초안)는 관찰 조건이 없습니다. FLOW-14 state에는 '덧붙인 메모'가 있습니다. Evidence Pack도 readback 위치를 정하지 않았으므로 G1의 차단 사유는 아닙니다. G2A 화면 상태와 PBC Verification Matrix에서 이 readback 위치를 정할 때 새 규칙을 만들지 말고 근거를 확인해야 합니다. 또 P1의 '그 밖의 정비자 행위'(사전 확인 완료, '계속', 대기, 조치 · 재가동 체크리스트)는 지금처럼 '정정 불가'로만 다뤄야 하고, 메모 덧붙이기를 허용하는 쪽으로 넓히면 안 됩니다(G0-7 비차단 의견과 같음)."
+ ]
+}

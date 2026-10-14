@@ -1,0 +1,101 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "coding_plan",
+  "version": "v1",
+  "plan_mode": "compact | standard | high_risk",
+  "approved_input_manifest": "approved-inputs/approved-artifact-manifest.json",
+  "selection_register": "coding-plan/v1/selection-register.json",
+  "director_review": "coding-plan/v1/director-review.md",
+  "implementation_design": {
+    "overview": "",
+    "boundaries": [
+      {
+        "id": "B-01",
+        "responsibility": "",
+        "interfaces": [],
+        "state_data_boundary": "",
+        "external_action_boundary": "",
+        "logical_flow_refs": ["FLOW-01"],
+        "runtime_mode": "internal | adapter | fixture | external | not_applicable",
+        "state_ownership": "",
+        "failure_recovery": "",
+        "operational_readiness": "",
+        "plan_item_ids": ["P-01"],
+        "depends_on": []
+      }
+    ],
+    "slice_sequence": [
+      {"slice_id": "S-01", "plan_item_ids": ["P-01"], "depends_on": [], "expected_outcome": ""}
+    ],
+    "first_end_to_end_flow": {
+      "status": "required | not_applicable",
+      "logical_flow_id": "FLOW-01",
+      "scenario_id": "S-01",
+      "slice_id": "S-01",
+      "boundary_path": ["B-01"],
+      "expected_outcome": "",
+      "readback_expectation": "",
+      "not_applicable_reason": ""
+    },
+    "ui_surface_delivery": [],
+    "delivery_and_recovery": ""
+  },
+  "diagram_paths": {
+    "traceability": "coding-plan/v1/diagrams/traceability.svg",
+    "roadmap": "coding-plan/v1/diagrams/roadmap.svg",
+    "implementation_design": "",
+    "runtime_sequence": ""
+  },
+  "feasibility_preflight": {
+    "status": "not_required | verified",
+    "rationale": "",
+    "basis": {
+      "kind": "single_control | existing_observed_evidence | internal_compatibility_probe",
+      "evidence": null
+    },
+    "probe": null
+  },
+  "execution_policy": {
+    "mode": "continuous_batch | per_slice_gated",
+    "automatic_quality_gates": ["scope_traceability", "ac_verifier", "static_check"],
+    "critic_trigger_categories": ["external_or_authority", "sensitive_or_irreversible", "public_contract_or_migration", "unverifiable_material_ui_or_ai_judgment", "performance_budget", "unexpected_failure"],
+    "stop_conditions": ["failed_or_missing_automatic_gate", "L1_or_out_of_scope_contract_change", "new_external_or_separate_approval_action", "baseline_drift", "repair_cap_exceeded"]
+  },
+  "items": [
+    {
+      "id": "P-01",
+      "selection_refs": ["SEL-HARNESS"],
+      "boundary_refs": ["B-01"],
+      "logical_flow_refs": ["FLOW-01"],
+      "slice_id": "S-01",
+      "acceptance_ids": ["AC-01"],
+      "prototype_refs": [
+        {"page_id": "P01", "state": "default", "region_id": "R-01"}
+      ],
+      "compiled_product_contract": {
+        "behavior": "",
+        "ui_state_interaction": "",
+        "authority_data": "",
+        "logical_flow_behavior": ""
+      },
+      "status": "decided | provisional",
+      "requirement_signal": "",
+      "selected_approach": "",
+      "rejected_approaches": [],
+      "trigger": "",
+      "non_trigger": "",
+      "preconditions": [],
+      "authority_boundary": "",
+      "verifier": "",
+      "review_requirement": "automatic | independent_critic",
+      "review_rationale": "",
+      "stop_or_escalation": "",
+      "revalidation_trigger": ""
+    }
+  ],
+  "amendment_policy": {
+    "l0": "",
+    "l1": "",
+    "out_of_scope_contract_change": ""
+  }
+}

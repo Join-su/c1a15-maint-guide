@@ -1,0 +1,83 @@
+{
+ "gate": "G6",
+ "slice_id": "S-03",
+ "attempt": 3,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-03/verification-report.json",
+  "version": "v3",
+  "sha256": "018bf02393d4713aa96edc497dc442c32cfaec740a8ec04a8af1d9216c329eaf"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-03/history/slice-execution-packet-v1.json",
+   "version": "v1",
+   "sha256": "a8f1658bc7173a114283202a44682a30e77aa68596148e561da8a80474714b37"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-03/history/implementation-contract-v1.md",
+   "version": "v1",
+   "sha256": "bede853e78e67ff5a3aa1f40c9462dbdc2b07e37fa305e88626d42ff6107fac4"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-03/history/execution-ledger-v3.json",
+   "version": "v3",
+   "sha256": "bd0c0bc3ea2acdecf889f3a62e247ecf3800dd2d666678f75bb48921d12f8832"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-03/verification-report.json",
+   "version": "v3",
+   "sha256": "018bf02393d4713aa96edc497dc442c32cfaec740a8ec04a8af1d9216c329eaf"
+  }
+ ],
+ "prior_review": {
+  "path": "critics/G6-S03-2-review.json",
+  "sha256": "d695f4e2af84509ca9f84dd5c544137b8a70c95b8f582d9957a1ea203b3d1306"
+ },
+ "supporting_records": [
+  {
+   "path": "execution/S-03/history/verification-report-v2.json",
+   "sha256": "1471609f5c2f5ca8d56449c3668a9dbca57325d904e7d61600a3d139bf67dfad"
+  },
+  {
+   "path": "execution/S-03/history/verification-report-v3.json",
+   "sha256": "018bf02393d4713aa96edc497dc442c32cfaec740a8ec04a8af1d9216c329eaf"
+  },
+  {
+   "path": "execution/S-03/history/execution-ledger-v2.json",
+   "sha256": "8f5242995d4a8b40bc497690296706e874f75e4f55ff70e369457ea5b6865e95"
+  },
+  {
+   "path": "execution/S-03/history/g6-revise-decision-v2.md",
+   "sha256": "27a58be3d3fcce328986c6591010db2d90e7633562ff0d8c3725e1608e863dd3"
+  },
+  {
+   "path": "critics/G6-S03-2-input.json",
+   "sha256": "6949f63404a772ab0dda0e47d50356b7cf87a40bae2b8adb6ebce8bf2afd23e7"
+  },
+  {
+   "path": "critics/G6-S03-review.json",
+   "sha256": "8dbc3c79f331141dee8ef1d1f24af2338b19d447ffe11d4a8e07e594cd7cdbca"
+  },
+  {
+   "path": "execution/S-03/evidence/prototype-reread-check.json",
+   "sha256": "041c67dbe3cc04c682645ed4e2d2f848b86c8c1f367e3afad434a354f0165082"
+  },
+  {
+   "path": "execution/S-03/evidence/check-fast.txt",
+   "sha256": "4d9b7d178930d8dcc5f760955e2180da710e16c12b52f494649e39cfd155af9c"
+  },
+  {
+   "path": "execution/S-03/evidence/verify-db.txt",
+   "sha256": "318080a0532ddd1d82790cdc2f4530bb903c83954f8be37ff6d53959e50e1549"
+  },
+  {
+   "path": "execution/S-03/evidence/verify-e2e.txt",
+   "sha256": "e0203419168b98d49923bd690c94230f80361de93a038f3c3102b4970e15fe4d"
+  }
+ ]
+}

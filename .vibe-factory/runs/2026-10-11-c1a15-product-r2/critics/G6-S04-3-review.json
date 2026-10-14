@@ -1,0 +1,50 @@
+{
+ "gate": "G6",
+ "slice_id": "S-04",
+ "attempt": 3,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-04/verification-report.json",
+  "version": "v3",
+  "sha256": "7cc9f92e1ed873af79e4b39595ce529d71c5ec787e6491f49b16b2beb635842a"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S04-3-input.json",
+  "sha256": "e37887e2264a511c22845c7041dcfb12fba4f00d1a5c1d0ddd060e458bc65f5e"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-04/history/slice-execution-packet-v3.json",
+   "version": "v3",
+   "sha256": "1c2bac4bd65ffb2c1cbaf0f521e412750b18d0291ab683cf796757cfccbb3300"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-04/history/implementation-contract-v2.md",
+   "version": "v2",
+   "sha256": "c116fb6f975e3e5c414f30eb25e68a68bbfb1f3b2fccf06151e444a47f4eaf65"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-04/history/execution-ledger-v3.json",
+   "version": "v3",
+   "sha256": "90b2cc96d5ab74d259432454d0d6f7d0e1ccac7ac2cae29bab079066b5b9aea0"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-04/verification-report.json",
+   "version": "v3",
+   "sha256": "7cc9f92e1ed873af79e4b39595ce529d71c5ec787e6491f49b16b2beb635842a"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "AC-09 숫자의 출처와 한계(G7 A-07 문구에 함께 실을 것): evidence/ac09-r3-positions.txt(승인 전 (None, None, None) · 승인 뒤 (3, 82, 20), '1 passed, 126 deselected')는 08:17:37에 따로 돌린 한 시험의 출력이다. verify-db(08:17:45 무렵 새 시험 DB를 만들어 08:18:08에 56 passed)보다 앞서 실행됐다. 그런데 그 명령 · 사용한 DB가 ledger commands에도 증거 파일에도 없고, verify-db.txt에는 print 출력이 남지 않는다(-s 없음). 가짜 임베딩이라 값은 결정적이겠지만, 명령 한 줄을 기록해 두면 다시 확인할 수 있다. 또 'pgvector 82위는 같은 증상군 전체를 돌려받은 순위라 그 자체로는 판별하지 않고, 판별은 승인 전 · 뒤 대조에서 나온다'는 한계와 '20위 = 시험 질의(온도 차 저하 · 경계 아래), 결정 018 ⑥의 19위 = G5 세션 질의'라는 구분은 ledger UF-S04-01에만 있고 report AC-09에는 없다. G7에서 '순위가 매겨짐(상위 10건 보장 안 함)'을 정할 때 이 두 줄을 함께 옮기면 읽는 사람이 헷갈리지 않는다.",
+  "남은 문구(동작 · 판정에는 영향 없음): (1) e2e/tests/cross.spec.ts:34 시험 제목은 아직 'AC-09(SC-33)'를 통과 시험처럼 적는다(e2e-test-list.txt는 2차와 hash가 같다). 같은 시험 61행에는 옛 주석 '그 보고서가 검색 대상으로 다시 읽힌다'가 새 주석 위에 남아 있다. (2) evidence/structure-dom-capture.mjs:56 주석 '파생: T10 / sent 구조'는 결정 018 7 정정 전 표현 그대로다(사용자 결정 ① 목록에는 없던 항목). (3) test_approve_index_only_after_commit은 commit 자체의 실패가 아니라 commit 전 endpoint 예외(승인 감사 실패)를 흉내 낸다. _add_history(lead.py:437)가 이력 insert와 after_commit hook 등록을 마친 뒤 audit(444)에서 실패하므로, rollback과 hook 건너뜀을 둘 다 판별한다. deps.conn 구조상 실제 commit 실패도 같은 with 블록 예외 경로를 탄다. ledger 문구 '승인 감사에서 실패시키면'은 정확하지만, 시험 docstring · 결정 기록의 'commit 실패 때'는 'commit 전 실패 때'로 읽어야 한다.",
+  "부록 기록: prototype-appendix/appendix.json · templates/ · regions.json이 2026-10-14 08:16:43에 다시 쓰였다. 23개 template sha256은 모두 그대로이고(v1 21개와도 같음), regions.json 20feb658…도 2차 입력과 같아 대조 기준 내용은 바뀌지 않았다. 다만 note 중복 제거와 함께 extracted_at이 다시 쓴 시각(2026-10-14T08:16:43)으로 바뀌었는데 version은 'v2' 그대로다. 옛 v2 파일(fc6bc2a4…)은 history에 사본이 없어서, packet v2 사본이 가리키는 hash를 이제는 다시 확인할 수 없다. 또 packet v3 version_note는 ④ 문구 정정만 적고 prototype_appendix.sha256 변경(fc6bc2a4 → 178e4ac4)은 적지 않는다. 다음 판에서 한 줄씩 보태면 충분하다."
+ ]
+}

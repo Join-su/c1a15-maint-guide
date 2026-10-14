@@ -1,0 +1,257 @@
+{
+ "gate": "G3",
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v16/prototype-slice.md",
+  "version": "v16",
+  "sha256": "c9eb7f04a0057fa1e70dc72881beaa852a2d31902384556e9a69ee220fb1e457"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v6.json",
+   "version": "v6",
+   "sha256": "e1e83738a6af85c947da4a107af1740f8da4456bdd4535ade1576d2d37137979"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v6/acceptance-criteria.json",
+   "version": "v6",
+   "sha256": "b7eb4367ba65bb3ed2848d5d50edf833dec89c34a249331327a7228b6ac9428d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v6/scenario-coverage.json",
+   "version": "v6",
+   "sha256": "05a2ae0ebefdbca685326aed2054c2dcf3e1bf0113606b8cab713b57dec25640"
+  },
+  {
+   "artifact": "use_case_packet",
+   "path": "use-case/v6/use-case-packet.md",
+   "version": "v6",
+   "sha256": "baa45580041fad76a3aaccab3ad727d16ea0b4b68fc5eb3a68575c41a078a8c6"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected.md",
+   "version": "v4",
+   "sha256": "896d471a5d40e3d2b9fbb43aad73cd03672c1685c090e3f44942e869a9cf44a7"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-structure-contract.json",
+   "version": "v4",
+   "sha256": "e94db4a75cbb3ac9dbb8892acf99c7a7d061f0db8834ee26e2e3c43cdfa83be3"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v4/structure/selected-visual-baseline.json",
+   "version": "v4",
+   "sha256": "3be81abf77220c9a1f18566d6877d712f76e15b6708565cfdcd49270d985a3f0"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v4/design/selected-visual-rules.md",
+   "version": "v4",
+   "sha256": "1f23f7c4d5e66793603b45838575b5d4b3c59629f92588292235160ce5f9a631"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "prior_g3_review_8",
+   "path": "critics/G3-8-review.json",
+   "version": "v8",
+   "sha256": "7bfd2b5c99ad7a89376131c5a0bbc2f1f747cedac0cb3d11d2fbf4118bd7879b"
+  },
+  {
+   "artifact": "prior_g3_review_9",
+   "path": "critics/G3-9-review.json",
+   "version": "v9",
+   "sha256": "a2bbfc9dd60b1b38ff672eefe24bea4660b310f494aec713ad17caf02f5144c4"
+  },
+  {
+   "artifact": "user_decision_004",
+   "path": "sources/intent/004.md",
+   "version": "004",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "user_decision_006",
+   "path": "sources/intent/006.md",
+   "version": "006",
+   "sha256": "6c8e83bb47d150428dc5499147fbfa014a77c66d4974ca39cdb8544ec7edf8a4"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "user_decision_008",
+   "path": "sources/intent/008.md",
+   "version": "008",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g3_review_10",
+   "path": "critics/G3-10-review.json",
+   "version": "v10",
+   "sha256": "fd5838c51720cba83ae1e2fadb7899d698415c8ad3f74fb2f0c74e37f2769754"
+  },
+  {
+   "artifact": "prior_g3_review_11",
+   "path": "critics/G3-11-review.json",
+   "version": "v11",
+   "sha256": "fb9851c1e306fd5ab3fdead04acf2643f7320516bef9d783b61212955fbf0857"
+  },
+  {
+   "artifact": "user_decision_009",
+   "path": "sources/intent/009.md",
+   "version": "009",
+   "sha256": "434eab487342cc79d5c625c63470606f7b592151fe3ab7093eecc9059681e13c"
+  },
+  {
+   "artifact": "prior_g3_review_12",
+   "path": "critics/G3-12-review.json",
+   "version": "v12",
+   "sha256": "83aa8d9878f4a2db8b087d80bfe350e41406f4829f01a4e93ff3af13f405ddbe"
+  },
+  {
+   "artifact": "prior_g3_review_13",
+   "path": "critics/G3-13-review.json",
+   "version": "v13",
+   "sha256": "fad3e86470e394e48acc883801f897675fda0b8008ec3374ad602e96f98c6e80"
+  },
+  {
+   "artifact": "user_decision_010",
+   "path": "sources/intent/010.md",
+   "version": "010",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "user_decision_011",
+   "path": "sources/intent/011.md",
+   "version": "011",
+   "sha256": "c9cc753dfa0595683a0de28b284daa99ede3630176811c664372b7eacf6724ba"
+  },
+  {
+   "artifact": "prior_g3_review_14",
+   "path": "critics/G3-14-review.json",
+   "version": "v14",
+   "sha256": "27027da4585a802427ad2bc0a0dad2633bf614ce27d3b9d44fd2498ba56d5d5f"
+  },
+  {
+   "artifact": "prior_g3_review_15",
+   "path": "critics/G3-15-review.json",
+   "version": "v15",
+   "sha256": "a97290526ecbda58e6f02546865827d5081e6c266e4447c296e715f8db17b842"
+  },
+  {
+   "artifact": "user_decision_012",
+   "path": "sources/intent/012.md",
+   "version": "012",
+   "sha256": "b8e0ce618ccaa09cb19d9f1c9da7ad2d496d61e1fa2924ededb5df92f33a43ad"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v16/prototype-coverage.json",
+   "version": "v16",
+   "sha256": "6d168cc7aa7c3fe3cb9e70f2eef44e74db5884874e2f5da5741d049e807e7955"
+  },
+  {
+   "artifact": "subject_bundle_index",
+   "path": "prototype/v16/index.html",
+   "version": "v16",
+   "sha256": "6774d91a7dd9ed97846c2cfe296f27c79949659e198b3cbe203b2d2870e13a39"
+  },
+  {
+   "artifact": "subject_bundle_regions",
+   "path": "prototype/v16/regions.json",
+   "version": "v16",
+   "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  },
+  {
+   "artifact": "subject_bundle_markup_check",
+   "path": "prototype/v16/markup-check.json",
+   "version": "v16",
+   "sha256": "dfad128a24d4525e21884d141ee54c54e486de56eb02d63b582301599cf07d5b"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v16/selftest-result.json",
+   "version": "v16",
+   "sha256": "6404360b5fea5c03834ea103a5bae9f59a5f8686d4cd7a15e499cd9504fab958"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v16/mutation-check.json",
+   "version": "v16",
+   "sha256": "81a7f04d54d18c590563f29de874ed6ffccc08d2bb652a0d8b7b90e9d08da0e4"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v16/structure-check.json",
+   "version": "v16",
+   "sha256": "4262f9cf27b199063bad482c316daa063c007283f34ef3fd2365b4fd4f0285cf"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v16/control-audit.json",
+   "version": "v16",
+   "sha256": "ac31078940c46d94da82cc23a2b80048579f31fc9caadf697acb73ee4a273ed8"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v16/axes.json",
+   "version": "v16",
+   "sha256": "1f2486cd7715f51e554d4431e386a915b53cb6f8604688a94665362728039d75"
+  }
+ ]
+}

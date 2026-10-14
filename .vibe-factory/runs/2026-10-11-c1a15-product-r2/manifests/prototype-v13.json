@@ -1,0 +1,109 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype",
+ "version": "v13",
+ "status": "approved",
+ "supersedes": "v12",
+ "contents": [
+  {
+   "role": "prototype_slice",
+   "path": "prototype/v13/prototype-slice.md",
+   "sha256": "79eaaef102c7d390f3d557b785eb97016f130024ea0eb9bef05e56dff21a6d83"
+  },
+  {
+   "role": "prototype_coverage",
+   "path": "prototype/v13/prototype-coverage.json",
+   "sha256": "da40129fb3a75e0a8ef128745e7ddc8cf6f4602970de54b19dd64f5f8a91aa84"
+  },
+  {
+   "role": "prototype_renderable",
+   "path": "prototype/v13/index.html",
+   "sha256": "322b74ba9a367ffc03e36f65d9e5ca0f1432c677ba133731d5a97a7ccc3d3fac"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v13/regions.json",
+   "sha256": "6f29e5d3aebb0db6577d0579e864265da04aa224217a51bcc4890b8db4ac7ae8"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v13/markup-check.json",
+   "sha256": "c290d5d7ab2214f0f2fb3d157f52868bd755c4363699fae37b12a09fa0873cfb"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v13/selftest-result.json",
+   "sha256": "3134a2e3a40e525b3edb80d584b89e7f8a9e3edb200bae609815ef54e011389e"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v13/mutation-check.json",
+   "sha256": "978c2e984963a5de4567b9ac93ba3a4e8f32b020e763ed4e9a09299d635f78d9"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v13/structure-check.json",
+   "sha256": "e8c4f3b2e9e6600e82a14e3ce202320d3c4fd49e67b1cdf7bbd0e9ccce5c4acc"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v13/control-audit.json",
+   "sha256": "7871dc8dc70f883e5899b053636e29d514143caac25b604e8ee7b93eed4eeed0"
+  },
+  {
+   "role": "variation_evidence",
+   "path": "verification/g3-v13/axes.json",
+   "sha256": "fa502881723af347dea5b1c6e5462b0ba5f1cd02dad03c383a31b6945c9c5ca0"
+  }
+ ],
+ "sources": [
+  {
+   "path": "manifests/use_case-v5.json",
+   "reason": "승인 Use Case Bundle v5(AC 43개)"
+  },
+  {
+   "path": "wireframes/v3/structure/selected-visual-baseline.json",
+   "reason": "G2A v3 구조 기준선"
+  },
+  {
+   "path": "wireframes/v3/structure/selected-structure-contract.json",
+   "reason": "G2A v3 구조 계약(199 region)"
+  },
+  {
+   "path": "wireframes/v3/design/selected-visual-rules.md",
+   "reason": "G2B v3 시각 규칙"
+  },
+  {
+   "path": "sources/intent/007.md",
+   "reason": "G3 Human Gate(v9 승인 뒤) Design Feedback 4건과 결정"
+  },
+  {
+   "path": "sources/intent/008.md",
+   "reason": "Q-05 답: 목록 없는 절을 B로 바꾸면 공통 시작 전 확인"
+  },
+  {
+   "path": "critics/G3-9-review.json",
+   "reason": "v9 pass(이전 회차)"
+  },
+  {
+   "path": "data/manuals/manual_sections.json",
+   "reason": "판정 엔진의 점검 · 조치 등급 · 소요 분 · 절차 · 시작 전 체크리스트"
+  },
+  {
+   "path": "critics/G3-10-review.json",
+   "reason": "v10 revise 지적 3건 · 비차단 9건"
+  },
+  {
+   "path": "critics/G3-11-review.json",
+   "reason": "v11 확인 검토 revise 지적 1건"
+  },
+  {
+   "path": "sources/intent/009.md",
+   "reason": "cycle 7 사람 판단(v12 새 회차)"
+  },
+  {
+   "path": "critics/G3-12-review.json",
+   "reason": "v12 revise 지적 1건 · 비차단 2건"
+  }
+ ]
+}

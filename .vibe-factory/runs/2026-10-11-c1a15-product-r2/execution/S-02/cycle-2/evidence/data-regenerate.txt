@@ -1,0 +1,7 @@
+data 재생성(python3 scripts/build_data.py, 입력 CSV · seed 같음):
+  data/manuals/MG-MM.md: 같음
+  data/manuals/manual_sections.json: 같음
+  data/history/maintenance_history.jsonl: 같음
+  data/alarm_rules.json: 바뀐 키 = normal_ranges (그 밖의 키 같음)
+  data/manifest.json diff: -  "data/alarm_rules.json": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042" | +  "data/alarm_rules.json": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898"
+  normal_ranges = {"air_temperature_k": {"low": 296.4, "high": 302.4}, "process_temperature_k": {"low": 307.3, "high": 311.9}, "rotational_speed_rpm": {"low": 1305.0, "high": 1979.0}, "torque_nm": {"low": 20.5, "high": 59.7}, "tool_wear_min": {"low": 4.0, "high": 214.0}, "temp_diff_k": {"low": 8.3, "high": 11.6}, "power_w": {"low": 4210, "high": 8366}}

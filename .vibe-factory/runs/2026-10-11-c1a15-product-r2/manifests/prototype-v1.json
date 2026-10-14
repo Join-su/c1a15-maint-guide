@@ -1,0 +1,66 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype",
+ "version": "v1",
+ "status": "superseded",
+ "contents": [
+  {
+   "role": "prototype_slice",
+   "path": "prototype/prototype-slice.md",
+   "sha256": "24f90227b39ae134b6be5312d4661a6fb6587355b241ad8af2a467f2578fbce3"
+  },
+  {
+   "role": "prototype_coverage",
+   "path": "prototype/prototype-coverage.json",
+   "sha256": "cedf48970c3a34af4c49dfc669d25fc141553af2e1806f2641df18a6c0170d27"
+  },
+  {
+   "role": "prototype_renderable",
+   "path": "prototype/index.html",
+   "sha256": "7832b4431ced43415263567625d83ce395d99e0f2380e04faca66fcc87b6e184"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/regions.json",
+   "sha256": "4744136db71eee63a2f1b60e148e6d091dab83b013842c52d6d3c4f68268f048"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3/selftest-result.json",
+   "sha256": "e5ee83075a05c0145e18194bd30c451ca8bd40bee2525b616c7590b6f937c6fc"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3/mutation-check.json",
+   "sha256": "d77450d1b9b73b53fb3922f762c60a720041ca9e6c74480a8b486a9e80cda2d5"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3/structure-check.json",
+   "sha256": "fca94cd4e1c380292f81bd02e56973a58c8ebbd73539b8cfe2e5c3528cc942e0"
+  },
+  {
+   "role": "variation_evidence",
+   "path": "verification/g3/axes.json",
+   "sha256": "45b02e78da9fc4dbc63e185607d956e51dfc8542861ced053e95997f30f15b31"
+  }
+ ],
+ "sources": [
+  {
+   "path": "manifests/use_case-v2.json",
+   "reason": "승인 Use Case Bundle"
+  },
+  {
+   "path": "wireframes/structure/selected-visual-baseline.json",
+   "reason": "G2A 구조 기준선"
+  },
+  {
+   "path": "wireframes/structure/selected-structure-contract.json",
+   "reason": "G2A 구조 계약"
+  },
+  {
+   "path": "wireframes/design/selected-visual-rules.md",
+   "reason": "G2B 시각 규칙"
+  }
+ ]
+}

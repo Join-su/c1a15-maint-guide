@@ -1,0 +1,102 @@
+{
+ "run_at": "2026-10-11T23:32:49+09:00",
+ "prototype_sha256": "23c7ba75b34d94c7915ee445affc19c3035e3885d0a5f748bc4119c06ea7a941",
+ "command": "scratch 생성기 mutants_v6.py: 결함을 넣은 복사본마다 ?selftest=1 실행",
+ "mutants": [
+  {
+   "id": "MUT-1",
+   "defects": "확정 · 재가동 잠금 무시 · 반려 사유 없이 저장 열림 · 답 전 4.4 지시 노출",
+   "expected_fail": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24"
+   ],
+   "failed_criteria": [
+    "AC-07",
+    "AC-08",
+    "AC-21",
+    "AC-24",
+    "AC-32"
+   ],
+   "failed_controls": [],
+   "detected": true
+  },
+  {
+   "id": "MUT-2",
+   "defects": "정비자 앱 로그인이 ID 칸 대신 비밀번호 칸을 읽음(v4 사용자 발견 결함)",
+   "expected_fail": [
+    "AC-12"
+   ],
+   "failed_criteria": [
+    "AC-12"
+   ],
+   "failed_controls": [],
+   "detected": true
+  },
+  {
+   "id": "MUT-3",
+   "defects": "v5에서 사용자가 찾은 결함 재현: 결과 버튼 선택 색 없음 · 등급은 4.4 행만 · 홈으로 · 종 · 과거 기록 카드 · 확정 뒤 보기 무반응",
+   "expected_fail": [
+    "AC-25",
+    "AC-37",
+    "AC-38",
+    "CTL-01",
+    "CTL-03",
+    "CTL-05",
+    "CTL-07"
+   ],
+   "failed_criteria": [
+    "AC-25",
+    "AC-37",
+    "AC-38"
+   ],
+   "failed_controls": [
+    "CTL-01",
+    "CTL-03",
+    "CTL-05",
+    "CTL-07"
+   ],
+   "detected": true
+  },
+  {
+   "id": "MUT-4",
+   "defects": "로그인 ID 칸을 승인 화면 마크업(입력할 수 없는 div)으로 되돌림(v4 사용자 발견 결함의 마크업 쪽, G3-5 Critic 제안)",
+   "expected_fail": [
+    "AC-12"
+   ],
+   "failed_criteria": [
+    "AC-02",
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-12",
+    "AC-19",
+    "AC-20",
+    "AC-21",
+    "AC-22",
+    "AC-23",
+    "AC-24",
+    "AC-25",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40"
+   ],
+   "failed_controls": [
+    "CTL-01",
+    "CTL-03",
+    "CTL-04",
+    "CTL-05",
+    "CTL-07"
+   ],
+   "detected": true
+  }
+ ]
+}

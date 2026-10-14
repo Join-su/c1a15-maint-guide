@@ -1,0 +1,67 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype_bundle",
+ "version": "v17",
+ "status": "approved",
+ "source_manifest": {
+  "path": "manifests/prototype-v17.json",
+  "sha256": "03b8ca74fab55fcfd28d432d0bef866bb0ae8ab8d581bf8420a3363b7be98377"
+ },
+ "contents": [
+  {
+   "role": "prototype_slice",
+   "path": "prototype/v17/prototype-slice.md",
+   "sha256": "58339254828034315cffcb1189a61a2c0166c2e0e0caee4b9666dac3bd0f0523"
+  },
+  {
+   "role": "prototype_coverage",
+   "path": "prototype/v17/prototype-coverage.json",
+   "sha256": "d447241d21eaee9784f6ba029788d7759c3d04df642919d7ef6e0e3bbc9a1f86"
+  },
+  {
+   "role": "prototype_renderable",
+   "path": "prototype/v17/index.html",
+   "sha256": "3463b0d16625670bb96597a0139e606927a83894655cf600df1b87270f5fcf98"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v17/regions.json",
+   "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v17/markup-check.json",
+   "sha256": "dfad128a24d4525e21884d141ee54c54e486de56eb02d63b582301599cf07d5b"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v17/selftest-result.json",
+   "sha256": "74f45b7f4384525bc9f1155bb872b8e207b59ab90cfb71bfc9401c11a4665db4"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v17/mutation-check.json",
+   "sha256": "2d2bcab595f6c3a1870e46de06037f4c5b1ccfd28f27bdee79c67e4e1b1bd682"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v17/structure-check.json",
+   "sha256": "38c75c53ccc99a117c97e68ec3ef3d4c3ed3a74e5784dfc3b442db12a89c62be"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v17/control-audit.json",
+   "sha256": "29672be9bcb822cd120e0ac82976222dc0cb729a2ab30cb1411b7567a879c5bb"
+  },
+  {
+   "role": "variation_evidence",
+   "path": "verification/g3-v17/axes.json",
+   "sha256": "83e19ab2a147e2b24959cd52f9608e3caaa04340d44c8250cd82d1c902cef627"
+  },
+  {
+   "role": "gate_decision",
+   "path": "decisions/G3-prototype.json",
+   "sha256": "7d684a13bb91b21c4461f060bddf5791227bd1d06355efd5fc337046f3bdccd9"
+  }
+ ]
+}

@@ -1,0 +1,27 @@
+{
+ "run_at": "2026-10-11T21:51:58+09:00",
+ "purpose": "결함 4종(확정 버튼 잠금 제거 · 반려 사유 없이 저장 · 체크리스트 잠금 무시 · 답 전 T10:sent에 4.4 절차 노출)을 넣은 복사본에서 selftest가 실패하는지",
+ "expected_fail": [
+  "AC-07",
+  "AC-08",
+  "AC-21",
+  "AC-24",
+  "AC-32"
+ ],
+ "result": {
+  "AC-07": false,
+  "AC-08": false,
+  "AC-11": true,
+  "AC-12": true,
+  "AC-21": false,
+  "AC-22": true,
+  "AC-24": false,
+  "AC-27": true,
+  "AC-29": true,
+  "AC-30": true,
+  "AC-31": true,
+  "AC-32": false,
+  "AC-33": true
+ },
+ "detected": true
+}

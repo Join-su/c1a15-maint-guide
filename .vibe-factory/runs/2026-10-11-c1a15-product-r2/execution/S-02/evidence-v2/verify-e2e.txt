@@ -1,0 +1,5 @@
+2026-10-13T02:12:34Z
+verify-e2e(ADV-06 nginx 권한 경계): pass
+verify-e2e(P-07 알람 발생기 → 정비자 홈): pass
+verify-e2e(LangGraph checkpoint 재시작 재개 L3): pass
+verify-e2e(S-01 smoke): pass

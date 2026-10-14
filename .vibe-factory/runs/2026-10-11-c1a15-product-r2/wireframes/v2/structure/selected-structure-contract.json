@@ -1,0 +1,1555 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "selected_structure_contract",
+ "structure_version": "v2",
+ "entries": [
+  {
+   "page_id": "T01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '정비자 로그인' · ID · 비밀번호 · 로그인 버튼 · 안내",
+   "interaction_or_state_rule": "정비자 역할만 로그인, 로그인 뒤 화면 한 번 누름 안내. 이 상태: 기본",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기 링크"
+  },
+  {
+   "page_id": "T01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '정비자 로그인' · ID · 비밀번호 · 로그인 버튼 · 안내",
+   "interaction_or_state_rule": "정비자 역할만 로그인, 로그인 뒤 화면 한 번 누름 안내. 이 상태: 역할 불일치 오류 배너",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기 링크"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 알람 행 대신 '배정된 알람이 없습니다', 교대 현황 0",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 알람 행 대신 '배정된 알람이 없습니다', 교대 현황 0",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 새 알람 행(빨강)이 맨 위, 종 숫자 증가",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 새 알람 행(빨강)이 맨 위, 종 숫자 증가",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 진행 중 행에 '점검 n / 최대 m 진행 중'과 '이어서 하기', 상단 표시줄에 진행 중 알람",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 진행 중 행에 '점검 n / 최대 m 진행 중'과 '이어서 하기', 상단 표시줄에 진행 중 알람",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 최근 내 보고서에 반려 칩 + 사유 배너 + '이어서 하기'",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 최근 내 보고서에 반려 칩 + 사유 배너 + '이어서 하기'",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-ALARM",
+   "selected_structure": "왼쪽 넓은 카드 하나",
+   "content_composition": "증상 · 증상군 칩 · 이탈 센서 수 · 같은 설비 직전 12회 추이(경계 점선) · 센서 표(현재 · 평소 범위 · 상태)",
+   "interaction_or_state_rule": "이탈 센서 행만 빨강 강조. 이 상태: 기본",
+   "excluded_alternative": "센서별 개별 차트 여러 개"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-AI",
+   "selected_structure": "오른쪽 열 · AI 해석 카드 + 큰 주 버튼",
+   "content_composition": "쉬운 말 해석 · 찾은 과거 기록 수 · '진단 보기' · 확인 시각 기록 안내",
+   "interaction_or_state_rule": "'진단 보기'가 유일한 다음 행동. 이 상태: 기본",
+   "excluded_alternative": "해석 없이 바로 진단"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "content_composition": "행 = 순번 · 원인 이름 · 막대 · % · 근거 n, 계산 방식 안내",
+   "interaction_or_state_rule": "% 합 100, 1순위 행 강조, 근거 적음이면 카드 머리에 칩. 이 상태: 기본",
+   "excluded_alternative": "확률 원그래프, 원인 하나만 표시"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "content_composition": "기록 번호 · 설비 · 월 · 유사 % · 결과 원인 · 조치 · 정지 분",
+   "interaction_or_state_rule": "누르면 전체 기록, 근거 적음이면 3건 미만. 이 상태: 기본",
+   "excluded_alternative": "기록 표"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "content_composition": "'다음 점검' · 점검 이름 · 등급 배지 · 절 · 약 n분 · 고른 이유 · (근거 적음 배너)",
+   "interaction_or_state_rule": "A · B 점검 하나만 보이며 C · D는 여기 나오지 않는다. 이 상태: 기본",
+   "excluded_alternative": "점검 후보 여러 개를 나란히"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "content_composition": "행 = 순번 · 원인 이름 · 막대 · % · 근거 n, 계산 방식 안내",
+   "interaction_or_state_rule": "% 합 100, 1순위 행 강조, 근거 적음이면 카드 머리에 칩. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "확률 원그래프, 원인 하나만 표시"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "content_composition": "기록 번호 · 설비 · 월 · 유사 % · 결과 원인 · 조치 · 정지 분",
+   "interaction_or_state_rule": "누르면 전체 기록, 근거 적음이면 3건 미만. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "기록 표"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "content_composition": "'다음 점검' · 점검 이름 · 등급 배지 · 절 · 약 n분 · 고른 이유 · (근거 적음 배너)",
+   "interaction_or_state_rule": "A · B 점검 하나만 보이며 C · D는 여기 나오지 않는다. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "점검 후보 여러 개를 나란히"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "content_composition": "잠금 전: 잠금 상자 · 1.2절 절차 · '잠금 완료' / 잠금 후: 잠금 완료 표시줄 · 사전 확인 절 · 절차",
+   "interaction_or_state_rule": "잠금 전에는 지시 내용을 내려받지 않는다(R1). 이 상태: 지시가 흐리게 가려지고 '잠금 완료'만 누를 수 있음",
+   "excluded_alternative": "잠금을 선택 체크박스로"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "content_composition": "잠금 전: 흐리게 가린 지시 + 안내 / 잠금 후: 기록할 값 메모 · '사전 확인 완료' · 다음 점검 안내",
+   "interaction_or_state_rule": "다른 설비로 옮기면 다시 잠금 전 상태. 이 상태: 지시가 흐리게 가려지고 '잠금 완료'만 누를 수 있음",
+   "excluded_alternative": "잠금 전에도 지시 미리보기"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "content_composition": "잠금 전: 잠금 상자 · 1.2절 절차 · '잠금 완료' / 잠금 후: 잠금 완료 표시줄 · 사전 확인 절 · 절차",
+   "interaction_or_state_rule": "잠금 전에는 지시 내용을 내려받지 않는다(R1). 이 상태: 잠금 완료 표시줄과 사전 확인(4.2) 입력",
+   "excluded_alternative": "잠금을 선택 체크박스로"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "content_composition": "잠금 전: 흐리게 가린 지시 + 안내 / 잠금 후: 기록할 값 메모 · '사전 확인 완료' · 다음 점검 안내",
+   "interaction_or_state_rule": "다른 설비로 옮기면 다시 잠금 전 상태. 이 상태: 잠금 완료 표시줄과 사전 확인(4.2) 입력",
+   "excluded_alternative": "잠금 전에도 지시 미리보기"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 기본",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 기본",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: '원문으로 대체됨' 칩과 배너, 절차 대신 매뉴얼 원문",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: '원문으로 대체됨' 칩과 배너, 절차 대신 매뉴얼 원문",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 확인 불가 1회 배너, 다른 점검(4.5)이 지시됨",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 확인 불가 1회 배너, 다른 점검(4.5)이 지시됨",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 3회 연속 실패 배너와 '숙련자 인계' · '원문으로 계속'",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 3회 연속 실패 배너와 '숙련자 인계' · '원문으로 계속'",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "content_composition": "T06 R-INSTR · R-RESULT 그대로, 흐리게",
+   "interaction_or_state_rule": "모달이 닫히기 전에는 뒤 화면 조작 불가. 이 상태: 결과 버튼 없이 보낸 메모에 대한 확인 질문",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "content_composition": "제목 · 내 메모(결과 버튼 상태) · AI의 이해 · 두 버튼",
+   "interaction_or_state_rule": "확인 질문: '네'일 때만 순위 반영, '아니요'면 다시 입력 / 맞지 않는 소견: 순위 그대로, 인계 또는 계속 선택. 이 상태: 결과 버튼 없이 보낸 메모에 대한 확인 질문",
+   "excluded_alternative": "자동 반영 후 알림만"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "content_composition": "T06 R-INSTR · R-RESULT 그대로, 흐리게",
+   "interaction_or_state_rule": "모달이 닫히기 전에는 뒤 화면 조작 불가. 이 상태: 후보 원인과 맞지 않는 소견 안내, 계속 진행 · 숙련자 인계",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "content_composition": "제목 · 내 메모(결과 버튼 상태) · AI의 이해 · 두 버튼",
+   "interaction_or_state_rule": "확인 질문: '네'일 때만 순위 반영, '아니요'면 다시 입력 / 맞지 않는 소견: 순위 그대로, 인계 또는 계속 선택. 이 상태: 후보 원인과 맞지 않는 소견 안내, 계속 진행 · 숙련자 인계",
+   "excluded_alternative": "자동 반영 후 알림만"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: A 조치 완료 시각, 재가동 체크리스트 2/3, 버튼 잠김",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: A 조치 완료 시각, 재가동 체크리스트 2/3, 버튼 잠김",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: B 조치 체크리스트 2/3, 진행 버튼 잠김",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: B 조치 체크리스트 2/3, 진행 버튼 잠김",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: 재가동 후 현재 값 · 경계와 '경계 이내' · '여전히 밖'",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: 재가동 후 현재 값 · 경계와 '경계 이내' · '여전히 밖'",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 초안 칩, 연필, 확인 3항목 통과, 확정 버튼 열림",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 초안 칩, 연필, 확인 3항목 통과, 확정 버튼 열림",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 근거 없는 문장 행 빨강, 확인 1항목 실패, 확정 버튼 잠김",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 근거 없는 문장 행 빨강, 확인 1항목 실패, 확정 버튼 잠김",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 확정 · 승인 대기 칩, 연필 없음, 완료 배너",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 확정 · 승인 대기 칩, 연필 없음, 완료 배너",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 요약 + '파트장 호출' · '호출하지 않고 대기'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 요약 + '파트장 호출' · '호출하지 않고 대기'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 대기 배너 + '파트장 호출'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 대기 배너 + '파트장 호출'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 보냄 배너, 답 대기",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 보냄 배너, 답 대기",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 승인 배너, C 점검 지시와 '점검 시작'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 승인 배너, C 점검 지시와 '점검 시작'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 주간 처리 배너와 '보고서 작성'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 주간 처리 배너와 '보고서 작성'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 직접 확인 배너, 설비 정지 대기",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 직접 확인 배너, 설비 정지 대기",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 맞지 않는 소견으로 인계",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 맞지 않는 소견으로 인계",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 이상 없음 · 감시 6.2 마감과 '보고서 작성'",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 이상 없음 · 감시 6.2 마감과 '보고서 작성'",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 확인 불가 2회 · 대안 없음으로 인계",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 확인 불가 2회 · 대안 없음으로 인계",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "L01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '파트장 로그인' · ID · 비밀번호 · 로그인 · 안내",
+   "interaction_or_state_rule": "파트장 역할만 로그인. 이 상태: 기본",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기"
+  },
+  {
+   "page_id": "L01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '파트장 로그인' · ID · 비밀번호 · 로그인 · 안내",
+   "interaction_or_state_rule": "파트장 역할만 로그인. 이 상태: 역할 불일치 오류 배너",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "content_composition": "승인 대기 · 처리할 호출 · 권한 위반 건수",
+   "interaction_or_state_rule": "숫자는 실제 건수. 이 상태: 보고서 3건, 근거 적음 행 표시",
+   "excluded_alternative": "차트 대시보드"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "content_composition": "설비 · 알람 · 확정 원인 · 작성 · 확정 시각 · 근거 기록 수(근거 적음 칩) · 권한(위반 수)",
+   "interaction_or_state_rule": "0건이면 빈 목록 안내. 이 상태: 보고서 3건, 근거 적음 행 표시",
+   "excluded_alternative": "카드 그리드 목록, 목록 안 바로 승인"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "content_composition": "승인 대기 · 처리할 호출 · 권한 위반 건수",
+   "interaction_or_state_rule": "숫자는 실제 건수. 이 상태: 빈 목록 안내, 타일 0",
+   "excluded_alternative": "차트 대시보드"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "content_composition": "설비 · 알람 · 확정 원인 · 작성 · 확정 시각 · 근거 기록 수(근거 적음 칩) · 권한(위반 수)",
+   "interaction_or_state_rule": "0건이면 빈 목록 안내. 이 상태: 빈 목록 안내, 타일 0",
+   "excluded_alternative": "카드 그리드 목록, 목록 안 바로 승인"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 그대로 승인 선택",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 그대로 승인 선택",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 수정 후 승인 선택, 미확인 행 편집 중",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 수정 후 승인 선택, 미확인 행 편집 중",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 수정 문장 검사 실패 배너, 저장 잠김",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 수정 문장 검사 실패 배너, 저장 잠김",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 반려 선택, 사유 비어 있어 저장 잠김",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 반려 선택, 사유 비어 있어 저장 잠김",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 호출 2건(파트장 호출 · 숙련자 인계)",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 파트장 호출 답 3개와 D등급 안내",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 숙련자 인계 답 2개",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "content_composition": "절 · 작업 · 등급 선택(배지 + 화살표), 머리에 '전체 n절 중 m절 표시'",
+   "interaction_or_state_rule": "선택은 A~D 목록, 저장 즉시 다음 판정부터 적용. 이 상태: 변경 기록 없음 안내",
+   "excluded_alternative": "등급을 일괄 편집하는 행렬"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "content_composition": "변경 기록(누가 · 언제 · 무엇을) · 안내 / 낮춤 경고 배너 · 취소 · 변경 저장",
+   "interaction_or_state_rule": "C에서 B · A로 낮출 때만 경고. 이 상태: 변경 기록 없음 안내",
+   "excluded_alternative": "경고 없이 저장"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "content_composition": "절 · 작업 · 등급 선택(배지 + 화살표), 머리에 '전체 n절 중 m절 표시'",
+   "interaction_or_state_rule": "선택은 A~D 목록, 저장 즉시 다음 판정부터 적용. 이 상태: 4.4 C → B 선택과 낮춤 경고",
+   "excluded_alternative": "등급을 일괄 편집하는 행렬"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "content_composition": "변경 기록(누가 · 언제 · 무엇을) · 안내 / 낮춤 경고 배너 · 취소 · 변경 저장",
+   "interaction_or_state_rule": "C에서 B · A로 낮출 때만 경고. 이 상태: 4.4 C → B 선택과 낮춤 경고",
+   "excluded_alternative": "경고 없이 저장"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "content_composition": "설비 · 사용자 · 기간",
+   "interaction_or_state_rule": "필터를 바꾸면 표가 즉시 걸러진다. 이 상태: 전체 기록",
+   "excluded_alternative": "검색어 입력 하나"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "content_composition": "시각 · 사용자 · 앱 · 행동 · 대상",
+   "interaction_or_state_rule": "모든 지시 · 입력 · 확인 답 · 호출 · 승인 · 반려 · 수정 · 등급 변경이 남는다. 이 상태: 전체 기록",
+   "excluded_alternative": "타임라인 카드"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "content_composition": "설비 · 사용자 · 기간",
+   "interaction_or_state_rule": "필터를 바꾸면 표가 즉시 걸러진다. 이 상태: M-03 · 김○○ 필터 적용",
+   "excluded_alternative": "검색어 입력 하나"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "content_composition": "시각 · 사용자 · 앱 · 행동 · 대상",
+   "interaction_or_state_rule": "모든 지시 · 입력 · 확인 답 · 호출 · 승인 · 반려 · 수정 · 등급 변경이 남는다. 이 상태: M-03 · 김○○ 필터 적용",
+   "excluded_alternative": "타임라인 카드"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-HOMEBG",
+   "selected_structure": "뒤 배경: 홈 화면(T02) 그대로",
+   "content_composition": "내 알람 · 교대 현황 · 안전 수칙 · 최근 내 보고서",
+   "interaction_or_state_rule": "패널이 열린 동안 뒤 화면 조작 없음. 이 상태: 종류 4묶음 항목",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-NOTIFY",
+   "selected_structure": "종 아이콘 아래 목록 패널 하나",
+   "content_composition": "제목 '알람 · 할 일' · 종류 4묶음(배정된 새 알람 · 진행 중인 점검 · 파트장 답이 온 호출 · 반려된 보고서) · 항목 행(상태 점 · 설비 · 증상 · 시각 · 상태 · 이동 버튼)",
+   "interaction_or_state_rule": "항목 버튼 → 알람 화면 / 이어서 하기 / 호출 답 화면 / 반려 보고서, 항목이 없으면 빈 목록 안내. 이 상태: 종류 4묶음 항목",
+   "excluded_alternative": "전체 화면 알림 페이지, 읽음 처리 기능"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-HOMEBG",
+   "selected_structure": "뒤 배경: 홈 화면(T02) 그대로",
+   "content_composition": "내 알람 · 교대 현황 · 안전 수칙 · 최근 내 보고서",
+   "interaction_or_state_rule": "패널이 열린 동안 뒤 화면 조작 없음. 이 상태: 빈 목록 안내",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-NOTIFY",
+   "selected_structure": "종 아이콘 아래 목록 패널 하나",
+   "content_composition": "제목 '알람 · 할 일' · 종류 4묶음(배정된 새 알람 · 진행 중인 점검 · 파트장 답이 온 호출 · 반려된 보고서) · 항목 행(상태 점 · 설비 · 증상 · 시각 · 상태 · 이동 버튼)",
+   "interaction_or_state_rule": "항목 버튼 → 알람 화면 / 이어서 하기 / 호출 답 화면 / 반려 보고서, 항목이 없으면 빈 목록 안내. 이 상태: 빈 목록 안내",
+   "excluded_alternative": "전체 화면 알림 페이지, 읽음 처리 기능"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-BG",
+   "selected_structure": "뒤 배경: 진단 화면(T04) 그대로 흐리게",
+   "content_composition": "순위 · 과거 기록 · 다음 점검",
+   "interaction_or_state_rule": "창이 열린 동안 뒤 화면 조작 없음. 이 상태: H-0299 기록 전체",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-RECORD",
+   "selected_structure": "작업 화면 위 창 하나 · 이름/값 목록 + 서술",
+   "content_composition": "기록 번호 · 승인 상태 · 설비 · 발생 시각 · 증상 · 센서 값 · 점검 경로 · 확정 원인 · 조치 · 정지 시간 · 서술 · 머리 오른쪽 '닫기'",
+   "interaction_or_state_rule": "닫으면 원래 화면 · 단계 그대로. 이 상태: H-0299 기록 전체",
+   "excluded_alternative": "기록 편집 · 다른 기록으로 넘기기"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-BG",
+   "selected_structure": "뒤 배경: 점검 지시(T06) 그대로 흐리게",
+   "content_composition": "지시 · 결과 입력",
+   "interaction_or_state_rule": "창이 열린 동안 뒤 화면 조작 없음. 이 상태: 4.3 절 원문",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-MANUAL",
+   "selected_structure": "작업 화면 위 창 하나 · 절 원문",
+   "content_composition": "절 번호 · 제목 · 등급 배지 · 원문(절차 · 판정 기준 · 조치) · 머리 오른쪽 '닫기'",
+   "interaction_or_state_rule": "닫으면 원래 화면 · 단계 그대로. 이 상태: 4.3 절 원문",
+   "excluded_alternative": "원문 편집 · 다른 절 목록"
+  }
+ ]
+}

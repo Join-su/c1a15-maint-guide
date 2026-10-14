@@ -1,0 +1,158 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "verification_report",
+ "plan_version": "v11",
+ "slice_id": "S-05",
+ "review_requirement": "independent_critic",
+ "independent_critic_review": "critics/G6-S05-review.json",
+ "review_rationale": "P-14가 migration(0005) · 공개 API(정정 · 메모 덧붙이기 · 지난 화면, OpenAPI 정본) · 권한(정정 대상 · 확정 세션 거부) · 감사 · 판정 재적용 · 승인 이력 변환을 바꾼다. read-only 독립 reviewer로 검토",
+ "criteria": [
+  {
+   "acceptance_id": "AC-17",
+   "plan_item_ids": [
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-17",
+   "result": "deferred",
+   "assertion_summary": "S-05 부분: packet 부록 v2 template(T15 12 상태 · T08 / corrected_path · T09 / draft · T10 / ans_daytime · ans_direct · summary_corrected · L04 / call_detail · call_corrected · L06 / correction) 영역 + Prototype 파생 3(T15 / check_b · call · correct_value) + 결정 파생 5 = 영역 104 대조, 일치 43 · 분류된 차이 61 · 기준 전용 14, 미분류 차이 0, 값은 API(D-1 ~ D-13), 결정 · 파생 화면 X-1 · X-3 · X-4. 완료 = P-17",
+   "evidence_paths": [
+    "execution/S-05/evidence/prototype-structure-checklist.json",
+    "execution/S-05/evidence/gate-applicability.md"
+   ]
+  },
+  {
+   "acceptance_id": "AC-41",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1(L3): 진행 표시 지나온 단계 → 그때 화면(알람 · 진단 '그때의 원인 순위 · 첫 지시' · 잠금 · 사전 확인 측정값 · 점검 결과 · 메모)이 보기 상태(조작 잠김)로(E2E AC-41 · T15-alarm · diagnosis · lock · precheck · check_current), 체크 상태는 B 기록 지난 화면 패널(T15 / check_b — 실제 API 응답 fixture로 component, DOM) · 재가동 체크리스트(T15 / action). L2: /history가 그때 값(결과 · 메모 · 측정값 · 시각 띠 · n / m · 재가동 체크리스트)을 주고 업무 기록 · 단계를 바꾸지 않음(test_history_steps_records_and_read_only). C2: 띠 제출 시각 · n / m · 이전 · 다음(3 / 3 → 2 / 3 → 잠금 기록) · 현재 단계로(E2E). C3: 현재 단계로 → 지시 · 고른 결과 · 메모 그대로(E2E). C4: 보내지 않은 입력은 띠에 '지금 n.n 입력(보내지 않음)은 그대로' 칩(CO-39 — Prototype 문구 · 호박색, G2B '수정 가능' 흰 칩과 모양이 다름을 캡처해 보고), 현재 단계로 돌아가면 그 입력을 고칠 수 있음(E2E). C5: 확정 전 보고서 초안은 기존 연필 경로(tech-s03 SC-06 E2E · S-03 감사 시험 그대로)이고 지난 화면 보고서 단계는 기록 없음. C6: 지난 화면에서 결과 · 보내기 · 진단 보기 버튼 잠김(E2E · component), 조회는 읽기만(L2)",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/screens/T15-alarm.png",
+    "execution/S-05/evidence/screens/T15-diagnosis.png",
+    "execution/S-05/evidence/screens/T15-check_current.png",
+    "execution/S-05/evidence/screens/T15-precheck.png",
+    "execution/S-05/evidence/screens/T15-lock.png",
+    "execution/S-05/evidence/screens/T15-check_b.png",
+    "execution/S-05/evidence/screens/CO-39-chips.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-44",
+   "plan_item_ids": [
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1: 상단 바는 로그인 뒤 모든 정비자 화면에 한 component(App.tsx TopBar)로 그려지고 '홈'이 종 왼쪽에 있음 — S-05 정비자 상태 DOM 20개 모두 .tb-home 1개(structure-dom), 앞 slice 상태는 S-02 ~ S-04 구조 대조 R-TOP 일치. C2: 점검 중 '홈' → 확인 창 없이 홈 · 그 세션 '이어서 하기'(진행 중)(E2E AC-41 · AC-44, S-02 E2E AC-13 · AC-14). C3: '이어서 하기'로 돌아오면 떠난 지시 · 고른 결과 · 메모 그대로(E2E — 보내지 않은 입력은 기기), 종 목록 진행 중 항목 → 이어서 하기는 S-02 E2E AC-13 · AC-37 그대로",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/structure-dom/T15--check.html",
+    "execution/S-05/evidence/screens/T15-check_current.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-45",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1: '이 기록 정정'은 결과 · 메모 · 사전 확인 측정값 기록에만(API: 그 밖 기록 not_correctable — 기록 종류 7 × 상태 시험 · 결함 주입, 화면: 잠금 · 조치 · 호출 기록에는 메모 덧붙이기만 — E2E · component). C2: 사유가 비면 API 409 reason_required · 화면 정정 저장 잠김, 확인 창 취소하면 단계 · 기록 그대로(E2E · test_correction_rejudges_with_confirm_and_voids_later). C3: 원래 기록은 그대로, 정정 기록에 원래 값 · 정정 값 · 사유 · 시각 · 정비자(서버 저장 · 감사 행), 파트장 감사 기록 '정정 · 4.3 결과 정상 → 이상 · 사유 …' 행(교차 E2E L06-correction.png · test_correction_reaches_report_audit_and_history). C4: 최신 값 · '정정 1회' 칩 · 이전 값 목록(E2E T15-corrected), 같은 기록 다시 정정 → '정정 2회'(API). C5: 확정 전 보고서 초안 점검 경로에 '정정 1회' · '정정으로 무효'(결정 019 ⑤, E2E T09-draft_corrected · API)",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/screens/T15-correct.png",
+    "execution/S-05/evidence/screens/T15-corrected.png",
+    "execution/S-05/evidence/screens/L06-correction.png",
+    "execution/S-05/evidence/screens/T09-draft_corrected.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-46",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1(L1 · L2): 정정한 결과로 다시 판정한 다음 단계 = 같은 업무 기록을 정정 값으로 새로 만들어 R4 · R5(session.decide)를 처음부터 적용한 값(test_correction_rejudges_with_confirm_and_voids_later expected_step · test_engine_rules), E2E: 4.3 정상 → 이상 정정 → 단계 action 4.3.2. C2: 정정한 점검 뒤 기록은 지우지 않고 '정정으로 무효'(API void · 점검 경로 회색 점 · 지난 화면 회색 칩, E2E). C3: 열린 지시가 바뀌면 서버 409 confirm_required → 확인 창(바뀌는 지시 '4.3 … 정상 → 이상' · 지워질 보내지 않은 입력) → 확인해야 저장(E2E T15-correct_confirm · API). C4: 확인 창 취소 → 서버 단계 그대로 · '현재 단계로'에서 고른 결과 · 메모 그대로(E2E), 409는 감사도 기록도 남기지 않음(API). C5: 메모 · 측정값만 정정 → 다음 단계 그대로(E2E 측정값 정정 · API memo_only)",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/screens/T15-correct_confirm.png",
+    "execution/S-05/evidence/screens/T08-corrected_path.png",
+    "execution/S-05/evidence/screens/T15-correct_value.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-47",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1: 조치 완료 뒤 결과 정정 → 다시 판정 없이 정정 호출 요약(T10 / summary_corrected — '정정한 점검 뒤에 조치를 이미 마쳐 다시 판정하지 않습니다' · 지금까지 점검 · 조치 줄 · '정정 1회, 원래 이상')(E2E · test_correction_after_action_opens_correction_call), 파트장 '승인 후 진행' → 정정 때 하던 단계(재가동 확인)로 이어 감(A-06 · 결정 012 ②, E2E · API), 주간 처리 → 보고서 원인 미상 · 조치 그대로 · 미확인 정정 확인(019 ①, API · component · DOM). C2: 보낸 파트장 호출 뒤 정정 → 단계 call · 호출 sent 그대로(새 호출 · 다시 판정 없음), 파트장 앱 호출 상세에 '보낸 뒤 정비자 정정' 상자(교차 E2E L04-call_corrected), 숙련자 인계 답 대기 중도 같은 상자(019 ②), 답한 호출 뒤는 그 호출 기록에만(019 ③)(test_correction_attaches_to_sent_handover_and_answered_calls)",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/screens/T10-summary_corrected.png",
+    "execution/S-05/evidence/screens/L04-call_corrected.png",
+    "execution/S-05/evidence/screens/L04-correction_call_detail.png",
+    "execution/S-05/evidence/screens/T15-call.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-48",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "pass",
+   "assertion_summary": "C1: 잠금 · 조치 · 재가동(경계 확인 포함) · 파트장 호출 · 확인 질문 답 · B 시작 전 체크 · 숙련자 인계 기록의 정정 요청은 서버가 거부(not_correctable)하고 메모 덧붙이기는 받음(test_non_correctable_kinds_by_session_state — 결함 주입으로 판별 확인). 화면: 잠금 · 조치 · 재가동 · 호출 · 인계 기록 지난 화면에 '이 기록 정정' 없이 '메모 덧붙이기'만(E2E T15-lock · note · call, component). 확인 질문 답 · B 시작 전 체크는 사용자 결정 019 ⑨대로 승인 Prototype 화면 — B 체크는 점검 기록 안 읽기 전용 패널(정정 수단 없음, T15-check_b), 확인 질문 답은 지난 화면 기록으로 보이지 않음. 이 두 기록의 메모 덧붙이기는 서버 API까지(UF-S05-09, AC-48-C1 문장 정렬은 다음 plan 판). C2: 승인 대기 · 승인 세션의 모든 기록 종류에 정정 · 메모 모두 session_closed(API), 확정 세션 지난 화면은 정정 수단 없이 확정 안내(E2E T15-closed · component). C3: 파트장 반려 → 다시 열린 세션은 결과 · 측정값 다시 정정 · 메모 덧붙이기 됨(교차 E2E · API), 정정하지 않는 기록은 그대로 정정 불가",
+   "evidence_paths": [
+    "execution/S-05/evidence/check-fast.txt",
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/verify-e2e.txt",
+    "execution/S-05/evidence/db-test-list.txt",
+    "execution/S-05/evidence/test-fault-injection.txt",
+    "execution/S-05/evidence/screens/T15-lock.png",
+    "execution/S-05/evidence/screens/T15-note.png",
+    "execution/S-05/evidence/screens/T15-call.png",
+    "execution/S-05/evidence/screens/T15-check_b.png",
+    "execution/S-05/evidence/screens/T15-closed.png"
+   ]
+  }
+ ],
+ "adversarial_results": [
+  {
+   "id": "ADV-08",
+   "plan_item_ids": [
+    "P-14"
+   ],
+   "result": "pass",
+   "assertion_summary": "정정 불가 기록 · 확정 세션 요청: 기록 종류 7(8 기록) × 진행 · 승인 대기 · 반려 · 승인에서 정정이 모두 거부(not_correctable · session_closed), 확정 세션은 메모 덧붙이기도 거부(test_non_correctable_kinds_by_session_state — 결함 주입: API · 엔진 두 층을 모두 바꾸면 실패, test_correction_rejects_reason_closed_and_non_correctable). 원래 값 덮어쓰기: 지금 저장 계층에서 '원래 값 남음' 검사(업무 기록 원래 행 그대로 · 정정 이력의 처음 값 = 원래 값)가 통과하고, 정정을 덧붙이지 않고 원래 행을 고쳐 쓰는 결함 사본(저장 함수 monkeypatch)에서는 같은 검사가 실패를 잡음(test_adv08_overwrite_defect_is_caught). 시험 DB만, 외부 네트워크 · live 없음, 시험 DB는 verify-db 끝에 지움",
+   "evidence_paths": [
+    "execution/S-05/evidence/verify-db.txt",
+    "execution/S-05/evidence/db-test-list.txt",
+    "execution/S-05/evidence/test-fault-injection.txt",
+    "execution/S-05/evidence/test-discrimination.md"
+   ]
+  }
+ ],
+ "regression_note": "S-01 ~ S-04 시험(ADV-01 ~ 07 포함)은 check-fast(unit 71 · component 정비자 64 · 파트장 19) · verify-db 65 · verify-e2e 26에서 다시 통과. 바뀐 기존 시험: 엔진 정정 단위 시험을 correction_mode · logical 기준으로(옛 correct() 뺌), S-03 정정 점검 경로 API · E2E 시험을 정정 API로(시뮬레이션 도구 뺌), cross.spec.ts 첫 시험 제목 · 주석(G6-S04-3 비차단). 앞 slice 동작 변경: T08 다시 판정 배너는 다시 판정 정정일 때만(조치 · 호출 뒤 정정은 정정 호출 · 상자)",
+ "version_note": "S-05 v1(packet v3, plan v11)"
+}

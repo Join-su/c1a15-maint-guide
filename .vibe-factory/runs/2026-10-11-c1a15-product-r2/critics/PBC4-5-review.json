@@ -1,0 +1,97 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A5",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v5/prebuild-contract.md",
+  "version": "v5",
+  "sha256": "d0cd3062c723be07ec3d0b2a18196b4088c7fb9972f9dce5bc2db3a1d6bf0383"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-5-input.json",
+  "sha256": "c96c49e69e21e66eee7d05ca3ce217f1531e6f91280243537f89d80b41414eb6"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v5/coding-plan.json",
+   "version": "v5",
+   "sha256": "444cb18db5cfe98ec8c695a8e51acae223664031e6adfab2ee844aa3816ecb97"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v5/verification-matrix.json",
+   "version": "v5",
+   "sha256": "5c31a937f116fd82c257c49fd3d35a18b262706c5ae6cdced06782a78712cfa0"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v5/selection-register.json",
+   "version": "v5",
+   "sha256": "b13128b296154db18895bd0b25dd570af255fede0ad7ab7920eb3da3d4d49229"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v5/pbc-consistency-check.json",
+   "version": "v5",
+   "sha256": "b32b4f675ff8127a34647b7eb705ccd9c6162d99fc75f2b67d2f4c7a03d6a99d"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v5/prebuild-contract.md",
+   "version": "v5",
+   "sha256": "d0cd3062c723be07ec3d0b2a18196b4088c7fb9972f9dce5bc2db3a1d6bf0383"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "issue": "AC-02의 새 L3는 P-08 완료 시점(S-02 2차 cycle)에 첫 판정 호출 경로를 호출 요약 화면(T10 / summary, '점검 전')까지 판정한다. 그런데 T10 화면은 P-10(S-03) 범위이고, 호출 요약 본문 API는 P-09(S-03) 범위다. S-02 2차 cycle에는 이 화면도 이 API도 없어서 이 L3는 그 slice에서 통과할 수 없다. plan 안에서도 서로 다르게 적혀 있다. first_end_to_end_flow와 contract는 '다음 단계가 호출 요약인 경로는 호출 요약 화면이 있는 S-03(P-10)에서 L3로 판정'이라고 적었다.",
+   "evidence": "coding-plan/v5/verification-matrix.json AC-02 verification[4](L3: 'P-08(S-02 2차 cycle): … → 잠금 → 사전 확인 → 호출 요약(T10 / summary, \"점검 전\")'); coding-plan/v5/coding-plan.json items P-08 verifier('첫 판정 호출 fixture에서 진단 T04 / first_call → 잠금 → 호출 요약 진입') · prototype_refs(T10 없음) · preconditions(P-09 · P-10 없음); P-10 prototype_refs T10/summary, slice S-03, preconditions 'P-09 API'; P-18 non_trigger '호출 요약 본문(P-09)'; implementation_design.first_end_to_end_flow.expected_outcome; prebuild-contract.md 'Required implementation and verification evidence' 절",
+   "required_fix": "first_call 경로의 L3를 나눈다. S-02 2차 cycle(P-08)에서는 T04 / first_call → 잠금 → T05 / locked('다음: 파트장 호출 요약…')까지만 판정한다. T10 / summary('점검 전') 진입은 S-03에서 P-10 L3로 판정한다. 아니면 P-08의 범위 · 선행 조건 · prototype_refs에 T10 진입을 넣는다. 어느 쪽이든 matrix, P-08 verifier · ui_state_interaction, contract 문장이 같은 slice 규칙을 말하게 맞춘다.",
+   "category": "unverifiable-plan",
+   "subject_location": "coding-plan/v5/verification-matrix.json AC-02 verification[4](L3, P-08 · S-02 2차 cycle) · coding-plan/v5/coding-plan.json P-08 verifier · prototype_refs · preconditions",
+   "comparison_location": "coding-plan/v5/coding-plan.json P-10(prototype_refs T10/summary, slice S-03, preconditions 'P-09 API') · P-18 non_trigger '호출 요약 본문(P-09)' · implementation_design.first_end_to_end_flow.expected_outcome · prebuild-contract.md 'Required implementation and verification evidence'",
+   "why_not_mechanical": "L3 기대 증거가 다른 slice item의 화면 · API(T10 · P-09)에 기대는지는 문장 뜻과 item 범위 · 선행 조건을 함께 읽어야 판단된다(AC → item 집합 대조로는 같게 나온다)",
+   "minimum_resolution": "first_call 경로의 L3를 나눈다. S-02 2차 cycle(P-08)에서는 T04 / first_call → 잠금 → T05 / locked('다음: 파트장 호출 요약…')까지만 판정한다. T10 / summary('점검 전') 진입은 S-03에서 P-10 L3로 판정한다. 아니면 P-08의 범위 · 선행 조건 · prototype_refs에 T10 진입을 넣는다. 어느 쪽이든 matrix, P-08 verifier · ui_state_interaction, contract 문장이 같은 slice 규칙을 말하게 맞춘다."
+  },
+  {
+   "id": "ISS-002",
+   "issue": "changed-scope-v2는 P-09 · P-10에 '첫 판정 호출이면 지금까지 점검이 \"점검 전\"인 경우'를 더해야 한다고 적었다. Prototype v17 흐름도 T10 / summary(요약 '점검 전')로 끝난다. 그런데 plan v5에서 P-10은 바뀌지 않았고, P-09는 R11만 더해졌다. 이 경로의 호출 요약 값은 어느 item 계약에도 들어가지 않았다. plan-amendment · before-after에도 이 누락이나 그 이유가 없다.",
+   "evidence": "approved-inputs/changed-scope-v2.md 'PBC에서 다시 볼 곳' P-09 · P-10 행; prototype/v17/prototype-slice.md 385행('→ T10 / summary(요약 \"점검 전\")'); v4 대 v5 diff: P-10 변화 없음, P-09 compiled_product_contract.behavior는 R11만 더함; coding-plan/amendments/A-02/plan-amendment.md '바뀐 item' 목록에 P-10 없음",
+   "required_fix": "P-09(호출 요약 API)와 P-10(T10 화면)의 behavior · ui_state_interaction · verifier에 first_call 경로를 승인 값('점검 전') 그대로 더한다. 아니면 이미 덮인다는 근거를 적는다. 그 결과를 plan-amendment · before-after · consistency check change_representation에 맞춘다.",
+   "category": "plan-contract-mismatch",
+   "subject_location": "coding-plan/v5/coding-plan.json P-09 compiled_product_contract.behavior(R11만 더함) · P-10(v4와 같음) · coding-plan/amendments/A-02/plan-amendment.md '바뀐 item' 목록",
+   "comparison_location": "approved-inputs/changed-scope-v2.md 'PBC에서 다시 볼 곳' P-09 · P-10 행 · prototype/v17/prototype-slice.md 385행('→ T10 / summary(요약 \"점검 전\")')",
+   "why_not_mechanical": "승인 흐름의 끝 화면 값('점검 전' 호출 요약)이 어느 item 계약에 들어갔는지는 Prototype 흐름 문장과 item behavior 문장을 뜻으로 대조해야 한다",
+   "minimum_resolution": "P-09(호출 요약 API)와 P-10(T10 화면)의 behavior · ui_state_interaction · verifier에 first_call 경로를 승인 값('점검 전') 그대로 더한다. 아니면 이미 덮인다는 근거를 적는다. 그 결과를 plan-amendment · before-after · consistency check change_representation에 맞춘다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "S02-G6-5는 'P-13 verifier에 반영'이라고 적었지만 P-13 verifier는 v4와 같다. S02-G6-3(결과 입력 검증 · 재전송 비교)은 P-06 API 코드를 고치는데 P-18의 selected_approach · verifier에는 없다. 이월 의견이 carryover_resolution에만 있다는 점을 amendment에 분명히 적는 것이 좋다.",
+  "plan-amendment 'Before and after'는 새 item P-18을 바뀐 item의 behavior 문구 목록에 함께 적었다. 더한 item과 바뀐 item을 나눠 적는 것이 정확하다.",
+  "P-18의 이유 문장이 R8에 실패하면 first_call 카드에 '원문으로 대체됨'이 보인다. 이는 AC-06과 맞는다. P-08 component 시험에서 이 표시가 카드 구조를 바꾸지 않는지 함께 보면 좋다."
+ ],
+ "recorded_by": "generator(독립 critic agent가 돌려준 JSON 내용을 그대로 저장) · validator 필드(category(허용 목록으로 분류: ISS-001 unverifiable-plan, ISS-002 plan-contract-mismatch — 생성자 분류) · subject_location · comparison_location · why_not_mechanical · minimum_resolution)는 critic의 issue · evidence · required_fix 원문을 옮겨 채움(내용 추가 없음)"
+}

@@ -1,0 +1,59 @@
+{
+ "gate": "PBC-4",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v12/prebuild-contract.md",
+  "version": "v12",
+  "sha256": "b718e337a5c571c4d20ceb50d574eb7908494e101cd3335fb93527767e653aa1"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v11/coding-plan.json",
+   "version": "v11",
+   "sha256": "cf720a2c033c06c2d35a76468781014fff2734beffdf1bde205aeb737ab3bb52"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v11/verification-matrix.json",
+   "version": "v11",
+   "sha256": "cc403e6d4861aacba9120572b25e3f0797c12238063ffe973a4ee9265974b985"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v11/selection-register.json",
+   "version": "v11",
+   "sha256": "3b6ee6c7ef580e15d1a5ccd2f0142615cd04f58d9e17bc6e083c9a0c7df3036e"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v12/pbc-consistency-check.json",
+   "version": "v12",
+   "sha256": "3fd4ffef0884ae40e3282cc5f6c262b99266ad88ab7f55d7543ea75a0017166b"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v12/prebuild-contract.md",
+   "version": "v12",
+   "sha256": "b718e337a5c571c4d20ceb50d574eb7908494e101cd3335fb93527767e653aa1"
+  }
+ ]
+}

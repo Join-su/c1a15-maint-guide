@@ -1,0 +1,83 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "prototype",
+  "artifact_version": "{{version}}",
+  "use_case_version": "{{use-case-version}}",
+  "structure_source": {
+    "path": "wireframes/structure/selected.md",
+    "sha256": "{{approved selected blueprint SHA-256}}"
+  },
+  "structure_contract_source": {
+    "path": "wireframes/structure/selected-structure-contract.json",
+    "sha256": "{{approved selected structure contract SHA-256}}"
+  },
+  "structure_render_source": {
+    "path": "wireframes/structure/selected-visual-baseline.json",
+    "sha256": "{{approved selected structure-render baseline SHA-256}}"
+  },
+  "design_source": {
+    "path": "wireframes/design/selected-visual-rules.md",
+    "sha256": "{{approved selected visual rules SHA-256}}"
+  },
+  "ui_surface_coverage": [],
+  "criteria": [
+    {
+      "acceptance_id": "AC-01",
+      "status": "covered | deferred",
+      "reason": "{{required when deferred}}",
+      "asserted_condition_ids": ["AC-01-C1"],
+      "checks": [
+        {
+          "id": "T-AC-01",
+          "method": "automated | manual",
+          "evidence_paths": ["verification/AC-01-result.json"],
+          "assertion": "{{what was actually checked}}"
+        }
+      ]
+    }
+  ],
+  "interaction_axes": [
+    {
+      "id": "{{selectable axis such as project or case}}",
+      "values_checked": ["{{value A}}", "{{value B}}"],
+      "changed_observations": ["{{visible result that differs}}"],
+      "evidence_paths": ["verification/axis-project.json"]
+    }
+  ],
+  "derived_states": [
+    {
+      "page_id": "P01",
+      "state": "error",
+      "source_page_id": "P01",
+      "source_state": "default",
+      "scenario_refs": ["S-02"],
+      "acceptance_refs": ["AC-02"],
+      "preserved_structure": true,
+      "added_state_expression": "Show the approved page's error message and retry state without changing navigation or decision regions.",
+      "prototype_path": "prototype/P01--error.html",
+      "evidence_paths": ["verification/P01--error.json"]
+    }
+  ],
+  "compiled_structure_contract": [
+    {
+      "page_id": "P01",
+      "state": "default",
+      "region_id": "R-01",
+      "selected_structure": "",
+      "content_composition": "",
+      "interaction_or_state_rule": "",
+      "excluded_alternative": ""
+    }
+  ],
+  "structure_coverage": [
+    {
+      "page_id": "P01",
+      "state": "default",
+      "region_id": "R-01",
+      "selected_structure": "card_collection",
+      "prototype_path": "prototype/project-list.html#R-01",
+      "assertion": "Project list is rendered as cards with title, status, recent run, and open action.",
+      "evidence_paths": ["verification/P01-R-01-structure.json"]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+ "gate": "G6",
+ "review_kind": "final_batch_integration",
+ "slice_id": "S-06",
+ "attempt": 1,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-06/verification-report.json",
+  "version": "v1",
+  "sha256": "086874150cc34e01c1bea88df2813f658846827ff966397dc276aa38c2cb7694"
+ },
+ "input_bundle": {
+  "path": "critics/G6-FINAL-input.json",
+  "sha256": "31e3974bfb3f7e3947b2b6dbe13a40484a6899ab8a5c6fa868965ad0258110a5"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-06/history/slice-execution-packet-v2.json",
+   "version": "v2",
+   "sha256": "e5123c13da5e8caf5af79d10572708f2c612cd214047682697783250c8ba59ae"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-06/history/implementation-contract-v2.md",
+   "version": "v2",
+   "sha256": "28e3f66c8a54c38747ca3c06017c227f1de641dd32b4ec0413d44ab688c34d76"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-06/history/execution-ledger-v1.json",
+   "version": "v1",
+   "sha256": "1bf5583321f12d7f9d4b84ef468543a4111ac640b575f3b3760643b72a67c567"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-06/history/verification-report-v1.json",
+   "version": "v1",
+   "sha256": "086874150cc34e01c1bea88df2813f658846827ff966397dc276aa38c2cb7694"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "B1",
+   "category": "batch_evidence_index_pointer",
+   "subject_location": "execution/S-06/batch-evidence-index.json earlier_slices S-01 · S-02의 report · ledger, acceptance_coverage records와 final(AC-36 → execution/S-01/verification-report.json, AC-28 · AC-34 → execution/S-02/verification-report.json, 그 밖에 S-01 · S-02 v1 report를 가리키는 records 전부). 입력 묶음 supporting_records의 S-01 · S-02 report · ledger 4줄도 같은 v1 파일",
+   "comparison_location": "run-state.json slice_history['S-01'] · ['S-02'](현재 판 = execution-ledger-v2.json · verification-report-v2.json, v1은 'G6-S01 · G6-S02 revise'), execution/S-01/cycle-decision.md · execution/S-02/cycle-decision.md 'Evidence and remaining plan items'(ledger · report는 -v2), execution/S-01/verification-report-v2.json · execution/S-02/verification-report-v2.json version_note('v1은 …verification-report.json')",
+   "why_not_mechanical": "index의 hash는 가리킨 파일과 맞아 hash 검사로는 통과한다. 그러나 가리킨 파일은 G6 1차에서 revise로 판정된 v1이다(S-01 B1 · B2, S-02 B1 ~ B5). v1의 증거 경로는 evidence/이고, 고친 뒤 G6 2차 pass를 받은 증거는 evidence-v2/다. AC 결과 값은 v1 · v2가 같아서 숫자 대조로는 드러나지 않는다. cycle decision · run-state와 판을 맞춰 봐야 index가 G6 pass를 받지 않은 기록을 마감 증거로 쓰고 있음을 알 수 있다",
+   "minimum_resolution": "batch-evidence-index의 S-01 · S-02 report · ledger 경로(earlier_slices, acceptance_coverage records · final)를 -v2 파일로 바꾼다. 결과 값(pass · deferred)이 같은지 다시 대조한다. 가능하면 earlier_slices에도 hash를 붙인다. 입력 묶음을 다시 만들 때도 v2를 쓴다"
+  },
+  {
+   "id": "B2",
+   "category": "manual_review_completeness",
+   "subject_location": "execution/S-06/execution-ledger.json scope_notes '수동 검토 … CO-31 · CO-40 · OOS-01 수동 검토는 앞 slice에서 처리'. batch-evidence-index.json open_items_after_run에는 Windows 확인만 있음",
+   "comparison_location": "coding-plan/v11/verification-matrix.json manual_reviews — CO-31('B 시작 전 확인 화면 절차 4단계 이상일 때 행 간격 실제 높이 확인(P-08 완료 때)'), OOS-01 뒷부분('P-08 완료 때 T04 / first_call 구현을 Prototype v17 캡처와 나란히 보고'), CO-40('대조표에는 이 실제 값을 쓴다(P-08 완료 때)'). P-08 완료 slice인 execution/S-02/cycle-2의 ledger · report · cycle-decision · evidence/gate-applicability.md · g6-revise-decision.md, critics/G6-S02C2*-review.json, run-state.json, decisions/PBC4-human-brief-v9 ~ v12에 세 수동 검토의 결과 기록이 없음(CO-31 · OOS-01은 packet 문구로만 있음, evidence/screens에 T06 / b_precheck 캡처도 없음)",
+   "why_not_mechanical": "수동 검토는 자동 gate가 보지 않는다. 그래서 세 항목이 비어 있어도 모든 gate가 pass로 남는다. 'S-06 ledger가 앞 slice에서 처리했다고 적었다'는 주장과 'P-08 완료 기록 어디에도 그 결과가 없다'는 사실은 Matrix 문장과 여러 slice 기록을 맞대어 봐야 드러난다. CO-38 · CO-39(S-05 cycle decision)와 Windows(결정 020 ⑨)는 결과가 기록돼 있어 이 세 항목만 빠져 있다",
+   "minimum_resolution": "세 수동 검토의 결과 기록을 찾아 batch index(또는 S-06 ledger)에 경로로 연결한다. 기록이 없으면 지금 확인한다. CO-31은 마지막 빌드에서 T06 / b_precheck 4단계 이상 높이를 보고, OOS-01은 T04 / first_call 캡처를 나란히 사용자에게 보고하고, CO-40은 대조표 실제 값을 확인한다. 아니면 Windows 항목처럼 '미확인'으로 open_items_after_run에 정확히 남기고 최종 보고에 알린다. S-06 ledger의 '앞 slice에서 처리' 문장도 사실에 맞게 고친다"
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "AC-41(S-05 pass)의 C1(잠금 전 진행 표시 pick)과 AC-44(S-05 pass)의 C3(조치 · 재가동 체크 유지)는 S-05 코드에 실제 결함이 있었다. 같은 세션 두 번째 호출(AC-02 · AC-08 흐름)도 마찬가지다. 이 결함들은 S-06에서 결정 020 ⑮ ⑯ ⑰로 고쳤다(UF-S06-02 ~ 04). 수리마다 수리 전 실패한 판별 시험이 있다: s06.spec.ts · past.test.tsx · test_second_call_view_is_not_previous_answer. 승인 AC · API 의미는 바뀌지 않았고, check-fast · verify-db 70 · verify-e2e 40이 다시 통과했다. 그런데 index acceptance_coverage는 AC-41 · AC-44의 final을 S-05 report로만 두고 note가 null이다. AC-09처럼 note에 S-06 수리 증거를 함께 적으면 좋겠다. AC-09의 cycle decision 마감은 PBC-4 v12 approved_scope · reviewer_note의 사용자 확정과 Matrix v11 AC-09 L2 · L3 문장에 맞아 정당하다",
+  "작은 기록 불일치 셋: ① packet v2 slice_scope_note는 '앞 slice 결함 수리 1건(결정 020 ④)'인데 front_slice_repairs는 5건이다. ② index의 S-06 cycle_decision 'execution/S-06/cycle-decision.md(complete)'는 아직 없는 파일이다(G7에서 만들 것). ③ demo.spec.ts DEMO-03은 확정 원인 '원인 미상'만 단언하고 입력표 expected_report '미확인 · 요청에 주간 처리' 행은 보지 않는다. DEMO-02의 호출 절(4.4 · 4.4.2)도 단언하지 않는다. AC-16-C1('보고서 확정까지')은 충족한다",
+  "확인 결과: 평가 지표 계산(eval_metrics.py · eval_run.py · test_eval.py)은 결정 020 ⑤ ~ ⑧ · ⑩ ~ ⑫ · ⑭ 정의와 같다. eval/를 여는 코드는 scripts 평가 실행기뿐이다. server/src · apps · packages · infra에서는 참조 0이고, compose · Dockerfile에도 eval/가 없다. 구조 대조는 /tmp 다시 실행 결과가 증거와 바이트 단위로 같다(252영역 일치 141 · 분류 111, 306 대조, 미분류 0, 0인 상태 0). 비밀값 · 외부 호출 문제는 없다. 다만 실패 카드는 ③ Agent 분에 0으로 들어가 단축률을 부풀릴 수 있다(이번에는 실패 0이라 영향 없음). B1 · B2를 해결하면 남은 open_items는 complete를 막지 않는다. 기록된 한계로 충분하다: 문장 정렬 3건, live, Windows 미확인, 지표 미달 2(AC-18은 미달도 결과), commit 안 함. G6-S05-2 비차단 ② ③은 최종 보고에 옮길 것"
+ ]
+}

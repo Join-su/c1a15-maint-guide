@@ -1,0 +1,61 @@
+{
+ "gate": "G6",
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-02/verification-report.json",
+  "version": "v1",
+  "sha256": "2945aa49fa87cfae949bfdc11967835568a8a49111c7fdd954e772d096343941"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-02/slice-execution-packet.json",
+   "version": "v1",
+   "sha256": "cecf0134c8ea94807c2037d430b835810e5acb6508c2f0c47247acd38ceb02d3"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-02/implementation-contract.md",
+   "version": "v1",
+   "sha256": "b6f1fc4c12d9e9348884d64e2b36f81892ce475a704f0e049f611c47627598c8"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-02/execution-ledger.json",
+   "version": "v1",
+   "sha256": "a23fb9eb1e6a9daad5dc4958bec8e570a235ec323ee8fd8e4718584313e68b60"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-02/verification-report.json",
+   "version": "v1",
+   "sha256": "2945aa49fa87cfae949bfdc11967835568a8a49111c7fdd954e772d096343941"
+  }
+ ],
+ "supporting_records": [
+  {
+   "path": "execution/S-02/separate-approvals.md",
+   "sha256": "73d78183eb8bc242c8493cd6dc9fa6f5be5185940871b93e9ad093cc1f16794d"
+  },
+  {
+   "path": "execution/S-02/oos01-decision.md",
+   "sha256": "0620c38b9907c63f5c088a658aca5ca83611ea078ec900dab10c58c12990ceac"
+  },
+  {
+   "path": "execution/S-02/oos01-first-judgment.md",
+   "sha256": "cd03756fa4e33db4df0542648750fe8ffdc9a0462ff50bc2346116ed7f5a0d69"
+  },
+  {
+   "path": "execution/S-02/langgraph-decision.md",
+   "sha256": "dd2075339a8d2e95360c6d7c8d9ed1aee2aac31573385b8ad7261a7101fb97ea"
+  },
+  {
+   "path": "execution/S-02/evidence/gate-applicability.md",
+   "sha256": "c1d3e6b486ca136b570c33b2b132629dc5807bf32b9c0fbac79e14e99b4292d1"
+  },
+  {
+   "path": "execution/S-02/baseline-revalidation.json",
+   "sha256": "113830ea500cb701b23ef79ed71e1fb1146ba33a6530acd8255768e856ece964"
+  }
+ ]
+}

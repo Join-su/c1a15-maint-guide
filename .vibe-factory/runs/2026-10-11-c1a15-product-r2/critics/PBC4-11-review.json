@@ -1,0 +1,74 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A11",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v11/prebuild-contract.md",
+  "version": "v11",
+  "sha256": "7d82a89ff5654e289032260e57f76985d6653b24599a7e73853d9a92cfa70388"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-11-input.json",
+  "sha256": "606c12591a707f786ac3224234e763a7bba2df3b1b9ad5ca67294e63c27f495e"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v10/coding-plan.json",
+   "version": "v10",
+   "sha256": "a9aede7c16057304181c87a7ef7e4c9917c64591e9037544d6f4868ad2d8f5f5"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v10/verification-matrix.json",
+   "version": "v10",
+   "sha256": "bd75221331b518826eb461a73ffb04bbad48b646fdad64762360428af77d93d2"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v10/selection-register.json",
+   "version": "v10",
+   "sha256": "222ffcda6301d4d26bc8514e254bfb05579a414088cbf0ceca887f16cd68e70b"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v11/pbc-consistency-check.json",
+   "version": "v11",
+   "sha256": "1d4df6de52311a7064ca9ff9973fef01d3639678cd1fe362ea3050ca39c72efe"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v11/prebuild-contract.md",
+   "version": "v11",
+   "sha256": "7d82a89ff5654e289032260e57f76985d6653b24599a7e73853d9a92cfa70388"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "결정 016 ①을 적는 item: execution/S-03/history/cycle-decision-v1.md 'Required next action' 1은 '결정 016 ① 예외를 P-03 · P-09 계약에 명시'라고 했다. 그런데 A-06 · plan v10은 P-09 behavior에만 적었고, P-03을 뺀 이유는 적지 않았다. 내용으로는 P-09만 적어도 맞다. packet slice_scope_note가 P-09가 engine/session.py에 호출 · 답 전이를 더하도록 허용했고(P-03 판정 규칙은 그대로), P-03 authority_boundary('승인 후 진행은 그 C 작업 하나만')와도 충돌하지 않는다. 그래서 차단하지 않는다. 다만 사람 승인 brief나 S-03 cycle decision을 다시 쓸 때 'P-03 계약은 바꾸지 않고 P-09에만 적음'을 한 줄 남기기를 권한다.",
+  "LR-06 사실 정정: 'Original plan item and assumption'의 'Coding Plan v6 ~ v9의 P-09'는 실제 범위와 다르다. plan v1 ~ v9 모두에서 P-09 behavior에 '②를 서버 상태 전이로 구현한다'가, P-14 behavior에 '이 item은 ② … 을 구현한다'가 이미 있다(JSON 대조). 겹침은 v1부터 있었으므로 'v1 ~ v9'로 고치기를 권한다. 원인(전이가 기대는 정정 기록을 만드는 item의 slice를 보지 않음) · planning 분류 · 재발 방지 제안(전이 문장마다 입력 · 기록 생성 item과 slice 비교)은 근거(G6-S03 B2 (b), UF-S03-03 · 10, 결정 016 ③)와 맞는다.",
+  "plan v10 execution_status: 구조 필드(completed_slices = S-01만, partially_completed_slices S-02 remaining P-08 · P-18 · P-19, S-03 없음)는 v9에서 그대로 넘어온 값이다. 그래서 note와 계약 v11 본문('S-02 … 구현 · 검증 완료, S-03 … G6 pass')과 맞지 않는다. 또 note가 가리키는 사용자 결정은 live 경로 execution/S-03/g6-revise-decision.md다(지금은 history/g6-revise-decision-v2.md와 같은 27a58be3…). 이 값이 S-03 판정에는 영향을 주지 않으므로 차단하지 않는다. 다음 plan 판이나 S-03 종료 기록 때 구조 필드를 맞추고, 경로를 history 사본으로 바꾸기를 권한다."
+ ]
+}

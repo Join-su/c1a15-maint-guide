@@ -1,0 +1,72 @@
+{
+ "gate": "G0",
+ "attempt": 2,
+ "subject": {
+  "artifact": "evidence_pack",
+  "path": "evidence-pack.md",
+  "version": "v2",
+  "sha256": "c5d6170cc6aa205767875a895f48e82dc8e101d8b640f7efeee061f0d37a2262"
+ },
+ "input_bundle": {
+  "path": "critics/G0-2-input.json",
+  "sha256": "c5412c141c14050462dfa5b1d6efee818b84f4341837f4499cf3a64d2aa2255b"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "context_packet",
+   "path": "context-packet.md",
+   "version": "v1",
+   "sha256": "a38deda9b25377d900c230819c9993ce40e9535b3113efe8e22dee06cd3e12d1"
+  },
+  {
+   "artifact": "source_manifest",
+   "path": "source-manifest.json",
+   "version": "v1",
+   "sha256": "409df7f094712578e9f00bd72b1b1d7276f0f6cbaf08055788c10c11d5e46702"
+  },
+  {
+   "artifact": "task_evidence_T01",
+   "path": "sources/task/T01-user-guide-text.txt",
+   "version": "f73c240",
+   "sha256": "ba5432ebdc070ff5017f7670ba2d17972b71cfff1a56f36ca2a4026f1a4fdd7b"
+  },
+  {
+   "artifact": "task_evidence_T02",
+   "path": "sources/task/T02-manual_sections.json",
+   "version": "f73c240",
+   "sha256": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598"
+  },
+  {
+   "artifact": "task_evidence_T03",
+   "path": "sources/task/T03-data-manifest.json",
+   "version": "f73c240",
+   "sha256": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d"
+  },
+  {
+   "artifact": "task_evidence_T04",
+   "path": "sources/task/T04-alarm_rules.json",
+   "version": "f73c240",
+   "sha256": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
+  },
+  {
+   "artifact": "task_evidence_T05",
+   "path": "sources/task/T05-eval-cards-README.md",
+   "version": "f73c240",
+   "sha256": "31b6110b58ef6a2c017dfe80b6f0a25ce709ebe89451b07229f3d9c152d13f10"
+  },
+  {
+   "artifact": "task_evidence_T06",
+   "path": "sources/task/T06-architecture-text.txt",
+   "version": "f73c240",
+   "sha256": "0e39003fe9da03b755effdde3e77beb83e90e1b17faedbd77848567f701778ca"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "EV-032(기술 구조)에서 LangGraph가 빠졌습니다. 구현 명세 9장 '아키텍처 결정(PBC 입력)'에는 agent 패키지가 'LangGraph 그래프 HITL'로 적혀 있고, 5.2 ops schema에는 'LangGraph checkpoint 표'가 있으며, T06에도 같은 내용이 있습니다. 001의 기각안(Streamlit·SQLite·Chroma)과 달리 LangGraph는 그대로 유지되는 선택입니다. PBC에서 빠뜨리지 않도록 EV-032 또는 CO-03 옆에 한 줄 적어 두는 것을 권합니다.",
+  "아이디어(001)의 세부 값 가운데 구현 명세(002)·데이터(T02)로 대체된 것이 ledger에 '대체됨'으로 표시되어 있지 않습니다. 해당 항목은 매뉴얼 24절·원인 12개(현재 32절·원인 14개), T3 점수식 '가르는 후보 비율 ÷ 소요 분'(현재 D5 '확률 ÷ 분'), 근거 적음 '근거 사례 3건 미만'(현재 R6 'score ≥ 0.5 기록 3건 미만')입니다. Evidence Pack은 최신 값을 올바르게 썼습니다. 다만 G1 이후 Full Intent Context의 001 전문을 다시 읽는 단계에서 옛 값을 쓰지 않도록, EV-039 또는 별도 행에 대체 관계를 적어 두면 좋겠습니다.",
+  "흐름 세부 두 곳이 source보다 좁게 적혀 있습니다. (1) EV-043과 Failure 행은 맞지 않는 소견을 '확인 후 인계'로만 적었는데, R7(c)는 '정비자가 인계 또는 계속을 고름'이라고 합니다. (2) 알람 발생기를 '시연 각본 알람 등록'으로만 적었는데, 6장 `POST /internal/alarms`는 `scenario_id 또는 udi`를 받습니다. 둘 다 G1 Scenario 작성 때 source의 원래 선택지를 그대로 가져가면 됩니다."
+ ]
+}

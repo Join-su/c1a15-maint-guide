@@ -1,0 +1,414 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "wireframe_structure",
+ "artifact_version": "v3",
+ "source_board": "wireframes/v3/structure-review.html",
+ "selections": [
+  {
+   "page_id": "T01",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T01--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T01",
+   "state": "role_error",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T01--role_error.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T02--empty.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T02--new_alarm.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T02--in_progress.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T02--rejected.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T03--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T04--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T04--low_evidence.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T05--before_lock.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T05--locked.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T06--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T06--fallback.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T06--unable_next.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T06--llm_repeat.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T06",
+   "state": "b_precheck",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T06--b_precheck.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T07--confirm_question.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T07--out_of_scope.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T08--action_a.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T08--checklist_b.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T08--restart_check.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T09--draft.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T09--check_failed.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T09--confirmed.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--summary.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--waiting.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--sent.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--ans_approved.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--ans_daytime.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T10--ans_direct.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T11--expert_handover.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T11--monitor_close.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T11--unable_repeat.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L01",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L01--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L01",
+   "state": "role_error",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L01--role_error.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L02--list.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L02--empty.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L03--review.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L03--edit.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L03--edit_failed.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L03--reject.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L04--list.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L04--call_detail.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L04--handover_detail.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L05--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L05--lower_warning.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L05",
+   "state": "raise_warning",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L05--raise_warning.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L06--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/L06--filtered.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T12--list.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T12--empty.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T13--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T14--default.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T15",
+   "state": "alarm",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T15--alarm.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T15",
+   "state": "diagnosis",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T15--diagnosis.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T15",
+   "state": "check",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T15--check.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T15",
+   "state": "check_current",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T15--check_current.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  },
+  {
+   "page_id": "T15",
+   "state": "action",
+   "selected_candidate_id": "guide-a",
+   "source_path": "wireframes/v3/structure/guide-a/T15--action.html",
+   "note": "사용자 전체 승인 v3(2026-10-12)"
+  }
+ ]
+}

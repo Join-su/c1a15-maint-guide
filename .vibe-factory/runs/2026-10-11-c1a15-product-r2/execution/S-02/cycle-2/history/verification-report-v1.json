@@ -1,0 +1,385 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "verification_report",
+ "plan_version": "v8",
+ "slice_id": "S-02",
+ "review_requirement": "independent_critic",
+ "review_rationale": "P-18 · P-19가 공개 API(OpenAPI 정본)를 바꾸고, P-08이 첫 end-to-end 화면을 만든다. read-only 독립 reviewer로 검토",
+ "criteria": [
+  {
+   "acceptance_id": "AC-01",
+   "plan_item_ids": [
+    "P-08",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "C1: 잠금 전 세션 응답에 instruction 없음 · lock_instruction은 1.2절만 · 다른 절 원문 409(test_lock_precedes · test_p19_screen_values), 화면 T05 잠금 전 가린 자리에 내용 없음(component · E2E). C2: 잠금 완료 뒤 지시 · 잠금 시각(E2E 잠금 표시줄 1.2절 · 시각). C3: 설비 변경 뒤 잠금 전(test_engine_rules · test_api, 화면은 잠금 전이면 T05)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-02",
+   "plan_item_ids": [
+    "P-08",
+    "P-18"
+   ],
+   "completion_plan_item_id": "P-16",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08, P-18)은 통과(아래 증거), 완료 판정은 P-16(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-03",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-10",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-10(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-04",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단(합 100) → 잠금 → 사전 확인 → 지시 → 확인 불가 → 서버 기록의 순위 그대로 · 다른 점검 지시(데이터 값: DEMO-01은 4.3 다음 4.6) · 확인 불가 배너, 새로고침 · api 재시작 뒤 같은 단계(E2E 2). 결과별 규칙은 L1(test_engine_rules)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/e2e-report.json",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png",
+    "execution/S-02/cycle-2/evidence/check-fast.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-05",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "'아니요, 다시 입력' 뒤 순위 그대로 · '네' 뒤에만 반영(L1 · L2 test_engine_rules · test_api), 화면 T07 확인 질문 버튼 순서 · 아니요 → 메모 되돌림(component)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/component-test-list.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-06",
+   "plan_item_ids": [
+    "P-08",
+    "P-18",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-11",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08, P-18, P-19)은 통과(아래 증거), 완료 판정은 P-11(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-12",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-12(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-13",
+   "plan_item_ids": [
+    "P-08",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "알람 발생기 등록 뒤 5초 안에 홈 빨간 점 · 종 숫자 1(E2E 1, 측정 시간은 report annotation), 홈 응답 교대 현황 · 진행 n / m · 최근 보고서 빈 목록(test_p19_screen_values)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/e2e-report.json",
+    "execution/S-02/cycle-2/evidence/verify-db.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-14",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "앱 닫기(브라우저 context 닫기) → 다시 열기 · 로그인 → 이어서 하기 → 같은 단계 · 잠금 시각 · 확인 불가 결과(E2E 3), API 재시작 뒤 같은 응답(verify-e2e LangGraph 단계 · E2E 2)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/e2e-report.json",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-17",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-17",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-17(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-19",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-10",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-10(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-20",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-10",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-10(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-29",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-12(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-31",
+   "plan_item_ids": [
+    "P-08",
+    "P-18",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "C1: 지시문 · AI 해석 · 고른 이유 실패 자리에 원문 + 원문으로 대체됨, 진행 가능(test_p19_instruction_guide · test_reason_grounding · test_screen, E2E 5 T06 / fallback 뒤 결과 보내기 → 다음 점검). C2: 같은 세션 3회 연속 실패 → 인계 권함(test_reason_grounding, E2E 5 T06 / llm_repeat 시뮬레이션)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-35",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "지시되지 않은 점검 결과 거부 · 순위 그대로(test_api), 지시 화면에 다른 점검으로 가는 수단 없음 · 결과 버튼 3개뿐(component · E2E 2)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-37",
+   "plan_item_ids": [
+    "P-08",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "blocked",
+   "assertion_summary": "C3(빈 목록 안내)와 C1 · C2 가운데 배정된 새 알람 → 알람 화면, 진행 중인 점검 → 이어서 하기는 통과(E2E 1 · component · test_api 종 목록). 파트장 답이 온 호출 · 반려된 보고서 종류는 그 기록이 S-03 · S-04에서 생겨 이 slice에서 판정할 수 없음 — UF-C2-03, 완료 slice를 옮기는 L1 수정 필요",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/e2e-report.json",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/check-fast.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-38",
+   "plan_item_ids": [
+    "P-08",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "기록 카드 → 같은 기록 번호의 설비 · 발생 시각 · 증상 · 센서 값 · 점검 경로 · 확정 원인 · 조치 · 정지 시간 · 서술, 닫으면 진단 화면 · 단계 그대로(E2E 2 · component), 기록 API 승인 · 출처(test_p19)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-39",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "매뉴얼 원문 보기 → 지시된 절의 절차 · 판정 기준 · 등급 · 소요 분, 닫으면 같은 지시(E2E 2 · component), 지시되지 않은 절 409(test_api)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/screens/T04-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T04-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T05-locked-first_call.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-unable_next.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-fallback.png",
+    "execution/S-02/cycle-2/evidence/screens/T06-llm_repeat.png",
+    "execution/S-02/cycle-2/evidence/screens/T13-default.png",
+    "execution/S-02/cycle-2/evidence/screens/T14-default.png",
+    "execution/S-02/cycle-2/evidence/screens/AC-14-reopened.png",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-40",
+   "plan_item_ids": [
+    "P-08",
+    "P-19"
+   ],
+   "completion_plan_item_id": "P-08",
+   "result": "pass",
+   "assertion_summary": "순위 안내 '근거 n = 비슷한 과거 기록 상위 10건 중 …', 기록 카드 머리 '비슷한 과거 기록 n건 · 상위 10건 중'(E2E 2 · component), 순위 근거 10건(test_api)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt",
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-42",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-13(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-43",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-10",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-10(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-44",
+   "plan_item_ids": [
+    "P-08"
+   ],
+   "completion_plan_item_id": "P-15",
+   "result": "deferred",
+   "assertion_summary": "이 cycle 부분(P-08)은 통과(아래 증거), 완료 판정은 P-15(뒤 slice)",
+   "evidence_paths": [
+    "execution/S-02/cycle-2/evidence/check-fast.txt",
+    "execution/S-02/cycle-2/evidence/verify-db.txt",
+    "execution/S-02/cycle-2/evidence/verify-e2e.txt"
+   ]
+  }
+ ],
+ "adversarial_results": [],
+ "regression_note": "S-01 · S-02 1차 cycle 시험(ADV-01 ~ 07 포함)은 check-fast · verify-db · verify-e2e에서 다시 통과. 종 목록 정확 비교 2건은 필드가 더해져도 같은 항목인지 보는 포함 비교로, provider 실패 시험은 지시문까지 실패하도록 고침(판정 기준 같음)",
+ "version_note": "S-02 2차 cycle v1(packet v4, plan v8)"
+}

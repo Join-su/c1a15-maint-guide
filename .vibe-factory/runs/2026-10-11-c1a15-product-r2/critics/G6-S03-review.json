@@ -1,0 +1,63 @@
+{
+ "gate": "G6",
+ "slice_id": "S-03",
+ "attempt": 1,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-03/history/verification-report-v1.json",
+  "version": "v1",
+  "sha256": "5f6bfe8f357bdd5d67415e1333a792ca1dd85a0800446955db625854d3485166"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S03-input.json",
+  "sha256": "41fc0beaf23e2850a3dfefdddd1093f9be67b38a56373078fb7ae7aa8d1538cb"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-03/history/slice-execution-packet-v1.json",
+   "version": "v1",
+   "sha256": "a8f1658bc7173a114283202a44682a30e77aa68596148e561da8a80474714b37"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-03/history/implementation-contract-v1.md",
+   "version": "v1",
+   "sha256": "bede853e78e67ff5a3aa1f40c9462dbdc2b07e37fa305e88626d42ff6107fac4"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-03/history/execution-ledger-v1.json",
+   "version": "v1",
+   "sha256": "ce41222cf025c66dd30d9902bb863bbb7318b0045353ef7658d095d2385894c7"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-03/history/verification-report-v1.json",
+   "version": "v1",
+   "sha256": "5f6bfe8f357bdd5d67415e1333a792ca1dd85a0800446955db625854d3485166"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "B1",
+   "issue": "AC-03(완료 item P-10)을 pass로 적었지만, packet에 계획된 L3 증거 가운데 '정비자 앱 진단 화면 50 · 28 · 11 · 11'(AC-03-C1)을 확인하는 E2E assertion이 없다. AC-03-C1은 L1에서만 확인됐다.",
+   "evidence": "packet verification_entries AC-03 L3 expected_evidence: '정비자 앱에서 같은 입력의 진단 50 · 28 · 11 · 11 · 첫 지시 4.3 → 정상 입력 → 순위 57 · 22 · 21 → 파트장 호출 요약 화면(T10 / summary)'. e2e/tests/tech-s03.spec.ts:100-114는 simR5Example 뒤 toFirstCheck 안에서 '진단 보기'(21행)를 지나가기만 하고 순위를 확인하지 않는다. 첫 assertion은 108행(4.3), 112행(57 · 22 · 21)이다. 이 시험의 첨부는 T10-summary · T10-waiting · T10-sent · T10-ans_approved뿐이며 T04 캡처가 없다(e2e-report.json). report AC-03 assertion_summary도 C1을 'L1(test_engine_rules)'로만 든다(test_engine_rules.py:48).",
+   "required_fix": "같은 E2E에서 시뮬레이션 뒤 진단 화면(T04)의 순위 50 · 28 · 11 · 11 assertion과 캡처를 더한다. 그다음 verify-e2e를 다시 돌려 증거와 report AC-03 요약을 새로 만든다. 더하지 않는다면 AC-03을 pass로 두지 않고, 남은 L3 조건과 그 이유를 적는다."
+  },
+  {
+   "id": "B2",
+   "issue": "P-09 계약 가운데 이번 slice에서 구현하지 않은 두 동작이 unexpected fact · 영향 분류 · 다음 slice로 넘길 일로 기록되지 않았다. 그런데도 ledger P-09 verifier_result는 pass이고, report AC-11 요약은 이 사실을 가린다. (a) 반려 뒤 재개 · 다시 확정. (b) 조치 뒤 정정 호출의 '승인 후 진행' → 정정 때 하던 단계로 이어서 하기.",
+   "evidence": "(a) P-09 requirement_signal '… 반려 뒤 재개'와 compiled logical_flow_behavior FLOW-06 '반려 → 재개·수정 후 재확정 … 반려 사유가 정비자 앱에 읽힘', AC-11 L2 '수정 또는 추가 점검 뒤 다시 확정 → 승인 대기'. 현재 코드는 sessions.py post_event에서 row.status == 'reported'이면 모든 입력을 409 session_closed로 막는다. session.py fold의 report_confirmed는 되돌릴 기록 type이 없어 decide()가 계속 'closed'를 낸다. 그래서 S-04 P-11이 반려 기록을 써도 P-09 상태 전이를 고치지 않으면 AC-11-C2를 낼 수 없다. ledger에는 scope_notes 'S-04로 넘기는 일: … 반려(AC-11)'만 있고, report AC-11은 '반려는 파트장 앱이 만든다 — S-03은 확정 · 승인 대기까지'로 적는다. (b) P-09 compiled behavior '생성자 해석 ② … 조치 뒤 정정 호출의 승인 후 진행은 … 정정 때 하던 단계로 이어서 하기를 서버 상태 전이로 구현한다'. engine/session.py correct()의 call_with_correction · attach_to_call 결과를 쓰는 API 코드가 없다(grep 0건). UF-S03-03은 T10 / summary_corrected 화면 · 요약만 다룬다.",
+   "required_fix": "(a) · (b) 각각을 unexpected fact로 기록한다. 영향받는 plan item(P-09 · P-11 / P-09 · P-14), 영향 분류, 재확인 결과, 넘길 slice(S-04 · S-05)와 그 packet이 이어받을 일을 적는다. P-09 작업을 다른 slice로 옮기는 것이 plan 변경이면 L1로 분류한다. ledger P-09 verifier_result · scope_notes와 report AC-11 assertion_summary를 그 범위에 맞게 고친다. 다른 방법도 있다: S-03에서 시험 DB 반려 기록(답 시뮬레이션과 같은 방식)으로 재개 · 다시 확정을 구현하고 시험한다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "UF 판정. UF-S03-01: L0이 타당하다. P-09 계약 T10 / ans_approved R-CALLACT('승인 후 진행이면 C 지시가 이 카드에 열림 · 이 상태: 승인 배너, C 점검 지시와 점검 시작')와 AC-08-C2가 이 동작을 요구한다. P-03 L1 test_grade_table_driven('AC-08 판정 부분')도 승인된 4.4가 지시되기를 기대한다. 변경은 call_answer 경로 한 줄(session.py:253-256)이고, 등급표 · D 무효 · unit 71은 그대로다. 다만 packet slice_scope_note 'P-03 판정 규칙은 그대로'와 다르므로 다음 plan 판에 예외로 적는다. UF-S03-03: L0이 타당하다. 근거는 P-10 non_trigger '지난 화면 · 정정(P-15)', 정정 AC 완료 item이 S-05에 있다는 점, 사용자 결정 016 ③이다. 범위 보충은 B2에서 다룬다. UF-S03-05: 'none'은 G6가 확인할 수 없다. evidence_paths의 gate-applicability.md에 바이트 대조 기록이 없다. 대조 결과(경로 · sha256)를 남기거나 G7에서 사용자 판단으로 넘긴다. 규칙 위반 자체는 사용자 보고 대상이다.",
+  "기록 정정. server/src/c1a15/api/deps.py는 S-03 G4 뒤인 16:48에 수정됐고, flow.py가 쓰는 scenarios()(R11 재가동 값)는 이 파일에만 있다. 그런데 ledger changed_files에 없어 scope_traceability 증거를 보정해야 한다. gate-applicability leakage_check의 '새 시험 도구 e2e/sim_*.py 포함'은 forbidden_paths_check.py PRODUCT_DIRS에 e2e가 없어 맞지 않는다(직접 grep 결과는 0건). report AC-37의 '답한 사람 · 시각'과 AC-23의 '직접 확인(test_s03_call_wait…)'은 L2 시험이 확인하지 않는다. E2E · component에서만 확인한다.",
+  "거부 감사. 확정 뒤 입력 거부(sessions.py post_event의 row.status == 'reported' → 409 session_closed)는 audit_rejection을 부르지 않아 감사 행이 남지 않는다(flow.accept의 session_closed 분기에는 닿지 않음). b_checklist_done 거부도 같다. ledger L0 '409 거부의 감사 행은 별도 transaction으로 남음'은 실제 범위(flow.accept · validate_result 거부)보다 넓다. 감사 행을 더하거나 문구를 줄인다. AC-26 완료 item은 P-12다."
+ ]
+}

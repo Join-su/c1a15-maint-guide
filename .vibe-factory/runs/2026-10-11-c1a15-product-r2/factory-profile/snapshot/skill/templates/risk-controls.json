@@ -1,0 +1,18 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "use_case",
+  "artifact_version": "{{version}}",
+  "failure_controls": [
+    {
+      "failure_cost": "{{harm if this fails}}",
+      "mitigation": "{{control}}",
+      "acceptance_ids": ["AC-01"]
+    }
+  ],
+  "development_authority": {
+    "external_calls": "allowed | prohibited | approval_required",
+    "secrets": "{{how secrets are handled}}",
+    "cost_limit": "{{budget or not applicable}}",
+    "irreversible_actions": "{{allowed actions or prohibited}}"
+  }
+}

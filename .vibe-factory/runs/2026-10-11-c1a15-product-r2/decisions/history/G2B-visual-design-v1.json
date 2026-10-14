@@ -1,0 +1,21 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "gate": "G2B",
+ "artifact": "visual_design",
+ "artifact_version": "v1",
+ "decision": "approved",
+ "approved_scope": [
+  "direction-guide(사용 가이드 시각 언어) + Craft Review 보정 1회",
+  "방향 수 예외(D17)",
+  "호출·경고 주 버튼 #b45309, C·D 호출 행동에만"
+ ],
+ "excluded_scope": [
+  "G2A 구조 변경",
+  "기능·권한·AC 변경"
+ ],
+ "reviewer_note": "사용자 승인(2026-10-11)",
+ "selection_export_path": "",
+ "selected_direction_id": "direction-guide",
+ "selected_visual_rules_path": "wireframes/design/selected-visual-rules.md",
+ "decided_at": "2026-10-11T21:33:41+09:00"
+}

@@ -1,0 +1,125 @@
+{
+ "gate": "G3",
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v6/prototype-slice.md",
+  "version": "v6",
+  "sha256": "20e62e65f40a853c9df1197feeaedef6d50213060787676de42ed29b87d9862c"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v3.json",
+   "version": "v3",
+   "sha256": "61577260b7dce67beb3777d5ca65924e285ca4b72d6c80251dd83c532d3c6efb"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v3/acceptance-criteria.json",
+   "version": "v3",
+   "sha256": "6a46719847f0cc6b6e73ecedd7208c000c7a6a5ad67809f4d5c493079b24f000"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v3/scenario-coverage.json",
+   "version": "v3",
+   "sha256": "08e7feb1e6d7db9c76747aa6c2949467e2d91f5782a2957466e54f99a172728a"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected.md",
+   "version": "v2",
+   "sha256": "2c30a2d1894224dd16838811e738a833f9890090e1ad1a1f8456d581c890aafb"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-structure-contract.json",
+   "version": "v2",
+   "sha256": "c8dca1f43ebf050fae4d14029a863570e1a89e196a2a608a115c2183d3a4ba01"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v2/structure/selected-visual-baseline.json",
+   "version": "v2",
+   "sha256": "9e53627e1facfec03017b1a696f9c5f67b23379e40023bc0c203c0ce614477ad"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v2/design/selected-visual-rules.md",
+   "version": "v2",
+   "sha256": "307b18a8ee583b595fdef4d1542e0ec85c3e6d5c354eb5b8b07297cc55834a52"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v6/prototype-coverage.json",
+   "version": "v6",
+   "sha256": "701a78c2e49a817ff156ba49729ccd3f0be149476b9ce030f9b3ba63e9114cef"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v6/index.html",
+   "version": "v6",
+   "sha256": "23c7ba75b34d94c7915ee445affc19c3035e3885d0a5f748bc4119c06ea7a941"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v6/selftest-result.json",
+   "version": "v6",
+   "sha256": "a9d6c3e2a4664731bcb0e572c81bfb90de2329ee93170f3883ff0f1c7e563e52"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v6/mutation-check.json",
+   "version": "v6",
+   "sha256": "7e7599a1fcd06c5bb4f906ecba425491145f939ce8dc86831ce62c60f671e586"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v6/structure-check.json",
+   "version": "v6",
+   "sha256": "03d8df52fbe42e2dfb6ae677f830840f45cefedaf746d1324274bde49f506c90"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v6/axes.json",
+   "version": "v6",
+   "sha256": "38b2b90a0693770a4efca62287c8cf485e5a42c8274db7c1b860b93d97cbfadb"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v6/control-audit.json",
+   "version": "v6",
+   "sha256": "ccccc73cc04f6cbf881bf49e88356393a03bf87d5cdd896f3bccc063047dc5ef"
+  }
+ ]
+}

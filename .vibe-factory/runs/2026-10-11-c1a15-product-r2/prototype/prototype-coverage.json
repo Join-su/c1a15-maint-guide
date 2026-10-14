@@ -1,0 +1,3893 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype",
+ "artifact_version": "v1",
+ "use_case_version": "v2",
+ "structure_source": {
+  "path": "wireframes/structure/selected.md",
+  "sha256": "422983539f4d5cb4aac078e87ad9be87dd210d6ae8b1c36895d566d83996ec2a"
+ },
+ "structure_contract_source": {
+  "path": "wireframes/structure/selected-structure-contract.json",
+  "sha256": "abbd2d88ae421d3854ae94c665acf0610307b14f0aa16e70133ecfa04b55c1d2"
+ },
+ "structure_render_source": {
+  "path": "wireframes/structure/selected-visual-baseline.json",
+  "sha256": "d216b925696377259cd9a838f1f7bc34cc7f38ddd3bf41cb27473b08110e8333"
+ },
+ "design_source": {
+  "path": "wireframes/design/selected-visual-rules.md",
+  "sha256": "0931c63ba32f3a58cb0df94964439c910cf651b56ac8287cc65af23191c8ea71"
+ },
+ "ui_surface_coverage": [
+  {
+   "ui_surface_id": "tech",
+   "critical_scenario_id": "SC-06",
+   "page_state_refs": [
+    "T09:draft",
+    "T09:check_failed",
+    "T09:confirmed"
+   ],
+   "acceptance_ids": [
+    "AC-07",
+    "AC-33"
+   ]
+  },
+  {
+   "ui_surface_id": "lead",
+   "critical_scenario_id": "SC-35",
+   "page_state_refs": [
+    "L03:review",
+    "L03:reject"
+   ],
+   "acceptance_ids": [
+    "AC-11",
+    "AC-24"
+   ]
+  }
+ ],
+ "criteria": [
+  {
+   "acceptance_id": "AC-01",
+   "status": "deferred",
+   "reason": "API 수준 차단(R1)은 서버 동작이다. 화면의 잠금 전 가림은 T05:before_lock에 있다. 검증은 구현(G4~G6) API 시험으로 한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-02",
+   "status": "deferred",
+   "reason": "C3(평가 30건 위반 0건)과 등급 판정은 서버 규칙 · 평가 실행이다. 화면 상태는 T10 · L04에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-03",
+   "status": "deferred",
+   "reason": "R4 · R5 계산은 코드 규칙이다. 구현 단위 시험으로 검증한다(prototype 값은 sample 계산).",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-04",
+   "status": "deferred",
+   "reason": "재계산 · 합 100은 R4 코드 규칙이다. 구현 단위 시험으로 검증한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-05",
+   "status": "deferred",
+   "reason": "'아니요'면 순위가 그대로인지는 순위 계산(서버)이다. 확인 창 화면은 T07에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-06",
+   "status": "deferred",
+   "reason": "근거 검사(R8)는 서버 규칙이다. 원문 대체 표시 화면은 T06:fallback에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-07",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-07-C1",
+    "AC-07-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-07",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json",
+      "verification/g3/mutation-check.json"
+     ],
+     "assertion": "확정 전 확인 실패 상태의 실패 항목 · 잠긴 확정 버튼, 수정 뒤 확정 → 파트장 승인 대기 목록 반영"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-08",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-08-C1",
+    "AC-08-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-08",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "호출 보냄 상태에 4.4 지시 없음, 파트장 '승인 후 진행' 저장 뒤 정비자 화면에 4.4 지시 · 승인자 · 시각"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-09",
+   "status": "deferred",
+   "reason": "승인 보고서의 이력 색인과 검색 후보는 서버 · 검색 동작이다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-10",
+   "status": "deferred",
+   "reason": "감사 로그 기록은 서버 저장이다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-11",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-11-C1",
+    "AC-11-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-11",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "파트장 반려(사유 입력) → 정비자 홈 반려 · 사유 → 이어서 하기 → 다시 확정 → 승인 대기 목록"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-12",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-12-C1",
+    "AC-12-C2",
+    "AC-12-C3"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-12",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "tech.kim / lead.park fixture 계정으로 앱별 역할 거부 · 허용"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-13",
+   "status": "deferred",
+   "reason": "5초 안 표시는 실제 주기 조회 · 서버로만 잴 수 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-14",
+   "status": "deferred",
+   "reason": "세션의 서버 저장과 재개는 서버 동작이다. '이어서 하기' 화면은 T02:in_progress에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-15",
+   "status": "deferred",
+   "reason": "이력 색인과 평가 카드의 분리는 분리 검사 코드(test_separation)로 검증한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-16",
+   "status": "deferred",
+   "reason": "fixture 모드 시연 10건 완주는 구현된 서버 · 앱 실행으로 검증한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-17",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-17-C1",
+    "AC-17-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-17",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "구조 계약 Region 158개 selector 존재 + T04 값이 sample(data/ 계산)과 같음"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-18",
+   "status": "deferred",
+   "reason": "평가 지표는 평가 실행기로 계산한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-19",
+   "status": "deferred",
+   "reason": "확인 불가 반복의 순위 유지 · 점검 제외는 서버 규칙이다. 화면은 T06:unable_next · T11:unable_repeat에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-20",
+   "status": "deferred",
+   "reason": "맞지 않는 소견에서 순위 불변은 서버 규칙이다. 안내 화면은 T07:out_of_scope에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-21",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-21-C1",
+    "AC-21-C2",
+    "AC-21-C3"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-21",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json",
+      "verification/g3/mutation-check.json"
+     ],
+     "assertion": "체크리스트 미확인 시 재가동 잠김 → 모두 확인 시 열림, 재가동 후 9.1 K · 경계 8.3 K, 여전히 밖 → 숙련자 인계 · 원인 미상"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-22",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-22-C1"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-22",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "감시 마감 → 보고서 작성 → 파생 상태 T09 / monitor_report에 6.2와 이상 없음 · 감시"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-23",
+   "status": "deferred",
+   "reason": "호출 답의 보고서 기록(C4 처리 메모 포함)은 서버 저장이다. 답 상태 화면은 T10 · L04에 있고 prototype에서 오간다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-24",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-24-C1"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-24",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json",
+      "verification/g3/mutation-check.json"
+     ],
+     "assertion": "반려 선택 시 사유가 비면 결정 저장 잠김, 입력하면 열림"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-25",
+   "status": "deferred",
+   "reason": "등급 변경의 다음 판정 적용 · 기록은 서버 규칙이다. 화면은 L05에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-26",
+   "status": "deferred",
+   "reason": "감사 기록의 저장 · 필터 결과는 서버 조회다. 화면은 L06에 있다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-27",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-27-C1",
+    "AC-27-C2",
+    "AC-27-C3"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-27",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "요약 타일 숫자 = 표 행 수 · 미처리 호출 수, 행 머리 6개, 모두 처리하면 빈 목록"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-28",
+   "status": "deferred",
+   "reason": "알람 배정 규칙(R9)은 서버 규칙이다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-29",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-29-C1",
+    "AC-29-C2",
+    "AC-29-C3",
+    "AC-29-C4"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-29",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "진단 · 보고서(파생 T09 / low_evidence) · 파트장 목록의 근거 적음, 진단에 점검 시작 버튼 유지"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-30",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-30-C1",
+    "AC-30-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-30",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "호출하지 않고 대기 → 파트장 호출 목록에 M-03 없음 · 세션 대기"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-31",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-31-C1",
+    "AC-31-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-31",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "LLM 실패 시뮬레이션 켬 → 원문 대체 표시 · 다음 단계 진행, 3회 연속 실패 → 숙련자 인계 권함"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-32",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-32-C1",
+    "AC-32-C2"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-32",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json",
+      "verification/g3/mutation-check.json"
+     ],
+     "assertion": "A 조치 완료 시각, B 조치 체크리스트 전부 확인 전 진행 버튼 잠김"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-33",
+   "status": "covered",
+   "reason": "",
+   "asserted_condition_ids": [
+    "AC-33-C1"
+   ],
+   "checks": [
+    {
+     "id": "T-AC-33",
+     "method": "automated",
+     "evidence_paths": [
+      "verification/g3/selftest-result.json"
+     ],
+     "assertion": "확정 뒤 연필 없음 · 수정 동작 없음"
+    }
+   ]
+  },
+  {
+   "acceptance_id": "AC-34",
+   "status": "deferred",
+   "reason": "시연 알람의 현재 시각 · 행 값 · 행 분리는 데이터 · 서버 동작이다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-35",
+   "status": "deferred",
+   "reason": "지시되지 않은 점검 결과의 거부(C1)는 API 동작이다. 화면에는 건너뛰기 수단이 없다(T06).",
+   "asserted_condition_ids": [],
+   "checks": []
+  },
+  {
+   "acceptance_id": "AC-36",
+   "status": "deferred",
+   "reason": "키 · 비밀번호 원문이 없는지는 저장소 · 적재 결과 검사로 검증한다.",
+   "asserted_condition_ids": [],
+   "checks": []
+  }
+ ],
+ "interaction_axes": [
+  {
+   "id": "점검 결과 버튼",
+   "values_checked": [
+    "이상",
+    "정상",
+    "확인 불가"
+   ],
+   "changed_observations": [
+    "이상 → T08:action_a",
+    "정상 → T06:second_check",
+    "확인 불가 → T06:unable_next"
+   ],
+   "evidence_paths": [
+    "verification/g3/axes.json"
+   ]
+  },
+  {
+   "id": "파트장 검토 결정",
+   "values_checked": [
+    "그대로 승인",
+    "수정 후 승인",
+    "반려"
+   ],
+   "changed_observations": [
+    "L03:review|그대로 승인",
+    "L03:edit|수정 후 승인",
+    "L03:reject|반려"
+   ],
+   "evidence_paths": [
+    "verification/g3/axes.json"
+   ]
+  }
+ ],
+ "derived_states": [
+  {
+   "page_id": "T09",
+   "state": "low_evidence",
+   "source_page_id": "T09",
+   "source_state": "draft",
+   "scenario_refs": [
+    "SC-09",
+    "SC-06"
+   ],
+   "acceptance_refs": [
+    "AC-29"
+   ],
+   "preserved_structure": true,
+   "added_state_expression": "근거 사례 행 값 앞에 '근거 적음' 칩만 더한다. 영역 · 행 · 버튼은 T09 / draft 그대로",
+   "prototype_path": "prototype/index.html",
+   "evidence_paths": [
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "monitor_report",
+   "source_page_id": "T09",
+   "source_state": "draft",
+   "scenario_refs": [
+    "SC-14",
+    "SC-06"
+   ],
+   "acceptance_refs": [
+    "AC-22"
+   ],
+   "preserved_structure": true,
+   "added_state_expression": "8항목 값만 이상 없음 · 감시 경로(4.3 · 4.5 · 4.6 정상 → 6.2)로 바꾼다. 영역 · 행 · 버튼은 T09 / draft 그대로",
+   "prototype_path": "prototype/index.html",
+   "evidence_paths": [
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "second_check",
+   "source_page_id": "T06",
+   "source_state": "unable_next",
+   "scenario_refs": [
+    "SC-04"
+   ],
+   "acceptance_refs": [
+    "AC-08",
+    "AC-30"
+   ],
+   "preserved_structure": true,
+   "added_state_expression": "4.3 정상 뒤 두 번째 점검(4.5) 지시. T06 / unable_next에서 확인 불가 배너만 뺐다",
+   "prototype_path": "prototype/index.html",
+   "evidence_paths": [
+    "verification/g3/selftest-result.json",
+    "verification/g3/axes.json"
+   ]
+  }
+ ],
+ "compiled_structure_contract": [
+  {
+   "page_id": "T01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '정비자 로그인' · ID · 비밀번호 · 로그인 버튼 · 안내",
+   "interaction_or_state_rule": "정비자 역할만 로그인, 로그인 뒤 화면 한 번 누름 안내. 이 상태: 기본",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기 링크"
+  },
+  {
+   "page_id": "T01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '정비자 로그인' · ID · 비밀번호 · 로그인 버튼 · 안내",
+   "interaction_or_state_rule": "정비자 역할만 로그인, 로그인 뒤 화면 한 번 누름 안내. 이 상태: 역할 불일치 오류 배너",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기 링크"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 알람 행 대신 '배정된 알람이 없습니다', 교대 현황 0",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 알람 행 대신 '배정된 알람이 없습니다', 교대 현황 0",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 새 알람 행(빨강)이 맨 위, 종 숫자 증가",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 새 알람 행(빨강)이 맨 위, 종 숫자 증가",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 진행 중 행에 '점검 n / 최대 m 진행 중'과 '이어서 하기', 상단 표시줄에 진행 중 알람",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 진행 중 행에 '점검 n / 최대 m 진행 중'과 '이어서 하기', 상단 표시줄에 진행 중 알람",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "content_composition": "행 = 상태 점(빨강 새 알람 · 주황 진행 중 · 초록 완료) · 설비 · 증상 · 시각 · 진행 상태 · 행 끝 버튼",
+   "interaction_or_state_rule": "새 알람은 '점검 시작', 진행 중은 '이어서 하기', 완료는 '보기'. 이 상태: 최근 내 보고서에 반려 칩 + 사유 배너 + '이어서 하기'",
+   "excluded_alternative": "알람 카드 그리드, 지도형 설비 배치"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "content_composition": "오늘 교대 현황 타일 3개 · 안전 수칙(잠금 먼저) · 최근 내 보고서(상태 칩)",
+   "interaction_or_state_rule": "반려 보고서는 사유 배너와 '이어서 하기'를 이 열에 보인다. 이 상태: 최근 내 보고서에 반려 칩 + 사유 배너 + '이어서 하기'",
+   "excluded_alternative": "보고서를 별도 메뉴로 분리"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-ALARM",
+   "selected_structure": "왼쪽 넓은 카드 하나",
+   "content_composition": "증상 · 증상군 칩 · 이탈 센서 수 · 같은 설비 직전 12회 추이(경계 점선) · 센서 표(현재 · 평소 범위 · 상태)",
+   "interaction_or_state_rule": "이탈 센서 행만 빨강 강조. 이 상태: 기본",
+   "excluded_alternative": "센서별 개별 차트 여러 개"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-AI",
+   "selected_structure": "오른쪽 열 · AI 해석 카드 + 큰 주 버튼",
+   "content_composition": "쉬운 말 해석 · 찾은 과거 기록 수 · '진단 보기' · 확인 시각 기록 안내",
+   "interaction_or_state_rule": "'진단 보기'가 유일한 다음 행동. 이 상태: 기본",
+   "excluded_alternative": "해석 없이 바로 진단"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "content_composition": "행 = 순번 · 원인 이름 · 막대 · % · 근거 n, 계산 방식 안내",
+   "interaction_or_state_rule": "% 합 100, 1순위 행 강조, 근거 적음이면 카드 머리에 칩. 이 상태: 기본",
+   "excluded_alternative": "확률 원그래프, 원인 하나만 표시"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "content_composition": "기록 번호 · 설비 · 월 · 유사 % · 결과 원인 · 조치 · 정지 분",
+   "interaction_or_state_rule": "누르면 전체 기록, 근거 적음이면 3건 미만. 이 상태: 기본",
+   "excluded_alternative": "기록 표"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "content_composition": "'다음 점검' · 점검 이름 · 등급 배지 · 절 · 약 n분 · 고른 이유 · (근거 적음 배너)",
+   "interaction_or_state_rule": "A · B 점검 하나만 보이며 C · D는 여기 나오지 않는다. 이 상태: 기본",
+   "excluded_alternative": "점검 후보 여러 개를 나란히"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "content_composition": "행 = 순번 · 원인 이름 · 막대 · % · 근거 n, 계산 방식 안내",
+   "interaction_or_state_rule": "% 합 100, 1순위 행 강조, 근거 적음이면 카드 머리에 칩. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "확률 원그래프, 원인 하나만 표시"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "content_composition": "기록 번호 · 설비 · 월 · 유사 % · 결과 원인 · 조치 · 정지 분",
+   "interaction_or_state_rule": "누르면 전체 기록, 근거 적음이면 3건 미만. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "기록 표"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "content_composition": "'다음 점검' · 점검 이름 · 등급 배지 · 절 · 약 n분 · 고른 이유 · (근거 적음 배너)",
+   "interaction_or_state_rule": "A · B 점검 하나만 보이며 C · D는 여기 나오지 않는다. 이 상태: 순위 카드 머리에 '근거 적음' 칩, 기록 3건 미만, 다음 점검 카드에 근거 적음 배너",
+   "excluded_alternative": "점검 후보 여러 개를 나란히"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "content_composition": "잠금 전: 잠금 상자 · 1.2절 절차 · '잠금 완료' / 잠금 후: 잠금 완료 표시줄 · 사전 확인 절 · 절차",
+   "interaction_or_state_rule": "잠금 전에는 지시 내용을 내려받지 않는다(R1). 이 상태: 지시가 흐리게 가려지고 '잠금 완료'만 누를 수 있음",
+   "excluded_alternative": "잠금을 선택 체크박스로"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "content_composition": "잠금 전: 흐리게 가린 지시 + 안내 / 잠금 후: 기록할 값 메모 · '사전 확인 완료' · 다음 점검 안내",
+   "interaction_or_state_rule": "다른 설비로 옮기면 다시 잠금 전 상태. 이 상태: 지시가 흐리게 가려지고 '잠금 완료'만 누를 수 있음",
+   "excluded_alternative": "잠금 전에도 지시 미리보기"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "content_composition": "잠금 전: 잠금 상자 · 1.2절 절차 · '잠금 완료' / 잠금 후: 잠금 완료 표시줄 · 사전 확인 절 · 절차",
+   "interaction_or_state_rule": "잠금 전에는 지시 내용을 내려받지 않는다(R1). 이 상태: 잠금 완료 표시줄과 사전 확인(4.2) 입력",
+   "excluded_alternative": "잠금을 선택 체크박스로"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "content_composition": "잠금 전: 흐리게 가린 지시 + 안내 / 잠금 후: 기록할 값 메모 · '사전 확인 완료' · 다음 점검 안내",
+   "interaction_or_state_rule": "다른 설비로 옮기면 다시 잠금 전 상태. 이 상태: 잠금 완료 표시줄과 사전 확인(4.2) 입력",
+   "excluded_alternative": "잠금 전에도 지시 미리보기"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 기본",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 기본",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: '원문으로 대체됨' 칩과 배너, 절차 대신 매뉴얼 원문",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: '원문으로 대체됨' 칩과 배너, 절차 대신 매뉴얼 원문",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 확인 불가 1회 배너, 다른 점검(4.5)이 지시됨",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 확인 불가 1회 배너, 다른 점검(4.5)이 지시됨",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "content_composition": "잠금 완료 표시줄 · '점검 n / 최대 m' · 점검 이름 · 등급 · 절 · 분 · 절차 단계 · 판정 기준 · 원문 · 근거 링크 · 상태 배너(원문 대체 · 확인 불가 · 생성 실패)",
+   "interaction_or_state_rule": "한 번에 지시 하나, 원문 대체 시 '원문으로 대체됨' 칩과 원문. 이 상태: 3회 연속 실패 배너와 '숙련자 인계' · '원문으로 계속'",
+   "excluded_alternative": "여러 점검 체크리스트 한 화면"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "content_composition": "결과 버튼 3개(정상 · 이상 · 확인 불가) · 메모 · '결과 보내기' · 건너뛰기 불가 안내",
+   "interaction_or_state_rule": "결과는 지시된 점검에만, 건너뛰기 버튼 없음(AC-35). 이 상태: 3회 연속 실패 배너와 '숙련자 인계' · '원문으로 계속'",
+   "excluded_alternative": "'다음 점검으로 건너뛰기' 버튼"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "content_composition": "T06 R-INSTR · R-RESULT 그대로, 흐리게",
+   "interaction_or_state_rule": "모달이 닫히기 전에는 뒤 화면 조작 불가. 이 상태: 결과 버튼 없이 보낸 메모에 대한 확인 질문",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "content_composition": "제목 · 내 메모(결과 버튼 상태) · AI의 이해 · 두 버튼",
+   "interaction_or_state_rule": "확인 질문: '네'일 때만 순위 반영, '아니요'면 다시 입력 / 맞지 않는 소견: 순위 그대로, 인계 또는 계속 선택. 이 상태: 결과 버튼 없이 보낸 메모에 대한 확인 질문",
+   "excluded_alternative": "자동 반영 후 알림만"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "content_composition": "T06 R-INSTR · R-RESULT 그대로, 흐리게",
+   "interaction_or_state_rule": "모달이 닫히기 전에는 뒤 화면 조작 불가. 이 상태: 후보 원인과 맞지 않는 소견 안내, 계속 진행 · 숙련자 인계",
+   "excluded_alternative": "새 화면으로 이동"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "content_composition": "제목 · 내 메모(결과 버튼 상태) · AI의 이해 · 두 버튼",
+   "interaction_or_state_rule": "확인 질문: '네'일 때만 순위 반영, '아니요'면 다시 입력 / 맞지 않는 소견: 순위 그대로, 인계 또는 계속 선택. 이 상태: 후보 원인과 맞지 않는 소견 안내, 계속 진행 · 숙련자 인계",
+   "excluded_alternative": "자동 반영 후 알림만"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: A 조치 완료 시각, 재가동 체크리스트 2/3, 버튼 잠김",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: A 조치 완료 시각, 재가동 체크리스트 2/3, 버튼 잠김",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: B 조치 체크리스트 2/3, 진행 버튼 잠김",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: B 조치 체크리스트 2/3, 진행 버튼 잠김",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "content_composition": "원인 확정 · 근거 · 조치 블록(이름 · 등급 · 절 · 상태) · B는 체크리스트 · 잠긴 주 버튼 / 재가동 후: 현재 값 · 경계 · '경계 이내' · '여전히 밖'",
+   "interaction_or_state_rule": "체크리스트를 모두 확인해야 버튼이 열림, 값 선택은 정비자. 이 상태: 재가동 후 현재 값 · 경계와 '경계 이내' · '여전히 밖'",
+   "excluded_alternative": "자동 판정으로 다음 단계"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색(정상 · 이상 · 지금) · 단계 이름 · 결과",
+   "interaction_or_state_rule": "지금 하는 단계가 맨 아래에 쌓인다. 이 상태: 재가동 후 현재 값 · 경계와 '경계 이내' · '여전히 밖'",
+   "excluded_alternative": "표 형식 경로"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 초안 칩, 연필, 확인 3항목 통과, 확정 버튼 열림",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 초안 칩, 연필, 확인 3항목 통과, 확정 버튼 열림",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 근거 없는 문장 행 빨강, 확인 1항목 실패, 확정 버튼 잠김",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 근거 없는 문장 행 빨강, 확인 1항목 실패, 확정 버튼 잠김",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "content_composition": "행 = 항목 이름 · 내용 · 출처 칩 · 연필, 머리에 상태 칩(초안 · 확정)",
+   "interaction_or_state_rule": "실패 항목 행은 빨강, 확정 뒤 연필 없음. 이 상태: 확정 · 승인 대기 칩, 연필 없음, 완료 배너",
+   "excluded_alternative": "자유 서술형 한 덩어리 보고서"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "content_composition": "확인 3항목(근거 없는 문장 · 권한 위반 · 필수 8항목) · 실패 설명 · '보고서 확정' · 안내",
+   "interaction_or_state_rule": "하나라도 실패면 확정 버튼 잠김, 확정 뒤 완료 배너와 '홈으로'. 이 상태: 확정 · 승인 대기 칩, 연필 없음, 완료 배너",
+   "excluded_alternative": "경고만 보이고 확정 허용"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 요약 + '파트장 호출' · '호출하지 않고 대기'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 요약 + '파트장 호출' · '호출하지 않고 대기'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 대기 배너 + '파트장 호출'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 대기 배너 + '파트장 호출'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 보냄 배너, 답 대기",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 보냄 배너, 답 대기",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 승인 배너, C 점검 지시와 '점검 시작'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 승인 배너, C 점검 지시와 '점검 시작'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 주간 처리 배너와 '보고서 작성'",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 주간 처리 배너와 '보고서 작성'",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "content_composition": "'다음 점검은 혼자 진행할 수 없습니다' · C · D 점검 이름 · 등급 · 절 · 분 · 지금까지 점검 결과 · 남은 후보 %",
+   "interaction_or_state_rule": "지시 내용은 보이지 않는다. 이 상태: 직접 확인 배너, 설비 정지 대기",
+   "excluded_alternative": "C · D 지시를 경고와 함께 표시"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "content_composition": "자동 작성 요약(고칠 수 있음) · '파트장 호출' · '호출하지 않고 대기' / 상태 배너(대기 · 보냄 · 답 3종) · 답에 따른 다음 행동",
+   "interaction_or_state_rule": "승인 후 진행이면 C 지시가 이 카드에 열림, 주간 처리면 '보고서 작성', 직접 확인이면 대기. 이 상태: 직접 확인 배너, 설비 정지 대기",
+   "excluded_alternative": "외부 메신저 · 전화 연결"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 맞지 않는 소견으로 인계",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 맞지 않는 소견으로 인계",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 이상 없음 · 감시 6.2 마감과 '보고서 작성'",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 이상 없음 · 감시 6.2 마감과 '보고서 작성'",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "content_composition": "브랜드 · 현재 알람 표시줄(설비 · 증상 · 발생 시각, 없으면 '진행 중인 알람 없음') · 현재 시각 · 알림 종과 숫자 · 사용자",
+   "interaction_or_state_rule": "새 알람이 오면 종 숫자가 늘고 알림음",
+   "excluded_alternative": "화면별로 다른 머리말"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "content_composition": "완료 단계는 체크, 현재 단계는 강조",
+   "interaction_or_state_rule": "단계는 앞에서 뒤로만 진행하며 점검 반복은 '점검' 단계 안에서 돈다",
+   "excluded_alternative": "탭으로 단계 사이를 자유 이동"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "content_composition": "멈춘 이유 · 인계 요약(고칠 수 있음) · '숙련자 인계' / 이상 없음 · 감시: 6.2 마감 블록 · '보고서 작성'",
+   "interaction_or_state_rule": "인계는 파트장 앱 호출 목록(유형 숙련자 인계)으로, 확정 원인 '원인 미상'. 이 상태: 확인 불가 2회 · 대안 없음으로 인계",
+   "excluded_alternative": "숙련자 전용 화면"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "content_composition": "시각 · 점 색 · 단계 · 결과",
+   "interaction_or_state_rule": "멈춘 지점까지의 경로가 요약과 같이 전달. 이 상태: 확인 불가 2회 · 대안 없음으로 인계",
+   "excluded_alternative": "경로 생략"
+  },
+  {
+   "page_id": "L01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '파트장 로그인' · ID · 비밀번호 · 로그인 · 안내",
+   "interaction_or_state_rule": "파트장 역할만 로그인. 이 상태: 기본",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기"
+  },
+  {
+   "page_id": "L01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "content_composition": "브랜드 · '파트장 로그인' · ID · 비밀번호 · 로그인 · 안내",
+   "interaction_or_state_rule": "파트장 역할만 로그인. 이 상태: 역할 불일치 오류 배너",
+   "excluded_alternative": "회원가입 · 비밀번호 찾기"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "content_composition": "승인 대기 · 처리할 호출 · 권한 위반 건수",
+   "interaction_or_state_rule": "숫자는 실제 건수. 이 상태: 보고서 3건, 근거 적음 행 표시",
+   "excluded_alternative": "차트 대시보드"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "content_composition": "설비 · 알람 · 확정 원인 · 작성 · 확정 시각 · 근거 기록 수(근거 적음 칩) · 권한(위반 수)",
+   "interaction_or_state_rule": "0건이면 빈 목록 안내. 이 상태: 보고서 3건, 근거 적음 행 표시",
+   "excluded_alternative": "카드 그리드 목록, 목록 안 바로 승인"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "content_composition": "승인 대기 · 처리할 호출 · 권한 위반 건수",
+   "interaction_or_state_rule": "숫자는 실제 건수. 이 상태: 빈 목록 안내, 타일 0",
+   "excluded_alternative": "차트 대시보드"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "content_composition": "설비 · 알람 · 확정 원인 · 작성 · 확정 시각 · 근거 기록 수(근거 적음 칩) · 권한(위반 수)",
+   "interaction_or_state_rule": "0건이면 빈 목록 안내. 이 상태: 빈 목록 안내, 타일 0",
+   "excluded_alternative": "카드 그리드 목록, 목록 안 바로 승인"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 그대로 승인 선택",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 그대로 승인 선택",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 수정 후 승인 선택, 미확인 행 편집 중",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 수정 후 승인 선택, 미확인 행 편집 중",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 수정 문장 검사 실패 배너, 저장 잠김",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 수정 문장 검사 실패 배너, 저장 잠김",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "content_composition": "제목(설비 · 알람 · 시각 · 작성자) · 확정 원인 · 점검 경로 · 조치 · 근거 사례 · 미확인",
+   "interaction_or_state_rule": "수정 후 승인이면 행을 직접 편집, 검사 실패 행은 빨강. 이 상태: 반려 선택, 사유 비어 있어 저장 잠김",
+   "excluded_alternative": "별도 편집 화면으로 이동"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "content_composition": "그대로 승인 · 수정 후 승인 · 반려(하나만 선택) · 메모 · 검사 결과 · '결정 저장'",
+   "interaction_or_state_rule": "반려는 사유 필수, 수정 문장 검사 실패면 저장 잠김. 이 상태: 반려 선택, 사유 비어 있어 저장 잠김",
+   "excluded_alternative": "승인 · 반려 버튼만 두기"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 호출 2건(파트장 호출 · 숙련자 인계)",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 파트장 호출 답 3개와 D등급 안내",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "content_composition": "표 = 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · '답하기' / 상세 = 정비자 요약, 답 선택지 · 처리 메모 · '답 저장'",
+   "interaction_or_state_rule": "파트장 호출: 승인 후 진행 · 주간 처리 · 직접 확인(D는 승인 후 진행 없음) / 숙련자 인계: 주간 숙련자 배정 · 직접 확인. 이 상태: 숙련자 인계 답 2개",
+   "excluded_alternative": "알람 재배정 기능"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "content_composition": "절 · 작업 · 등급 선택(배지 + 화살표), 머리에 '전체 n절 중 m절 표시'",
+   "interaction_or_state_rule": "선택은 A~D 목록, 저장 즉시 다음 판정부터 적용. 이 상태: 변경 기록 없음 안내",
+   "excluded_alternative": "등급을 일괄 편집하는 행렬"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "content_composition": "변경 기록(누가 · 언제 · 무엇을) · 안내 / 낮춤 경고 배너 · 취소 · 변경 저장",
+   "interaction_or_state_rule": "C에서 B · A로 낮출 때만 경고. 이 상태: 변경 기록 없음 안내",
+   "excluded_alternative": "경고 없이 저장"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "content_composition": "절 · 작업 · 등급 선택(배지 + 화살표), 머리에 '전체 n절 중 m절 표시'",
+   "interaction_or_state_rule": "선택은 A~D 목록, 저장 즉시 다음 판정부터 적용. 이 상태: 4.4 C → B 선택과 낮춤 경고",
+   "excluded_alternative": "등급을 일괄 편집하는 행렬"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "content_composition": "변경 기록(누가 · 언제 · 무엇을) · 안내 / 낮춤 경고 배너 · 취소 · 변경 저장",
+   "interaction_or_state_rule": "C에서 B · A로 낮출 때만 경고. 이 상태: 4.4 C → B 선택과 낮춤 경고",
+   "excluded_alternative": "경고 없이 저장"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "content_composition": "설비 · 사용자 · 기간",
+   "interaction_or_state_rule": "필터를 바꾸면 표가 즉시 걸러진다. 이 상태: 전체 기록",
+   "excluded_alternative": "검색어 입력 하나"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "content_composition": "시각 · 사용자 · 앱 · 행동 · 대상",
+   "interaction_or_state_rule": "모든 지시 · 입력 · 확인 답 · 호출 · 승인 · 반려 · 수정 · 등급 변경이 남는다. 이 상태: 전체 기록",
+   "excluded_alternative": "타임라인 카드"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "content_composition": "승인 대기 · 호출 · 권한 등급 · 감사 기록, 현재 메뉴 강조",
+   "interaction_or_state_rule": "메뉴 이동은 본문만 바꾼다",
+   "excluded_alternative": "상단 탭 메뉴, 받은편지함형 한 목록"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "content_composition": "설비 · 사용자 · 기간",
+   "interaction_or_state_rule": "필터를 바꾸면 표가 즉시 걸러진다. 이 상태: M-03 · 김○○ 필터 적용",
+   "excluded_alternative": "검색어 입력 하나"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "content_composition": "시각 · 사용자 · 앱 · 행동 · 대상",
+   "interaction_or_state_rule": "모든 지시 · 입력 · 확인 답 · 호출 · 승인 · 반려 · 수정 · 등급 변경이 남는다. 이 상태: M-03 · 김○○ 필터 적용",
+   "excluded_alternative": "타임라인 카드"
+  }
+ ],
+ "structure_coverage": [
+  {
+   "page_id": "T01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "prototype_path": "prototype/index.html#s-T01--default .lg-card",
+   "assertion": "T01 / default 화면에 R-LOGIN(가운데 단일 로그인 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "prototype_path": "prototype/index.html#s-T01--role_error .lg-card",
+   "assertion": "T01 / role_error 화면에 R-LOGIN(가운데 단일 로그인 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T02--empty .ap-top",
+   "assertion": "T02 / empty 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "prototype_path": "prototype/index.html#s-T02--empty .g2 > div:nth-child(1) > .cd",
+   "assertion": "T02 / empty 화면에 R-ALARMS(왼쪽 열 카드 하나 · 알람 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "prototype_path": "prototype/index.html#s-T02--empty .g2 > div:nth-child(2)",
+   "assertion": "T02 / empty 화면에 R-SHIFT(오른쪽 열 카드 3개 세로 쌓기)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T02--new_alarm .ap-top",
+   "assertion": "T02 / new_alarm 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "prototype_path": "prototype/index.html#s-T02--new_alarm .g2 > div:nth-child(1) > .cd",
+   "assertion": "T02 / new_alarm 화면에 R-ALARMS(왼쪽 열 카드 하나 · 알람 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "prototype_path": "prototype/index.html#s-T02--new_alarm .g2 > div:nth-child(2)",
+   "assertion": "T02 / new_alarm 화면에 R-SHIFT(오른쪽 열 카드 3개 세로 쌓기)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T02--in_progress .ap-top",
+   "assertion": "T02 / in_progress 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "prototype_path": "prototype/index.html#s-T02--in_progress .g2 > div:nth-child(1) > .cd",
+   "assertion": "T02 / in_progress 화면에 R-ALARMS(왼쪽 열 카드 하나 · 알람 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "prototype_path": "prototype/index.html#s-T02--in_progress .g2 > div:nth-child(2)",
+   "assertion": "T02 / in_progress 화면에 R-SHIFT(오른쪽 열 카드 3개 세로 쌓기)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T02--rejected .ap-top",
+   "assertion": "T02 / rejected 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-ALARMS",
+   "selected_structure": "왼쪽 열 카드 하나 · 알람 행 목록",
+   "prototype_path": "prototype/index.html#s-T02--rejected .g2 > div:nth-child(1) > .cd",
+   "assertion": "T02 / rejected 화면에 R-ALARMS(왼쪽 열 카드 하나 · 알람 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-SHIFT",
+   "selected_structure": "오른쪽 열 카드 3개 세로 쌓기",
+   "prototype_path": "prototype/index.html#s-T02--rejected .g2 > div:nth-child(2)",
+   "assertion": "T02 / rejected 화면에 R-SHIFT(오른쪽 열 카드 3개 세로 쌓기)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T03--default .ap-top",
+   "assertion": "T03 / default 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T03--default .ap-step",
+   "assertion": "T03 / default 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-ALARM",
+   "selected_structure": "왼쪽 넓은 카드 하나",
+   "prototype_path": "prototype/index.html#s-T03--default .g73 > .cd",
+   "assertion": "T03 / default 화면에 R-ALARM(왼쪽 넓은 카드 하나)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-AI",
+   "selected_structure": "오른쪽 열 · AI 해석 카드 + 큰 주 버튼",
+   "prototype_path": "prototype/index.html#s-T03--default .g73 > div:nth-child(2)",
+   "assertion": "T03 / default 화면에 R-AI(오른쪽 열 · AI 해석 카드 + 큰 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T04--default .ap-top",
+   "assertion": "T04 / default 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T04--default .ap-step",
+   "assertion": "T04 / default 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "prototype_path": "prototype/index.html#s-T04--default .g64 > div:nth-child(1) > .cd:nth-child(1)",
+   "assertion": "T04 / default 화면에 R-RANK(왼쪽 위 카드 · 순위 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "prototype_path": "prototype/index.html#s-T04--default .hcs",
+   "assertion": "T04 / default 화면에 R-RECORDS(왼쪽 아래 카드 · 기록 카드 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "prototype_path": "prototype/index.html#s-T04--default .cd.hl",
+   "assertion": "T04 / default 화면에 R-NEXT(오른쪽 강조 카드 하나 · 아래 큰 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T04--low_evidence .ap-top",
+   "assertion": "T04 / low_evidence 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T04--low_evidence .ap-step",
+   "assertion": "T04 / low_evidence 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RANK",
+   "selected_structure": "왼쪽 위 카드 · 순위 행 목록",
+   "prototype_path": "prototype/index.html#s-T04--low_evidence .g64 > div:nth-child(1) > .cd:nth-child(1)",
+   "assertion": "T04 / low_evidence 화면에 R-RANK(왼쪽 위 카드 · 순위 행 목록)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RECORDS",
+   "selected_structure": "왼쪽 아래 카드 · 기록 카드 3개 가로",
+   "prototype_path": "prototype/index.html#s-T04--low_evidence .hcs",
+   "assertion": "T04 / low_evidence 화면에 R-RECORDS(왼쪽 아래 카드 · 기록 카드 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-NEXT",
+   "selected_structure": "오른쪽 강조 카드 하나 · 아래 큰 주 버튼",
+   "prototype_path": "prototype/index.html#s-T04--low_evidence .cd.hl",
+   "assertion": "T04 / low_evidence 화면에 R-NEXT(오른쪽 강조 카드 하나 · 아래 큰 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T05--before_lock .ap-top",
+   "assertion": "T05 / before_lock 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T05--before_lock .ap-step",
+   "assertion": "T05 / before_lock 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "prototype_path": "prototype/index.html#s-T05--before_lock .g64 > .cd:nth-child(1)",
+   "assertion": "T05 / before_lock 화면에 R-LOCK(왼쪽 카드 · 잠금 확인 또는 사전 확인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "prototype_path": "prototype/index.html#s-T05--before_lock .g64 > .cd:nth-child(2)",
+   "assertion": "T05 / before_lock 화면에 R-MASK(오른쪽 카드 · 가려진 지시 또는 사전 확인 입력)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T05--locked .ap-top",
+   "assertion": "T05 / locked 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T05--locked .ap-step",
+   "assertion": "T05 / locked 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-LOCK",
+   "selected_structure": "왼쪽 카드 · 잠금 확인 또는 사전 확인",
+   "prototype_path": "prototype/index.html#s-T05--locked .g64 > .cd:nth-child(1)",
+   "assertion": "T05 / locked 화면에 R-LOCK(왼쪽 카드 · 잠금 확인 또는 사전 확인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-MASK",
+   "selected_structure": "오른쪽 카드 · 가려진 지시 또는 사전 확인 입력",
+   "prototype_path": "prototype/index.html#s-T05--locked .g64 > .cd:nth-child(2)",
+   "assertion": "T05 / locked 화면에 R-MASK(오른쪽 카드 · 가려진 지시 또는 사전 확인 입력)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T06--default .ap-top",
+   "assertion": "T06 / default 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T06--default .ap-step",
+   "assertion": "T06 / default 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "prototype_path": "prototype/index.html#s-T06--default .g64 > .cd:nth-child(1)",
+   "assertion": "T06 / default 화면에 R-INSTR(왼쪽 카드 · 지시 하나)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "prototype_path": "prototype/index.html#s-T06--default .res",
+   "assertion": "T06 / default 화면에 R-RESULT(오른쪽 카드 · 결과 입력 폼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T06--fallback .ap-top",
+   "assertion": "T06 / fallback 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T06--fallback .ap-step",
+   "assertion": "T06 / fallback 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "prototype_path": "prototype/index.html#s-T06--fallback .g64 > .cd:nth-child(1)",
+   "assertion": "T06 / fallback 화면에 R-INSTR(왼쪽 카드 · 지시 하나)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "prototype_path": "prototype/index.html#s-T06--fallback .res",
+   "assertion": "T06 / fallback 화면에 R-RESULT(오른쪽 카드 · 결과 입력 폼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T06--unable_next .ap-top",
+   "assertion": "T06 / unable_next 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T06--unable_next .ap-step",
+   "assertion": "T06 / unable_next 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "prototype_path": "prototype/index.html#s-T06--unable_next .g64 > .cd:nth-child(1)",
+   "assertion": "T06 / unable_next 화면에 R-INSTR(왼쪽 카드 · 지시 하나)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "prototype_path": "prototype/index.html#s-T06--unable_next .res",
+   "assertion": "T06 / unable_next 화면에 R-RESULT(오른쪽 카드 · 결과 입력 폼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T06--llm_repeat .ap-top",
+   "assertion": "T06 / llm_repeat 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T06--llm_repeat .ap-step",
+   "assertion": "T06 / llm_repeat 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-INSTR",
+   "selected_structure": "왼쪽 카드 · 지시 하나",
+   "prototype_path": "prototype/index.html#s-T06--llm_repeat .g64 > .cd:nth-child(1)",
+   "assertion": "T06 / llm_repeat 화면에 R-INSTR(왼쪽 카드 · 지시 하나)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-RESULT",
+   "selected_structure": "오른쪽 카드 · 결과 입력 폼",
+   "prototype_path": "prototype/index.html#s-T06--llm_repeat .res",
+   "assertion": "T06 / llm_repeat 화면에 R-RESULT(오른쪽 카드 · 결과 입력 폼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T07--confirm_question .ap-top",
+   "assertion": "T07 / confirm_question 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T07--confirm_question .ap-step",
+   "assertion": "T07 / confirm_question 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "prototype_path": "prototype/index.html#s-T07--confirm_question .g64 > .cd:nth-child(1)",
+   "assertion": "T07 / confirm_question 화면에 R-INSTR(T06과 같은 지시 · 입력 2열(뒤 배경))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "prototype_path": "prototype/index.html#s-T07--confirm_question .modal",
+   "assertion": "T07 / confirm_question 화면에 R-MODAL(작업 화면 위 가운데 확인 창)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T07--out_of_scope .ap-top",
+   "assertion": "T07 / out_of_scope 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T07--out_of_scope .ap-step",
+   "assertion": "T07 / out_of_scope 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-INSTR",
+   "selected_structure": "T06과 같은 지시 · 입력 2열(뒤 배경)",
+   "prototype_path": "prototype/index.html#s-T07--out_of_scope .g64 > .cd:nth-child(1)",
+   "assertion": "T07 / out_of_scope 화면에 R-INSTR(T06과 같은 지시 · 입력 2열(뒤 배경))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-MODAL",
+   "selected_structure": "작업 화면 위 가운데 확인 창",
+   "prototype_path": "prototype/index.html#s-T07--out_of_scope .modal",
+   "assertion": "T07 / out_of_scope 화면에 R-MODAL(작업 화면 위 가운데 확인 창)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T08--action_a .ap-top",
+   "assertion": "T08 / action_a 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T08--action_a .ap-step",
+   "assertion": "T08 / action_a 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "prototype_path": "prototype/index.html#s-T08--action_a .g64 > .cd:nth-child(1)",
+   "assertion": "T08 / action_a 화면에 R-ACTION(왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T08--action_a .tlw",
+   "assertion": "T08 / action_a 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T08--checklist_b .ap-top",
+   "assertion": "T08 / checklist_b 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T08--checklist_b .ap-step",
+   "assertion": "T08 / checklist_b 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "prototype_path": "prototype/index.html#s-T08--checklist_b .g64 > .cd:nth-child(1)",
+   "assertion": "T08 / checklist_b 화면에 R-ACTION(왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T08--checklist_b .tlw",
+   "assertion": "T08 / checklist_b 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T08--restart_check .ap-top",
+   "assertion": "T08 / restart_check 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T08--restart_check .ap-step",
+   "assertion": "T08 / restart_check 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-ACTION",
+   "selected_structure": "왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로",
+   "prototype_path": "prototype/index.html#s-T08--restart_check .g64 > .cd:nth-child(1)",
+   "assertion": "T08 / restart_check 화면에 R-ACTION(왼쪽 카드 · 원인 확정 머리 + 조치 블록 세로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T08--restart_check .tlw",
+   "assertion": "T08 / restart_check 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T09--draft .ap-top",
+   "assertion": "T09 / draft 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T09--draft .ap-step",
+   "assertion": "T09 / draft 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "prototype_path": "prototype/index.html#s-T09--draft .g73 > .cd",
+   "assertion": "T09 / draft 화면에 R-REPORT(왼쪽 넓은 카드 · 8항목 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T09--draft .ckl",
+   "assertion": "T09 / draft 화면에 R-PRECHECK(오른쪽 열 · 확정 전 확인 카드 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T09--check_failed .ap-top",
+   "assertion": "T09 / check_failed 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T09--check_failed .ap-step",
+   "assertion": "T09 / check_failed 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "prototype_path": "prototype/index.html#s-T09--check_failed .g73 > .cd",
+   "assertion": "T09 / check_failed 화면에 R-REPORT(왼쪽 넓은 카드 · 8항목 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T09--check_failed .ckl",
+   "assertion": "T09 / check_failed 화면에 R-PRECHECK(오른쪽 열 · 확정 전 확인 카드 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T09--confirmed .ap-top",
+   "assertion": "T09 / confirmed 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T09--confirmed .ap-step",
+   "assertion": "T09 / confirmed 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-REPORT",
+   "selected_structure": "왼쪽 넓은 카드 · 8항목 행",
+   "prototype_path": "prototype/index.html#s-T09--confirmed .g73 > .cd",
+   "assertion": "T09 / confirmed 화면에 R-REPORT(왼쪽 넓은 카드 · 8항목 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-PRECHECK",
+   "selected_structure": "오른쪽 열 · 확정 전 확인 카드 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T09--confirmed .ckl",
+   "assertion": "T09 / confirmed 화면에 R-PRECHECK(오른쪽 열 · 확정 전 확인 카드 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--summary .ap-top",
+   "assertion": "T10 / summary 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--summary .ap-step",
+   "assertion": "T10 / summary 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--summary .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / summary 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--summary .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / summary 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--waiting .ap-top",
+   "assertion": "T10 / waiting 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--waiting .ap-step",
+   "assertion": "T10 / waiting 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--waiting .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / waiting 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--waiting .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / waiting 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--sent .ap-top",
+   "assertion": "T10 / sent 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--sent .ap-step",
+   "assertion": "T10 / sent 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--sent .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / sent 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--sent .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / sent 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--ans_approved .ap-top",
+   "assertion": "T10 / ans_approved 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--ans_approved .ap-step",
+   "assertion": "T10 / ans_approved 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--ans_approved .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / ans_approved 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--ans_approved .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / ans_approved 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--ans_daytime .ap-top",
+   "assertion": "T10 / ans_daytime 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--ans_daytime .ap-step",
+   "assertion": "T10 / ans_daytime 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--ans_daytime .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / ans_daytime 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--ans_daytime .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / ans_daytime 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T10--ans_direct .ap-top",
+   "assertion": "T10 / ans_direct 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T10--ans_direct .ap-step",
+   "assertion": "T10 / ans_direct 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLHEAD",
+   "selected_structure": "왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보",
+   "prototype_path": "prototype/index.html#s-T10--ans_direct .g64 > .cd:nth-child(1)",
+   "assertion": "T10 / ans_direct 화면에 R-CALLHEAD(왼쪽 카드 · 멈춘 이유 + 지금까지 + 남은 후보)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLACT",
+   "selected_structure": "오른쪽 카드 · 요약 + 행동 또는 답 상태",
+   "prototype_path": "prototype/index.html#s-T10--ans_direct .g64 > .cd:nth-child(2)",
+   "assertion": "T10 / ans_direct 화면에 R-CALLACT(오른쪽 카드 · 요약 + 행동 또는 답 상태)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T11--expert_handover .ap-top",
+   "assertion": "T11 / expert_handover 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T11--expert_handover .ap-step",
+   "assertion": "T11 / expert_handover 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T11--expert_handover .g64 > .cd:nth-child(1)",
+   "assertion": "T11 / expert_handover 화면에 R-STOP(왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T11--expert_handover .tlw",
+   "assertion": "T11 / expert_handover 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T11--monitor_close .ap-top",
+   "assertion": "T11 / monitor_close 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T11--monitor_close .ap-step",
+   "assertion": "T11 / monitor_close 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T11--monitor_close .g64 > .cd:nth-child(1)",
+   "assertion": "T11 / monitor_close 화면에 R-STOP(왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T11--monitor_close .tlw",
+   "assertion": "T11 / monitor_close 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-TOP",
+   "selected_structure": "상단 바 한 줄",
+   "prototype_path": "prototype/index.html#s-T11--unable_repeat .ap-top",
+   "assertion": "T11 / unable_repeat 화면에 R-TOP(상단 바 한 줄)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STEP",
+   "selected_structure": "상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서)",
+   "prototype_path": "prototype/index.html#s-T11--unable_repeat .ap-step",
+   "assertion": "T11 / unable_repeat 화면에 R-STEP(상단 진행 표시 5단계(알람 · 진단 · 점검 · 조치 · 보고서))가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STOP",
+   "selected_structure": "왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼",
+   "prototype_path": "prototype/index.html#s-T11--unable_repeat .g64 > .cd:nth-child(1)",
+   "assertion": "T11 / unable_repeat 화면에 R-STOP(왼쪽 카드 · 멈춤 머리 + 요약 + 주 버튼)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-PATH",
+   "selected_structure": "오른쪽 카드 · 점검 경로 타임라인",
+   "prototype_path": "prototype/index.html#s-T11--unable_repeat .tlw",
+   "assertion": "T11 / unable_repeat 화면에 R-PATH(오른쪽 카드 · 점검 경로 타임라인)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "prototype_path": "prototype/index.html#s-L01--default .lg-card",
+   "assertion": "L01 / default 화면에 R-LOGIN(가운데 단일 로그인 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selected_structure": "가운데 단일 로그인 카드",
+   "prototype_path": "prototype/index.html#s-L01--role_error .lg-card",
+   "assertion": "L01 / role_error 화면에 R-LOGIN(가운데 단일 로그인 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L02--list .wb-side",
+   "assertion": "L02 / list 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "prototype_path": "prototype/index.html#s-L02--list .kts",
+   "assertion": "L02 / list 화면에 R-TILES(본문 위 요약 타일 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "prototype_path": "prototype/index.html#s-L02--list .wt",
+   "assertion": "L02 / list 화면에 R-TABLE(카드 안 표 · 행 끝 '검토')가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L02--empty .wb-side",
+   "assertion": "L02 / empty 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TILES",
+   "selected_structure": "본문 위 요약 타일 3개 가로",
+   "prototype_path": "prototype/index.html#s-L02--empty .kts",
+   "assertion": "L02 / empty 화면에 R-TILES(본문 위 요약 타일 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TABLE",
+   "selected_structure": "카드 안 표 · 행 끝 '검토'",
+   "prototype_path": "prototype/index.html#s-L02--empty .wt",
+   "assertion": "L02 / empty 화면에 R-TABLE(카드 안 표 · 행 끝 '검토')가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L03--review .wb-side",
+   "assertion": "L03 / review 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "prototype_path": "prototype/index.html#s-L03--review .wg > .cd:nth-child(1)",
+   "assertion": "L03 / review 화면에 R-REPORTVIEW(왼쪽 카드 · 보고서 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "prototype_path": "prototype/index.html#s-L03--review .wg > .cd:nth-child(2)",
+   "assertion": "L03 / review 화면에 R-DECISION(오른쪽 카드 · 결정 3개 + 메모 + 저장)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L03--edit .wb-side",
+   "assertion": "L03 / edit 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "prototype_path": "prototype/index.html#s-L03--edit .wg > .cd:nth-child(1)",
+   "assertion": "L03 / edit 화면에 R-REPORTVIEW(왼쪽 카드 · 보고서 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "prototype_path": "prototype/index.html#s-L03--edit .wg > .cd:nth-child(2)",
+   "assertion": "L03 / edit 화면에 R-DECISION(오른쪽 카드 · 결정 3개 + 메모 + 저장)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L03--edit_failed .wb-side",
+   "assertion": "L03 / edit_failed 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "prototype_path": "prototype/index.html#s-L03--edit_failed .wg > .cd:nth-child(1)",
+   "assertion": "L03 / edit_failed 화면에 R-REPORTVIEW(왼쪽 카드 · 보고서 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "prototype_path": "prototype/index.html#s-L03--edit_failed .wg > .cd:nth-child(2)",
+   "assertion": "L03 / edit_failed 화면에 R-DECISION(오른쪽 카드 · 결정 3개 + 메모 + 저장)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L03--reject .wb-side",
+   "assertion": "L03 / reject 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-REPORTVIEW",
+   "selected_structure": "왼쪽 카드 · 보고서 행",
+   "prototype_path": "prototype/index.html#s-L03--reject .wg > .cd:nth-child(1)",
+   "assertion": "L03 / reject 화면에 R-REPORTVIEW(왼쪽 카드 · 보고서 행)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-DECISION",
+   "selected_structure": "오른쪽 카드 · 결정 3개 + 메모 + 저장",
+   "prototype_path": "prototype/index.html#s-L03--reject .wg > .cd:nth-child(2)",
+   "assertion": "L03 / reject 화면에 R-DECISION(오른쪽 카드 · 결정 3개 + 메모 + 저장)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L04--list .wb-side",
+   "assertion": "L04 / list 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "prototype_path": "prototype/index.html#s-L04--list .wb-main .cd",
+   "assertion": "L04 / list 화면에 R-CALLS(목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L04--call_detail .wb-side",
+   "assertion": "L04 / call_detail 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "prototype_path": "prototype/index.html#s-L04--call_detail .wb-main .cd",
+   "assertion": "L04 / call_detail 화면에 R-CALLS(목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L04--handover_detail .wb-side",
+   "assertion": "L04 / handover_detail 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-CALLS",
+   "selected_structure": "목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드",
+   "prototype_path": "prototype/index.html#s-L04--handover_detail .wb-main .cd",
+   "assertion": "L04 / handover_detail 화면에 R-CALLS(목록: 카드 안 표 / 상세: 왼쪽 요약 카드 + 오른쪽 답하기 카드)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L05--default .wb-side",
+   "assertion": "L05 / default 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "prototype_path": "prototype/index.html#s-L05--default .wg > .cd:nth-child(1)",
+   "assertion": "L05 / default 화면에 R-GRADES(왼쪽 카드 · 절별 등급 표)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "prototype_path": "prototype/index.html#s-L05--default .wg > .cd:nth-child(2)",
+   "assertion": "L05 / default 화면에 R-CHANGES(오른쪽 카드 · 변경 기록 또는 낮춤 경고)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L05--lower_warning .wb-side",
+   "assertion": "L05 / lower_warning 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-GRADES",
+   "selected_structure": "왼쪽 카드 · 절별 등급 표",
+   "prototype_path": "prototype/index.html#s-L05--lower_warning .wg > .cd:nth-child(1)",
+   "assertion": "L05 / lower_warning 화면에 R-GRADES(왼쪽 카드 · 절별 등급 표)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-CHANGES",
+   "selected_structure": "오른쪽 카드 · 변경 기록 또는 낮춤 경고",
+   "prototype_path": "prototype/index.html#s-L05--lower_warning .wg > .cd:nth-child(2)",
+   "assertion": "L05 / lower_warning 화면에 R-CHANGES(오른쪽 카드 · 변경 기록 또는 낮춤 경고)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L06--default .wb-side",
+   "assertion": "L06 / default 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "prototype_path": "prototype/index.html#s-L06--default .flt",
+   "assertion": "L06 / default 화면에 R-FILTER(본문 위 필터 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "prototype_path": "prototype/index.html#s-L06--default .wt",
+   "assertion": "L06 / default 화면에 R-AUDIT(카드 안 표 · 시간 역순)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-NAV",
+   "selected_structure": "왼쪽 고정 메뉴 4개 + 아래 사용자",
+   "prototype_path": "prototype/index.html#s-L06--filtered .wb-side",
+   "assertion": "L06 / filtered 화면에 R-NAV(왼쪽 고정 메뉴 4개 + 아래 사용자)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-FILTER",
+   "selected_structure": "본문 위 필터 3개 가로",
+   "prototype_path": "prototype/index.html#s-L06--filtered .flt",
+   "assertion": "L06 / filtered 화면에 R-FILTER(본문 위 필터 3개 가로)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-AUDIT",
+   "selected_structure": "카드 안 표 · 시간 역순",
+   "prototype_path": "prototype/index.html#s-L06--filtered .wt",
+   "assertion": "L06 / filtered 화면에 R-AUDIT(카드 안 표 · 시간 역순)가 승인 화면과 같은 마크업으로 있다",
+   "evidence_paths": [
+    "verification/g3/structure-check.json",
+    "verification/g3/selftest-result.json"
+   ]
+  }
+ ]
+}

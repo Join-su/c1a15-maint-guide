@@ -1,0 +1,158 @@
+{
+ "what": "S-04 구조 대조 기준(사용자 결정 017 ③) — G5 ~ G7은 이 부록만 읽는다",
+ "source_lock": {
+  "manifest": "manifests/prototype_bundle-v17.json",
+  "files": {
+   "prototype/v17/index.html": "3463b0d16625670bb96597a0139e606927a83894655cf600df1b87270f5fcf98",
+   "prototype/v17/regions.json": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84"
+  }
+ },
+ "extracted_at": "2026-10-14T08:16:43+09:00",
+ "states": [
+  {
+   "state": "L01--default",
+   "path": "execution/S-04/prototype-appendix/templates/L01--default.html",
+   "sha256": "7518ae3343375fc34c7896460ffab532959e002b996ee9cc7d058b79ef96ce25"
+  },
+  {
+   "state": "L01--role_error",
+   "path": "execution/S-04/prototype-appendix/templates/L01--role_error.html",
+   "sha256": "bdce83438d44374dee66df0035afbdbf371d8bd21ecef529e5d3451899de7f67"
+  },
+  {
+   "state": "L02--empty",
+   "path": "execution/S-04/prototype-appendix/templates/L02--empty.html",
+   "sha256": "611379f60fb2be4c80009d8f3f1f676b60bc44d36d5059eee3fb748e1cac8d42"
+  },
+  {
+   "state": "L02--list",
+   "path": "execution/S-04/prototype-appendix/templates/L02--list.html",
+   "sha256": "3e92b1c0ce1ce1ddb5837af2cae2b5020d55aa65bfa881130299d24e79e8d830"
+  },
+  {
+   "state": "L03--edit",
+   "path": "execution/S-04/prototype-appendix/templates/L03--edit.html",
+   "sha256": "694a82d6004d892e418f3507ec2c99f89000891fbb5b11ab01df1efa6033a355"
+  },
+  {
+   "state": "L03--edit_failed",
+   "path": "execution/S-04/prototype-appendix/templates/L03--edit_failed.html",
+   "sha256": "366ca98f8572e82b36e1715f8f64549160db3ffc383e322d61c5b916e78384f6"
+  },
+  {
+   "state": "L03--reject",
+   "path": "execution/S-04/prototype-appendix/templates/L03--reject.html",
+   "sha256": "bffdfef87cc885b1125292685adf3285fb719ec068c04018d753d09b5631c056"
+  },
+  {
+   "state": "L03--review",
+   "path": "execution/S-04/prototype-appendix/templates/L03--review.html",
+   "sha256": "58b55dbd28d5bb0f8859fd04612c45bd4acc6c8fd8a9ac43b347201b81507353"
+  },
+  {
+   "state": "L04--call_detail",
+   "path": "execution/S-04/prototype-appendix/templates/L04--call_detail.html",
+   "sha256": "b0774794b5cb4360cd65c4e7c04631859c12602fc37fa80766407742ca0d9161"
+  },
+  {
+   "state": "L04--handover_detail",
+   "path": "execution/S-04/prototype-appendix/templates/L04--handover_detail.html",
+   "sha256": "851d8cffa47f5a1237440f8bd5013554cd149f4492eabda830e645ad3bd1fadb"
+  },
+  {
+   "state": "L04--list",
+   "path": "execution/S-04/prototype-appendix/templates/L04--list.html",
+   "sha256": "3fa948e1a1feaa863676fcfb282a8b67294f6b48caa52a159bd5304ceac096a7"
+  },
+  {
+   "state": "L05--default",
+   "path": "execution/S-04/prototype-appendix/templates/L05--default.html",
+   "sha256": "8a34d4f97e0a1c56efa4e73c7ebe7375192bfedac034a0ab9c6227f82fd26c55"
+  },
+  {
+   "state": "L05--lower_warning",
+   "path": "execution/S-04/prototype-appendix/templates/L05--lower_warning.html",
+   "sha256": "1b795397bc905db6d55d385685011bb1e7ade50a8882742d2fd7763bfff3a323"
+  },
+  {
+   "state": "L05--raise_warning",
+   "path": "execution/S-04/prototype-appendix/templates/L05--raise_warning.html",
+   "sha256": "0c82097b68863c3aa819248fccba61298f1721b6136578ca524d0b8551c57c87"
+  },
+  {
+   "state": "L06--default",
+   "path": "execution/S-04/prototype-appendix/templates/L06--default.html",
+   "sha256": "00dd66a47b540c142825eae5e4d28d64a14a04f51470b81d76af4e15c0c74a54"
+  },
+  {
+   "state": "L06--filtered",
+   "path": "execution/S-04/prototype-appendix/templates/L06--filtered.html",
+   "sha256": "897c7e38a2bf667695e3c74af5246ba35dd75e7f4b513adf433fc6a497382dae"
+  },
+  {
+   "state": "T02--rejected",
+   "path": "execution/S-04/prototype-appendix/templates/T02--rejected.html",
+   "sha256": "c0a0d75e91d0089f20d6ef1f58c25ec624f48efa40aab35c9def857f70526579"
+  },
+  {
+   "state": "T10--ans_approved",
+   "path": "execution/S-04/prototype-appendix/templates/T10--ans_approved.html",
+   "sha256": "e2c661d02e4fe0280c3bdc40113c9a82a99553aebf6f02b6f33d3f0b2fbe7ec3"
+  },
+  {
+   "state": "T10--ans_direct",
+   "path": "execution/S-04/prototype-appendix/templates/T10--ans_direct.html",
+   "sha256": "453838806b8efe743ca760486b10d19c5be948a9a26e005aa5364e34b4818c7a",
+   "added": "v2(G6-S04 B3)"
+  },
+  {
+   "state": "T10--sent",
+   "path": "execution/S-04/prototype-appendix/templates/T10--sent.html",
+   "sha256": "dbda152eb60fadcc182de3a2d1f07cc9b97af234e4b9d653de7285dd1a140522"
+  },
+  {
+   "state": "T11--unable_repeat",
+   "path": "execution/S-04/prototype-appendix/templates/T11--unable_repeat.html",
+   "sha256": "a51cdee1036f34e04e30809563e8badadc4d5723ac9d45b0d4a5fdbf5efa5c14",
+   "added": "v2(G6-S04 B3)"
+  },
+  {
+   "state": "T12--empty",
+   "path": "execution/S-04/prototype-appendix/templates/T12--empty.html",
+   "sha256": "0c4a45407661fb5c62f0b8982d43996c6b40dd3e4eb1812e30f24b2b8266a36f"
+  },
+  {
+   "state": "T12--list",
+   "path": "execution/S-04/prototype-appendix/templates/T12--list.html",
+   "sha256": "6761c04628206731c06f45fffb7dfdd298bd28a7ca801560fd3932162daf1110"
+  }
+ ],
+ "regions": {
+  "path": "execution/S-04/prototype-appendix/regions.json",
+  "sha256": "20feb65834da2b4dc580c0b5198bc44fde42ac88cb80a04d9aeb13f676672e9f",
+  "count": 66
+ },
+ "missing_templates": [],
+ "note": "stripped/ = 아이콘 svg를 이름표로 바꾼 읽기용 사본(대조는 templates/ 원본) · v2: G6-S04 B3(사용자 결정 g6-revise-decision.md)로 T10 / ans_direct · T11 / unable_repeat 추가 · 파생 상태 3개 명시",
+ "version": "v2",
+ "derived_states": [
+  {
+   "state": "T10--ans_direct(결정 018 ③ 답 뒤)",
+   "base": "T10--ans_direct",
+   "rule": "직접 확인 답이 오면 배너가 '파트장 직접 확인 · 처리 결과'(처리 메모)가 되고, 답 대기 안내(note) 자리에 '보고서 작성' 버튼 — 다른 영역은 base 그대로"
+  },
+  {
+   "state": "T11--handover_sent(결정 018 ④ · 7 정정: 보냄 · 답 대기)",
+   "base": "T11--unable_repeat",
+   "rule": "숙련자 인계 화면(T11)의 같은 틀 — 인계 보내기 · 계속 버튼 자리만 보냄 배너('숙련자 인계를 보냈습니다 · 시각')와 답 대기 안내로 바뀜(T10 / summary → T10 / sent와 같은 방식), 점검 경로 카드는 그대로"
+  },
+  {
+   "state": "L04--call_detail_d",
+   "base": "L04--call_detail",
+   "rule": "D 등급 절 호출에는 '승인 후 진행' 선택지가 없음(AC-23-C3)"
+  }
+ ],
+ "history": {
+  "v1": "execution/S-04/history/prototype-appendix-v1.json"
+ }
+}

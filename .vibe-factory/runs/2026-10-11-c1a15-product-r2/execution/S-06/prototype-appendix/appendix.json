@@ -1,0 +1,631 @@
+{
+ "what": "S-06 전 화면 구조 대조 기준(사용자 결정 017 ③ · 020 ① · 점검표 C4 · C12) — G5 ~ G7은 이 부록만 읽는다",
+ "version": "v1",
+ "source_lock": {
+  "manifest": "manifests/prototype_bundle-v17.json",
+  "files": {
+   "prototype/v17/index.html": "3463b0d16625670bb96597a0139e606927a83894655cf600df1b87270f5fcf98",
+   "prototype/v17/regions.json": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84",
+   "prototype/v17/prototype-coverage.json": "d447241d21eaee9784f6ba029788d7759c3d04df642919d7ef6e0e3bbc9a1f86"
+  }
+ },
+ "extracted_at": "2026-10-14T14:56:39+09:00",
+ "states": [
+  {
+   "state": "L01--default",
+   "path": "execution/S-06/prototype-appendix/templates/L01--default.html",
+   "sha256": "7518ae3343375fc34c7896460ffab532959e002b996ee9cc7d058b79ef96ce25",
+   "role": "region_state"
+  },
+  {
+   "state": "L01--role_error",
+   "path": "execution/S-06/prototype-appendix/templates/L01--role_error.html",
+   "sha256": "bdce83438d44374dee66df0035afbdbf371d8bd21ecef529e5d3451899de7f67",
+   "role": "region_state"
+  },
+  {
+   "state": "L02--empty",
+   "path": "execution/S-06/prototype-appendix/templates/L02--empty.html",
+   "sha256": "611379f60fb2be4c80009d8f3f1f676b60bc44d36d5059eee3fb748e1cac8d42",
+   "role": "region_state"
+  },
+  {
+   "state": "L02--list",
+   "path": "execution/S-06/prototype-appendix/templates/L02--list.html",
+   "sha256": "3e92b1c0ce1ce1ddb5837af2cae2b5020d55aa65bfa881130299d24e79e8d830",
+   "role": "region_state"
+  },
+  {
+   "state": "L03--edit",
+   "path": "execution/S-06/prototype-appendix/templates/L03--edit.html",
+   "sha256": "694a82d6004d892e418f3507ec2c99f89000891fbb5b11ab01df1efa6033a355",
+   "role": "region_state"
+  },
+  {
+   "state": "L03--edit_failed",
+   "path": "execution/S-06/prototype-appendix/templates/L03--edit_failed.html",
+   "sha256": "366ca98f8572e82b36e1715f8f64549160db3ffc383e322d61c5b916e78384f6",
+   "role": "region_state"
+  },
+  {
+   "state": "L03--reject",
+   "path": "execution/S-06/prototype-appendix/templates/L03--reject.html",
+   "sha256": "bffdfef87cc885b1125292685adf3285fb719ec068c04018d753d09b5631c056",
+   "role": "region_state"
+  },
+  {
+   "state": "L03--review",
+   "path": "execution/S-06/prototype-appendix/templates/L03--review.html",
+   "sha256": "58b55dbd28d5bb0f8859fd04612c45bd4acc6c8fd8a9ac43b347201b81507353",
+   "role": "region_state"
+  },
+  {
+   "state": "L04--call_corrected",
+   "path": "execution/S-06/prototype-appendix/templates/L04--call_corrected.html",
+   "sha256": "abb0725298f3474d0029b28c879a2ec181f582124268046c9be341ae156cca3a",
+   "role": "region_state"
+  },
+  {
+   "state": "L04--call_detail",
+   "path": "execution/S-06/prototype-appendix/templates/L04--call_detail.html",
+   "sha256": "b0774794b5cb4360cd65c4e7c04631859c12602fc37fa80766407742ca0d9161",
+   "role": "region_state"
+  },
+  {
+   "state": "L04--handover_detail",
+   "path": "execution/S-06/prototype-appendix/templates/L04--handover_detail.html",
+   "sha256": "851d8cffa47f5a1237440f8bd5013554cd149f4492eabda830e645ad3bd1fadb",
+   "role": "region_state"
+  },
+  {
+   "state": "L04--list",
+   "path": "execution/S-06/prototype-appendix/templates/L04--list.html",
+   "sha256": "3fa948e1a1feaa863676fcfb282a8b67294f6b48caa52a159bd5304ceac096a7",
+   "role": "region_state"
+  },
+  {
+   "state": "L05--default",
+   "path": "execution/S-06/prototype-appendix/templates/L05--default.html",
+   "sha256": "8a34d4f97e0a1c56efa4e73c7ebe7375192bfedac034a0ab9c6227f82fd26c55",
+   "role": "region_state"
+  },
+  {
+   "state": "L05--lower_warning",
+   "path": "execution/S-06/prototype-appendix/templates/L05--lower_warning.html",
+   "sha256": "1b795397bc905db6d55d385685011bb1e7ade50a8882742d2fd7763bfff3a323",
+   "role": "region_state"
+  },
+  {
+   "state": "L05--raise_warning",
+   "path": "execution/S-06/prototype-appendix/templates/L05--raise_warning.html",
+   "sha256": "0c82097b68863c3aa819248fccba61298f1721b6136578ca524d0b8551c57c87",
+   "role": "region_state"
+  },
+  {
+   "state": "L06--correction",
+   "path": "execution/S-06/prototype-appendix/templates/L06--correction.html",
+   "sha256": "8f86a1c5f0adbb11d1e9e4f9111b72221b4c0cfa3f01bb016c18ff5e6e7e0a57",
+   "role": "region_state"
+  },
+  {
+   "state": "L06--default",
+   "path": "execution/S-06/prototype-appendix/templates/L06--default.html",
+   "sha256": "00dd66a47b540c142825eae5e4d28d64a14a04f51470b81d76af4e15c0c74a54",
+   "role": "region_state"
+  },
+  {
+   "state": "L06--filtered",
+   "path": "execution/S-06/prototype-appendix/templates/L06--filtered.html",
+   "sha256": "897c7e38a2bf667695e3c74af5246ba35dd75e7f4b513adf433fc6a497382dae",
+   "role": "region_state"
+  },
+  {
+   "state": "T01--default",
+   "path": "execution/S-06/prototype-appendix/templates/T01--default.html",
+   "sha256": "ef7e0ec379850176f3cdd2ce12ea403eebdd1271b8e0025c23969cf6dc8a7652",
+   "role": "region_state"
+  },
+  {
+   "state": "T01--role_error",
+   "path": "execution/S-06/prototype-appendix/templates/T01--role_error.html",
+   "sha256": "d93926bf17e97fcf41df6ae566c80e28e674b2ead046826e50e27d03b5f46ab6",
+   "role": "region_state"
+  },
+  {
+   "state": "T02--empty",
+   "path": "execution/S-06/prototype-appendix/templates/T02--empty.html",
+   "sha256": "f026cd489be2cbdecd197458cccb4bb3aec829070a066ba6accd415be80cd413",
+   "role": "region_state"
+  },
+  {
+   "state": "T02--in_progress",
+   "path": "execution/S-06/prototype-appendix/templates/T02--in_progress.html",
+   "sha256": "1fff52785996eacf4d186168a8c0b4e5e81bf7bd5c58af1cd171ef2cd89ddf02",
+   "role": "region_state"
+  },
+  {
+   "state": "T02--new_alarm",
+   "path": "execution/S-06/prototype-appendix/templates/T02--new_alarm.html",
+   "sha256": "7a71ea3c0bd2021aaf2cb68e0fd20fbe381945786fa5733a3cc20369903d5922",
+   "role": "region_state"
+  },
+  {
+   "state": "T02--rejected",
+   "path": "execution/S-06/prototype-appendix/templates/T02--rejected.html",
+   "sha256": "c0a0d75e91d0089f20d6ef1f58c25ec624f48efa40aab35c9def857f70526579",
+   "role": "region_state"
+  },
+  {
+   "state": "T03--default",
+   "path": "execution/S-06/prototype-appendix/templates/T03--default.html",
+   "sha256": "bc39086c8344d094925e9b3bbd5501ad54287153a17560bde47d6f89f1edf9c4",
+   "role": "region_state"
+  },
+  {
+   "state": "T04--default",
+   "path": "execution/S-06/prototype-appendix/templates/T04--default.html",
+   "sha256": "fc240dceeb723070385ff500ca5e6b41396f3b6881e1c8b10d22f3e3bc29d82e",
+   "role": "region_state"
+  },
+  {
+   "state": "T04--low_evidence",
+   "path": "execution/S-06/prototype-appendix/templates/T04--low_evidence.html",
+   "sha256": "19af8728bfbadf1b7babb1dfdb08f5981af20a829098ec67cc394c31f480747e",
+   "role": "region_state"
+  },
+  {
+   "state": "T05--before_lock",
+   "path": "execution/S-06/prototype-appendix/templates/T05--before_lock.html",
+   "sha256": "9700c79c014a719a980bad0b6752a06b68602805fed22d4447af95fd2f58448d",
+   "role": "region_state"
+  },
+  {
+   "state": "T05--locked",
+   "path": "execution/S-06/prototype-appendix/templates/T05--locked.html",
+   "sha256": "c62bebbe3341b117b42ca670fbfc180290c7b6fe627e88456d979bff7a7aed67",
+   "role": "region_state"
+  },
+  {
+   "state": "T06--b_precheck",
+   "path": "execution/S-06/prototype-appendix/templates/T06--b_precheck.html",
+   "sha256": "78b18743d735119532aa390caeebf9109b1f9a83aee0f7dce365cd6e80c839a5",
+   "role": "region_state"
+  },
+  {
+   "state": "T06--default",
+   "path": "execution/S-06/prototype-appendix/templates/T06--default.html",
+   "sha256": "54f5a599e98ba2f84f81b4aacdaec6c5deeedf82bd7f0b694efd32976131ac49",
+   "role": "region_state"
+  },
+  {
+   "state": "T06--fallback",
+   "path": "execution/S-06/prototype-appendix/templates/T06--fallback.html",
+   "sha256": "670fce51bd44e3b8b30b05d2199fda4ac60fb9b78b706db0673e43d28f72c411",
+   "role": "region_state"
+  },
+  {
+   "state": "T06--llm_repeat",
+   "path": "execution/S-06/prototype-appendix/templates/T06--llm_repeat.html",
+   "sha256": "9424774d9624b5fb6ba8212ba707c3b9e70d6955cdce59e80b14d4a9e16f5b95",
+   "role": "region_state"
+  },
+  {
+   "state": "T06--unable_next",
+   "path": "execution/S-06/prototype-appendix/templates/T06--unable_next.html",
+   "sha256": "f06db9a0b025dfd66c5811ed66303a96b71e3f8adfcfbf26c7aba7ae6f2352b3",
+   "role": "region_state"
+  },
+  {
+   "state": "T07--confirm_question",
+   "path": "execution/S-06/prototype-appendix/templates/T07--confirm_question.html",
+   "sha256": "76d8d48c609702f6f795a18a5971be5fce869527a2f4d0a069daa071b7d1908f",
+   "role": "region_state"
+  },
+  {
+   "state": "T07--out_of_scope",
+   "path": "execution/S-06/prototype-appendix/templates/T07--out_of_scope.html",
+   "sha256": "119d4012b0827408be4d9f79f6d6675a72835733514521720946c60dd0896f94",
+   "role": "region_state"
+  },
+  {
+   "state": "T08--action_a",
+   "path": "execution/S-06/prototype-appendix/templates/T08--action_a.html",
+   "sha256": "64fc62a9f78347029f005470a72cc24560ec1ca91482f01ecbbfb0c28615e549",
+   "role": "region_state"
+  },
+  {
+   "state": "T08--checklist_b",
+   "path": "execution/S-06/prototype-appendix/templates/T08--checklist_b.html",
+   "sha256": "8f26a9c3e7dec29fddd227bd78cd4c246d719d1d183c0a4bec5f6b3136c245f4",
+   "role": "region_state"
+  },
+  {
+   "state": "T08--corrected_path",
+   "path": "execution/S-06/prototype-appendix/templates/T08--corrected_path.html",
+   "sha256": "da3855b4e6cda5aacee4021d506d792f4d546a120dde768062c922ba8285f3dc",
+   "role": "region_state"
+  },
+  {
+   "state": "T08--restart_check",
+   "path": "execution/S-06/prototype-appendix/templates/T08--restart_check.html",
+   "sha256": "70978de7704eab1416f184910683f57ca392a9491cf96b5a12c287a5da92d1e1",
+   "role": "region_state"
+  },
+  {
+   "state": "T09--check_failed",
+   "path": "execution/S-06/prototype-appendix/templates/T09--check_failed.html",
+   "sha256": "e0b67d77d9d7e4291b7757c0442a4b43fae6274ec27ba044a48f2caf6280b31b",
+   "role": "region_state"
+  },
+  {
+   "state": "T09--confirmed",
+   "path": "execution/S-06/prototype-appendix/templates/T09--confirmed.html",
+   "sha256": "f3358b987818b6d4a9e100dfded6c826e1c93fa6482a111ec77643713f386f3e",
+   "role": "region_state"
+  },
+  {
+   "state": "T09--draft",
+   "path": "execution/S-06/prototype-appendix/templates/T09--draft.html",
+   "sha256": "a6384212974c36b23d283db57323c2cdc6a95bedbb80f79c39d5a0bd787afd7b",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--ans_approved",
+   "path": "execution/S-06/prototype-appendix/templates/T10--ans_approved.html",
+   "sha256": "e2c661d02e4fe0280c3bdc40113c9a82a99553aebf6f02b6f33d3f0b2fbe7ec3",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--ans_daytime",
+   "path": "execution/S-06/prototype-appendix/templates/T10--ans_daytime.html",
+   "sha256": "9e9376110fc299fc5598e0e15a98e8cef4491ab01ed2fb2850ed4adf51582251",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--ans_direct",
+   "path": "execution/S-06/prototype-appendix/templates/T10--ans_direct.html",
+   "sha256": "453838806b8efe743ca760486b10d19c5be948a9a26e005aa5364e34b4818c7a",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--sent",
+   "path": "execution/S-06/prototype-appendix/templates/T10--sent.html",
+   "sha256": "dbda152eb60fadcc182de3a2d1f07cc9b97af234e4b9d653de7285dd1a140522",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--summary",
+   "path": "execution/S-06/prototype-appendix/templates/T10--summary.html",
+   "sha256": "42fe492c91697f7b986324fd01e0550b935a598d3cf14bc1bbdc1a3afaab932a",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--summary_corrected",
+   "path": "execution/S-06/prototype-appendix/templates/T10--summary_corrected.html",
+   "sha256": "dc5ff4d30ec88d2b79a278e61237321616646846831c480d4d101bc3a0d51518",
+   "role": "region_state"
+  },
+  {
+   "state": "T10--waiting",
+   "path": "execution/S-06/prototype-appendix/templates/T10--waiting.html",
+   "sha256": "522ca665d9141c479199114256c427b6f88361ab2841506c2a9470b1129ffd9e",
+   "role": "region_state"
+  },
+  {
+   "state": "T11--expert_handover",
+   "path": "execution/S-06/prototype-appendix/templates/T11--expert_handover.html",
+   "sha256": "71b72dc53772b51f6154ad65a4442539a7ccfc4cba206f2a1950cd4c88ffea99",
+   "role": "region_state"
+  },
+  {
+   "state": "T11--monitor_close",
+   "path": "execution/S-06/prototype-appendix/templates/T11--monitor_close.html",
+   "sha256": "b5b9abf78cbc1f8f13d92c16cdf1a249f124585de7ed26b7d6a77b78ad5ba477",
+   "role": "region_state"
+  },
+  {
+   "state": "T11--unable_repeat",
+   "path": "execution/S-06/prototype-appendix/templates/T11--unable_repeat.html",
+   "sha256": "a51cdee1036f34e04e30809563e8badadc4d5723ac9d45b0d4a5fdbf5efa5c14",
+   "role": "region_state"
+  },
+  {
+   "state": "T12--empty",
+   "path": "execution/S-06/prototype-appendix/templates/T12--empty.html",
+   "sha256": "0c4a45407661fb5c62f0b8982d43996c6b40dd3e4eb1812e30f24b2b8266a36f",
+   "role": "region_state"
+  },
+  {
+   "state": "T12--list",
+   "path": "execution/S-06/prototype-appendix/templates/T12--list.html",
+   "sha256": "6761c04628206731c06f45fffb7dfdd298bd28a7ca801560fd3932162daf1110",
+   "role": "region_state"
+  },
+  {
+   "state": "T13--default",
+   "path": "execution/S-06/prototype-appendix/templates/T13--default.html",
+   "sha256": "27d8cd7614a6ac8fca977a9997d9a85d4cb91babf45a8f6dc7ea605e1e9d0768",
+   "role": "region_state"
+  },
+  {
+   "state": "T14--default",
+   "path": "execution/S-06/prototype-appendix/templates/T14--default.html",
+   "sha256": "a491ca166db32af652e9f7f26c4de0f01dd50e2cefbef5da53d777af494bb997",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--action",
+   "path": "execution/S-06/prototype-appendix/templates/T15--action.html",
+   "sha256": "5b0f3d803c5ff62e2b851dd2b2796feaf0ea6af7b03a17d2b23c46cfe7aef9a8",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--alarm",
+   "path": "execution/S-06/prototype-appendix/templates/T15--alarm.html",
+   "sha256": "084daf2b33c829961347a039ca5e4db2aa2bb3efc3a335e6c5c2882c14c1fd43",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--check",
+   "path": "execution/S-06/prototype-appendix/templates/T15--check.html",
+   "sha256": "a669e012794f65dcc91a30dd5d53126caddccb8a973a0b1de012283f559b8c54",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--check_current",
+   "path": "execution/S-06/prototype-appendix/templates/T15--check_current.html",
+   "sha256": "689082a18217ca8511856be28e7d7ef1d935882f4d391dbcff289f925f3cac1a",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--closed",
+   "path": "execution/S-06/prototype-appendix/templates/T15--closed.html",
+   "sha256": "1eb5e3981562bc6e8b95d64a2b925fd4b4ff4b59eb49c5726eb2924150986a0d",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--correct",
+   "path": "execution/S-06/prototype-appendix/templates/T15--correct.html",
+   "sha256": "98459c856b271db4ca25fe23f1d8eadcf51fd1f07fc8a0c490b4f4055c5664d7",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--correct_confirm",
+   "path": "execution/S-06/prototype-appendix/templates/T15--correct_confirm.html",
+   "sha256": "df1f2b3e197a4399b3b46f744943d60a9db684adaee2cbc22796272217fda17b",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--corrected",
+   "path": "execution/S-06/prototype-appendix/templates/T15--corrected.html",
+   "sha256": "46802bd18c86af4e70012e9f29fbe61e36ddda476c7c09ccf56e5fbdfb28c6a1",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--diagnosis",
+   "path": "execution/S-06/prototype-appendix/templates/T15--diagnosis.html",
+   "sha256": "71af9be20d31f955ffa0f324463772f8c6acbd256c4e1954019cb54624bffbfd",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--lock",
+   "path": "execution/S-06/prototype-appendix/templates/T15--lock.html",
+   "sha256": "26229ab7b1eb520b10cbb2d956e29a1bf28ec2281e87ddb0f34a24b841da8aa0",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--note",
+   "path": "execution/S-06/prototype-appendix/templates/T15--note.html",
+   "sha256": "5b9a7973be492b45ddc038d9c6b4a20a66f09edda4ab17e50c980275404727af",
+   "role": "region_state"
+  },
+  {
+   "state": "T15--precheck",
+   "path": "execution/S-06/prototype-appendix/templates/T15--precheck.html",
+   "sha256": "d550a668c1a972f23e231b4a8ccaba1aabaf8c943dd3f87fe6bf8712aebc2f50",
+   "role": "region_state"
+  },
+  {
+   "state": "T09--low_evidence",
+   "path": "execution/S-06/prototype-appendix/templates/T09--low_evidence.html",
+   "sha256": "c12bf8183023133300d988153346be60e795d0321abb95d46278a196f2ad2519",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T09--monitor_report",
+   "path": "execution/S-06/prototype-appendix/templates/T09--monitor_report.html",
+   "sha256": "61569f881626bc1f18550972f94c82ceac46e9380cd7ea59118b939ca4c4aff3",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T06--second_check",
+   "path": "execution/S-06/prototype-appendix/templates/T06--second_check.html",
+   "sha256": "cc96b683fd231ab7f8af9ea987713035c9599a56cf3fe14116308644692e25a8",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "L04--call_detail_d",
+   "path": "execution/S-06/prototype-appendix/templates/L04--call_detail_d.html",
+   "sha256": "11b1c794a2f58e8f48003982d3cf64adcde0f835170a54f7735b690ddb60e92f",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T04--first_call",
+   "path": "execution/S-06/prototype-appendix/templates/T04--first_call.html",
+   "sha256": "54f3d3a6ef3927d8c8ba7c5668c756e12fb39442e9b7eef810a770edcb483507",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T15--check_b",
+   "path": "execution/S-06/prototype-appendix/templates/T15--check_b.html",
+   "sha256": "fcfa7f83fb92088aa4b55cdfaa3cbaf3c9ae92d917fb3e16a8ffbf1b602b3215",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T15--call",
+   "path": "execution/S-06/prototype-appendix/templates/T15--call.html",
+   "sha256": "115b7f3f974541c7e2c30f86181c9ff7d64fb568f8b3392eb9ea9dc1a44fb5fa",
+   "role": "prototype_derived"
+  },
+  {
+   "state": "T15--correct_value",
+   "path": "execution/S-06/prototype-appendix/templates/T15--correct_value.html",
+   "sha256": "7f75ee99ecb51d31151da7f7482ab2cd62ed9be233afa8b9bc87def215d8f453",
+   "role": "prototype_derived"
+  }
+ ],
+ "regions": {
+  "path": "execution/S-06/prototype-appendix/regions.json",
+  "sha256": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84",
+  "count": 252,
+  "states_with_regions": 69
+ },
+ "prototype_derived_states": [
+  {
+   "state": "T09--low_evidence",
+   "base": "T09--draft",
+   "acceptance_refs": [
+    "AC-29"
+   ],
+   "rule": "근거 사례 행 값 앞에 '근거 적음' 칩만 더한다. 영역 · 행 · 버튼은 T09 / draft 그대로"
+  },
+  {
+   "state": "T09--monitor_report",
+   "base": "T09--draft",
+   "acceptance_refs": [
+    "AC-22"
+   ],
+   "rule": "8항목 값만 이상 없음 · 감시 경로(4.3 · 4.5 정상 → 파트장 승인 4.4 정상 → 4.6 정상 → 재가동 경계 이내 → 6.2)로 바꾼다. 영역 · 행 · 버튼은 T09 / draft 그대로"
+  },
+  {
+   "state": "T06--second_check",
+   "base": "T06--unable_next",
+   "acceptance_refs": [
+    "AC-08",
+    "AC-30",
+    "AC-42",
+    "AC-25"
+   ],
+   "rule": "첫 지시 뒤의 다음 점검 지시(4.5, 승인 뒤 4.4 · 4.6, 등급 변경 뒤 4.6 · 4.4). T06 / unable_next에서 확인 불가 배너만 뺐다. 값(절 · 제목 · 절차 · 판정 기준 · 등급 · 소요 분)은 판정 결과로 채운다"
+  },
+  {
+   "state": "L04--call_detail_d",
+   "base": "L04--call_detail",
+   "acceptance_refs": [
+    "AC-23"
+   ],
+   "rule": "D등급(7.1 전기 계통) 호출의 답하기. L04 / call_detail에서 '승인 후 진행' 선택지만 빼고 요약 값만 바꿨다"
+  },
+  {
+   "state": "T04--first_call",
+   "base": "T04--default",
+   "acceptance_refs": [
+    "AC-02",
+    "AC-01"
+   ],
+   "rule": "첫 판정이 바로 파트장 호출인 진단 화면(OOS-01, 사용자 결정 013 '다음 점검 카드에 호출 안내'). T04 / default의 순위 · 비슷한 과거 기록 · 강조 카드(R-NEXT) 하나 · 주 버튼을 그대로 두고, 강조 카드 값만 '파트장 호출 필요' · 등급 배지(C 승인 필요) · 매뉴얼 절 · 확인 점검 이름과 소요 분 · '호출이 필요한 이유'(1순위 원인이 C · D 점검으로만 확인되고 50% 이상이거나, 혼자 할 수 있는 A · B 점검이 없음)로 바꿨다. 주 버튼 글자는 그대로 '점검 시작'이고 승인 호출 버튼 토큰(warnb, T10 '파트장 호출'과 같은 경고색)을 쓴다. 누르면 잠금(T05) → 사전 확인 → 호출 요약(T10 / summary)으로 간다(잠금 우선, AC-01). 순위 값은 그 세션 값(fixture '첫 판정 호출 세션': 냉각 팬 열화 61% · 근거 6, 또는 등급 변경 뒤 승인 순위)"
+  },
+  {
+   "state": "T15--check_b",
+   "base": "T15--check",
+   "acceptance_refs": [
+    "AC-41",
+    "AC-48"
+   ],
+   "rule": "B 점검 기록의 지난 화면. 그 단계의 원래 화면이 T06 / b_precheck이므로, T15 / check의 R-PASTVIEW 왼쪽 지시 카드 절차 위에 승인 T06 / b_precheck의 시작 전 체크리스트 패널을 그때 상태(모두 확인)로 넣었다(체크는 누를 수 없는 보기). 패널이 더해져 1080 × 740 틀을 넘으므로 이 화면에서만 표시 조정 ③을 쓴다(체크 행 20px · 체크 · 절차 글자 14px · 여백 축소, 사용자 결정 012로 공개, PBC에서 실제 화면 높이로 다시 본다). 지금 점검 단계 · 정정 뒤 · 확정 뒤 보기(check_current · corrected · closed)에서도 B 기록이면 같은 패널을 같은 자리에 넣는다. 띠 · 오른쪽 결과 카드 · '이 기록 정정'은 그대로"
+  },
+  {
+   "state": "T15--call",
+   "base": "T15--lock",
+   "acceptance_refs": [
+    "AC-41",
+    "AC-48"
+   ],
+   "rule": "점검 단계의 파트장 호출 · 숙련자 인계 기록을 보는 지난 화면(승인 R-PASTBAR의 점검 단계 기록 '잠금 · 사전 확인 · 각 점검' 뒤에 호출 · 인계 기록을 시간순으로 더함 — AC-47-C2 · AC-48-C1 근거). T15 / lock(정정하지 않는 기록 보기)의 띠 · 왼쪽 기록 상자 · 오른쪽 '기록' 카드 · '메모 덧붙이기'를 그대로 두고, 왼쪽 상자의 자물쇠 아이콘을 호출 아이콘으로, 잠금 절차 목록을 '보낸 요약' 읽기 전용 패널로 바꿨다. 값(호출 시각 · 필요한 작업 · 요약 · 답 상태 · 붙은 정정 수)은 세션 기록"
+  },
+  {
+   "state": "T15--correct_value",
+   "base": "T15--correct",
+   "acceptance_refs": [
+    "AC-45"
+   ],
+   "rule": "사전 확인 측정값(4.2)의 정정 창. T15 / correct의 창 · 원래 값 · 정정할 칸 · 필수 사유 · 취소 / 정정 저장(사유 전 잠김)을 그대로 두고, 측정값에는 결과 버튼이 없어 '정정할 결과' 칸을 빼고 '정정할 메모'를 '정정할 값'으로 바꿨다"
+  }
+ ],
+ "prototype_derived_selector_base": {
+  "T09--low_evidence": "T09--draft",
+  "T09--monitor_report": "T09--draft",
+  "T06--second_check": "T06--unable_next",
+  "L04--call_detail_d": "L04--call_detail",
+  "T04--first_call": "T04--default",
+  "T15--check_b": "T15--check",
+  "T15--call": "T15--lock",
+  "T15--correct_value": "T15--correct"
+ },
+ "decision_derived_states": [
+  {
+   "state": "T11--handover_sent",
+   "base": "T11--unable_repeat",
+   "decision": "018 ④ · 7",
+   "rule": "숙련자 인계 화면(T11)의 같은 틀 — 인계 보내기 · 계속 버튼 자리만 보냄 배너('숙련자 인계를 보냈습니다 · 시각')와 답 대기 안내로 바뀜(T10 / summary → T10 / sent와 같은 방식), 점검 경로 카드는 그대로",
+   "from_appendix": "execution/S-04/prototype-appendix/appendix.json"
+  },
+  {
+   "state": "L04--handover_corrected",
+   "base": "L04--call_corrected",
+   "decision": "019 ②",
+   "rule": "보낸 숙련자 인계에 '보낸 뒤 정비자 정정' 상자 — L04 / call_corrected와 같은 상자, 선택지는 숙련자 인계 2개(주간 숙련자 배정 · 직접 확인)",
+   "from_appendix": "execution/S-05/prototype-appendix/appendix.json"
+  },
+  {
+   "state": "L04--correction_call_detail",
+   "base": "L04--call_detail",
+   "decision": "019 ⑧",
+   "rule": "조치 뒤 정정 호출의 답하기 — L04 / call_detail 구조 그대로, 필요한 작업 '정정 확인 · …', '승인 후 진행' 설명만 '정비자가 정정 때 하던 단계로 이어서 합니다'",
+   "from_appendix": "execution/S-05/prototype-appendix/appendix.json"
+  },
+  {
+   "state": "T09--draft_corrected",
+   "base": "T09--draft",
+   "decision": "019 ⑤",
+   "rule": "점검 경로 행 문장만 정정 표기('… (정정 n회)', 무효 기록 '정정으로 무효') — 영역 · 행 · 버튼은 T09 / draft 그대로",
+   "from_appendix": "execution/S-05/prototype-appendix/appendix.json"
+  },
+  {
+   "state": "T10--corrected_ans_daytime",
+   "base": "T10--ans_daytime",
+   "decision": "019 ①",
+   "rule": "조치 뒤 정정 호출에 주간 처리 답 — 왼쪽 카드(R-CALLHEAD)는 그 호출의 T10 / summary_corrected 머리(정정 · 조치 칩 · 지금까지 점검 · 조치 · 순위 다시 계산 안 함) 그대로, 오른쪽 카드(R-CALLACT)는 T10 / ans_daytime 답 배너 · '보고서 작성'",
+   "region_base": {
+    "R-CALLHEAD": "T10--summary_corrected"
+   },
+   "from_appendix": "execution/S-05/prototype-appendix/appendix.json"
+  },
+  {
+   "state": "T10--corrected_ans_direct",
+   "base": "T10--ans_direct",
+   "decision": "019 ① · 018 ③",
+   "rule": "조치 뒤 정정 호출에 직접 확인 답 — 왼쪽 카드(R-CALLHEAD)는 T10 / summary_corrected 머리 그대로, 오른쪽 카드(R-CALLACT)는 T10 / ans_direct 답 배너 + 결정 018 ③ '보고서 작성'(S-04 X-1과 같음)",
+   "region_base": {
+    "R-CALLHEAD": "T10--summary_corrected"
+   },
+   "from_appendix": "execution/S-05/prototype-appendix/appendix.json"
+  }
+ ],
+ "decision_modified_states": [
+  {
+   "state": "T10--ans_direct",
+   "decision": "018 ③",
+   "rule": "직접 확인 답이 오면 배너가 '파트장 직접 확인 · 처리 결과'(처리 메모)가 되고, 답 대기 안내(note) 자리에 '보고서 작성' 버튼 — 다른 영역은 base 그대로",
+   "classification_rule": "X-1"
+  },
+  {
+   "state": "L05--*",
+   "decision": "018 ②",
+   "rule": "권한 등급 표는 등급표 절 전부(Prototype 예시 7절) — 늘어난 행은 같은 행 구조",
+   "classification_rule": "D-6"
+  }
+ ],
+ "compare_rule": "영역 상태(69) = 자기 template · 자기 영역 selector. Prototype 파생(8) = 자기 template, 영역 selector는 기준 상태(prototype_derived_selector_base — regions.json에 영역 없음, S-05 UF-S05-10). 결정 파생(6) = 기준 template · 기준 영역 selector(정정 호출 답 화면 R-CALLHEAD는 T10--summary_corrected, S-05 부록 v2). 상태마다 대조 영역 수를 세어 0인 상태가 있으면 실패(C12)",
+ "note": "stripped/ = 아이콘 svg를 이름표로 바꾼 읽기용 사본(대조는 templates/ 원본). 252 Region = regions.json 그대로(Prototype compiled_structure_contract)"
+}

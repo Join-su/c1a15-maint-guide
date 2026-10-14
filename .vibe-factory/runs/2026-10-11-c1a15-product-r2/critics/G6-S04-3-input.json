@@ -1,0 +1,123 @@
+{
+ "gate": "G6",
+ "slice_id": "S-04",
+ "attempt": 3,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-04/verification-report.json",
+  "version": "v3",
+  "sha256": "7cc9f92e1ed873af79e4b39595ce529d71c5ec787e6491f49b16b2beb635842a"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-04/history/slice-execution-packet-v3.json",
+   "version": "v3",
+   "sha256": "1c2bac4bd65ffb2c1cbaf0f521e412750b18d0291ab683cf796757cfccbb3300"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-04/history/implementation-contract-v2.md",
+   "version": "v2",
+   "sha256": "c116fb6f975e3e5c414f30eb25e68a68bbfb1f3b2fccf06151e444a47f4eaf65"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-04/history/execution-ledger-v3.json",
+   "version": "v3",
+   "sha256": "90b2cc96d5ab74d259432454d0d6f7d0e1ccac7ac2cae29bab079066b5b9aea0"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-04/verification-report.json",
+   "version": "v3",
+   "sha256": "7cc9f92e1ed873af79e4b39595ce529d71c5ec787e6491f49b16b2beb635842a"
+  }
+ ],
+ "prior_review": {
+  "path": "critics/G6-S04-2-review.json",
+  "sha256": "05658328f04e4283d0cbcfaa7a54b317e8774ea8514d76233fb39424b8777ca0"
+ },
+ "supporting_records": [
+  {
+   "path": "execution/S-04/history/g6-revise-decision-v2.md",
+   "sha256": "e3108688da6f6d3c2fc2c409153fe56458242f5f49bacf40e7f030a3d70b9a19"
+  },
+  {
+   "path": "execution/S-04/history/verification-report-v2.json",
+   "sha256": "3cbac3c5d2765abef1172f521ecac80810b19b20d0f5139d6e34c794e44f4195"
+  },
+  {
+   "path": "execution/S-04/history/execution-ledger-v2.json",
+   "sha256": "14721d1bb63ad3cb8a5ff98d963bfc61fce7bf3b7455626eb92d2726a68c68ee"
+  },
+  {
+   "path": "execution/S-04/history/slice-execution-packet-v2.json",
+   "sha256": "46bfe442af4eca4ab3ec994ea4aba118177b42da8744ed851882672f2bd7bc1b"
+  },
+  {
+   "path": "execution/S-04/history/implementation-contract-v1.md",
+   "sha256": "f923a5aff0f960657dc289c6d7a68ce89ab3b93dc049bdeaa49bc3fcb8414077"
+  },
+  {
+   "path": "critics/G6-S04-2-input.json",
+   "sha256": "cb52b8d35136c1f5e2031508af0254c2e2f7204c337389f26629690f269a2525"
+  },
+  {
+   "path": "execution/S-04/prototype-appendix/appendix.json",
+   "sha256": "178e4ac494ff59ba10b41354164ba31c99755c941a8d799b2ad3d67cfd2d06cf"
+  },
+  {
+   "path": "sources/intent/018.md",
+   "sha256": "532f49e52864eb40e0a6bcec30e7ac25c7cbfed363b7ba9de059dd6832211d7d"
+  },
+  {
+   "path": "execution/S-04/evidence/gate-applicability.md",
+   "sha256": "255f097d985cf97e3333d864a9a7d81a7f2ce8acdf6c9732a7f3668717c9e794"
+  },
+  {
+   "path": "execution/S-04/evidence/ac09-r3-positions.txt",
+   "sha256": "3312dfd838ac894f1c656026240e878aa07757b6b2159fee07b7b37c504ec414"
+  },
+  {
+   "path": "execution/S-04/evidence/check-fast.txt",
+   "sha256": "db35321bbb86e3658bdf271f2523737673077dfcf51debb6266fed000f2381b0"
+  },
+  {
+   "path": "execution/S-04/evidence/verify-db.txt",
+   "sha256": "62b58c4e10f90119afa3b155bfa2d948d8883902e39f9c9a353ac800e8f33dfe"
+  },
+  {
+   "path": "execution/S-04/evidence/verify-e2e.txt",
+   "sha256": "f3a06d62805f24a17d4f5f24a7f44198d1a59ffbe39939afbaaeb2ee11d78404"
+  },
+  {
+   "path": "execution/S-04/evidence/e2e-report.json",
+   "sha256": "4b120890eaf728bc8b75f3fa32126b3a8e8bf9812573e3c416fd50301024fbb8"
+  },
+  {
+   "path": "execution/S-04/evidence/db-test-list.txt",
+   "sha256": "da73658547f47975f8a85ac64c75594a36c2d159bcbbc418e1a5b049efe3f1fe"
+  },
+  {
+   "path": "execution/S-04/evidence/e2e-test-list.txt",
+   "sha256": "74a929d3e8a69b51ff7c488d2806af37cfc6089a021cfb5369ada9991dbc8868"
+  },
+  {
+   "path": "execution/S-04/evidence/hash-changes.json",
+   "sha256": "f2ab7ca5aee93d2c569d03b6d508ed6ebd8a9ff6c6af919d9fc1bfa9b4fe4dda"
+  },
+  {
+   "path": "execution/S-04/evidence/evidence-secret-check.txt",
+   "sha256": "01d57213e003ae3b7996d4c7dc8f494feba9220a625bfc5d4a7563d60b99d4d8"
+  },
+  {
+   "path": "execution/S-04/evidence/secret-check-fault-injection.txt",
+   "sha256": "f2fcfaade096e57d14a292c816f40b92abcf7a5d5f720a1188d0ec36eee71161"
+  },
+  {
+   "path": "execution/S-04/evidence/prototype-structure-checklist.json",
+   "sha256": "91db009b1d187a2c14916922f0b3556dec3b0dcaa633c41c4bd659ad0b4ac4ae"
+  }
+ ]
+}

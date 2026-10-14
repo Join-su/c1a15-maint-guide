@@ -1,0 +1,30 @@
+{
+ "what": "UF-S03-05 대조 기록(G6-S03 비차단 의견)",
+ "event": "G5 중 홈 완료 행 · 종 목록 구조를 확인하려고 prototype/v17/index.html(처음 한 번은 prototype/index.html)을 직접 읽음 — G4 ~ G7 PBC 이전 산출물 재열람 금지 위반",
+ "comparison_at_g5": "G5 당시(2026-10-13 17:3x) 같은 스크립트에서 v17 index.html의 <template id=\"s-{상태}\"> 본문과 S-02 2차 cycle G4가 만든 template 파일을 strip 뒤 문자열 비교 → 네 상태 모두 'identical'(대화 실행 기록). 원본을 다시 읽지 않으려고 이 기록에서는 비교를 다시 하지 않았다",
+ "g4_templates": [
+  {
+   "state": "T02--empty",
+   "g4_template_copy": "prototype-reread/T02--empty.html",
+   "sha256": "f026cd489be2cbdecd197458cccb4bb3aec829070a066ba6accd415be80cd413"
+  },
+  {
+   "state": "T02--in_progress",
+   "g4_template_copy": "prototype-reread/T02--in_progress.html",
+   "sha256": "1fff52785996eacf4d186168a8c0b4e5e81bf7bd5c58af1cd171ef2cd89ddf02"
+  },
+  {
+   "state": "T02--rejected",
+   "g4_template_copy": "prototype-reread/T02--rejected.html",
+   "sha256": "c0a0d75e91d0089f20d6ef1f58c25ec624f48efa40aab35c9def857f70526579"
+  },
+  {
+   "state": "T12--list",
+   "g4_template_copy": "prototype-reread/T12--list.html",
+   "sha256": "6761c04628206731c06f45fffb7dfdd298bd28a7ca801560fd3932162daf1110"
+  }
+ ],
+ "g4_template_origin": "S-02 2차 cycle G4 builder(scratchpad s02c2/build_g4*.py)가 만든 template — run 폴더에는 없던 사본을 이 폴더에 둠",
+ "used_for": "Home.tsx 완료 행 · 최근 보고서 · NotifyPanel 답이 온 호출 묶음 구조(새 제품 정보 없음)",
+ "decision": "영향 판단(none)은 G7에서 사용자 판단으로 확인"
+}

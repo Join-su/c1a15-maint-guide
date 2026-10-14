@@ -1,0 +1,90 @@
+{
+ "checked_at": "2026-10-13T16:42:38+09:00",
+ "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+ "git_status_porcelain": [
+  "M .gitignore",
+  " M data/alarm_rules.json",
+  " M data/manifest.json",
+  " M scripts/build_data.py",
+  "?? .env.example",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v2.md",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v3.md",
+  "?? .vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v4.md",
+  "?? .vibe-factory/runs/",
+  "?? CLAUDE.md",
+  "?? apps/",
+  "?? data/demo/",
+  "?? docker-compose.yml",
+  "?? e2e/",
+  "?? infra/",
+  "?? package-lock.json",
+  "?? package.json",
+  "?? packages/",
+  "?? scripts/build_demo_scenarios.py",
+  "?? scripts/check-fast",
+  "?? scripts/check_demo_separation.py",
+  "?? scripts/external_call_check.py",
+  "?? scripts/forbidden_paths_check.py",
+  "?? scripts/openapi_check.py",
+  "?? scripts/secret_scan.py",
+  "?? scripts/verify-db",
+  "?? scripts/verify-e2e",
+  "?? server/",
+  "?? tools/"
+ ],
+ "python": "Python 3.14.2",
+ "node": "v26.9.0",
+ "docker": "Docker version 29.1.3, build f52814d",
+ "uv": "uv 0.12.17 (Homebrew 2026-09-18 aarch64-apple-darwin)",
+ "lockfiles": {
+  "package-lock.json": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+  "server/uv.lock": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997"
+ },
+ "data": {
+  "data/manifest.json": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+  "data/alarm_rules.json": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+  "data/demo/scenarios.json": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c"
+ },
+ "openapi": "7fae115213eae583813a4299b550af434d3f4cb760609f527cf481715357962e",
+ "playbook_v4": "5420be68c37528bd80323188e3ebd84296a99a7f03c45314a0329b940b8460a7",
+ "comparison": {
+  "HEAD": true,
+  "uv.lock": true,
+  "scenarios": true,
+  "playbook": true,
+  "expected:data/alarm_rules.json": true,
+  "expected:data/manifest.json": true,
+  "expected:server/openapi.json": true,
+  "expected:package-lock.json": true
+ },
+ "explained_differences": [
+  {
+   "path": "data/alarm_rules.json",
+   "baseline_v3": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042",
+   "now": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+   "cause": "P-19 ⑧ normal_ranges(scripts/build_data.py, 결정 014 ①)"
+  },
+  {
+   "path": "data/manifest.json",
+   "baseline_v3": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d",
+   "now": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+   "cause": "P-19 ⑧ alarm_rules.json hash 한 줄"
+  },
+  {
+   "path": "server/openapi.json",
+   "baseline_v3": "15b6b5dd257ee6371fb41be89f632b733a749fc5465ff82c62f1e7ee1743ceea",
+   "now": "7fae115213eae583813a4299b550af434d3f4cb760609f527cf481715357962e",
+   "cause": "P-19 응답 스키마(responses.py) — OpenAPI 정본 갱신"
+  },
+  {
+   "path": "package-lock.json",
+   "baseline_v3": "16ab13dd3ae21554c227877797d25b4bb0cf3a8ced7293bb05499ecfcc609cf5",
+   "now": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+   "cause": "S-02 2차 cycle 별도 승인 npm 패키지 네 묶음(separate-approvals.md)"
+  },
+  {
+   "path": "apps/ · packages/ · server/src · server/tests · e2e/ · scripts/",
+   "cause": "S-01 · S-02 구현(commit 전) — execution/S-02/cycle-2/execution-ledger.json changed_files"
+  }
+ ]
+}

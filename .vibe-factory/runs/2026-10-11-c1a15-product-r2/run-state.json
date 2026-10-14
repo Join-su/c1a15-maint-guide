@@ -1,0 +1,3036 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "project_id": "c1a15-maint-guide",
+ "skill_version": "0.8.22",
+ "factory_profile": {
+  "path": "factory-profile/profile.json",
+  "sha256": "e9c5c8af4204f47614801b3d8a8bbce5e591c7ab745c7bee3f67ae0be1657e63",
+  "skill_version": "0.8.22"
+ },
+ "work_type": "new_flow",
+ "risk_level": "standard",
+ "phase": "verification",
+ "current_gate": "G7",
+ "status": "draft",
+ "artifacts": {
+  "context_packet": {
+   "version": "v7",
+   "status": "critic_passed",
+   "path": "context-packet-v7.md",
+   "manifest": "manifests/context_packet-v7.json",
+   "prior_versions": [
+    "v1: context-packet.md(approved)",
+    "v2: context-packet-v2.md(critic_passed)",
+    "v3: context-packet-v3.md(004 전문 결함으로 대체)",
+    "v4: context-packet-v4.md(004 전문 결함으로 대체)",
+    "v5: context-packet-v5.md(critic_passed, 007 · 008 반영)",
+    "v6: context-packet-v6.md(G0-6 검토 기준, 010 반영)"
+   ]
+  },
+  "evidence_pack": {
+   "version": "v7",
+   "status": "critic_passed",
+   "path": "evidence-pack-v7.md",
+   "manifest": "manifests/evidence_pack-v7.json",
+   "evidence_ids": [
+    "EV-001",
+    "EV-002",
+    "EV-003",
+    "EV-004",
+    "EV-005",
+    "EV-006",
+    "EV-007",
+    "EV-008",
+    "EV-009",
+    "EV-010",
+    "EV-011",
+    "EV-012",
+    "EV-013",
+    "EV-014",
+    "EV-015",
+    "EV-016",
+    "EV-017",
+    "EV-018",
+    "EV-019",
+    "EV-020",
+    "EV-021",
+    "EV-022",
+    "EV-023",
+    "EV-024",
+    "EV-025",
+    "EV-026",
+    "EV-027",
+    "EV-028",
+    "EV-029",
+    "EV-030",
+    "EV-031",
+    "EV-032",
+    "EV-033",
+    "EV-034",
+    "EV-035",
+    "EV-036",
+    "EV-037",
+    "EV-038",
+    "EV-039",
+    "EV-040",
+    "EV-041",
+    "EV-042",
+    "EV-043",
+    "EV-044",
+    "EV-055",
+    "EV-045",
+    "EV-046",
+    "EV-047",
+    "EV-048",
+    "EV-049",
+    "EV-050",
+    "EV-051",
+    "EV-053",
+    "EV-054",
+    "EV-056",
+    "EV-057",
+    "EV-058",
+    "EV-059",
+    "EV-060",
+    "EV-061",
+    "EV-062",
+    "EV-063",
+    "EV-064",
+    "EV-065",
+    "EV-066",
+    "EV-052",
+    "EV-067",
+    "EV-068",
+    "EV-069",
+    "EV-070",
+    "EV-071",
+    "EV-072",
+    "EV-073",
+    "EV-074"
+   ],
+   "critic_attempts": 2,
+   "critic_reviews": [
+    "critics/G0-6-review.json",
+    "critics/G0-7-review.json"
+   ],
+   "decision": "decisions/G0-evidence-pack.json",
+   "prior_cycle_reviews": [
+    {
+     "cycle": 1,
+     "version": "v1",
+     "reviews": [
+      "critics/G0-1-review.json"
+     ],
+     "decision": "decisions/history/G0-evidence-pack-v1.json"
+    },
+    {
+     "cycle": 2,
+     "version": "v2",
+     "reviews": [
+      "critics/G0-2-review.json"
+     ],
+     "decision": "decisions/G0-evidence-pack.json(v1 승인, v2는 critic pass 뒤 G1로 진행)"
+    },
+    {
+     "cycle": 3,
+     "version": "v3 · v4",
+     "reviews": [
+      "critics/G0-3-review.json",
+      "critics/G0-4-review.json"
+     ],
+     "decision": "v3 revise(Q-05 전제 오류) → v4 pass. v4 근거 패킷의 004 전문 결함(validator)으로 v5를 새로 묶어 G0-5 검토(3회째)"
+    },
+    {
+     "cycle": 3,
+     "version": "v3 · v4 · v5",
+     "reviews": [
+      "critics/G0-3-review.json",
+      "critics/G0-4-review.json",
+      "critics/G0-5-review.json"
+     ],
+     "decision": "v3 revise(Q-05 전제 오류) → v4 pass → v5 pass(004 전문 결함 바로잡음). G1 v5로 진행"
+    }
+   ]
+  },
+  "use_case": {
+   "version": "v6",
+   "status": "approved",
+   "path": "use-case/v6/use-case-packet.md",
+   "diagram": "use-case/v6/use-case-map.svg",
+   "coverage": "use-case/v6/scenario-coverage.json",
+   "acceptance_criteria": "use-case/v6/acceptance-criteria.json",
+   "logical_system_contract": "use-case/v6/logical-system-contract.json",
+   "manifest": "manifests/use_case-v6.json",
+   "critic_reviews": [
+    "critics/G1-6-review.json"
+   ],
+   "prior_cycle_reviews": [
+    {
+     "cycle": 1,
+     "versions": [
+      "v1",
+      "v2"
+     ],
+     "reviews": [
+      "critics/G1-1-review.json",
+      "critics/G1-2-review.json"
+     ],
+     "decision": "decisions/history/G1-use-case-v2.json"
+    },
+    {
+     "cycle": 2,
+     "versions": [
+      "v3"
+     ],
+     "reviews": [
+      "critics/G1-3-review.json"
+     ],
+     "decision": "decisions/G1-use-case.json(v3 승인)"
+    },
+    {
+     "cycle": 3,
+     "versions": [
+      "v4",
+      "v5"
+     ],
+     "reviews": [
+      "critics/G1-4-review.json",
+      "critics/G1-5-review.json"
+     ],
+     "decision": "decisions/G1-use-case.json(v5 승인)"
+    }
+   ],
+   "brief": "decisions/G1-human-brief-v6.md",
+   "decision": "decisions/G1-use-case.json"
+  },
+  "wireframe_structure": {
+   "version": "v4",
+   "status": "approved",
+   "path": "wireframes/v4/structure-review.html",
+   "manifest": "manifests/wireframe_structure-v4.json",
+   "brief": "decisions/G2A-human-brief-v4.md",
+   "page_inventory": "wireframes/v4/page-inventory.json",
+   "reference_board": "wireframes/v4/reference-board.html",
+   "board": "wireframes/v4/structure-review.html",
+   "reference_patterns": [
+    {
+     "id": "RP-01",
+     "product": "Linear",
+     "screen_or_pattern": "작업 공간 왼쪽 내비게이션 + 본문 목록(Projects · Active)",
+     "url": "https://www.saasui.design/pattern/dashboard/linear",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "파트장 앱: 승인 대기 · 호출 · 권한 등급 · 감사 기록 사이를 오가는 반복 업무",
+     "borrow": "고정된 왼쪽 내비와 넓은 본문 하나, 현재 위치 강조",
+     "do_not_borrow": "프로젝트·로드맵·이슈 기능, 타임라인 화면",
+     "local_capture": "wireframes/v4/references/RP-01.png"
+    },
+    {
+     "id": "RP-02",
+     "product": "Linear",
+     "screen_or_pattern": "프로젝트 상세 + 오른쪽 속성 패널(Properties · Milestones)",
+     "url": "https://www.saasui.design/pattern/dashboard/linear",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "보고서 검토(L03), 호출 답하기(L04), 진단(T04)의 '내용 + 옆 판단 패널'",
+     "borrow": "본문 옆에 같은 대상의 속성·결정 영역을 나란히 둠",
+     "do_not_borrow": "보드 열, 마일스톤·멤버 개념",
+     "local_capture": "wireframes/v4/references/RP-02.png"
+    },
+    {
+     "id": "RP-03",
+     "product": "Linear",
+     "screen_or_pattern": "설정 · Preferences 행(이름 + 설명 + 오른쪽 조작)",
+     "url": "https://www.saasui.design/pattern/settings/linear",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "권한 등급 설정(L05), 보고서 8항목 행(T09)",
+     "borrow": "한 행 = 항목 이름 + 값/설명 + 오른쪽 끝 조작",
+     "do_not_borrow": "토글·테마 같은 개인 설정 의미",
+     "local_capture": "wireframes/v4/references/RP-03.png"
+    },
+    {
+     "id": "RP-04",
+     "product": "Front",
+     "screen_or_pattern": "관리 · Message templates 표(이름 · 미리보기 · 열 · 오른쪽 안내)",
+     "url": "https://www.saasui.design/pattern/table/front",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "처리할 호출 목록(L04), 감사 기록(L06)",
+     "borrow": "왼쪽 관리 내비 + 열이 정해진 표 + 표 옆 짧은 안내",
+     "do_not_borrow": "템플릿·받은편지함 기능",
+     "local_capture": "wireframes/v4/references/RP-04.png"
+    },
+    {
+     "id": "RP-05",
+     "product": "Dropbox Sign",
+     "screen_or_pattern": "Documents 표(상태 열 · 상태 필터 · 행별 Edit 버튼)",
+     "url": "https://www.saasui.design/pattern/table/dropbox-sign-formerly-hellosign",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "승인 대기 목록(L02), 정비자 홈 알람 목록(T02)",
+     "borrow": "행 안에 상태를 보이고 행 끝에 처리 버튼 하나",
+     "do_not_borrow": "서명·대량 발송 기능, 요금 안내",
+     "local_capture": "wireframes/v4/references/RP-05.png"
+    },
+    {
+     "id": "RP-06",
+     "product": "Linear",
+     "screen_or_pattern": "작업 공간 만들기(가운데 단일 입력 카드 + 주 버튼 하나)",
+     "url": "https://www.saasui.design/pattern/onboarding/linear",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "로그인(T01, L01)",
+     "borrow": "가운데 한 장의 카드에 필드와 주 버튼 하나만 둠",
+     "do_not_borrow": "회사 규모·역할 질문, 가입 흐름",
+     "local_capture": "wireframes/v4/references/RP-06.png"
+    },
+    {
+     "id": "RP-07",
+     "product": "Linear",
+     "screen_or_pattern": "Invite people 모달(현재 화면 위 확인 창)",
+     "url": "https://www.saasui.design/pattern/modal/linear",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "확인 질문 · 맞지 않는 소견(T07)",
+     "borrow": "현재 작업 화면을 흐리게 두고 위에 작은 확인 창, 두 버튼",
+     "do_not_borrow": "초대·팀 배정 기능",
+     "local_capture": "wireframes/v4/references/RP-07.png"
+    },
+    {
+     "id": "RP-09",
+     "product": "Attio",
+     "screen_or_pattern": "Activity 패널(현재 화면 위 목록 패널 · 종류 탭 · 빈 상태 안내)",
+     "url": "https://www.saasui.design/pattern/notification/attio",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "알람 · 할 일 목록(T12)",
+     "borrow": "현재 작업 화면을 유지한 채 위에 뜨는 목록 패널, 종류별 묶음, 비었을 때 안내 문장",
+     "do_not_borrow": "멘션 · 요청 · 알림 설정 기능",
+     "local_capture": "wireframes/v4/references/RP-09.png"
+    },
+    {
+     "id": "RP-10",
+     "product": "Productboard",
+     "screen_or_pattern": "Insights inbox(읽지 않음 점 · 시각이 붙은 항목 행 · 누르면 상세)",
+     "url": "https://www.saasui.design/pattern/notification/productboard",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "알람 · 할 일 항목 행(T12)",
+     "borrow": "항목 행 앞의 상태 점, 한 줄 요약과 시각, 항목에서 해당 대상으로 이동",
+     "do_not_borrow": "고객 피드백 · 태그 · 처리 표시 기능",
+     "local_capture": "wireframes/v4/references/RP-10.png"
+    },
+    {
+     "id": "RP-08",
+     "product": "DocuSign",
+     "screen_or_pattern": "봉투 만들기(순서 있는 단계 섹션 + 아래 고정 Next)",
+     "url": "https://www.saasui.design/pattern/form/docusign",
+     "discovery_source": "SaaSUI SaaS Design",
+     "evidence_modality": "screenshot",
+     "verified_observables": [
+      "visible_structure",
+      "visible_state"
+     ],
+     "observed_at": "2026-10-11T21:05:00+09:00",
+     "task_fit": "정비자 앱 단계 진행(알람 → 보고서), 점검 지시 · 체크리스트(T06, T08)",
+     "borrow": "정해진 순서의 단계와 한 번에 하나의 주 행동",
+     "do_not_borrow": "문서 업로드·수신자 기능, 고급 옵션",
+     "local_capture": "wireframes/v4/references/RP-08.png"
+    }
+   ],
+   "reference_strategy": {
+    "research_scope": {
+     "public_web_research_authorized": true,
+     "permitted_public_source_urls": [
+      "https://www.saasui.design/saas-design",
+      "https://www.saasui.design/blog/saas-list-detail-master-detail-ux-patterns",
+      "https://www.saasui.design/pattern/dashboard/linear",
+      "https://www.saasui.design/pattern/form/docusign",
+      "https://www.saasui.design/pattern/modal/linear",
+      "https://www.saasui.design/pattern/notification/attio",
+      "https://www.saasui.design/pattern/notification/productboard",
+      "https://www.saasui.design/pattern/onboarding/linear",
+      "https://www.saasui.design/pattern/settings/linear",
+      "https://www.saasui.design/pattern/table/dropbox-sign-formerly-hellosign",
+      "https://www.saasui.design/pattern/table/front"
+     ],
+     "user_provided_source_urls": [],
+     "open_discovery_surface_ids": [],
+     "outside_route_policy": "ask_user",
+     "restricted_access_policy": "ask_user",
+     "authorization_note": "사용자 승인(2026-10-11): VCF 지정 경로(saasui.design)와 그 안에서 찾은 실제 제품의 공개 페이지만. 로그인·유료·비공개 자료와 경로 밖 조사는 따로 묻는다. 사용 가이드(로컬 파일)는 user-provided source이나 URL이 아니라 이 목록에 넣지 않는다."
+    },
+    "surfaces": [
+     {
+      "id": "tech-workflow",
+      "page_ids": [
+       "T01",
+       "T02",
+       "T03",
+       "T04",
+       "T05",
+       "T06",
+       "T07",
+       "T08",
+       "T09",
+       "T10",
+       "T11",
+       "T12",
+       "T13",
+       "T14",
+       "T15"
+      ],
+      "classification": "workflow_product",
+      "workflow_signals": [
+       "persistent_records",
+       "queue_state_filter_compare",
+       "repeated_multistep_work",
+       "role_authority_handoff"
+      ],
+      "classification_evidence": [
+       "알람 대기열 · 세션 · 보고서를 지속 기록으로 다룬다(SC-01, SC-07)",
+       "점검 → 결과 입력 → 재순위를 여러 번 반복한다(SC-04)",
+       "C · D 작업은 파트장 호출로 넘긴다(SC-11)"
+      ],
+      "discovery_mode": "curated",
+      "source_guides": [
+       "https://www.saasui.design/saas-design"
+      ]
+     },
+     {
+      "id": "lead-workflow",
+      "page_ids": [
+       "L01",
+       "L02",
+       "L03",
+       "L04",
+       "L05",
+       "L06"
+      ],
+      "classification": "workflow_product",
+      "workflow_signals": [
+       "persistent_records",
+       "queue_state_filter_compare",
+       "role_authority_handoff",
+       "multi_workspace_operation"
+      ],
+      "classification_evidence": [
+       "승인 대기 · 호출 대기열을 상태로 처리한다(SC-31, SC-36)",
+       "등급 · 승인으로 권한 경계를 관리한다(SC-38)",
+       "메뉴 4개 작업 공간을 오간다(가이드 15~17쪽)"
+      ],
+      "discovery_mode": "curated",
+      "source_guides": [
+       "https://www.saasui.design/saas-design",
+       "https://www.saasui.design/blog/saas-list-detail-master-detail-ux-patterns"
+      ]
+     }
+    ]
+   },
+   "candidate_pages": {
+    "guide-a": {
+     "T01": {
+      "default": "wireframes/v4/structure/guide-a/T01--default.html",
+      "role_error": "wireframes/v4/structure/guide-a/T01--role_error.html"
+     },
+     "T02": {
+      "empty": "wireframes/v4/structure/guide-a/T02--empty.html",
+      "new_alarm": "wireframes/v4/structure/guide-a/T02--new_alarm.html",
+      "in_progress": "wireframes/v4/structure/guide-a/T02--in_progress.html",
+      "rejected": "wireframes/v4/structure/guide-a/T02--rejected.html"
+     },
+     "T03": {
+      "default": "wireframes/v4/structure/guide-a/T03--default.html"
+     },
+     "T04": {
+      "default": "wireframes/v4/structure/guide-a/T04--default.html",
+      "low_evidence": "wireframes/v4/structure/guide-a/T04--low_evidence.html"
+     },
+     "T05": {
+      "before_lock": "wireframes/v4/structure/guide-a/T05--before_lock.html",
+      "locked": "wireframes/v4/structure/guide-a/T05--locked.html"
+     },
+     "T06": {
+      "default": "wireframes/v4/structure/guide-a/T06--default.html",
+      "fallback": "wireframes/v4/structure/guide-a/T06--fallback.html",
+      "unable_next": "wireframes/v4/structure/guide-a/T06--unable_next.html",
+      "llm_repeat": "wireframes/v4/structure/guide-a/T06--llm_repeat.html",
+      "b_precheck": "wireframes/v4/structure/guide-a/T06--b_precheck.html"
+     },
+     "T07": {
+      "confirm_question": "wireframes/v4/structure/guide-a/T07--confirm_question.html",
+      "out_of_scope": "wireframes/v4/structure/guide-a/T07--out_of_scope.html"
+     },
+     "T08": {
+      "action_a": "wireframes/v4/structure/guide-a/T08--action_a.html",
+      "checklist_b": "wireframes/v4/structure/guide-a/T08--checklist_b.html",
+      "restart_check": "wireframes/v4/structure/guide-a/T08--restart_check.html",
+      "corrected_path": "wireframes/v4/structure/guide-a/T08--corrected_path.html"
+     },
+     "T09": {
+      "draft": "wireframes/v4/structure/guide-a/T09--draft.html",
+      "check_failed": "wireframes/v4/structure/guide-a/T09--check_failed.html",
+      "confirmed": "wireframes/v4/structure/guide-a/T09--confirmed.html"
+     },
+     "T10": {
+      "summary": "wireframes/v4/structure/guide-a/T10--summary.html",
+      "waiting": "wireframes/v4/structure/guide-a/T10--waiting.html",
+      "sent": "wireframes/v4/structure/guide-a/T10--sent.html",
+      "ans_approved": "wireframes/v4/structure/guide-a/T10--ans_approved.html",
+      "ans_daytime": "wireframes/v4/structure/guide-a/T10--ans_daytime.html",
+      "ans_direct": "wireframes/v4/structure/guide-a/T10--ans_direct.html",
+      "summary_corrected": "wireframes/v4/structure/guide-a/T10--summary_corrected.html"
+     },
+     "T11": {
+      "expert_handover": "wireframes/v4/structure/guide-a/T11--expert_handover.html",
+      "monitor_close": "wireframes/v4/structure/guide-a/T11--monitor_close.html",
+      "unable_repeat": "wireframes/v4/structure/guide-a/T11--unable_repeat.html"
+     },
+     "L01": {
+      "default": "wireframes/v4/structure/guide-a/L01--default.html",
+      "role_error": "wireframes/v4/structure/guide-a/L01--role_error.html"
+     },
+     "L02": {
+      "list": "wireframes/v4/structure/guide-a/L02--list.html",
+      "empty": "wireframes/v4/structure/guide-a/L02--empty.html"
+     },
+     "L03": {
+      "review": "wireframes/v4/structure/guide-a/L03--review.html",
+      "edit": "wireframes/v4/structure/guide-a/L03--edit.html",
+      "edit_failed": "wireframes/v4/structure/guide-a/L03--edit_failed.html",
+      "reject": "wireframes/v4/structure/guide-a/L03--reject.html"
+     },
+     "L04": {
+      "list": "wireframes/v4/structure/guide-a/L04--list.html",
+      "call_detail": "wireframes/v4/structure/guide-a/L04--call_detail.html",
+      "handover_detail": "wireframes/v4/structure/guide-a/L04--handover_detail.html",
+      "call_corrected": "wireframes/v4/structure/guide-a/L04--call_corrected.html"
+     },
+     "L05": {
+      "default": "wireframes/v4/structure/guide-a/L05--default.html",
+      "lower_warning": "wireframes/v4/structure/guide-a/L05--lower_warning.html",
+      "raise_warning": "wireframes/v4/structure/guide-a/L05--raise_warning.html"
+     },
+     "L06": {
+      "default": "wireframes/v4/structure/guide-a/L06--default.html",
+      "filtered": "wireframes/v4/structure/guide-a/L06--filtered.html",
+      "correction": "wireframes/v4/structure/guide-a/L06--correction.html"
+     },
+     "T12": {
+      "list": "wireframes/v4/structure/guide-a/T12--list.html",
+      "empty": "wireframes/v4/structure/guide-a/T12--empty.html"
+     },
+     "T13": {
+      "default": "wireframes/v4/structure/guide-a/T13--default.html"
+     },
+     "T14": {
+      "default": "wireframes/v4/structure/guide-a/T14--default.html"
+     },
+     "T15": {
+      "alarm": "wireframes/v4/structure/guide-a/T15--alarm.html",
+      "diagnosis": "wireframes/v4/structure/guide-a/T15--diagnosis.html",
+      "check": "wireframes/v4/structure/guide-a/T15--check.html",
+      "check_current": "wireframes/v4/structure/guide-a/T15--check_current.html",
+      "lock": "wireframes/v4/structure/guide-a/T15--lock.html",
+      "precheck": "wireframes/v4/structure/guide-a/T15--precheck.html",
+      "action": "wireframes/v4/structure/guide-a/T15--action.html",
+      "note": "wireframes/v4/structure/guide-a/T15--note.html",
+      "correct": "wireframes/v4/structure/guide-a/T15--correct.html",
+      "correct_confirm": "wireframes/v4/structure/guide-a/T15--correct_confirm.html",
+      "corrected": "wireframes/v4/structure/guide-a/T15--corrected.html",
+      "closed": "wireframes/v4/structure/guide-a/T15--closed.html"
+     }
+    }
+   },
+   "candidate_briefs": {
+    "guide-a": "wireframes/v4/structure/guide-a.md"
+   },
+   "candidate_reference_ids": {
+    "guide-a": [
+     "RP-01",
+     "RP-02",
+     "RP-03",
+     "RP-04",
+     "RP-05",
+     "RP-06",
+     "RP-07",
+     "RP-09",
+     "RP-10",
+     "RP-08"
+    ]
+   },
+   "candidate_page_evidence": {
+    "guide-a": {
+     "T01": {
+      "states": [
+       "default",
+       "role_error"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "정비자 계정",
+       "primary_action": "로그인",
+       "completion_judgment": "정비자 홈이 열림, 역할이 다르면 오류",
+       "required_information": "ID · 비밀번호 · 역할 오류 문구"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-06"
+      ],
+      "borrowed_principle": "가운데 단일 입력 카드와 주 버튼 하나",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-11"
+      ],
+      "scenario_refs": [
+       "SC-20"
+      ]
+     },
+     "T02": {
+      "states": [
+       "empty",
+       "new_alarm",
+       "in_progress",
+       "rejected"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "내 알람 · 최근 내 보고서",
+       "primary_action": "새 알람 점검 시작 / 진행 중 이어서 하기 / 반려 확인",
+       "completion_judgment": "세션이 열림",
+       "required_information": "알람별 설비 · 증상 · 시각 · 상태, 교대 현황, 반려 사유"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-05"
+      ],
+      "borrowed_principle": "행 안 상태 표시와 행 끝 처리 버튼",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-08"
+      ],
+      "scenario_refs": [
+       "SC-01",
+       "SC-07",
+       "SC-18",
+       "SC-29",
+       "SC-50",
+       "SC-51"
+      ]
+     },
+     "T03": {
+      "states": [
+       "default"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "알람 1건",
+       "primary_action": "증상 확인 후 진단 보기",
+       "completion_judgment": "진단 화면으로 넘어감",
+       "required_information": "증상군, 이탈 센서와 경계, 직전 12회 추이, AI 해석"
+      },
+      "match_type": "contract_designed",
+      "reference_ids": [],
+      "borrowed_principle": "",
+      "contract_design_reason": "알람 해석 화면(증상군 · 센서 표 · 추이 · AI 해석)은 가이드 5쪽과 SC-01이 영역·순서를 정한 제품 고유 화면이다.",
+      "adaptation_ids": [
+       "AD-01"
+      ],
+      "scenario_refs": [
+       "SC-01"
+      ]
+     },
+     "T04": {
+      "states": [
+       "default",
+       "low_evidence"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "원인 후보 · 다음 점검",
+       "primary_action": "다음 점검과 이유 확인 후 점검 시작",
+       "completion_judgment": "잠금 확인으로 넘어감",
+       "required_information": "순위 % · 근거 n, 과거 기록 3건, 등급 · 절 · 분, 고른 이유, 근거 적음"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-02"
+      ],
+      "borrowed_principle": "본문 옆 같은 대상의 판단 패널",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-01",
+       "AD-02"
+      ],
+      "scenario_refs": [
+       "SC-02",
+       "SC-09",
+       "SC-52",
+       "SC-53"
+      ]
+     },
+     "T05": {
+      "states": [
+       "before_lock",
+       "locked"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "잠금 · 사전 확인",
+       "primary_action": "잠금 완료, 사전 확인 기록",
+       "completion_judgment": "지시된 점검이 열림",
+       "required_information": "1.2절 절차, 잠금 시각, 가려진 지시"
+      },
+      "match_type": "contract_designed",
+      "reference_ids": [],
+      "borrowed_principle": "",
+      "contract_design_reason": "잠금 게이트는 R1(API 수준 차단)과 가이드 7쪽이 정한 안전 규칙이라 외부 화면에서 빌려 올 수 없다.",
+      "adaptation_ids": [
+       "AD-03"
+      ],
+      "scenario_refs": [
+       "SC-03",
+       "SC-10"
+      ]
+     },
+     "T06": {
+      "states": [
+       "default",
+       "fallback",
+       "unable_next",
+       "llm_repeat",
+       "b_precheck"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "지시된 점검 1개",
+       "primary_action": "절차대로 점검하고 결과 + 메모 보내기(B 점검은 시작 전 체크리스트 확인 뒤)",
+       "completion_judgment": "순위 갱신 뒤 다음 단계",
+       "required_information": "절차, 판정 기준, 원문 · 근거, 점검 n / 최대 m, 원문 대체 표시, B 점검 시작 전 체크리스트"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-08"
+      ],
+      "borrowed_principle": "순서 있는 단계와 아래 고정 주 행동, 확인 전에는 다음 행동 잠금",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-01",
+       "AD-12",
+       "AD-16"
+      ],
+      "scenario_refs": [
+       "SC-04",
+       "SC-13",
+       "SC-17",
+       "SC-21",
+       "SC-28",
+       "SC-29"
+      ]
+     },
+     "T07": {
+      "states": [
+       "confirm_question",
+       "out_of_scope"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "메모 해석",
+       "primary_action": "확인 질문 답 / 인계 또는 계속 선택",
+       "completion_judgment": "순위 반영 또는 다시 입력 / 인계",
+       "required_information": "내 메모, AI의 이해, 두 선택지"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-07"
+      ],
+      "borrowed_principle": "작업 화면 위 작은 확인 창과 두 버튼",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-04"
+      ],
+      "scenario_refs": [
+       "SC-08",
+       "SC-13"
+      ]
+     },
+     "T08": {
+      "states": [
+       "action_a",
+       "checklist_b",
+       "restart_check",
+       "corrected_path"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "확정 원인 · 조치",
+       "primary_action": "조치 진행, 체크리스트 확인, 재가동, 경계 확인 입력",
+       "completion_judgment": "보고서로 또는 숙련자 인계",
+       "required_information": "원인 · 근거, 조치 등급, 체크리스트, 현재 값 · 경계, 점검 경로"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-08"
+      ],
+      "borrowed_principle": "단계 완료 전에는 다음 행동을 잠금",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-01",
+       "AD-06"
+      ],
+      "scenario_refs": [
+       "SC-05",
+       "SC-15",
+       "SC-41"
+      ]
+     },
+     "T09": {
+      "states": [
+       "draft",
+       "check_failed",
+       "confirmed"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "보고서 8항목",
+       "primary_action": "항목 확인 · 수정 후 확정",
+       "completion_judgment": "승인 대기",
+       "required_information": "8항목 · 출처, 확정 전 확인 3항목"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-03"
+      ],
+      "borrowed_principle": "행 = 이름 + 값 + 오른쪽 조작",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-06"
+      ],
+      "scenario_refs": [
+       "SC-06",
+       "SC-16"
+      ]
+     },
+     "T10": {
+      "states": [
+       "summary",
+       "waiting",
+       "sent",
+       "ans_approved",
+       "ans_daytime",
+       "ans_direct",
+       "summary_corrected"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "파트장 호출",
+       "primary_action": "요약 확인 · 수정 후 호출 또는 대기, 답 확인",
+       "completion_judgment": "답에 따라 지시 열림 · 감시 · 대기",
+       "required_information": "C 점검 · 절 · 분, 지금까지 점검, 남은 후보 %, 요약, 답 상태"
+      },
+      "match_type": "contract_designed",
+      "reference_ids": [],
+      "borrowed_principle": "",
+      "contract_design_reason": "C·D등급 호출 판정과 요약은 R5·S5가 정한 권한 경계라 외부 화면을 빌려 오지 않는다. 승인 후 진행 뒤 열린 C 점검과 그 뒤 판정(SC-27)도 같은 화면 구조와 T06 · T08 · T10 구조를 그대로 쓴다.",
+      "adaptation_ids": [
+       "AD-05"
+      ],
+      "scenario_refs": [
+       "SC-11",
+       "SC-12",
+       "SC-19",
+       "SC-27",
+       "SC-42"
+      ]
+     },
+     "T11": {
+      "states": [
+       "expert_handover",
+       "monitor_close",
+       "unable_repeat"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "멈춤",
+       "primary_action": "숙련자 인계 / 감시 마감",
+       "completion_judgment": "인계 요약 전송 또는 보고서 작성",
+       "required_information": "멈춘 이유, 요약, 점검 경로, 확정 원인 표기"
+      },
+      "match_type": "contract_designed",
+      "reference_ids": [],
+      "borrowed_principle": "",
+      "contract_design_reason": "멈춤 상황 네 가지는 S6과 가이드 14쪽이 정한 제품 고유 상태다.",
+      "adaptation_ids": [
+       "AD-12"
+      ],
+      "scenario_refs": [
+       "SC-13",
+       "SC-14",
+       "SC-15"
+      ]
+     },
+     "T12": {
+      "states": [
+       "list",
+       "empty"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "알람 · 할 일",
+       "primary_action": "목록을 보고 항목에서 해당 화면으로 이동",
+       "completion_judgment": "해당 화면이 열림, 없으면 빈 목록 안내",
+       "required_information": "종류 4묶음, 항목별 설비 · 증상 · 시각 · 상태, 이동 버튼"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-09",
+       "RP-10"
+      ],
+      "borrowed_principle": "현재 화면 위 목록 패널과 상태 점 항목 행",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-13"
+      ],
+      "scenario_refs": [
+       "SC-22",
+       "SC-25"
+      ]
+     },
+     "T13": {
+      "states": [
+       "default"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "과거 기록 1건",
+       "primary_action": "기록 전체를 읽고 닫기",
+       "completion_judgment": "원래 화면으로 돌아감",
+       "required_information": "설비 · 발생 시각 · 증상 · 센서 값 · 점검 경로 · 확정 원인 · 조치 · 정지 시간 · 서술"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-07",
+       "RP-02"
+      ],
+      "borrowed_principle": "작업 화면 위 창과 이름/값 속성 목록",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-14"
+      ],
+      "scenario_refs": [
+       "SC-23"
+      ]
+     },
+     "T14": {
+      "states": [
+       "default"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "매뉴얼 절 1개",
+       "primary_action": "원문을 읽고 닫기",
+       "completion_judgment": "원래 화면으로 돌아감",
+       "required_information": "절 번호 · 제목 · 등급 · 소요 분 · 절차 · 판정 기준 · 조치"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-07"
+      ],
+      "borrowed_principle": "작업 화면 위 창",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-14",
+       "AD-12"
+      ],
+      "scenario_refs": [
+       "SC-24"
+      ]
+     },
+     "T15": {
+      "states": [
+       "alarm",
+       "diagnosis",
+       "check",
+       "check_current",
+       "lock",
+       "precheck",
+       "action",
+       "note",
+       "correct",
+       "correct_confirm",
+       "corrected",
+       "closed"
+      ],
+      "page_task": {
+       "actor": "정비자",
+       "object": "지나온 단계의 그때 화면",
+       "primary_action": "그때 화면을 보고, 정비자가 입력한 값은 사유와 함께 정정, 그 밖의 기록은 메모 덧붙이기, 현재 단계로 돌아가기",
+       "completion_judgment": "정정이 저장되어 최신 값 · 정정 n회가 보이거나, 현재 단계 · 입력 그대로 돌아감",
+       "required_information": "보는 단계 · 제출 시각 · 이전 · 다음 · 현재 단계로, 그때 값, 이 기록 정정 / 메모 덧붙이기, 원래 값 · 정정 값 · 사유, 정정 n회 · 이전 값"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-02",
+       "RP-07"
+      ],
+      "borrowed_principle": "같은 화면 구조를 기록 보기로 다시 열고 그 위에 확인 창",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-15",
+       "AD-18"
+      ],
+      "scenario_refs": [
+       "SC-26",
+       "SC-40",
+       "SC-41",
+       "SC-43",
+       "SC-44"
+      ]
+     },
+     "L01": {
+      "states": [
+       "default",
+       "role_error"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "파트장 계정",
+       "primary_action": "로그인",
+       "completion_judgment": "승인 대기 화면이 열림, 역할이 다르면 오류",
+       "required_information": "ID · 비밀번호 · 역할 오류 문구"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-06"
+      ],
+      "borrowed_principle": "가운데 단일 입력 카드와 주 버튼 하나",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-11"
+      ],
+      "scenario_refs": [
+       "SC-30"
+      ]
+     },
+     "L02": {
+      "states": [
+       "list",
+       "empty"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "승인 대기 보고서",
+       "primary_action": "검토할 보고서 고르기",
+       "completion_judgment": "검토 화면으로",
+       "required_information": "요약 타일 3개, 행별 설비 · 원인 · 작성자 · 시각 · 근거 · 근거 적음 · 권한"
+      },
+      "match_type": "direct",
+      "reference_ids": [
+       "RP-05",
+       "RP-01"
+      ],
+      "borrowed_principle": "행 안 상태 열과 행 끝 처리 버튼, 왼쪽 고정 내비",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-07",
+       "AD-08"
+      ],
+      "scenario_refs": [
+       "SC-31",
+       "SC-32"
+      ]
+     },
+     "L03": {
+      "states": [
+       "review",
+       "edit",
+       "edit_failed",
+       "reject"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "보고서 1건",
+       "primary_action": "그대로 승인 / 수정 후 승인 / 반려",
+       "completion_judgment": "이력 추가 또는 작성자에게 반환",
+       "required_information": "보고서 내용, 결정 3개, 메모 · 사유, 근거 검사 결과"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-02"
+      ],
+      "borrowed_principle": "본문 옆 결정 패널",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-07",
+       "AD-09"
+      ],
+      "scenario_refs": [
+       "SC-33",
+       "SC-34",
+       "SC-35"
+      ]
+     },
+     "L04": {
+      "states": [
+       "list",
+       "call_detail",
+       "handover_detail",
+       "call_corrected"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "호출 · 인계",
+       "primary_action": "답과 처리 메모 저장",
+       "completion_judgment": "정비자 앱과 보고서에 반영",
+       "required_information": "유형, 요약, 필요한 작업, 답 선택지"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-04",
+       "RP-02"
+      ],
+      "borrowed_principle": "열이 정해진 표와 상세 옆 답하기 패널",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-07",
+       "AD-10"
+      ],
+      "scenario_refs": [
+       "SC-36",
+       "SC-37",
+       "SC-42"
+      ]
+     },
+     "L05": {
+      "states": [
+       "default",
+       "lower_warning",
+       "raise_warning"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "절별 등급",
+       "primary_action": "등급 변경(모든 변경에 경고 확인)",
+       "completion_judgment": "다음 판정부터 적용, 변경 기록",
+       "required_information": "절 · 작업 · 현재 등급, 낮춤 · 올림 경고, 변경 기록"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-03"
+      ],
+      "borrowed_principle": "행 = 이름 + 오른쪽 조작",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-07",
+       "AD-06",
+       "AD-17"
+      ],
+      "scenario_refs": [
+       "SC-38",
+       "SC-53"
+      ]
+     },
+     "L06": {
+      "states": [
+       "default",
+       "filtered",
+       "correction"
+      ],
+      "page_task": {
+       "actor": "파트장",
+       "object": "감사 기록",
+       "primary_action": "설비 · 사용자 · 기간으로 거르기",
+       "completion_judgment": "조건에 맞는 기록이 시간순",
+       "required_information": "시각 · 사용자 · 앱 · 행동 · 대상"
+      },
+      "match_type": "principle",
+      "reference_ids": [
+       "RP-04"
+      ],
+      "borrowed_principle": "열이 정해진 관리 표",
+      "contract_design_reason": "",
+      "adaptation_ids": [
+       "AD-07",
+       "AD-10"
+      ],
+      "scenario_refs": [
+       "SC-39",
+       "SC-40"
+      ]
+     }
+    }
+   },
+   "candidate_viability": {
+    "guide-a": {
+     "status": "viable",
+     "scenario_assessments": [
+      {
+       "scenario_refs": [
+        "SC-01",
+        "SC-07",
+        "SC-18",
+        "SC-50",
+        "SC-51"
+       ],
+       "critical_path": "홈 대기열에서 새 알람 '점검 시작', 진행 중 '이어서 하기', 반려 사유 확인 후 '이어서 하기'",
+       "required_information": "알람 상태 점 · 시각 · 진행 단계, 반려 사유",
+       "additional_cost": "none",
+       "compensating_benefit": "가이드 4쪽 그대로라 추가 이동이 없다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-02",
+        "SC-09",
+        "SC-52",
+        "SC-53"
+       ],
+       "critical_path": "알람 화면 → 진단 한 화면에서 순위 · 과거 기록 · 다음 점검을 함께 보고 '점검 시작'",
+       "required_information": "순위 %, 근거 n, 과거 기록 3건, 등급 · 절 · 분, 근거 적음",
+       "additional_cost": "none",
+       "compensating_benefit": "판단 정보와 행동이 한 화면에 있어 다시 찾아 들어가지 않는다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-03",
+        "SC-10"
+       ],
+       "critical_path": "잠금 화면에서 '잠금 완료' 뒤에만 사전 확인과 지시가 열림",
+       "required_information": "1.2절 절차, 가려진 지시",
+       "additional_cost": "잠금 확인 한 단계(약 2분)",
+       "compensating_benefit": "안전 규칙(R1)이며 생략할 수 없다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-04",
+        "SC-08",
+        "SC-13",
+        "SC-17",
+        "SC-21"
+       ],
+       "critical_path": "지시 1개를 보고 결과 버튼 + 메모 → 확인 질문 또는 소견 안내 → 다음 단계",
+       "required_information": "절차 · 판정 기준 · 원문 · 근거, 원문 대체 · 실패 배너",
+       "additional_cost": "애매한 메모일 때만 확인 창 한 번",
+       "compensating_benefit": "잘못된 순위 변경을 막는다(R7)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-05",
+        "SC-14",
+        "SC-15"
+       ],
+       "critical_path": "원인 확정 → A 조치 완료 / B 체크리스트 → 재가동 체크리스트 → 경계 이내/여전히 밖 선택",
+       "required_information": "원인 · 근거, 등급, 체크리스트, 현재 값 · 경계, 점검 경로",
+       "additional_cost": "체크리스트 확인",
+       "compensating_benefit": "B등급 안전 확인이며 생략하지 않는다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-06",
+        "SC-16"
+       ],
+       "critical_path": "보고서 8항목 확인 · 연필로 수정 → 확정 전 확인 3항목 통과 → 확정",
+       "required_information": "8항목 · 출처, 확정 전 확인",
+       "additional_cost": "none",
+       "compensating_benefit": "확정 전 확인이 잘못된 보고서의 이력 유입을 막는다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-11",
+        "SC-12",
+        "SC-19"
+       ],
+       "critical_path": "지시 대신 호출 요약 → 호출 또는 대기 → 같은 화면에서 답 상태 확인",
+       "required_information": "C 점검 · 남은 후보 % · 요약 · 답",
+       "additional_cost": "none",
+       "compensating_benefit": "C · D 작업을 지시하지 않는 권한 경계를 화면으로 보인다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-20",
+        "SC-30"
+       ],
+       "critical_path": "각 앱 로그인 카드에서 ID · 비밀번호 입력",
+       "required_information": "역할 불일치 오류",
+       "additional_cost": "none",
+       "compensating_benefit": "가이드에 없는 화면이지만 같은 시각 언어로 한 장",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-31",
+        "SC-32",
+        "SC-33",
+        "SC-34",
+        "SC-35"
+       ],
+       "critical_path": "승인 대기 목록 → 검토 → 결정 저장",
+       "required_information": "요약 타일, 행 상태, 보고서 내용, 결정 3개, 검사 결과",
+       "additional_cost": "none",
+       "compensating_benefit": "목록과 검토가 같은 메뉴 안에 있다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-36",
+        "SC-37"
+       ],
+       "critical_path": "호출 목록 → 답하기 → 답 저장",
+       "required_information": "유형 · 요약 · 필요한 작업 · 답 선택지",
+       "additional_cost": "none",
+       "compensating_benefit": "승인 대기와 같은 목록 → 상세 방식이라 새로 배울 것이 없다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-38"
+       ],
+       "critical_path": "등급 표에서 행의 등급 선택 → 낮춤 · 올림 경고 확인 → 저장",
+       "required_information": "현재 등급, 경고, 변경 기록",
+       "additional_cost": "변경마다 경고 확인 한 번",
+       "compensating_benefit": "야간 단독 작업 확대와 갑작스러운 지시 중단을 모두 확인하고 바꾼다(EV-062)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-26",
+        "SC-44"
+       ],
+       "critical_path": "진행 표시의 완료 단계 → 그때 화면(이전 · 다음으로 같은 단계 기록 넘김) → 현재 단계로",
+       "required_information": "그때 값 · 제출 시각, 정정 / 메모 덧붙이기 구분",
+       "additional_cost": "지난 화면을 열고 돌아오는 두 번의 누름",
+       "compensating_benefit": "요약이 아니라 그때 화면 그대로 확인한다(EV-068). 정정하지 않는 기록은 메모만 덧붙여 실제로 한 일의 기록을 지킨다(EV-069 · 074)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-29"
+       ],
+       "critical_path": "어느 정비자 화면에서든 상단 '홈' → 홈 → '이어서 하기'나 종 목록으로 같은 자리",
+       "required_information": "진행 중 세션 표시, 보내지 않은 입력 유지",
+       "additional_cost": "홈에 갔다 오는 두 번의 누름",
+       "compensating_benefit": "점검 중에도 다른 알람 · 할 일을 확인하고 하던 자리로 돌아온다(EV-067)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-40",
+        "SC-41",
+        "SC-43"
+       ],
+       "critical_path": "지난 화면 '이 기록 정정' → 정정 값 · 사유 → (열린 지시가 바뀌면 확인 창) → 저장 → 새 다음 단계",
+       "required_information": "원래 값 · 정정 값 · 사유, 지워질 입력 안내, 정정 n회 · 정정으로 무효",
+       "additional_cost": "사유 입력과 확인 창 한 번",
+       "compensating_benefit": "실수한 결과를 고치되 흔적을 남기고 정비자가 모르게 입력이 사라지지 않는다(EV-069 · 070 · 071 · 072)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-42"
+       ],
+       "critical_path": "조치 뒤 정정 → 다시 판정 대신 호출 요약(정정 내용) / 보낸 호출이 있으면 그 호출에 정정 상자",
+       "required_information": "정정 내용 · 조치 완료 · 요약",
+       "additional_cost": "none",
+       "compensating_benefit": "바뀐 설비 상태에서 옛 결과로 지시하지 않는다(EV-070)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-27"
+       ],
+       "critical_path": "승인 후 진행 → 열린 C 점검(T06 구조) → 결과 → 원인 확정 · 다음 점검 · 다시 호출(T08 · T06 · T10 구조)",
+       "required_information": "승인자 · 시각, 지시 절차, 순위",
+       "additional_cost": "none",
+       "compensating_benefit": "승인된 작업 뒤에도 같은 규칙과 화면으로 이어진다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-28"
+       ],
+       "critical_path": "등급이 바뀐 뒤 다음 판정: A 지시(T06) · B 시작 전 체크리스트 뒤 지시(T06 / b_precheck) · C · D 호출(T10)",
+       "required_information": "새 등급 배지, 시작 전 체크리스트",
+       "additional_cost": "B일 때만 체크리스트 확인",
+       "compensating_benefit": "파트장이 정한 안전 조건을 다음 판정부터 그대로 따른다",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-22",
+        "SC-25"
+       ],
+       "critical_path": "어느 화면에서든 종 아이콘 → 목록 패널 → 항목 이동 버튼",
+       "required_information": "종류 4묶음 · 상태 점 · 시각, 빈 목록 안내",
+       "additional_cost": "패널을 여는 한 번의 누름",
+       "compensating_benefit": "알람과 할 일을 한곳에서 확인(사용자 결정 004)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-23",
+        "SC-24"
+       ],
+       "critical_path": "기록 카드 · 근거 링크 · 원문 보기 → 창 → 닫기",
+       "required_information": "기록 9항목 · 서술 / 절 원문",
+       "additional_cost": "창을 열고 닫는 두 번의 누름",
+       "compensating_benefit": "진단 · 지시 화면을 떠나지 않고 근거 확인(명세 S2 · S3)",
+       "result": "supports"
+      },
+      {
+       "scenario_refs": [
+        "SC-39"
+       ],
+       "critical_path": "감사 기록 표 위 필터 3개",
+       "required_information": "시각 · 사용자 · 앱 · 행동 · 대상",
+       "additional_cost": "none",
+       "compensating_benefit": "가이드에 없는 화면을 승인 대기와 같은 표 형식으로 만든다(S11 기본안)",
+       "result": "supports"
+      }
+     ]
+    }
+   },
+   "candidate_work_models": {
+    "guide-a": {
+     "first_view": "정비자: 내 알람 대기열(홈) / 파트장: 승인 대기 목록",
+     "navigation": "정비자: 알람 → 진단 → 점검 → 조치 → 보고서 단계 이동(상단 진행 표시) / 파트장: 왼쪽 고정 메뉴 4개 사이 이동",
+     "layout_topology": "정비자: 단계형 화면 · 좌우 2열(판단 정보 | 지금 할 행동) / 파트장: 왼쪽 메뉴 + 목록 · 상세 2열",
+     "primary_information_unit": "정비자: 점검 1개(지시 카드)와 원인 후보 행 / 파트장: 보고서 · 호출 · 등급 행",
+     "primary_action_surface": "정비자: 오른쪽 열의 큰 주 버튼 하나(점검 시작 · 결과 보내기 · 재가동 · 확정 · 호출) / 파트장: 상세 오른쪽 결정 패널",
+     "interaction_mode": "결과 버튼(정상·이상·확인 불가) + 메모 폼, 확인 질문 모달, 체크리스트 확인 뒤 열리는 버튼",
+     "information_exposure": "한 대상에 집중: 한 번에 점검 하나만 보이고, 순위·과거 기록·점검 경로는 같은 화면 왼쪽에 함께 보임",
+     "state_feedback_placement": "상단 알람 표시줄과 진행 단계, 화면 안 상태 배너(근거 적음·원문 대체·호출 상태), 점검 경로 타임라인, 파트장 목록의 상태 칩"
+    }
+   },
+   "candidate_count_exception_reason": "wireframe_structure v4: v3(승인)에 G3 Human Gate(v13 승인 뒤) 사용자 결정 010 · 011에 따른 바뀜을 더했다. 정비자 앱 모든 화면 상단 바에 '홈'(종 왼쪽)을 두었다. T15는 지난 단계 보기 창(요약)을 지난 화면(그 단계의 원래 화면을 그때 값으로 다시 그림 + 위 띠의 제출 시각 · 이전 · 다음 · 현재 단계로)으로 바꾸고, 정정 창 · 정정 확인 · 정정 뒤 · 메모 덧붙이기 · 확정한 세션 상태를 더했다(11 상태). T08 / corrected_path(다시 판정 뒤 '정정으로 무효'), T10 / summary_corrected(조치 뒤 정정 호출), L04 / call_corrected(보낸 호출에 붙은 정정), L06 / correction(정정 기록)을 더했다. 상단 홈 버튼과 지난 화면 · 정정은 가이드에 없어 같은 시각 언어로 만들었다(D17 예외). 후보는 guide-a 하나다. 사용자가 G0에서 'G2A·G2B는 사용 가이드 화면을 유일한 안으로 한다'(D17)를 승인했다. 그래서 다른 화면 토폴로지·정보 단위·상호작용 방식의 후보를 만들면 승인 결정을 뒤집게 된다. 제외한 구조는 세 가지다. (1) 목록-상세 분할 화면 하나에서 순위와 점검을 함께 처리하는 안: 태블릿 한 화면에 점검 하나만 보이게 한 가이드 원칙과 맞지 않는다. (2) 보드형 점검 대기열 안: 지시된 점검 하나를 따르는 흐름(AC-35)을 깨고 건너뛰기를 유도한다. 진행 표시를 탭처럼 눌러 현재 단계를 바꾸는 안도 같은 이유로 제외했다(지난 화면은 보기 상태로만 열리고 '현재 단계로'로 돌아온다). 지난 화면에서 결과를 바로 고쳐 쓰는 안(정정 창 없이 제자리 편집)도 사유 · 원래 값 기록을 건너뛰게 해 제외했다. (3) 파트장 앱을 받은편지함형 한 목록으로 합치는 안: 가이드 15~17쪽의 메뉴 4개 구조를 바꾼다.",
+   "decision_screens": [
+    "T15:check",
+    "T15:correct_confirm",
+    "L04:call_corrected"
+   ],
+   "samples": "wireframes/v4/samples/review-sample.json",
+   "prior_versions": [
+    "v3: wireframes/v3/structure-review.html(approved, decisions/history/G2A-wireframe-structure-v3.json)"
+   ],
+   "decision": "decisions/G2A-wireframe-structure.json",
+   "selected_blueprint": "wireframes/v4/structure/selected.md",
+   "selected_pages": {
+    "T01": {
+     "default": "wireframes/v4/structure/selected/T01--default.html",
+     "role_error": "wireframes/v4/structure/selected/T01--role_error.html"
+    },
+    "T02": {
+     "empty": "wireframes/v4/structure/selected/T02--empty.html",
+     "new_alarm": "wireframes/v4/structure/selected/T02--new_alarm.html",
+     "in_progress": "wireframes/v4/structure/selected/T02--in_progress.html",
+     "rejected": "wireframes/v4/structure/selected/T02--rejected.html"
+    },
+    "T03": {
+     "default": "wireframes/v4/structure/selected/T03--default.html"
+    },
+    "T04": {
+     "default": "wireframes/v4/structure/selected/T04--default.html",
+     "low_evidence": "wireframes/v4/structure/selected/T04--low_evidence.html"
+    },
+    "T05": {
+     "before_lock": "wireframes/v4/structure/selected/T05--before_lock.html",
+     "locked": "wireframes/v4/structure/selected/T05--locked.html"
+    },
+    "T06": {
+     "default": "wireframes/v4/structure/selected/T06--default.html",
+     "fallback": "wireframes/v4/structure/selected/T06--fallback.html",
+     "unable_next": "wireframes/v4/structure/selected/T06--unable_next.html",
+     "llm_repeat": "wireframes/v4/structure/selected/T06--llm_repeat.html",
+     "b_precheck": "wireframes/v4/structure/selected/T06--b_precheck.html"
+    },
+    "T07": {
+     "confirm_question": "wireframes/v4/structure/selected/T07--confirm_question.html",
+     "out_of_scope": "wireframes/v4/structure/selected/T07--out_of_scope.html"
+    },
+    "T08": {
+     "action_a": "wireframes/v4/structure/selected/T08--action_a.html",
+     "checklist_b": "wireframes/v4/structure/selected/T08--checklist_b.html",
+     "restart_check": "wireframes/v4/structure/selected/T08--restart_check.html",
+     "corrected_path": "wireframes/v4/structure/selected/T08--corrected_path.html"
+    },
+    "T09": {
+     "draft": "wireframes/v4/structure/selected/T09--draft.html",
+     "check_failed": "wireframes/v4/structure/selected/T09--check_failed.html",
+     "confirmed": "wireframes/v4/structure/selected/T09--confirmed.html"
+    },
+    "T10": {
+     "summary": "wireframes/v4/structure/selected/T10--summary.html",
+     "waiting": "wireframes/v4/structure/selected/T10--waiting.html",
+     "sent": "wireframes/v4/structure/selected/T10--sent.html",
+     "ans_approved": "wireframes/v4/structure/selected/T10--ans_approved.html",
+     "ans_daytime": "wireframes/v4/structure/selected/T10--ans_daytime.html",
+     "ans_direct": "wireframes/v4/structure/selected/T10--ans_direct.html",
+     "summary_corrected": "wireframes/v4/structure/selected/T10--summary_corrected.html"
+    },
+    "T11": {
+     "expert_handover": "wireframes/v4/structure/selected/T11--expert_handover.html",
+     "monitor_close": "wireframes/v4/structure/selected/T11--monitor_close.html",
+     "unable_repeat": "wireframes/v4/structure/selected/T11--unable_repeat.html"
+    },
+    "L01": {
+     "default": "wireframes/v4/structure/selected/L01--default.html",
+     "role_error": "wireframes/v4/structure/selected/L01--role_error.html"
+    },
+    "L02": {
+     "list": "wireframes/v4/structure/selected/L02--list.html",
+     "empty": "wireframes/v4/structure/selected/L02--empty.html"
+    },
+    "L03": {
+     "review": "wireframes/v4/structure/selected/L03--review.html",
+     "edit": "wireframes/v4/structure/selected/L03--edit.html",
+     "edit_failed": "wireframes/v4/structure/selected/L03--edit_failed.html",
+     "reject": "wireframes/v4/structure/selected/L03--reject.html"
+    },
+    "L04": {
+     "list": "wireframes/v4/structure/selected/L04--list.html",
+     "call_detail": "wireframes/v4/structure/selected/L04--call_detail.html",
+     "handover_detail": "wireframes/v4/structure/selected/L04--handover_detail.html",
+     "call_corrected": "wireframes/v4/structure/selected/L04--call_corrected.html"
+    },
+    "L05": {
+     "default": "wireframes/v4/structure/selected/L05--default.html",
+     "lower_warning": "wireframes/v4/structure/selected/L05--lower_warning.html",
+     "raise_warning": "wireframes/v4/structure/selected/L05--raise_warning.html"
+    },
+    "L06": {
+     "default": "wireframes/v4/structure/selected/L06--default.html",
+     "filtered": "wireframes/v4/structure/selected/L06--filtered.html",
+     "correction": "wireframes/v4/structure/selected/L06--correction.html"
+    },
+    "T12": {
+     "list": "wireframes/v4/structure/selected/T12--list.html",
+     "empty": "wireframes/v4/structure/selected/T12--empty.html"
+    },
+    "T13": {
+     "default": "wireframes/v4/structure/selected/T13--default.html"
+    },
+    "T14": {
+     "default": "wireframes/v4/structure/selected/T14--default.html"
+    },
+    "T15": {
+     "alarm": "wireframes/v4/structure/selected/T15--alarm.html",
+     "diagnosis": "wireframes/v4/structure/selected/T15--diagnosis.html",
+     "check": "wireframes/v4/structure/selected/T15--check.html",
+     "check_current": "wireframes/v4/structure/selected/T15--check_current.html",
+     "lock": "wireframes/v4/structure/selected/T15--lock.html",
+     "precheck": "wireframes/v4/structure/selected/T15--precheck.html",
+     "action": "wireframes/v4/structure/selected/T15--action.html",
+     "note": "wireframes/v4/structure/selected/T15--note.html",
+     "correct": "wireframes/v4/structure/selected/T15--correct.html",
+     "correct_confirm": "wireframes/v4/structure/selected/T15--correct_confirm.html",
+     "corrected": "wireframes/v4/structure/selected/T15--corrected.html",
+     "closed": "wireframes/v4/structure/selected/T15--closed.html"
+    }
+   },
+   "selected_structure_contract": "wireframes/v4/structure/selected-structure-contract.json",
+   "selected_visual_baseline": "wireframes/v4/structure/selected-visual-baseline.json"
+  },
+  "visual_design": {
+   "version": "v4",
+   "status": "approved",
+   "path": "wireframes/v4/design/design-review.html",
+   "manifest": "manifests/visual_design-v4.json",
+   "brief": "decisions/G2B-human-brief-v4.md",
+   "structure_version": "v4",
+   "selected_visual_baseline": "wireframes/v4/structure/selected-visual-baseline.json",
+   "representative_page_ids": [
+    "T15",
+    "T08",
+    "L04"
+   ],
+   "representative_page_states": {
+    "T15": "correct",
+    "T08": "corrected_path",
+    "L04": "call_corrected"
+   },
+   "design_playbook": "references/07-design-playbook.md",
+   "board": "wireframes/v4/design/design-review.html",
+   "directions": {
+    "direction-guide": {
+     "T15": "wireframes/v4/design/direction-guide/T15.html",
+     "T08": "wireframes/v4/design/direction-guide/T08.html",
+     "L04": "wireframes/v4/design/direction-guide/L04.html"
+    }
+   },
+   "direction_briefs": {
+    "direction-guide": "wireframes/v4/design/direction-guide.md"
+   },
+   "visual_signatures": {
+    "direction-guide": {
+     "typography_density": "Noto Sans KR · 화면 제목 26px 900 · 카드 제목 17px 800 · 본문 15px, 태블릿은 큰 터치 버튼과 넉넉한 행 간격, PC는 표 15px 중간 밀도",
+     "color_state": "연회색 바탕 + 흰 카드, 파랑 주 행동, 등급 A 초록 · B 파랑 · C 주황 · D 빨강 배지(글자 + 색 + 테두리), 상태는 칩 · 배너 · 아이콘 함께 · 자동 검사 통과 ✓(초록) / 실패 ✕(빨강, 굵게), 유사 %는 중립 잉크(초록은 완료 · 통과에만) · 제출됨 회색 칩 + 자물쇠 / 수정 가능 흰 칩 · 주황 테두리 + 연필, 등급 변경 경고 낮춤 주황 ⚠ / 올림 파랑 ⓘ · 보는 단계 진한 잉크 링 + 눈(현재 단계 파랑과 구분), 보낸 값 읽기 전용 패널 + '보냄', 정정 n회 연필 + 회색 알약, 정정으로 무효 취소선 + --sub, 보낸 뒤 정정 상자 중립 패널 + 주황 띠",
+     "surface_hierarchy": "1px 회색 테두리 흰 카드(그림자 거의 없음), 강조 카드만 2px 파랑 테두리, 카드 안 패널은 테두리 없는 색 바탕, 입력칸은 흰 바탕 + 1.5px 테두리",
+     "item_control_form": "모서리 14~16px 카드 · 10px 패널 · 옵션, 꽉 찬 큰 주 버튼 하나 + 흰 보조 버튼, 호출 · 경고 주 버튼은 진한 주황 변형 · 잠긴 결과 버튼도 잠김 토큰, 진행 표시 완료 단계는 흰 알약 · 초록 테두리 · ›로 누를 수 있음 · 상단 '홈' 흰 알약 보조 버튼 44px, 지난 화면 띠 버튼 40px, 정정 창 입력칸 하나(흰 · 1.5px · 8px) + '필수' 알약",
+     "emphasis_reading_order": "상단 알람 표시줄 → 진행 단계 → 왼쪽 판단 정보 → 오른쪽 지금 할 행동(주 버튼) / PC는 왼쪽 메뉴 → 제목 → 내용 → 오른쪽 결정"
+    }
+   },
+   "direction_count_exception_reason": "시각 방향은 direction-guide 하나다(D17). v4는 v3(승인) 방향을 그대로 쓰고 G3 Human Gate(v13 승인 뒤) 사용자 결정(010 · 011)에 따른 새 요소(상단 '홈', 진행 표시의 보는 단계, T15 지난 화면 띠 · 보기 상태 · 정정 창, 정정 표시 · '정정으로 무효', 파트장 호출의 보낸 뒤 정비자 정정 상자)에 쓰는 규칙을 더했다. 다른 시각 방향 4~6개를 만들면 승인된 가이드 시각 언어를 다시 고르게 하므로 승인 결정을 뒤집는다. 분리된 Craft Review에서 찾은 완성도 문제는 공통 시각 규칙에서 한 번 보정했다.",
+   "visual_layer": "wireframes/v4/design/direction-guide.css",
+   "prior_versions": [
+    "v3: wireframes/v3/design/design-review.html(approved, decisions/history/G2B-visual-design-v3.json)"
+   ],
+   "decision": "decisions/G2B-visual-design.json",
+   "selected_direction_id": "direction-guide",
+   "selected_visual_rules": "wireframes/v4/design/selected-visual-rules.md"
+  },
+  "prototype": {
+   "version": "v17",
+   "status": "approved",
+   "path": "prototype/v17/prototype-slice.md",
+   "verification": "prototype/v17/prototype-coverage.json",
+   "renderable": "prototype/v17/index.html",
+   "manifest": "manifests/prototype-v17.json",
+   "brief": "decisions/G3-human-brief-v17.md",
+   "critic_reviews": [
+    "critics/G3-17-review.json"
+   ],
+   "prior_cycle_reviews": [
+    {
+     "cycle": 1,
+     "reviews": [
+      "critics/G3-1-review.json",
+      "critics/G3-2-review.json"
+     ],
+     "versions": [
+      "v1",
+      "v2"
+     ],
+     "outcome": "revise → revise(확인 critic) · 규칙상 사람 판단으로 멈춤"
+    },
+    {
+     "cycle": 2,
+     "reviews": [
+      "critics/G3-3-review.json",
+      "critics/G3-4-review.json"
+     ],
+     "versions": [
+      "v3",
+      "v4"
+     ],
+     "outcome": "revise → pass. 이후 G3 Human Gate에서 사용자가 로그인 결함 발견(수정 요청)"
+    },
+    {
+     "cycle": 3,
+     "reviews": [
+      "critics/G3-5-review.json"
+     ],
+     "versions": [
+      "v5"
+     ],
+     "outcome": "pass. 이후 G3 Human Gate에서 사용자가 동작하지 않는 조작 요소 7건을 발견하고 결정 004를 내림 → G0 v2부터 다시(DEV-04)"
+    },
+    {
+     "cycle": 4,
+     "reviews": [
+      "critics/G3-6-review.json",
+      "critics/G3-7-review.json"
+     ],
+     "versions": [
+      "v6",
+      "v7"
+     ],
+     "outcome": "revise → revise(확인 critic) · 사람 판단으로 멈춤 → 사용자 결정 005로 v8 새 회차"
+    },
+    {
+     "cycle": 5,
+     "reviews": [
+      "critics/G3-8-review.json"
+     ],
+     "versions": [
+      "v8"
+     ],
+     "outcome": "pass. G3 Human Gate에서 사용자가 비차단 3건을 고친 v9를 요청(sources/intent/006.md)"
+    },
+    {
+     "cycle": 6,
+     "reviews": [
+      "critics/G3-9-review.json"
+     ],
+     "versions": [
+      "v9"
+     ],
+     "outcome": "pass → v9 승인. 이후 사용자가 Design Feedback 4건과 결정 007 · 008을 내려 G0 v5부터 다시(DEV-07)"
+    },
+    {
+     "cycle": 7,
+     "reviews": [
+      "critics/G3-10-review.json",
+      "critics/G3-11-review.json"
+     ],
+     "versions": [
+      "v10",
+      "v11"
+     ],
+     "outcome": "revise → revise(확인 critic) · 사람 판단으로 멈춤 → 사용자 결정 009로 v12 새 회차"
+    },
+    {
+     "cycle": 8,
+     "versions": [
+      "v12",
+      "v13"
+     ],
+     "reviews": [
+      "critics/G3-12-review.json",
+      "critics/G3-13-review.json"
+     ],
+     "decision": "decisions/history/G3-prototype-v13.json(v13 승인)"
+    },
+    {
+     "cycle": 9,
+     "versions": [
+      "v14",
+      "v15"
+     ],
+     "reviews": [
+      "critics/G3-14-review.json",
+      "critics/G3-15-review.json"
+     ],
+     "outcome": "revise → revise(확인 critic) · 사람 판단으로 멈춤 → 사용자 결정 012로 v16 새 회차"
+    },
+    {
+     "cycle": 10,
+     "versions": [
+      "v16"
+     ],
+     "reviews": [
+      "critics/G3-16-review.json"
+     ],
+     "outcome": "pass → v16 승인(decisions/G3-prototype.json). PBC-0 ~ 4 · S-01 · S-02 뒤 OOS-01 사용자 결정 013으로 v17 새 회차"
+    }
+   ],
+   "review_cycle": 11,
+   "decision": "decisions/G3-prototype.json",
+   "superseded_in_cycle": [],
+   "deferred_acceptance_ids": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-09",
+    "AC-10",
+    "AC-13",
+    "AC-14",
+    "AC-15",
+    "AC-16",
+    "AC-17",
+    "AC-18",
+    "AC-19",
+    "AC-20",
+    "AC-23",
+    "AC-25",
+    "AC-26",
+    "AC-28",
+    "AC-34",
+    "AC-35",
+    "AC-36"
+   ],
+   "covered_acceptance_ids": [
+    "AC-07",
+    "AC-08",
+    "AC-11",
+    "AC-12",
+    "AC-21",
+    "AC-22",
+    "AC-24",
+    "AC-27",
+    "AC-29",
+    "AC-30",
+    "AC-31",
+    "AC-32",
+    "AC-33",
+    "AC-37",
+    "AC-38",
+    "AC-39",
+    "AC-40",
+    "AC-41",
+    "AC-42",
+    "AC-43",
+    "AC-44",
+    "AC-45",
+    "AC-46",
+    "AC-47",
+    "AC-48"
+   ],
+   "prior_superseded": [
+    {
+     "version": "v14",
+     "manifest": "manifests/prototype-v14.json",
+     "review": "critics/G3-14-review.json",
+     "verdict": "revise"
+    },
+    {
+     "version": "v15",
+     "manifest": "manifests/prototype-v15.json",
+     "review": "critics/G3-15-review.json",
+     "verdict": "revise"
+    }
+   ],
+   "approved_previous": {
+    "version": "v16",
+    "manifest": "manifests/prototype-v16.json",
+    "decision": "decisions/G3-prototype.json"
+   },
+   "prior_decisions": [
+    "decisions/history/G3-prototype-v16.json"
+   ]
+  },
+  "approved_inputs": {
+   "version": "v2",
+   "status": "locked",
+   "path": "approved-inputs/approved-artifact-manifest.json",
+   "prior_versions": [
+    "v1: approved-inputs/history/approved-artifact-manifest-v1.json(Prototype Bundle v16)"
+   ],
+   "changed_scope": "approved-inputs/changed-scope-v2.md"
+  },
+  "planning_baseline": {
+   "version": "v3",
+   "status": "recorded",
+   "path": "discovery/planning-baseline.json",
+   "prior_versions": [
+    "v1: discovery/history/planning-baseline-v1.json",
+    "v2: discovery/history/planning-baseline-v2.json"
+   ]
+  },
+  "engineering_discovery": {
+   "version": "v2",
+   "status": "recorded",
+   "path": "discovery/engineering-discovery.md",
+   "playbook": {
+    "path": "/Users/insujo/Documents/repo/c1a15-maint-guide/.vibe-factory/playbooks/engineering-playbook-c1a15-supplement-v4.md",
+    "version": "c1a15-supplement-v4",
+    "sha256": "5420be68c37528bd80323188e3ebd84296a99a7f03c45314a0329b940b8460a7",
+    "reviewed_at": "2026-10-12"
+   },
+   "user_decisions": "discovery/pbc1-user-decisions.md",
+   "prior_versions": [
+    "v1: discovery/history/engineering-discovery-v1.md(Playbook v3 기준)"
+   ]
+  },
+  "coding_plan": {
+   "version": "v11",
+   "status": "approved",
+   "path": "coding-plan/v11/coding-plan.json",
+   "selection_register": "coding-plan/v11/selection-register.json",
+   "feasibility_probe": "coding-plan/v1/feasibility-probe.json",
+   "prior_versions": [
+    "v1: coding-plan/v1/coding-plan.json(PBC4-A1 revise)",
+    "v2: coding-plan/v2/coding-plan.json(PBC4-A2 revise)",
+    "v3: coding-plan/v3/coding-plan.json(PBC4-A3 pass · 승인, S-01 실행)",
+    "v4: coding-plan/v4/coding-plan.json(PBC4-A4 pass · 승인, S-02 실행)",
+    "v5: coding-plan/v5/coding-plan.json(PBC4-A5 revise)",
+    "v6: coding-plan/v6/coding-plan.json(PBC4-A6 pass · 승인, S-02 2차 cycle P-18 실행)",
+    "v7: coding-plan/v7/coding-plan.json(PBC4-A8 pass · 승인, A-03 P-19)",
+    "v8: coding-plan/v8/coding-plan.json(PBC4-A9 pass · 승인, A-04 · S-02 2차 cycle 실행)",
+    "v9: coding-plan/v9/coding-plan.json(PBC4-A10 pass · 승인, A-05 · S-03 실행)",
+    "v10: coding-plan/v10/coding-plan.json(PBC4-A11 pass · 승인, A-06 · S-04 실행)"
+   ]
+  },
+  "verification_plan": {
+   "version": "v11",
+   "status": "approved",
+   "path": "coding-plan/v11/verification-matrix.json",
+   "prior_versions": [
+    "v1 · v2: revise",
+    "v3: coding-plan/v3/verification-matrix.json(승인, S-01 실행)",
+    "v4: coding-plan/v4/verification-matrix.json(승인, S-02 실행)",
+    "v5: coding-plan/v5/verification-matrix.json(PBC4-A5 revise)",
+    "v6: coding-plan/v6/verification-matrix.json(승인)",
+    "v7: coding-plan/v7/verification-matrix.json(승인)",
+    "v8: coding-plan/v8/verification-matrix.json(승인)",
+    "v9: coding-plan/v9/verification-matrix.json(승인, S-03 실행)",
+    "v10: coding-plan/v10/verification-matrix.json(승인, S-04 실행)"
+   ]
+  },
+  "prebuild_contract": {
+   "version": "v12",
+   "status": "approved",
+   "path": "prebuild/v12/prebuild-contract.md",
+   "consistency_check": "prebuild/v12/pbc-consistency-check.json",
+   "approval_attempt_id": "PBC4-A12",
+   "parent_approval_attempt_id": "PBC4-A11",
+   "amendment": "A-07",
+   "critic_attempts": 1,
+   "implementation_authorization_proposal": {
+    "allowed_plan_version": "v11",
+    "allowed_plan_item_ids": [
+     "P-08",
+     "P-09",
+     "P-10",
+     "P-11",
+     "P-12",
+     "P-13",
+     "P-14",
+     "P-15",
+     "P-16",
+     "P-17",
+     "P-18",
+     "P-19"
+    ],
+    "execution_mode": "per_slice_gated",
+    "stop_conditions": [
+     "failed_or_missing_automatic_gate",
+     "L1_or_out_of_scope_contract_change",
+     "new_external_or_separate_approval_action",
+     "baseline_drift",
+     "repair_cap_exceeded"
+    ],
+    "prohibited_actions": [
+     "승인 Use Case Bundle v6 · Prototype Bundle v17의 AC · 사용자 흐름 · 권한 의미 · 데이터 의미 · 화면 구조 · 시각 규칙 변경",
+     "T04 / first_call의 규칙 예외(R-NEXT의 C · D 점검 정보 · '점검 시작'의 호출 경고 토큰)를 그 상태 밖 화면 · 상태에 쓰기",
+     "완료된 P-01 ~ P-07의 계약 바꾸기(바꿀 일이 생기면 L1 amendment)",
+     "eval/cards · generation/cause_ratio_table.json을 진단 처리 · 색인 · 적재기에서 읽기",
+     "비밀번호 · API 키 원문을 저장소 · 로그 · DB에 쓰기",
+     "fixture 시험 · 시연에서 외부 네트워크 호출",
+     "plan item 밖 파일 · 다른 저장소 수정, Wiki 쓰기",
+     "배포 · 외부 메시지 전송"
+    ],
+    "separate_approval_required_for": [
+     "live OpenAI 문장 · 임베딩 smoke(소수 · 격리, 키는 사용자 제공)",
+     "live 모드 평가 실행",
+     "npm · uv 패키지 설치, Python 3.12 내려받기",
+     "Docker image pull(python · node 빌드 image 등 로컬에 없는 것)",
+     "Playwright 브라우저 내려받기(1.63.0 밖의 판을 쓸 때)",
+     "git commit · push",
+     "Docker 컨테이너로 시험 DB · 시험 스택 실행(첫 실행 전 한 번)"
+    ],
+    "approver_role": "사용자(프로젝트 소유자)"
+   },
+   "manifest": "manifests/prebuild_contract-v12.json",
+   "brief": "decisions/PBC4-human-brief-v12.md",
+   "prior_attempts": [
+    {
+     "approval_attempt_id": "PBC4-A1",
+     "version": "v1",
+     "path": "prebuild/v1/prebuild-contract.md",
+     "consistency_check": "prebuild/v1/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v1.json",
+     "critic_review": "critics/PBC4-1-review.json",
+     "verdict": "revise",
+     "plan": "coding-plan/v1/coding-plan.json",
+     "verification_plan": "coding-plan/v1/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A2",
+     "version": "v2",
+     "path": "prebuild/v2/prebuild-contract.md",
+     "consistency_check": "prebuild/v2/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v2.json",
+     "critic_review": "critics/PBC4-2-review.json",
+     "verdict": "revise",
+     "plan": "coding-plan/v2/coding-plan.json",
+     "verification_plan": "coding-plan/v2/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A3",
+     "version": "v3",
+     "path": "prebuild/v3/prebuild-contract.md",
+     "consistency_check": "prebuild/v3/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v3.json",
+     "critic_review": "critics/PBC4-3-review.json",
+     "verdict": "pass",
+     "decision": "decisions/PBC-4-prebuild-contract.json(v3 승인 → history)",
+     "plan": "coding-plan/v3/coding-plan.json",
+     "verification_plan": "coding-plan/v3/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A4",
+     "version": "v4",
+     "path": "prebuild/v4/prebuild-contract.md",
+     "consistency_check": "prebuild/v4/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v4.json",
+     "critic_review": "critics/PBC4-4-review.json",
+     "verdict": "pass",
+     "decision": "decisions/PBC-4-prebuild-contract.json(v4 승인 → history)",
+     "plan": "coding-plan/v4/coding-plan.json",
+     "verification_plan": "coding-plan/v4/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A5",
+     "version": "v5",
+     "path": "prebuild/v5/prebuild-contract.md",
+     "consistency_check": "prebuild/v5/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v5.json",
+     "critic_review": "critics/PBC4-5-review.json",
+     "verdict": "revise",
+     "decision": "coding-plan/v5/decisions/pbc4-a5-user-decisions.md(plan v6로 고침)",
+     "plan": "coding-plan/v5/coding-plan.json",
+     "verification_plan": "coding-plan/v5/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A6",
+     "version": "v6",
+     "path": "prebuild/v6/prebuild-contract.md",
+     "consistency_check": "prebuild/v6/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v6.json",
+     "critic_review": "critics/PBC4-6-review.json",
+     "verdict": "pass",
+     "decision": "decisions/PBC-4-prebuild-contract.json(v6 승인 → history)",
+     "plan": "coding-plan/v6/coding-plan.json",
+     "verification_plan": "coding-plan/v6/verification-matrix.json"
+    },
+    {
+     "approval_attempt_id": "PBC4-A7",
+     "version": "v7",
+     "path": "prebuild/v7/prebuild-contract.md",
+     "consistency_check": "prebuild/v7/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v7.json",
+     "critic_review": "critics/PBC4-7-review.json",
+     "verdict": "pass",
+     "decision": "coding-plan/v7/decisions/pbc4-a7-user-decisions.md(승인 답 · 기록 못 함 → A8)",
+     "plan": "coding-plan/v7/coding-plan.json",
+     "verification_plan": "coding-plan/v7/verification-matrix.json",
+     "director_review": "coding-plan/v7/director-review.md"
+    },
+    {
+     "approval_attempt_id": "PBC4-A8",
+     "version": "v8",
+     "path": "prebuild/v8/prebuild-contract.md",
+     "consistency_check": "prebuild/v8/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v8.json",
+     "critic_review": "critics/PBC4-8-review.json",
+     "verdict": "pass",
+     "decision": "decisions/history/PBC-4-prebuild-contract-v8.json(v8 승인)",
+     "plan": "coding-plan/v7/coding-plan.json",
+     "verification_plan": "coding-plan/v7/verification-matrix.json",
+     "director_review": "coding-plan/v7/director-review.md"
+    },
+    {
+     "approval_attempt_id": "PBC4-A9",
+     "version": "v9",
+     "path": "prebuild/v9/prebuild-contract.md",
+     "consistency_check": "prebuild/v9/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v9.json",
+     "critic_review": "critics/PBC4-9-review.json",
+     "verdict": "pass",
+     "decision": "decisions/history/PBC-4-prebuild-contract-v9.json(v9 승인)",
+     "plan": "coding-plan/v8/coding-plan.json",
+     "verification_plan": "coding-plan/v8/verification-matrix.json",
+     "director_review": "coding-plan/v8/director-review.md"
+    },
+    {
+     "approval_attempt_id": "PBC4-A10",
+     "version": "v10",
+     "path": "prebuild/v10/prebuild-contract.md",
+     "consistency_check": "prebuild/v10/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v10.json",
+     "critic_review": "critics/PBC4-10-review.json",
+     "verdict": "pass",
+     "decision": "decisions/history/PBC-4-prebuild-contract-v10.json(v10 승인)",
+     "plan": "coding-plan/v9/coding-plan.json",
+     "verification_plan": "coding-plan/v9/verification-matrix.json",
+     "director_review": "coding-plan/v9/director-review.md"
+    },
+    {
+     "approval_attempt_id": "PBC4-A11",
+     "version": "v11",
+     "path": "prebuild/v11/prebuild-contract.md",
+     "consistency_check": "prebuild/v11/pbc-consistency-check.json",
+     "manifest": "manifests/prebuild_contract-v11.json",
+     "critic_review": "critics/PBC4-11-review.json",
+     "verdict": "pass",
+     "decision": "decisions/history/PBC-4-prebuild-contract-v11.json(v11 승인)",
+     "plan": "coding-plan/v10/coding-plan.json",
+     "verification_plan": "coding-plan/v10/verification-matrix.json",
+     "director_review": "coding-plan/v10/director-review.md"
+    }
+   ],
+   "critic_review": "critics/PBC4-12-review.json",
+   "director_review": "coding-plan/v11/director-review.md",
+   "decision": "decisions/PBC-4-prebuild-contract.json",
+   "approved_at": "2026-10-14T09:05:34+09:00"
+  },
+  "slice_execution_packet": {
+   "version": "v2",
+   "status": "draft",
+   "path": "execution/S-06/slice-execution-packet.json",
+   "slice_id": "S-06",
+   "plan_version": "v11",
+   "prior_versions": [
+    "v1: execution/S-06/history/slice-execution-packet-v1.json"
+   ]
+  },
+  "implementation_contract": {
+   "version": "v2",
+   "status": "draft",
+   "path": "execution/S-06/implementation-contract.md",
+   "slice_id": "S-06",
+   "plan_item_ids": [
+    "P-16",
+    "P-17"
+   ],
+   "plan_version": "v11",
+   "baseline_revalidated": true,
+   "execution_packet": "execution/S-06/slice-execution-packet.json",
+   "execution_packet_sha256": "e5123c13da5e8caf5af79d10572708f2c612cd214047682697783250c8ba59ae",
+   "prior_versions": [
+    "v1: execution/S-06/history/implementation-contract-v1.md"
+   ]
+  },
+  "execution_ledger": {
+   "version": "v2",
+   "status": "draft",
+   "path": "execution/S-06/execution-ledger.json",
+   "slice_id": "S-06",
+   "prior_versions": [
+    "v1: execution/S-06/history/execution-ledger-v1.json"
+   ]
+  },
+  "verification_report": {
+   "version": "v2",
+   "status": "draft",
+   "path": "execution/S-06/verification-report.json",
+   "slice_id": "S-06",
+   "prior_versions": [
+    "v1: critics/G6-FINAL-review.json revise (execution/S-06/history/verification-report-v1.json)"
+   ]
+  },
+  "cycle_decision": {
+   "version": "v1",
+   "status": "draft",
+   "path": "execution/S-06/cycle-decision.md",
+   "slice_id": "S-06",
+   "decision": "complete",
+   "mismatch_classification": "L0",
+   "final_integration_critic_review": "critics/G6-FINAL-2-review.json",
+   "batch_evidence_index": "execution/S-06/batch-evidence-index.json"
+  }
+ },
+ "next_action": "run_complete_report_to_user",
+ "carryover_notes": [
+  {
+   "id": "CO-06",
+   "from": "critics/G0-1-review.json",
+   "note": "002 부록 D16 '구현은 VCF v0.8.20'은 Context Packet의 Decisions 표에 '이 run' 적용으로 남아 있습니다. 그러나 이 run은 v0.8.21이고, Evidence Pack에는 D16이 없으며 버전 차이도 표시되지 않았습니다. 제품 범위에는 영향이 없지만, Known decisions에 'D16은 이 run의 실행 버전 선택으로 대체됨(Context Packet 머리말)'처럼 decision scope를 한 줄 남기면 오래된 결정을 조용히 버린 것으로 보이지 않습니다.",
+   "target_gate": "G1"
+  },
+  {
+   "id": "CO-07",
+   "from": "critics/G0-1-review.json",
+   "note": "001 2장은 '어느 원인과도 맞지 않는 소견이면 숙련자 호출로 끝낸다'라고 쓰지만, 002 R7(c)와 S3은 '숙련자 인계를 권하고, 인계할지 계속할지는 정비자가 고른다'로 정했습니다. EV-043은 002를 바르게 반영했습니다. 다만 EV-055의 '대체된 아이디어 값' 목록에는 이 항목이 없으므로 추가해 두면, G1에서 001 전문을 다시 읽다가 옛 흐름으로 되돌아가는 일을 막을 수 있습니다.",
+   "target_gate": "G1"
+  },
+  {
+   "id": "CO-08",
+   "from": "critics/G0-1-review.json",
+   "note": "002 12장의 [미정] 'OpenAI 키를 받는 시점(live 모드)'이 Open questions에 따로 없습니다. EV-031의 live 승인 조건과 EV-048이 대부분을 덮지만, 결정 시점(PBC)을 EV-048 행에 함께 적어 두면 추적이 분명해집니다.",
+   "target_gate": "PBC"
+  },
+  {
+   "id": "CO-09",
+   "from": "critics/G1-2-review.json",
+   "note": "ISS-001은 해소됐다. Non-goals에서 버튼 제외 항목이 빠졌고, Trigger·SC-50·FLOW-01 trigger가 '명령(또는 시연용 버튼)'(EV-026)으로 돌아갔으며, 버튼을 둘지는 이후 단계로 넘겼다. 다만 Actor 표의 '시연자·운영자 | 명령(비UI)', logical-system-overview.svg의 알람 발생기 '명령 실행', FLOW-01 entry_surface 'cli'는 아직 명령만 적고 있다. G2A에서 버튼을 두기로 하면 이 세 곳도 함께 맞추는 것이 좋다. Evidence Pack은 알람 발생기를 비UI로 분류하므로, 버튼을 tech·lead 제품 화면 안에 둘지도 그때 함께 확인해야 한다.",
+   "target_gate": "G2A"
+  },
+  {
+   "id": "CO-10",
+   "from": "critics/G1-2-review.json",
+   "note": "ISS-002는 해소됐다. Authority boundary, Actor 표, SC-04, AC-35(C1·C2), FLOW-03에 '지시된 점검 건너뛰기 불가(대안은 확인 불가뿐)'가 연결됐다. 이전 비차단 의견(AC-02 예외 문구, AC-29 보고서·파트장 목록 관찰 조건, AC-36 비밀 원문 없음, source_note 출처)도 반영됐다. 남은 작은 공백이 두 가지 있다. EV-024의 '활성 세션은 한 번에 하나'는 SC-07에는 있지만 AC-14 관찰 조건에는 없다. EV-030의 '비교 설정'(소요 분 단축률의 기준 설정)도 AC-18 관찰 조건에 없다. PBC Verification Matrix에서 빠지지 않도록 관찰 조건으로 넣어 두면 좋다.",
+   "target_gate": "PBC"
+  },
+  {
+   "id": "CO-11",
+   "from": "critics/G1-2-review.json",
+   "note": "FLOW-09 '저장 실패 시 이전 등급 유지'와 FLOW-01 '등록 실패 시 명령이 오류를 보이고 다시 실행'은 Evidence Pack에 직접 근거가 없다. 둘 다 안전한 기본 처리로 보이며 제품 범위를 넓히지 않으므로 차단 사유는 아니다. 다만 출처가 '도출된 기본안'임을 표시하거나 PBC에서 확인하도록 넘기는 것이 좋다.",
+   "target_gate": "PBC"
+  },
+  {
+   "id": "CO-12",
+   "from": "critics/G3-5-review.json",
+   "target_gate": "PBC",
+   "note": "AC-12 coverage 문구의 'ID 칸 미변환을 MUT-2로 재현'은 과장: MUT-2는 '읽는 칸' 결함만 재현. ID 칸 마크업 결함도 AC-12에서 잡히나 음성 시험은 없음"
+  },
+  {
+   "id": "CO-13",
+   "from": "critics/G3-5-review.json",
+   "target_gate": "PBC",
+   "note": "L3 시험은 label · 접근 이름 기준의 독립 selector로 작성(시험과 제품이 같은 helper를 공유하지 않게)"
+  },
+  {
+   "id": "CO-14",
+   "from": "critics/G3-5-review.json",
+   "target_gate": "PBC",
+   "note": "구현에서 비밀번호 칸은 password 입력. prototype의 '••••••••' 값과 render() 재그림으로 입력값이 기본값으로 돌아가는 것은 prototype 한계"
+  },
+  {
+   "id": "CO-18",
+   "from": "critics/G0-2-review.json",
+   "target_gate": "G1/G2A/G2B/G3",
+   "note": "[추적] v2 머리말(3행)이 근거를 'context-packet.md v1'로 적고 있다. 004는 context-packet-v2.md의 Full Intent Context에만 들어 있으므로, 머리말 근거를 context-packet-v2로 바꿔 EV-056~060의 출처 사슬을 맞추는 것이 좋다. 내용 비교에는 지장이 없어 차단하지 않는다."
+  },
+  {
+   "id": "CO-18",
+   "from": "critics/G0-2-review.json",
+   "target_gate": "G1/G2A/G2B/G3",
+   "note": "[문구 보존] EV-058에는 004 3장의 구체 표현인 '통과(초록 체크) · 실패(빨강 X)'가 빠지고 '통과/실패 상태 아이콘'만 남았다. EV-059의 안내 문구도 004 원문 'prototype은 M-03 한 건만 제공 — 실제 앱에서 동작' 대신 'prototype 범위 밖'으로 바꿔 쓰여 있다. G2B·G3에서는 004 원문 표현을 기준으로 삼도록 CO-17과 EV-059에 원문 인용이나 004 참조를 붙여 두는 것을 권한다. 결정의 의미와 적용 범위는 원문과 맞고, EV-059도 G3 한정·제품 요구 아님으로 분리되어 있다."
+  },
+  {
+   "id": "CO-18",
+   "from": "critics/G0-2-review.json",
+   "target_gate": "G1/G2A/G2B/G3",
+   "note": "[후속 gate 연결] EV-060(근거 n과 과거 기록 3건의 구분 안내 문구)에는 이를 받을 Carryover 항목이 없다. EV-056 종 아이콘 목록과 EV-057 과거 기록 전체 · 매뉴얼 원문 화면은 가이드(T01)에 화면이 없는 추가분인데, CO-15·CO-16에는 CO-01처럼 'D17 예외 사유에 함께 기록'이 적혀 있지 않다. 또 판정 기준 줄은 여전히 'AC-01~AC-18'만 말하고, 004에서 정한 '새 수용 기준 추가'는 CO-15에만 있다. G1·G2A에서 놓치지 않도록 EV-060의 Carryover 항목과 D17 예외 기록 메모를 더하면 좋다."
+  },
+  {
+   "id": "CO-19",
+   "from": "critics/G1-3-review.json",
+   "target_gate": "G2A/PBC",
+   "note": "SC-22·AC-37-C2의 항목별 이동 대상(알람 화면 · 이어서 하기 · 호출 답 화면 · 반려 보고서), '어느 화면에서든', SC-25의 따옴표 문구 '알람 · 할 일이 없습니다'는 EV-056에 직접 적혀 있지 않다. 기존 SC-01·07·12·18 화면에 잇는 파생으로 보아 차단하지 않았다. 다만 G2A에서 사용자 결정(004)과 맞는지 확인하고, 문구는 확정 요구가 아닌 예시로 다루는 편이 안전하다."
+  },
+  {
+   "id": "CO-19",
+   "from": "critics/G1-3-review.json",
+   "target_gate": "G2A/PBC",
+   "note": "AC-38-C1·SC-23의 기록 필드 목록(특히 '조치' · '정지 시간')과 AC-38-C2·AC-39-C2의 '닫으면 원래 화면과 단계가 그대로'는 Evidence Pack 본문에 없는 세부다(EV-057은 '그 기록 전체' · '매뉴얼 원문'만 말함). AC-03·25·28처럼 출처(002 S2 · S3, GET /tech/records/{record_id})를 source_note에 적어 두면 추적이 분명해진다."
+  },
+  {
+   "id": "CO-19",
+   "from": "critics/G1-3-review.json",
+   "target_gate": "G2A/PBC",
+   "note": "보조 산출물 정합: logical-system-overview.svg의 정비자 앱 화살표 표기가 'FLOW-02~06'이라 FLOW-13이 빠졌고, logical-scenario-flow.svg 안내문도 FLOW-13을 언급하지 않는다. FLOW-03 readback_expectation에는 SC-23·24의 지식 저장소 읽기(EV 데이터 맥락: '과거 기록 · 매뉴얼 원문은 지식 저장소에서 읽는다')가 드러나지 않는다(ownership에만 있음). packet Source links가 아직 Evidence Pack v1만 가리킨다. 의미 판정에는 영향이 없다."
+  },
+  {
+   "id": "CO-20",
+   "from": "G2B v2 Craft Review",
+   "target_gate": "G3",
+   "note": "T09 check_failed의 실패한 자동 검사 행 문구를 통과 조건 문장 대신 결과 문장(예: '근거 없는 문장 1건')으로 바꾼다(이중 부정 해소)"
+  },
+  {
+   "id": "CO-21",
+   "gate": "G3",
+   "note": "cycle 4 확인 critic(G3-7)도 revise: ISS-001 종 '이어서 하기'가 같은 화면을 다시 열어 보이는 선택은 지워지고 S.result는 남음 · T11 '인계 보냄' 잠김이 다시 그리면 풀려 인계 2번 기록, ISS-002 재가동 경계 밖 · LLM 연속 실패 경로도 T11에 '맞지 않는 소견(냉각수 고임)' 내용과 파트장 표 제목이 보임. 비차단: L03 전환 때 고친 이유 메모 초기화, S.flt 남음, AC-37 g2 판별력, works에 panel_outside 포함"
+  },
+  {
+   "id": "CO-22",
+   "gate": "G3",
+   "note": "G3-9 비차단: CTL-15 b2 경로의 파트장 행 제목 · 냉각수 [bad] assert 없음, coverage interaction_axes에 audit_filter 중복 1건, mutation · control-audit command에 생성기 이름 audit_v8.py(v9에서 같은 스크립트 재사용) · AC-25 partial_conditions가 다른 AC와 달리 문자열 목록(조건 ID만) — PBC 인계 때 같은 형식으로 읽을 것"
+  },
+  {
+   "id": "CO-28",
+   "gate": "G0",
+   "note": "G0-4 비차단: 공통 시작 전 확인 목록의 출처는 '2.5 · 5.5에 공통'이 아니라 '2.5(주변 공구·이물질 · 커버) · 5.5(커버 · 주변 작업자) · 6.1(작업자 대피)'에 나오는 항목(사용자 결정은 그대로). Actors 정비자 행에 B 점검 시작 전 확인 반영은 G1에서. B 점검은 확인 뒤 결과 입력, B 조치는 확인 뒤 진행 버튼이 열림(008 · S4-2)"
+  },
+  {
+   "id": "CO-29",
+   "gate": "G0",
+   "note": "G0-5 비차단: B 점검은 확인 전에도 절차 본문을 보이고 결과 입력만 잠금(008)으로 G1 AC-43 관찰 지점을 정함. 공통 목록 근거에 6.1 '주변 공구·이물질 치움' · '냉각 커버 고정 확인'도 적을 것"
+  },
+  {
+   "id": "CO-30",
+   "gate": "G1",
+   "note": "G1-5 비차단: AC-41-C5는 FLOW-06 경로에서 검증, AC-32-C2의 체크리스트는 AC-43-C2 · C4의 목록 출처로 읽고 같은 증거로 판정"
+  },
+  {
+   "id": "CO-31",
+   "gate": "G3",
+   "note": "G3-10 비차단: ① B 시작 전 확인 화면에서 절차 4단계 이상일 때 줄인 절차 행 여백(3px)은 태블릿 '넉넉한 행 간격'과 긴장 — PBC에서 실제 화면 높이로 다시 본다 ② 승인 범위 해석(같은 점검 재지시는 같은 승인, 그 절이 D가 되면 승인 무효)을 PBC 서버 판정 규칙에 옮긴다 ③ 첫 판정이 호출인 진단 화면은 승인 화면에 없음(안내만) — PBC에서 화면 결정 필요 여부 확인 ④ 확인 불가 뒤 B 점검은 '확인 불가 1회' 배너가 빠짐"
+  },
+  {
+   "id": "CO-32",
+   "gate": "G3",
+   "note": "G3-13 비차단: ① AC-43 근거에 CTL-18(승인 뒤 B) · X-15를 함께 적어 PBC 인계에서 찾기 쉽게 ② 파트장 답 저장 뒤 '시작' 전에 조치 절 등급이 바뀌어도 열린 답 화면은 호출 때 등급으로 연다(R13, 점검과 같음) — PBC 서버 판정 규칙에 반영"
+  },
+  {
+   "id": "CO-36",
+   "gate": "G0",
+   "note": "G0-7 비차단: ① G1 정정 AC · state/readback은 EV-072~074를 직접 근거로 ② 목록 밖 정비자 행위(사전 확인 완료 자체 · R7(c) '계속' · '호출하지 않고 대기' · 조치 · 재가동 체크리스트)는 '정정 불가'로만, 메모 덧붙이기를 허용하는 AC는 만들지 않음 ③ Evidence Pack 머리말의 v6 범위 문장은 다음 판에서 다듬기"
+  },
+  {
+   "id": "CO-37",
+   "gate": "G1",
+   "note": "G1-6 비차단: ① AC-35의 거부 대상에 정정 경로(EV-069 · 070)는 포함하지 않음(현재 지시 건너뛰기만 막음) — G2A · PBC에 함께 넘김 ② Authority boundary의 '자기가 입력해'는 원문 '정비자가 입력해'와 같은 뜻으로 읽음(입력한 사람만이라는 새 조건 아님) ③ 덧붙인 메모의 다시 읽는 위치는 근거 확인 뒤 G2A · PBC에서, 목록 밖 행위는 정정 불가로만"
+  },
+  {
+   "id": "CO-38",
+   "gate": "G3",
+   "note": "표시 조정 ③(결정 012): B 점검 기록 지난 화면(T15 / check_b)의 체크 행 20px · 체크 · 절차 글자 14px · 여백 축소는 누를 수 없는 보기 화면에만 — PBC에서 실제 화면 높이로 다시 본다(G2B 전역 15px · 32px 토큰과 다름) · G3-16 비차단: 다시 볼 때 ③ 문장에 하나하나 적히지 않은 값(.act.pre > .sm 13px · margin 0, .ck 위아래 padding 1px, .proc li line-height 1.3, 패널 margin 4px 0 6px)도 대조 목록에 넣는다"
+  },
+  {
+   "id": "CO-39",
+   "gate": "G3",
+   "note": "G3-15 · G3-16 비차단: 지난 화면 칩 '… 입력(보내지 않음)은 그대로 · 수정 가능'은 호박색 칩(.ch.amber)으로 그렸다. G2B의 '수정 가능' 흰 칩 토큰과 모양이 다르다(생성자 해석 4가지 밖). G3 승인 보고에서 사용자에게 알리고, PBC에서 G2B 토큰과 대조한다"
+  },
+  {
+   "id": "CO-40",
+   "gate": "G3",
+   "from": "critics/G3-17-review.json",
+   "note": "prototype/v17/prototype-slice.md 문구: 조작 요소 전수 점검이 잡은 결함 복사본을 '9개(W-1 … Y-16)'로 적었지만 실제는 Z-3까지 10개, 새 결함 Z-1 ~ Z-5 이름 없음 — PBC 문서에서 바로잡는다"
+  },
+  {
+   "id": "CO-41",
+   "gate": "G3",
+   "from": "critics/G3-17-review.json",
+   "note": "fixture '첫 판정 호출 세션'의 과거 기록 카드가 승인 sample 3건 그대로라 '이상 없음' H-0235가 남아 근거 수(6 · 2 · 1 · 1)와 어긋남 — 실제 앱은 서버 검색 결과라 생기지 않음, P-08 E2E fixture에서 값을 맞춘다"
+  },
+  {
+   "id": "CO-42",
+   "gate": "G3",
+   "from": "decisions/G3-prototype.json",
+   "note": "T04 / first_call 규칙 예외(R-NEXT에 C 배지 · 절 · 점검 이름 · 소요 분, '점검 시작'에 warnb)는 이 상태에서만 — P-08 화면 구현 · 화면 대조에서 다른 상태로 번지지 않게 확인"
+  }
+ ],
+ "deviations": [
+  {
+   "id": "DEV-01",
+   "gate": "G3",
+   "rule": "G3 확인 critic도 revise이면 세 번째 자동 critic을 만들지 않고 사람 판단으로 멈춘다",
+   "decision": "사용자 선택(2026-10-11): v3를 만들고 새 검토 회차로 독립 critic 1회 호출. 이전 회차 검토 2건은 prior_cycle_reviews에 보존",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-02",
+   "gate": "G3",
+   "rule": "critic 기록은 실제 입력 그대로 보존",
+   "decision": "G3-4 bundle · review의 reference artifact 이름표 2개만 정정(내용 · 경로 · hash 동일). 원본은 *-original.json으로 보존",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-03",
+   "gate": "G3",
+   "rule": "pass 뒤에는 추가 review를 만들지 않는다",
+   "decision": "G3 Human Gate에서 사용자가 로그인 불가를 발견(사실상 수정 요청). 결함을 고친 v5를 새 판으로 만들고 새 검토 회차(cycle 3)로 독립 critic을 받는다",
+   "approved_by": "user feedback 2026-10-11"
+  },
+  {
+   "id": "DEV-04",
+   "gate": "G3→G0",
+   "rule": "승인 artifact는 덮어쓰지 않고 새 version으로",
+   "decision": "G3 Human Gate 사용자 결정(004)으로 새 요구 · 화면이 생겨 G0 Evidence Pack v2부터 다시 진행(G1 v3 · G2A v2 · G2B v2 · G3 v6). 이전 승인 판과 결정은 그대로 보존",
+   "approved_by": "user 2026-10-11"
+  },
+  {
+   "id": "DEV-05",
+   "gate": "G3",
+   "rule": "확인 critic도 revise면 세 번째 자동 critic 없이 사람 판단으로 멈춘다",
+   "decision": "사용자 결정(sources/intent/005.md)으로 v8을 만들고 새 검토 회차(cycle 5)를 연다. cycle 4 검토(G3-6 · G3-7)는 prior_cycle_reviews에 보존",
+   "approved_by": "user 2026-10-12"
+  },
+  {
+   "id": "DEV-06",
+   "gate": "G3",
+   "rule": "pass 뒤 Human Gate 수정 요청은 새 immutable version과 새 critic으로",
+   "decision": "사용자 결정 006으로 v9를 만들고 cycle 6 critic 1회 뒤 Human Gate를 다시 연다. v8과 G3-8 검토는 보존",
+   "approved_by": "user 2026-10-12"
+  },
+  {
+   "id": "DEV-07",
+   "gate": "G3→G0",
+   "rule": "승인 artifact는 덮어쓰지 않고 새 version으로",
+   "decision": "G3 v9 승인 뒤 사용자 결정 007로 새 요구가 생겨 G0 Evidence Pack v3부터 다시(G1 v4 · G2A v3 · G2B · G3 v10). 이전 승인 판과 결정은 보존",
+   "approved_by": "user 2026-10-12"
+  },
+  {
+   "id": "DEV-08",
+   "gate": "G1",
+   "rule": "critic 기록은 실제 입력 그대로 보존",
+   "decision": "G1-4 · G1-5 bundle · review가 참조한 v3 승인 결정 decisions/G1-use-case.json이 v5 승인으로 덮어써져, 같은 내용의 사본 decisions/history/G1-use-case-v3.json(hash 동일)으로 경로만 정정. review의 input_bundle hash도 정정한 input을 가리키게 함. 원본은 *-original.json으로 보존. G1-5가 참조한 이전 검토 G1-4-review.json은 경로 정정으로 hash가 바뀌어, 원본 그대로인 G1-4-review-original.json(hash 동일)을 가리키게 함",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-09",
+   "gate": "G3",
+   "rule": "critic 기록은 실제 출력 그대로 보존 · G3 비차단 의견 최대 3개(validator)",
+   "decision": "G3-10 Critic 비차단 의견 9개를 문장 변경 없이 3묶음(확인 사실 · 문서와 시각 · 동작과 시험)으로 합쳐 critics/G3-10-review.json에 두고, 원문은 critics/G3-10-review-original.json으로 보존",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-10",
+   "gate": "G3",
+   "rule": "확인 critic도 revise면 세 번째 자동 critic 없이 사람 판단으로 멈춘다",
+   "decision": "사용자 결정(sources/intent/009.md)으로 v12를 만들고 새 검토 회차(cycle 8)를 연다. cycle 7 검토(G3-10 · G3-11)는 prior_cycle_reviews에 보존",
+   "approved_by": "user 2026-10-12"
+  },
+  {
+   "id": "DEV-11",
+   "gate": "G3→G0",
+   "rule": "승인 artifact는 덮어쓰지 않고 새 version으로",
+   "decision": "G3 v13 승인 뒤 사용자 피드백 · 결정(sources/intent/010.md)으로 요구 · 화면이 바뀌어 G0 v6부터 다시 진행(G1 v6 · G2A v4 · G2B v4 · G3 v14). 이전 승인 판과 결정은 그대로 보존. G0 검토는 새 cycle 4",
+   "approved_by": "user 2026-10-12 \"진행해주세요\""
+  },
+  {
+   "id": "DEV-12",
+   "gate": "G0",
+   "rule": "revise 뒤에는 새 immutable version으로 기록",
+   "decision": "v7 첫 검토 호출을 결과 전에 멈추고(검토 기록 없음) Q-06~09 사용자 답(011)을 같은 v7에 넣어 다시 묶은 뒤 이 사이클 2번째 검토로 받음(G0-7 pass). 검토된 v6 · G0-6은 그대로 보존",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-13",
+   "gate": "G0",
+   "rule": "critic 기록은 실제 입력 그대로 보존",
+   "decision": "G0-6 bundle · review의 source_manifest 참조 경로만 당시 내용 사본(sources/history/source-manifest-v5.json, hash 동일)으로 바꿈. 같은 이름의 source-manifest.json이 011 반영으로 v6이 되었기 때문. 원본은 *-original.json으로 보존(DEV-02와 같은 방식). 같은 이유로 G0-7 bundle · review의 이전 검토 참조(prior_g0_review_v6)는 검토 당시 내용 그대로인 critics/G0-6-review-original.json을 가리킴(hash 동일)",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-14",
+   "gate": "G1",
+   "rule": "critic 기록은 실제 입력 그대로 보존",
+   "decision": "G1-6 bundle · review의 prior_g1_decision 경로만 승인 기록 이동에 맞춰 decisions/history/G1-use-case-v5.json(내용 · hash 동일)으로 바꿈. 원본은 *-original.json(DEV-02 · 13과 같은 방식). 이후 bundle은 이전 결정을 history 경로로 가리킴",
+   "approved_by": "generator(사용자에게 보고)"
+  },
+  {
+   "id": "DEV-15",
+   "gate": "G3",
+   "rule": "확인 critic도 revise면 세 번째 자동 critic 없이 사람 판단으로 멈춘다",
+   "decision": "사용자 결정(sources/intent/012.md)으로 v16을 만들고 새 검토 회차(cycle 10)로 critic 1회. B 기록 지난 화면 크기 조정은 표시 조정 ③으로 공개. pass면 사용자의 앞선 '승인'을 G3 승인으로 기록하고 PBC-0 진행. cycle 9 검토(G3-14 · G3-15)는 prior_cycle_reviews에 보존",
+   "approved_by": "user 2026-10-12"
+  },
+  {
+   "id": "DEV-16",
+   "gate": "PBC-1",
+   "rule": "PBC-1 2항: 빠진 Playbook 규칙은 별도 knowledge-curation으로 Playbook을 올린 뒤 그 판부터 시작",
+   "decision": "Wiki 보강 대신 사용자 결정 9개로 C1-a15 보충판 v2 → v3를 만들고(근거 = 사용자 결정, Wiki 근거 없음을 규칙마다 밝힘) v3 기준으로 PBC-1을 기록. 다른 저장소 Playbook 2개는 고치지 않고 사용 승인만 v3 Metadata에 적음. planning baseline은 Playbook hash 변경으로 v2. PBC-2에서 validator가 Selection Register 규칙 ID를 등록 Playbook 본문에서만 찾으므로, 규칙 내용은 그대로 두고 기본 v1 · pack 규칙 ID 색인만 더한 v4를 만들고 PBC-1 기록(discovery v2)을 다시 함",
+   "approved_by": "user 2026-10-12(discovery/pbc1-user-decisions.md)"
+  },
+  {
+   "id": "DEV-17",
+   "gate": "PBC-3",
+   "rule": "검증은 반드시 factory-profile/snapshot/skill/scripts/validate_artifacts.py <run-dir>로 실행",
+   "decision": "고정 validator(sha256 9f579f4d…, 원본 Skill과 같음)의 verification_plan()이 정의하지 않은 이름 surface_delivery · plan_item_slice · ui_surfaces를 참조해 multiple UI surface run에서 NameError로 멈춤. validator 파일은 고치지 않고 verification/validator-shim/run_validator_shim.py가 세 이름을 coding_plan()과 같은 식(ui_surface_delivery, item→slice, approved_ui_surfaces)으로 모듈 전역에 넣은 뒤 원래 main()을 실행. PBC-3 이후 모든 검증은 shim 결과와 고정 validator 원래 출력(NameError)을 함께 남김. shim이 검사를 실제로 하는지 음성 시험(lead L3 제거 → FAIL)으로 확인. Skill 결함은 사용자에게 보고",
+   "evidence": {
+    "shim": {
+     "path": "verification/validator-shim/run_validator_shim.py",
+     "sha256": "9bad968e16dfc29d9862af0f90aa6411f9638de59e0bcd56df2ec8391992ba74"
+    },
+    "shim_result": "verification/validator-shim/pbc3-result.txt",
+    "pinned_raw": "verification/validator-shim/pbc3-pinned-raw.txt"
+   },
+   "approved_by": "user 2026-10-12(AskUserQuestion 'shim으로 검증 + 이탈 기록 (권장)')",
+   "resolution": "2026-10-13T09:07:16+09:00 사용자가 Skill을 0.8.22로 고침(verification_plan() 안에서 surface_delivery · plan_item_slice · ui_surfaces 계산). DEV-18로 이 run을 0.8.22로 옮긴 뒤 고정 validator로 shim 없이 다시 검증(PASS). shim · 그 결과 파일은 당시 증거로 보존하고 더 쓰지 않음"
+  },
+  {
+   "id": "DEV-18",
+   "gate": "PBC-4",
+   "rule": "08-runtime-profile: 진행 중 run의 Profile migration은 지원하지 않는다(새 run)",
+   "decision": "사용자 지시로 이 run의 Factory Profile을 0.8.21 → 0.8.22로 옮김. 바뀐 snapshot 파일은 factory-profile/snapshot/skill/SKILL.md, factory-profile/snapshot/skill/scripts/validate_artifacts.py뿐(validator 3줄 · SKILL.md 판 번호 · Boundary 문단), critic protocol · critic adapter · template · schema · reference는 0.8.21과 같아 이전 critic 기록의 hash와 충돌하지 않음. 0.8.21 사본은 factory-profile/history/0.8.21/에 보존. 옮기기 전 run 복사본에서 0.8.22 validator PASS와 음성 시험(정비자 · 파트장 L3 제거 → FAIL)을 확인했고, 옮긴 뒤 이 run에서 다시 검증함(verification/validator-0.8.22/)",
+   "approved_by": "user 2026-10-13(AskUserQuestion '이 run을 0.8.22로 옮김 (권장)')"
+  },
+  {
+   "id": "DEV-19",
+   "gate": "PBC-4",
+   "rule": "PBC 직접 제품 입력은 승인 Use Case Bundle · Prototype Bundle뿐(Evidence Pack · G2 · 그 밖 원천은 직접 읽지 않음)",
+   "decision": "S-02 G4에서 판정 규칙 본문 누락을 발견(execution/S-02/g4-stop.md). 사용자 결정으로 L1 amendment A-01: Use Case Bundle v6 'Known decisions to preserve'가 이름으로 가리키는 D4 · D5 · D7 · D11 · D13 결정의 본문인 구현 명세 v1.0 4장 R1 ~ R13(sources/intent/002.md, G0 intent source snapshot)을 PBC가 읽어 원문 그대로 해당 plan item behavior에 옮김. 새 규칙 · 값은 만들지 않음. 학습 기록 LR-01(Skill 개선 candidate)",
+   "approved_by": "user 2026-10-13(AskUserQuestion 'L1 계획 수정으로 채움 (권장)')"
+  },
+  {
+   "id": "DEV-20",
+   "gate": "G5(S-02 2차 cycle) → PBC-4",
+   "rule": "PBC · G4 ~ G7은 승인 Use Case · Prototype에 없는 데이터 의미를 추정하지 않고 멈춘다(정의가 부족하면 G1 등 앞 단계)",
+   "decision": "화면 값 네 가지(평소 범위 · 최대 m · 점검 근거 · 교대 현황)의 계산 정의가 승인 묶음 · 구현 명세에 없어 멈추고 사용자에게 물었다(결정 014). 사용자 결정 'L1 수정으로 P-19 추가'에 따라 G1부터 다시 하지 않고 그 정의를 plan v7(A-03) P-19에 원문 그대로 옮긴다(A-01 · DEV-19와 같은 방식). 화면 구조 · 흐름 · 권한은 바꾸지 않는다",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-21",
+   "gate": "G4(S-03)",
+   "rule": "PBC · G4 ~ G7은 승인 Use Case · Prototype에 없는 데이터 의미를 추정하지 않고 멈춘다",
+   "decision": "보고서 8항목(R10) 가운데 계산 정의가 없는 네 가지(함께 본 값 · 메모 요약 · 감시 운전 구간 · 하지 못한 C·D 점검)를 G4에서 사용자에게 물어 결정 015(sources/intent/015.md)로 정하고, plan 변경 없이 S-03 packet 실행 해석으로 넣는다(R10 항목 · 출처 · 화면 구조는 그대로)",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-22",
+   "gate": "G5(S-03)",
+   "rule": "승인 plan · 범위 메모에서 벗어날 때는 먼저 묻는다(P-03 판정 규칙 그대로 · AC 목록 밖 연결)",
+   "decision": "구현 중 판단 네 가지(승인 C 점검 바로 열기 · 결정 014 교대 창 유지 · T10 / summary_corrected를 S-05 P-14로 · T06 / llm_repeat 숙련자 인계 연결)를 사용자에게 물어 결정 016(sources/intent/016.md)으로 정한다(plan 변경 없음)",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-23",
+   "gate": "G5(S-03)",
+   "rule": "G4 ~ G7은 PBC 이전 산출물(Use Case · Prototype Bundle 등)을 다시 읽지 않는다",
+   "decision": "G5 중 prototype/v17/index.html(처음 한 번은 prototype/index.html)을 직접 읽어 T02 3상태 · T12 / list 구조를 확인함 — 당시 S-02 G4 template과 strip 뒤 문자열 비교로 같음(evidence/prototype-reread-check.json), 새 제품 정보 없음. 사용자가 '영향 없음으로 확인'(execution/S-03/g6-revise-decision.md)",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-24",
+   "gate": "G4(S-02 2차 cycle · S-03)",
+   "rule": "G4 ~ G7은 PBC 이전 산출물(Prototype Bundle 등)을 직접 읽거나 주입하지 않는다 — packet에 없는 검증 정보는 L1 · 결정으로",
+   "decision": "S-02 2차 cycle · S-03 G4에서 구조 대조용 template을 prototype/v17/index.html에서 직접 뽑아 scratch에 두고 packet에 싣지 않았다(검토에서 놓침). 사용자 결정 017 ③: S-04부터 G4가 PBC-0 잠금 승인 Prototype 파일에서 그 slice 상태 template · 영역만 packet 부록(사본 + sha256)으로 싣고 G5 ~ G7은 부록만 읽는다",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-25",
+   "gate": "G4(S-04)",
+   "rule": "PBC · G4 ~ G7은 승인 Use Case · Prototype에 없는 데이터 의미 · 흐름을 추정하지 않고 멈춘다",
+   "decision": "S-04 G4 전 대조에서 계산 · 흐름 정의가 없는 다섯 가지(권한 위반 셈 · L05 표시 범위 · 직접 확인 처리 결과 · 숙련자 인계 답 대기 · 이력 변환)를 사용자에게 물어 결정 018(sources/intent/018.md)로 정하고, 결정 017(반려 화면 = P-13 · 평가 모드 시험 DB · template 부록)과 함께 S-04 packet 실행 해석으로 넣음(plan 변경 없음)",
+   "approved_by": "user"
+  },
+  {
+   "id": "DEV-26",
+   "gate": "G6(S-04 1차 revise 수리)",
+   "rule": "G4 ~ G7은 PBC 이전 산출물을 다시 읽지 않는다 — 구조 기준은 G4 packet 부록만",
+   "decision": "G6-S04 B3 사용자 결정 'G4 부록 보충 뒤 대조'로 G4 단계 작업을 다시 열어, PBC-0 잠금 Prototype 파일(sha256 확인)에서 T10 / ans_direct · T11 / unable_repeat template · 영역만 부록 v2에 더함(packet v2, 이전 판은 execution/S-04/history). 부록 보충 대상 상태를 고르려고 잠금 regions.json에서 T11 상태 목록을 한 번 확인함. 결정 018 7(④ 보낸 뒤 화면 구조 정정)도 사용자 답으로 적음"
+  }
+ ],
+ "artifact_history": {
+  "wireframe_structure_v1": {
+   "version": "v1",
+   "status": "approved",
+   "manifest": "manifests/wireframe_structure-v1.json",
+   "decision": "decisions/G2A-wireframe-structure.json",
+   "selected_pages": {
+    "T01": {
+     "default": "wireframes/structure/selected/T01--default.html",
+     "role_error": "wireframes/structure/selected/T01--role_error.html"
+    },
+    "T02": {
+     "empty": "wireframes/structure/selected/T02--empty.html",
+     "new_alarm": "wireframes/structure/selected/T02--new_alarm.html",
+     "in_progress": "wireframes/structure/selected/T02--in_progress.html",
+     "rejected": "wireframes/structure/selected/T02--rejected.html"
+    },
+    "T03": {
+     "default": "wireframes/structure/selected/T03--default.html"
+    },
+    "T04": {
+     "default": "wireframes/structure/selected/T04--default.html",
+     "low_evidence": "wireframes/structure/selected/T04--low_evidence.html"
+    },
+    "T05": {
+     "before_lock": "wireframes/structure/selected/T05--before_lock.html",
+     "locked": "wireframes/structure/selected/T05--locked.html"
+    },
+    "T06": {
+     "default": "wireframes/structure/selected/T06--default.html",
+     "fallback": "wireframes/structure/selected/T06--fallback.html",
+     "unable_next": "wireframes/structure/selected/T06--unable_next.html",
+     "llm_repeat": "wireframes/structure/selected/T06--llm_repeat.html"
+    },
+    "T07": {
+     "confirm_question": "wireframes/structure/selected/T07--confirm_question.html",
+     "out_of_scope": "wireframes/structure/selected/T07--out_of_scope.html"
+    },
+    "T08": {
+     "action_a": "wireframes/structure/selected/T08--action_a.html",
+     "checklist_b": "wireframes/structure/selected/T08--checklist_b.html",
+     "restart_check": "wireframes/structure/selected/T08--restart_check.html"
+    },
+    "T09": {
+     "draft": "wireframes/structure/selected/T09--draft.html",
+     "check_failed": "wireframes/structure/selected/T09--check_failed.html",
+     "confirmed": "wireframes/structure/selected/T09--confirmed.html"
+    },
+    "T10": {
+     "summary": "wireframes/structure/selected/T10--summary.html",
+     "waiting": "wireframes/structure/selected/T10--waiting.html",
+     "sent": "wireframes/structure/selected/T10--sent.html",
+     "ans_approved": "wireframes/structure/selected/T10--ans_approved.html",
+     "ans_daytime": "wireframes/structure/selected/T10--ans_daytime.html",
+     "ans_direct": "wireframes/structure/selected/T10--ans_direct.html"
+    },
+    "T11": {
+     "expert_handover": "wireframes/structure/selected/T11--expert_handover.html",
+     "monitor_close": "wireframes/structure/selected/T11--monitor_close.html",
+     "unable_repeat": "wireframes/structure/selected/T11--unable_repeat.html"
+    },
+    "L01": {
+     "default": "wireframes/structure/selected/L01--default.html",
+     "role_error": "wireframes/structure/selected/L01--role_error.html"
+    },
+    "L02": {
+     "list": "wireframes/structure/selected/L02--list.html",
+     "empty": "wireframes/structure/selected/L02--empty.html"
+    },
+    "L03": {
+     "review": "wireframes/structure/selected/L03--review.html",
+     "edit": "wireframes/structure/selected/L03--edit.html",
+     "edit_failed": "wireframes/structure/selected/L03--edit_failed.html",
+     "reject": "wireframes/structure/selected/L03--reject.html"
+    },
+    "L04": {
+     "list": "wireframes/structure/selected/L04--list.html",
+     "call_detail": "wireframes/structure/selected/L04--call_detail.html",
+     "handover_detail": "wireframes/structure/selected/L04--handover_detail.html"
+    },
+    "L05": {
+     "default": "wireframes/structure/selected/L05--default.html",
+     "lower_warning": "wireframes/structure/selected/L05--lower_warning.html"
+    },
+    "L06": {
+     "default": "wireframes/structure/selected/L06--default.html",
+     "filtered": "wireframes/structure/selected/L06--filtered.html"
+    }
+   },
+   "selected_visual_baseline": "wireframes/structure/selected-visual-baseline.json",
+   "selected_blueprint": "wireframes/structure/selected.md",
+   "selected_structure_contract": "wireframes/structure/selected-structure-contract.json"
+  },
+  "visual_design_v1": {
+   "version": "v1",
+   "status": "approved",
+   "manifest": "manifests/visual_design-v1.json",
+   "decision": "decisions/G2B-visual-design.json",
+   "selected_direction_id": "direction-guide",
+   "selected_visual_rules": "wireframes/design/selected-visual-rules.md"
+  },
+  "wireframe_structure_v2": {
+   "version": "v2",
+   "path": "wireframes/v2/structure-review.html",
+   "manifest": "manifests/wireframe_structure-v2.json",
+   "decision": "decisions/G2A-wireframe-structure.json",
+   "selected_blueprint": "wireframes/v2/structure/selected.md",
+   "selected_structure_contract": "wireframes/v2/structure/selected-structure-contract.json",
+   "selected_visual_baseline": "wireframes/v2/structure/selected-visual-baseline.json"
+  },
+  "visual_design_v2": {
+   "version": "v2",
+   "path": "wireframes/v2/design/design-review.html",
+   "manifest": "manifests/visual_design-v2.json",
+   "decision": "decisions/G2B-visual-design.json",
+   "selected_visual_rules": "wireframes/v2/design/selected-visual-rules.md"
+  },
+  "prototype_v9": {
+   "version": "v9",
+   "status": "approved",
+   "path": "prototype/v9/prototype-slice.md",
+   "manifest": "manifests/prototype-v9.json",
+   "brief": "decisions/G3-human-brief-v9.md",
+   "critic_reviews": [
+    "critics/G3-9-review.json"
+   ],
+   "decision": "decisions/history/G3-prototype-v9.json"
+  }
+ },
+ "slice_history": {
+  "S-01": {
+   "execution_ledger": {
+    "version": "v2",
+    "status": "draft",
+    "path": "execution/S-01/execution-ledger-v2.json",
+    "slice_id": "S-01",
+    "prior_versions": [
+     "v1: execution/S-01/execution-ledger.json(G6-S01 revise)"
+    ]
+   },
+   "verification_report": {
+    "version": "v2",
+    "status": "draft",
+    "path": "execution/S-01/verification-report-v2.json",
+    "slice_id": "S-01",
+    "prior_versions": [
+     "v1: execution/S-01/verification-report.json(critics/G6-S01-review.json revise)"
+    ]
+   },
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-01/cycle-decision.md",
+    "slice_id": "S-01",
+    "decision": "next_slice",
+    "mismatch_classification": "L0"
+   }
+  },
+  "S-02": {
+   "slice_execution_packet": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-02/slice-execution-packet.json",
+    "slice_id": "S-02",
+    "prior_slices": [
+     "S-01: execution/S-01/slice-execution-packet.json"
+    ]
+   },
+   "implementation_contract": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-02/implementation-contract.md",
+    "plan_item_ids": [
+     "P-03",
+     "P-04",
+     "P-05",
+     "P-06",
+     "P-07"
+    ],
+    "plan_version": "v4",
+    "baseline_revalidated": true,
+    "execution_packet": "execution/S-02/slice-execution-packet.json",
+    "execution_packet_sha256": "cecf0134c8ea94807c2037d430b835810e5acb6508c2f0c47247acd38ceb02d3"
+   },
+   "execution_ledger": {
+    "version": "v2",
+    "status": "draft",
+    "path": "execution/S-02/execution-ledger-v2.json",
+    "slice_id": "S-02",
+    "prior_versions": [
+     "v1: execution/S-02/execution-ledger.json(G6-S02 revise)"
+    ]
+   },
+   "verification_report": {
+    "version": "v2",
+    "status": "critic_passed",
+    "path": "execution/S-02/verification-report-v2.json",
+    "slice_id": "S-02",
+    "prior_versions": [
+     "v1: execution/S-02/verification-report.json(critics/G6-S02-review.json revise)"
+    ]
+   },
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-02/cycle-decision.md",
+    "slice_id": "S-02",
+    "decision": "next_slice",
+    "mismatch_classification": "L0"
+   },
+   "cycle": 1
+  },
+  "S-02-cycle-2": {
+   "slice_execution_packet": {
+    "version": "v4",
+    "status": "draft",
+    "path": "execution/S-02/cycle-2/slice-execution-packet.json",
+    "slice_id": "S-02",
+    "cycle": 2,
+    "plan_version": "v8",
+    "prior_versions": [
+     "v1: execution/S-02/slice-execution-packet.json(1차 cycle, plan v4)",
+     "v2: execution/S-02/cycle-2/history/slice-execution-packet-v2.json(2차 cycle, plan v6 — G5 중단)",
+     "v3: execution/S-02/cycle-2/history/slice-execution-packet-v3.json(plan v7 — G5 시작 전 중단)"
+    ]
+   },
+   "implementation_contract": {
+    "version": "v4",
+    "status": "approved",
+    "path": "execution/S-02/cycle-2/implementation-contract.md",
+    "slice_id": "S-02",
+    "plan_item_ids": [
+     "P-08",
+     "P-18",
+     "P-19"
+    ],
+    "plan_version": "v8",
+    "baseline_revalidated": true,
+    "execution_packet": "execution/S-02/cycle-2/slice-execution-packet.json",
+    "execution_packet_sha256": "5eadade19f81a99ece54be6fb52cb88b0d678fa836f021167beb0e599f0ec593"
+   },
+   "execution_ledger": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-02/cycle-2/execution-ledger.json",
+    "slice_id": "S-02",
+    "cycle": 2,
+    "prior_versions": [
+     "v1: critics/G6-S02C2-input.json",
+     "v2: critics/G6-S02C2-2-input.json"
+    ]
+   },
+   "verification_report": {
+    "version": "v4",
+    "status": "critic_passed",
+    "path": "execution/S-02/cycle-2/verification-report.json",
+    "slice_id": "S-02",
+    "cycle": 2,
+    "prior_versions": [
+     "v1: critics/G6-S02C2-review.json revise",
+     "v2: critics/G6-S02C2-2-review.json revise",
+     "v3: critics/G6-S02C2-3-review.json pass(검토 기록 경로 없음)"
+    ],
+    "critic_review": "critics/G6-S02C2-4-review.json",
+    "critic_verdict": "pass"
+   },
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-02/cycle-2/cycle-decision.md",
+    "slice_id": "S-02",
+    "cycle": 2,
+    "decision": "amendment",
+    "mismatch_classification": "L1",
+    "learning_record": "coding-plan/amendments/A-05/learning-record.md"
+   },
+   "cycle": 2,
+   "closed_by": "PBC-4 v10 승인(A-05) — AC-37 deferred(완료 P-13), S-02 완료"
+  },
+  "S-03": {
+   "plan_version": "v9",
+   "plan_item_ids": [
+    "P-09",
+    "P-10"
+   ],
+   "packet": "execution/S-03/slice-execution-packet.json",
+   "ledger": "execution/S-03/execution-ledger.json(v3)",
+   "report": "execution/S-03/verification-report.json(v3)",
+   "g6": [
+    "critics/G6-S03-review.json revise",
+    "critics/G6-S03-2-review.json pass",
+    "critics/G6-S03-3-review.json pass"
+   ],
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-03/cycle-decision.md",
+    "slice_id": "S-03",
+    "decision": "amendment",
+    "mismatch_classification": "L1",
+    "learning_record": "coding-plan/amendments/A-06/learning-record.md"
+   },
+   "user_decisions": [
+    "sources/intent/015.md",
+    "sources/intent/016.md",
+    "execution/S-03/g6-revise-decision.md"
+   ],
+   "closed_by": "PBC-4 v11 승인(A-06) — S-03(P-09 · P-10) 완료, next_slice",
+   "slice_execution_packet_record": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-03/slice-execution-packet.json",
+    "slice_id": "S-03",
+    "plan_version": "v9"
+   },
+   "implementation_contract_record": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-03/implementation-contract.md",
+    "slice_id": "S-03",
+    "plan_item_ids": [
+     "P-09",
+     "P-10"
+    ],
+    "plan_version": "v9",
+    "baseline_revalidated": true,
+    "execution_packet": "execution/S-03/slice-execution-packet.json",
+    "execution_packet_sha256": "a8f1658bc7173a114283202a44682a30e77aa68596148e561da8a80474714b37"
+   },
+   "execution_ledger_record": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-03/execution-ledger.json",
+    "slice_id": "S-03",
+    "prior_versions": [
+     "v1: execution/S-03/history/execution-ledger-v1.json",
+     "v2: execution/S-03/history/execution-ledger-v2.json"
+    ]
+   },
+   "verification_report_record": {
+    "version": "v3",
+    "status": "critic_passed",
+    "path": "execution/S-03/verification-report.json",
+    "slice_id": "S-03",
+    "prior_versions": [
+     "v1: critics/G6-S03-review.json revise",
+     "v2: critics/G6-S03-2-review.json pass(입력 대상 경로 형식)"
+    ],
+    "critic_review": "critics/G6-S03-3-review.json",
+    "critic_verdict": "pass"
+   }
+  },
+  "S-04": {
+   "plan_version": "v10",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "packet": "execution/S-04/slice-execution-packet.json(v3)",
+   "ledger": "execution/S-04/execution-ledger.json(v3)",
+   "report": "execution/S-04/verification-report.json(v3)",
+   "g6": [
+    "critics/G6-S04-review.json revise",
+    "critics/G6-S04-2-review.json pass",
+    "critics/G6-S04-3-review.json pass"
+   ],
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-04/cycle-decision.md",
+    "slice_id": "S-04",
+    "decision": "amendment",
+    "mismatch_classification": "L1",
+    "learning_record": "coding-plan/amendments/A-07/learning-record.md"
+   },
+   "user_decisions": [
+    "sources/intent/017.md",
+    "sources/intent/018.md",
+    "execution/S-04/g6-revise-decision.md"
+   ],
+   "closed_by": "PBC-4 v12 승인(A-07) — S-04(P-11 · P-12 · P-13) 완료, next_slice",
+   "slice_execution_packet_record": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-04/slice-execution-packet.json",
+    "slice_id": "S-04",
+    "plan_version": "v10",
+    "prior_versions": [
+     "v1: execution/S-04/history/slice-execution-packet-v1.json",
+     "v2: execution/S-04/history/slice-execution-packet-v2.json"
+    ]
+   },
+   "implementation_contract_record": {
+    "version": "v2",
+    "status": "draft",
+    "path": "execution/S-04/implementation-contract.md",
+    "slice_id": "S-04",
+    "plan_item_ids": [
+     "P-11",
+     "P-12",
+     "P-13"
+    ],
+    "plan_version": "v10",
+    "baseline_revalidated": true,
+    "execution_packet": "execution/S-04/slice-execution-packet.json",
+    "execution_packet_sha256": "1c2bac4bd65ffb2c1cbaf0f521e412750b18d0291ab683cf796757cfccbb3300",
+    "prior_versions": [
+     "v1: execution/S-04/history/implementation-contract-v1.md"
+    ]
+   },
+   "execution_ledger_record": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-04/execution-ledger.json",
+    "slice_id": "S-04",
+    "prior_versions": [
+     "v1: execution/S-04/history/execution-ledger-v1.json",
+     "v2: execution/S-04/history/execution-ledger-v2.json"
+    ]
+   },
+   "verification_report_record": {
+    "version": "v3",
+    "status": "critic_passed",
+    "path": "execution/S-04/verification-report.json",
+    "slice_id": "S-04",
+    "prior_versions": [
+     "v1: critics/G6-S04-review.json revise",
+     "v2: critics/G6-S04-2-review.json pass"
+    ],
+    "critic_review": "critics/G6-S04-3-review.json",
+    "critic_verdict": "pass"
+   }
+  },
+  "S-05": {
+   "plan_version": "v11",
+   "plan_item_ids": [
+    "P-14",
+    "P-15"
+   ],
+   "packet": "execution/S-05/slice-execution-packet.json(v3)",
+   "ledger": "execution/S-05/execution-ledger.json(v2)",
+   "report": "execution/S-05/verification-report.json(v2)",
+   "g6": [
+    "critics/G6-S05-review.json revise",
+    "critics/G6-S05-2-review.json pass"
+   ],
+   "cycle_decision": {
+    "version": "v1",
+    "status": "draft",
+    "path": "execution/S-05/cycle-decision.md",
+    "slice_id": "S-05",
+    "decision": "next_slice",
+    "mismatch_classification": "L0"
+   },
+   "user_decisions": [
+    "sources/intent/019.md",
+    "execution/S-05/g6-revise-decision.md"
+   ],
+   "closed_by": "G7 next_slice(사용자 결정 2026-10-14) — S-05(P-14 · P-15) 완료, PBC-4 v12 승인 그대로",
+   "slice_execution_packet_record": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-05/slice-execution-packet.json",
+    "slice_id": "S-05",
+    "plan_version": "v11",
+    "prior_versions": [
+     "v1: execution/S-05/history/slice-execution-packet-v1.json",
+     "v2: execution/S-05/history/slice-execution-packet-v2.json"
+    ]
+   },
+   "implementation_contract_record": {
+    "version": "v3",
+    "status": "draft",
+    "path": "execution/S-05/implementation-contract.md",
+    "slice_id": "S-05",
+    "plan_item_ids": [
+     "P-14",
+     "P-15"
+    ],
+    "plan_version": "v11",
+    "baseline_revalidated": true,
+    "execution_packet": "execution/S-05/slice-execution-packet.json",
+    "execution_packet_sha256": "2a731e4d33fe80eb02e7559b185b5bc70f92e990eaab856ed00267f1c4882a1c",
+    "prior_versions": [
+     "v1: execution/S-05/history/implementation-contract-v1.md",
+     "v2: execution/S-05/history/implementation-contract-v2.md"
+    ]
+   },
+   "execution_ledger_record": {
+    "version": "v2",
+    "status": "draft",
+    "path": "execution/S-05/execution-ledger.json",
+    "slice_id": "S-05",
+    "prior_versions": [
+     "v1: execution/S-05/history/execution-ledger-v1.json"
+    ]
+   },
+   "verification_report_record": {
+    "version": "v2",
+    "status": "critic_passed",
+    "path": "execution/S-05/verification-report.json",
+    "slice_id": "S-05",
+    "prior_versions": [
+     "v1: critics/G6-S05-review.json revise (execution/S-05/history/verification-report-v1.json)"
+    ],
+    "critic_review": "critics/G6-S05-2-review.json",
+    "critic_verdict": "pass"
+   },
+   "deferred_to_s06_g4": [
+    "결정 019 ⑦(시연 10건 완주 각본 · 파트장 답, 평가 실행기 호출 처리 · 지표 정의)",
+    "L06 파트장 호출 뒤 '호출 필요' 시스템 행 중복(S-04부터, 사용자 'S-06 G4 전 대조에서')"
+   ]
+  }
+ }
+}

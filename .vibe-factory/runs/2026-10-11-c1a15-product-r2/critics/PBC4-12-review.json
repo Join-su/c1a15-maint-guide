@@ -1,0 +1,74 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A12",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v12/prebuild-contract.md",
+  "version": "v12",
+  "sha256": "b718e337a5c571c4d20ceb50d574eb7908494e101cd3335fb93527767e653aa1"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-12-input.json",
+  "sha256": "7cf7bcd038072510bd9e6d2fd04b7bac5eef2b2af873268457cbb5bf79ed0aba"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v11/coding-plan.json",
+   "version": "v11",
+   "sha256": "cf720a2c033c06c2d35a76468781014fff2734beffdf1bde205aeb737ab3bb52"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v11/verification-matrix.json",
+   "version": "v11",
+   "sha256": "cc403e6d4861aacba9120572b25e3f0797c12238063ffe973a4ee9265974b985"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v11/selection-register.json",
+   "version": "v11",
+   "sha256": "3b6ee6c7ef580e15d1a5ccd2f0142615cd04f58d9e17bc6e083c9a0c7df3036e"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v12/pbc-consistency-check.json",
+   "version": "v12",
+   "sha256": "3fd4ffef0884ae40e3282cc5f6c262b99266ad88ab7f55d7543ea75a0017166b"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v12/prebuild-contract.md",
+   "version": "v12",
+   "sha256": "b718e337a5c571c4d20ceb50d574eb7908494e101cd3335fb93527767e653aa1"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "제품 약속 판단(차단 아님): AC-09-C1의 '검색 후보'를 R3 검색 대상(순위가 매겨짐)으로 확인하는 것은 승인 산출물 안에서 받아들일 수 있다. 근거는 네 가지다. ① AC-09-C1 원문 · use-case-packet 사후 조건('검색 후보가 된다') · logical-system-contract('다음 진단 검색에서 후보로 읽힘')는 상위 10건이나 진단 카드를 말하지 않는다. ② 승인 R3는 승인 보고서를 검색 대상에 넣고, 알람마다 유사도로 순위를 매겨 상위 10건만 쓴다. 그래서 다음 같은 증상군 알람마다 상위 10건에 든다고 보장하려면 R3를 바꿔야 한다. ③ Prototype v17 coverage는 AC-09-C1 · C2를 서버 조건(deferred)으로 두었고, SC-33은 L03 / review에만 연결된다. 화면 약속이 없다. ④ 사용자가 018 ⑥과 '검증 문구만 고침'을 직접 골랐고, AC 원문 · R3 변경은 대안으로 밝힌 뒤 쓰지 않았다. 다만 승인 어휘에서 '비슷한 과거 기록'은 상위 10건을 뜻하기도 한다(AC-40, 찾은 기록 수 10). 그리고 새 확인은 사실상 '승인 전 없음 → 승인 뒤 같은 증상군 검색 대상에 들어감'의 대조다. pgvector 순위는 pool 전체를 돌려주므로 몇 위든 통과한다. 그러므로 이 승인이 'AC-09-C1은 상위 10건 · 진단 카드 포함을 약속하지 않는다'는 제품 의미를 사용자가 확정하는 일임을 Human decision(reviewer_note)에 한 줄로 적기를 권한다. 원하면 브리프의 '제품 변경 요청' 선택지로 바꿀 수 있다. 또 Matrix AC-09 L3 '진단까지 가서 R-번호 기록으로 다시 읽힘'만 읽으면 화면에서 연 것처럼 보인다. 실제로는 기록 창이 쓰는 기록 API로 연다(plan-amendment · report v3에는 적혀 있음). 다음 판이나 S-04 닫기 기록에서 'API로'를 밝히면 좋다.",
+  "순위 숫자의 출처: 결정 018 ⑥은 '합친 19위 · BM25 2위(G5 세션 질의)'이고, A-07 · LR-07 · cycle decision은 '합친 20위 · BM25 3위 · pgvector 82위(시험 질의 \"온도 차 저하 · 경계 아래\")'이다. 이 차이와 'pgvector 82위는 그 자체로는 판별하지 않고, 판별은 승인 전 · 뒤 대조에서 나온다'는 한계는 ledger UF-S04-01에만 있다. G6-S04-3 비차단 의견 1은 이 두 줄을 A-07 문구에 함께 실으라고 했지만, plan-amendment에는 '시험 질의'만 있다. cycle decision의 이어받을 일(report에 적기)로 넘어가 있다. S-04를 next_slice로 다시 쓸 때 report AC-09에 ac09-r3-positions.txt를 만든 실행 명령 · DB와 함께 옮기기를 권한다.",
+  "LR-07 문장 정밀도: v1 ~ v10에서 확인을 '진단 과거 기록 후보'로 좁혀 적은 곳은 Matrix AC-09 L3(v1부터, v3에 S-04 · P-13 표기)와 P-12 verifier(v1부터)다. P-11 verifier('다음 같은 증상군 검색 후보 포함')와 P-13 ②('다음 같은 증상군 알람 후보 포함', v1부터)는 AC 원문 표현이었다. LR-07 첫 절은 P-13도 좁힌 것처럼 적었고, A-07이 함께 고친 P-11은 빠졌다. 또 놓친 일에 G6 B1이 짚은 판별력 없는 첫 L2 의미 색인 검사(cosine_rank가 pool 전체를 돌려줌)를 더하면 재발 방지 제안('대상 포함 · 순위 · 전후 대조')과 더 잘 이어진다. LR-06 판 범위 정정('v1 ~ v9')은 plan v1 ~ v9의 P-09 behavior 대조와 맞다."
+ ]
+}

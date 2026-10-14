@@ -1,0 +1,12 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "{{artifact}}",
+  "version": "{{version}}",
+  "status": "draft | critic_passed | approved | rejected | superseded",
+  "contents": [
+    {"role": "{{bundle content role}}", "path": "{{run-relative artifact path}}", "sha256": "{{SHA-256}}"}
+  ],
+  "sources": [
+    {"path": "{{source path}}", "reason": "{{why this source supports the artifact}}", "context_role": "intent | task_evidence", "content_mode": "full_document | reference_only", "snapshot_path": "sources/intent/001.md", "content_sha256": "{{SHA-256 for intent sources}}"}
+  ]
+}

@@ -1,0 +1,76 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prototype",
+ "version": "v2",
+ "status": "superseded",
+ "supersedes": "v1",
+ "contents": [
+  {
+   "role": "prototype_slice",
+   "path": "prototype/v2/prototype-slice.md",
+   "sha256": "5ed753e12cb16483c79e4a348d3013a55c51f12897a9a564655c7c5322ce25cd"
+  },
+  {
+   "role": "prototype_coverage",
+   "path": "prototype/v2/prototype-coverage.json",
+   "sha256": "89b95248929315890b66c9f4435c0d2f914c5fa6c7443ec1c0380a8793aaa68d"
+  },
+  {
+   "role": "prototype_renderable",
+   "path": "prototype/v2/index.html",
+   "sha256": "98b947f8146633b678a10c171a71777c551f03d46bfce8401e1af589226b508d"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v2/regions.json",
+   "sha256": "4744136db71eee63a2f1b60e148e6d091dab83b013842c52d6d3c4f68268f048"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "prototype/v2/markup-check.json",
+   "sha256": "f0f710774bb52742871dddbad52516904344b94131b93eab36ab0fa863ae27c9"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v2/selftest-result.json",
+   "sha256": "dcd01d87c59100dcdf4cecd91c4807bcadfa0de82ef28689d919c471a5a1b0ff"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v2/mutation-check.json",
+   "sha256": "61b9541ba06a230536f9caf9ad35910c52df5c507eb5ce1c6d38a14af7e25a93"
+  },
+  {
+   "role": "execution_evidence",
+   "path": "verification/g3-v2/structure-check.json",
+   "sha256": "474bb9bcb5449101071c354efb6b895db006ba5f62937097a513b051f386e551"
+  },
+  {
+   "role": "variation_evidence",
+   "path": "verification/g3-v2/axes.json",
+   "sha256": "bd7da174aee680a8dce0c7caf0c46f688ca77f9d09101b7dc0afa62adcb466ce"
+  }
+ ],
+ "sources": [
+  {
+   "path": "manifests/use_case-v2.json",
+   "reason": "승인 Use Case Bundle"
+  },
+  {
+   "path": "wireframes/structure/selected-visual-baseline.json",
+   "reason": "G2A 구조 기준선"
+  },
+  {
+   "path": "wireframes/structure/selected-structure-contract.json",
+   "reason": "G2A 구조 계약"
+  },
+  {
+   "path": "wireframes/design/selected-visual-rules.md",
+   "reason": "G2B 시각 규칙"
+  },
+  {
+   "path": "critics/G3-1-review.json",
+   "reason": "v1 revise 지적"
+  }
+ ]
+}

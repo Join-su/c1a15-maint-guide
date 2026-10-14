@@ -1,0 +1,265 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "verification_report",
+ "plan_version": "v10",
+ "slice_id": "S-04",
+ "review_requirement": "independent_critic",
+ "review_rationale": "P-11이 migration(0004) · 공개 API(파트장 router, OpenAPI 정본) · 권한(파트장 역할 · 등급 변경 · 승인 이력 쓰기)을 바꾸고, 결정 018 ③ ④로 S-03 정비자 동작이 바뀌었다. read-only 독립 reviewer로 검토",
+ "criteria": [
+  {
+   "acceptance_id": "AC-06",
+   "plan_item_ids": [
+    "P-11"
+   ],
+   "completion_plan_item_id": "P-11",
+   "result": "pass",
+   "assertion_summary": "C2(L2, 완료 P-11): 근거 없는 보고서 문장을 내는 가짜 provider에서도 초안 · 확정 보고서는 코드 템플릿 문장(근거 없는 수치 12.3 · 5.9 없음), 파트장이 같은 수치를 넣은 수정은 /check 실패 · 수정 후 승인 409 edit_ungrounded, 그대로 승인한 이력 서술에도 없음(test_ac06_report_sentences_never_ungrounded · test_lead_edit_approve_r8_and_audit). C1(L1 · L3, S-02 · S-03 시험 그대로 다시 통과): 두 번 실패 문장 → 절 원문 · '원문으로 대체됨'(T06 / fallback, E2E AC-31), 보고서 실패 줄(T09 / check_failed, E2E SC-06)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/T06-fallback.png",
+    "execution/S-04/evidence/screens/T09-check_failed.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-08",
+   "plan_item_ids": [
+    "P-11",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 답 전 C 지시 내용 없음(S-03 test_s03_approved_c_opens_and_d_never · 교차 ①의 호출 단계). C2: 파트장 API '승인 후 진행' → 정비자 다음 단계 그 C 점검 지시 · 호출 답 by lead.park · 시각(test_lead_call_answers), 교차 E2E ①: 파트장 앱 L04 답 저장 → ops.calls answer.by = lead.park → 정비자 종 '답 보기' → 승인 배너 → 4.4 냉각 팬 분해 점검 지시",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L04-call_detail.png",
+    "execution/S-04/evidence/screens/T10-ans_approved.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-09",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1(사용자 결정 018 ⑥): 승인 → 이력 R-{번호} · 출처 approved_report · 같은 증상군 · 임베딩 1행 · 메모리 색인 문서에 더해짐, 다음 같은 증상군 질의의 BM25 상위 5 · 의미 순위 목록에 들어 순위가 매겨짐, 기록 API에서 R-번호로 열림(test_lead_overview_rows_and_approve_adds_history). 교차 E2E: 파트장 앱 그대로 승인 → DB 이력 R-번호 출처 approved_report → 정비자 쪽 기록 API 200 · 출처 approved_report. 진단 화면 상위 10건 포함은 보장하지 않음(fixture 합친 순위 19위). C2: 평가 모드 알람(시험 DB 표시, 결정 017 ②)의 보고서는 승인해도 이력 0행 · history_record_id 없음(test_lead_eval_mode_report_not_indexed)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L03-review.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-10",
+   "plan_item_ids": [
+    "P-11",
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "pass",
+   "assertion_summary": "C1: 수정 후 승인 뒤 감사 행 edits(항목 · 전 · 후) · 메모 · 파트장 · 시각, 승인 보고서 항목 = 고친 문장(test_lead_edit_approve_r8_and_audit), 화면 수정 후 승인 · 근거 검사 실패 · 통과(component L03 / edit · edit_failed)",
+   "evidence_paths": [
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/component-test-list-lead.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-11",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 실제 파트장 반려 → 정비자 홈 최근 보고서 반려 · 사유 · 반려자 이름 · 종 '반려된 보고서'(test_lead_reject_requires_reason_and_reaches_tech), 교차 E2E SC-35: 파트장 앱 사유 반려 → 정비자 홈 반려 칩 · 반려 사유 배너(T02-rejected.png). C2: 반려 보고서 열기 → 초안(고칠 수 있음) → 다시 확정 → '확정 · 승인 대기' → 파트장 승인 대기 목록에 다시 1행(같은 시험 · E2E · component). 추가 점검으로 이어 가는 경로는 S-05(정정 · 지난 단계)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/T02-rejected.png",
+    "execution/S-04/evidence/screens/T12-list-rejected.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-12",
+   "plan_item_ids": [
+    "P-11",
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "pass",
+   "assertion_summary": "C1 · C2 · C3: 앱 × 역할 4조합 · 위조 X-App · 다른 앱 쿠키(test_role_login_and_session_boundary 그대로) + 파트장 API는 정비자 쿠키 거부 · 정비자 API는 파트장 쿠키 거부(test_lead_role_boundary_and_empty_overview). L3: 파트장 앱에 정비자 계정 → 거부 배너(교차 E2E, L01-role_error.png) · 정비자 앱에 파트장 계정 → 거부(E2E AC-12, T01-role_error.png), component L01",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L01-role_error.png",
+    "execution/S-04/evidence/screens/T01-role_error.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-17",
+   "plan_item_ids": [
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-17",
+   "result": "deferred",
+   "assertion_summary": "S-04 부분: packet 부록 template(L01 ~ L06 · T02 / rejected · T10 / sent · ans_approved · T12) 영역 58 + 파생 2 = 60 대조, 일치 35 · 분류된 차이 22 · slice 밖 3(T12 / empty), 미분류 차이 0, 값은 API(D-1 · D-2 · D-5 ~ D-8). 완료 = P-17",
+   "evidence_paths": [
+    "execution/S-04/evidence/prototype-structure-checklist.json",
+    "execution/S-04/evidence/gate-applicability.md"
+   ]
+  },
+  {
+   "acceptance_id": "AC-23",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 파트장 앱 주간 처리 → 정비자 '주간 처리로 결정 · 저부하 감시 운전' · 보고서 미확인 · 요청 '주간 처리 요청 · 주간 정비 배정'(test_lead_call_answers · 교차 E2E AC-23). C2: 답 전 '설비 정지 대기'(S-03 E2E AC-23) · 직접 확인 + 메모 → '파트장 직접 확인 · 처리 결과' 배너 · 보고서 미확인 · 요청에 처리 결과(결정 018 ③, 교차 E2E · test_s03_direct_answer_goes_to_report). C3: D 등급 호출 선택지에 승인 후 진행 없음 · 보내면 409(test_lead_call_answers · 교차 E2E L04-call_detail_d.png · component). C4: 숙련자 인계 보냄 → 답 대기 → 주간 숙련자 배정 / 직접 확인 + 메모 → 보고서 원인 미상 · 미확인 · 요청에 답 · 메모(test_lead_handover_answer · test_lead_handover_direct_answer, 결정 018 ④)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L04-call_detail_d.png",
+    "execution/S-04/evidence/screens/T10-ans_direct.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-24",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 사유 빈 반려 409 reason_required · 보고서 상태 그대로(test_lead_reject_requires_reason_and_reaches_tech), 교차 E2E SC-35: L03 / reject에서 사유를 비우면 '반려 사유를 입력해야 저장됩니다' · 결정 저장 잠김 · DB awaiting_approval · 정비자 홈 반려 배너 0",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L03-reject.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-25",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 등급 변경 뒤 진행 중 세션의 다음 판정에 새 등급(4.6 C → 지시 안 됨)(test_lead_grade_change · 교차 E2E ③). C2: 변경 기록 누가 · 언제 · 전 · 후(API · 화면 'A → C' · 'C → B'). C3: 올림 · 낮춤 · D(C → D) 모두 서버 경고 문구 · confirmed 없이 409 warning_not_confirmed · 취소하면 저장 안 됨(DB 그대로). C4: 이미 열린 지시(4.3)는 그대로(API · E2E), 열린 호출 화면은 그 절 등급을 낮춰도 단계 · 호출 요약 그대로(test_lead_grade_change_keeps_open_call)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L05-raise_warning.png",
+    "execution/S-04/evidence/screens/L05-lower_warning.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-26",
+   "plan_item_ids": [
+    "P-11",
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "pass",
+   "assertion_summary": "C1: 감사 화면 행에 지시(시스템) · 잠금 · 결과 입력 · 조치 · 재가동 · 보고서 확정 · 승인 · 반려 · 수정 후 승인 · 파트장 호출 · 호출 답 · 등급 변경(test_lead_audit_and_filters · test_lead_audit_records_review_call_and_grade · test_lead_edit_approve_r8_and_audit), 확인 질문 답 · 보고서 수정 감사는 S-02 · S-03 시험 그대로. C2: 설비 · 사용자 · 날짜 필터 결과가 조건과 맞음 · 시간 역순(같은 시험), 교차 E2E 설비 필터 → 모든 행 대상이 그 설비(L06-filtered.png)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L06-default.png",
+    "execution/S-04/evidence/screens/L06-filtered.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-27",
+   "plan_item_ids": [
+    "P-11",
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "pass",
+   "assertion_summary": "C1: 타일 3개 = 승인 대기 · 처리할 호출 · 권한 위반 실제 건수(test_lead_overview_rows_and_approve_adds_history · test_lead_call_answers, 교차 E2E 1 · 0 · 0), 위반 기록이 든 보고서 1건이면 위반 타일 1 · 그 행 위반 수 1 이상(결정 018 ①, test_lead_violation_tile_counts_reports — 위반 기록은 시험 DB로 만듦). C2: 행 = 설비 · 알람 · 확정 원인 · 작성자 · 확정 시각 · 근거 기록 수 · 근거 적음 · 위반 수(같은 시험 · component). C3: 0건이면 타일 0 · 빈 목록 안내(test_lead_role_boundary_and_empty_overview · E2E L02-empty.png)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/L02-empty.png",
+    "execution/S-04/evidence/screens/L02-list.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-29",
+   "plan_item_ids": [
+    "P-11",
+    "P-12"
+   ],
+   "completion_plan_item_id": "P-12",
+   "result": "pass",
+   "assertion_summary": "C1 · C2 · C4: S-02 · S-03 시험 그대로 다시 통과(진단 T04 / low_evidence · 보고서 근거 적음 칩 · 다음 지시 그대로). C3: 근거 적음 세션의 보고서가 파트장 승인 대기 목록 행에 '근거 적음' 칩(교차 E2E AC-37 시험의 tr.low · component L02)",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/component-test-list-lead.txt"
+   ]
+  },
+  {
+   "acceptance_id": "AC-37",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 교차 E2E에서 실제 파트장 답 · 반려 뒤 정비자 종 목록 묶음 4종류(배정된 새 알람 · 진행 중인 점검 · 파트장 답이 온 호출 · 반려된 보고서)(T12-list.png). C2: 답 보기 → 호출 답 화면, 알람 보기 → 알람 화면, 보고서 보기 → 반려 보고서(교차 E2E), 진행 중 → 이어서 하기(S-02 E2E AC-13 · AC-37). C3: 빈 목록 안내(S-02 E2E · component 그대로). API 반려 항목(사유 · 반려자 · 시각)은 test_lead_reject_requires_reason_and_reaches_tech",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/T12-list.png",
+    "execution/S-04/evidence/screens/T12-list-rejected.png"
+   ]
+  },
+  {
+   "acceptance_id": "AC-42",
+   "plan_item_ids": [
+    "P-11",
+    "P-12",
+    "P-13"
+   ],
+   "completion_plan_item_id": "P-13",
+   "result": "pass",
+   "assertion_summary": "C1: 승인으로 열린 확정형 C 점검 '이상' → 원인 확정(CL-2) · 조치 단계(test_lead_call_answers, L1 test_engine_rules). C2: 교차 E2E ①: 승인 후 진행 → 4.4 '정상' → 남은 후보의 다음 단계(4.4가 아닌 다음 지시, T06-second_check-after_approved.png), 후보가 비면 재가동 확인은 L1 · S-03 감시 마감 시험",
+   "evidence_paths": [
+    "execution/S-04/evidence/check-fast.txt",
+    "execution/S-04/evidence/verify-db.txt",
+    "execution/S-04/evidence/verify-e2e.txt",
+    "execution/S-04/evidence/screens/T06-second_check-after_approved.png"
+   ]
+  }
+ ],
+ "adversarial_results": [],
+ "regression_note": "S-01 · S-02 · S-03 시험(ADV-01 ~ 07 포함)은 check-fast · verify-db · verify-e2e에서 다시 통과. 바뀐 기존 시험: 결정 018 ③ ④(직접 확인 답 → 보고서, 숙련자 인계 → 답 대기)로 S-03 API 시험 2개 · tech-s03 E2E 2개 · s03 component fixture, E2E 도우미를 helpers.ts로 옮김",
+ "independent_critic_review": "critics/G6-S04-review.json",
+ "version_note": "S-04 v1(packet v1, plan v10)"
+}

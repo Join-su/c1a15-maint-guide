@@ -1,0 +1,656 @@
+{
+ "_note": "G2A 구조 검토용 sample. 값은 data/ 에서 계산. 유사도는 센서 거리 대용값(실제는 R3). 근거 적음 상태는 표시 확인용 예시.",
+ "alarm": {
+  "udi": "4494",
+  "equipment_id": "M-03",
+  "at": "2026-10-01 02:14",
+  "group": "CL",
+  "group_name": "온도 차 저하",
+  "system": "냉각 계통",
+  "sensor": "온도 차",
+  "value": 7.8,
+  "boundary": 8.3,
+  "direction": "경계 아래",
+  "sensors": {
+   "rpm": 1511.0,
+   "torque": 37.7,
+   "wear": 60.0,
+   "air": 302.7,
+   "proc": 310.5
+  },
+  "usual_range": {
+   "air": [
+    296.4,
+    302.4
+   ],
+   "rpm": [
+    1305.0,
+    1979.0
+   ],
+   "torque": [
+    20.5,
+    59.7
+   ],
+   "wear": [
+    4.0,
+    214.0
+   ]
+  },
+  "trend": [
+   8.4,
+   8.2,
+   8.2,
+   8.7,
+   8.2,
+   7.7,
+   7.8,
+   7.9,
+   7.8,
+   7.8,
+   7.8,
+   7.8
+  ],
+  "trend_times": [
+   "09-22 08:00",
+   "09-23 01:31",
+   "09-23 19:02",
+   "09-24 12:33",
+   "09-25 06:04",
+   "09-25 23:36",
+   "09-26 17:07",
+   "09-27 10:38",
+   "09-28 04:09",
+   "09-28 21:40",
+   "09-29 15:12",
+   "09-30 08:43"
+  ]
+ },
+ "top10": [
+  {
+   "record_id": "H-0299",
+   "equipment_id": "M-18",
+   "month": 9,
+   "similarity": 0.92,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 팬 열화",
+   "action": "냉각 팬 모듈 교체",
+   "downtime_min": 88
+  },
+  {
+   "record_id": "H-0235",
+   "equipment_id": "M-04",
+   "month": 9,
+   "similarity": 0.9,
+   "outcome": "이상 없음·감시",
+   "cause_name": null,
+   "action": null,
+   "downtime_min": 26
+  },
+  {
+   "record_id": "H-0237",
+   "equipment_id": "M-06",
+   "month": 9,
+   "similarity": 0.9,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 팬 열화",
+   "action": "냉각 팬 모듈 교체",
+   "downtime_min": 94
+  },
+  {
+   "record_id": "H-0300",
+   "equipment_id": "M-19",
+   "month": 9,
+   "similarity": 0.87,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 필터 막힘",
+   "action": "흡기 필터 교체",
+   "downtime_min": 29
+  },
+  {
+   "record_id": "H-0297",
+   "equipment_id": "M-15",
+   "month": 9,
+   "similarity": 0.87,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 필터 막힘",
+   "action": "흡기 필터 교체",
+   "downtime_min": 24
+  },
+  {
+   "record_id": "H-0219",
+   "equipment_id": "M-07",
+   "month": 9,
+   "similarity": 0.84,
+   "outcome": "원인 확정",
+   "cause_name": "냉각수 부족",
+   "action": "냉각수 보충",
+   "downtime_min": 32
+  },
+  {
+   "record_id": "H-0294",
+   "equipment_id": "M-12",
+   "month": 9,
+   "similarity": 0.84,
+   "outcome": "원인 확정",
+   "cause_name": "냉각수 부족",
+   "action": "냉각수 보충",
+   "downtime_min": 38
+  },
+  {
+   "record_id": "H-0220",
+   "equipment_id": "M-08",
+   "month": 9,
+   "similarity": 0.81,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 설정 오류",
+   "action": "냉각 설정값 변경",
+   "downtime_min": 47
+  },
+  {
+   "record_id": "H-0293",
+   "equipment_id": "M-11",
+   "month": 9,
+   "similarity": 0.81,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 필터 막힘",
+   "action": "흡기 필터 교체",
+   "downtime_min": 24
+  },
+  {
+   "record_id": "H-0298",
+   "equipment_id": "M-17",
+   "month": 9,
+   "similarity": 0.81,
+   "outcome": "원인 확정",
+   "cause_name": "냉각 팬 열화",
+   "action": "냉각 팬 모듈 교체",
+   "downtime_min": 87
+  }
+ ],
+ "stages": {
+  "initial": {
+   "ranking": [
+    {
+     "code": "CL-2",
+     "name": "냉각 팬 열화",
+     "score": 3.13,
+     "pct": 32,
+     "evidence_n": 3
+    },
+    {
+     "code": "CL-1",
+     "name": "냉각 필터 막힘",
+     "score": 3.05,
+     "pct": 31,
+     "evidence_n": 3
+    },
+    {
+     "code": "CL-3",
+     "name": "냉각수 부족",
+     "score": 2.18,
+     "pct": 23,
+     "evidence_n": 2
+    },
+    {
+     "code": "CL-4",
+     "name": "냉각 설정 오류",
+     "score": 1.31,
+     "pct": 14,
+     "evidence_n": 1
+    }
+   ],
+   "next": {
+    "decision": "check",
+    "section": "4.3",
+    "title": "흡기 필터 육안 점검",
+    "grade": "A",
+    "minutes": 3,
+    "cause": "CL-1",
+    "score": 10.33,
+    "alternatives": [
+     {
+      "section": "4.4",
+      "grade": "C",
+      "minutes": 10,
+      "pct": 32
+     },
+     {
+      "section": "4.3",
+      "grade": "A",
+      "minutes": 3,
+      "pct": 31
+     },
+     {
+      "section": "4.5",
+      "grade": "A",
+      "minutes": 5,
+      "pct": 23
+     },
+     {
+      "section": "4.6",
+      "grade": "A",
+      "minutes": 4,
+      "pct": 14
+     }
+    ]
+   }
+  },
+  "after_4_3_normal": {
+   "ranking": [
+    {
+     "code": "CL-2",
+     "name": "냉각 팬 열화",
+     "score": 3.13,
+     "pct": 47,
+     "evidence_n": 3
+    },
+    {
+     "code": "CL-3",
+     "name": "냉각수 부족",
+     "score": 2.18,
+     "pct": 33,
+     "evidence_n": 2
+    },
+    {
+     "code": "CL-4",
+     "name": "냉각 설정 오류",
+     "score": 1.31,
+     "pct": 20,
+     "evidence_n": 1
+    }
+   ],
+   "next": {
+    "decision": "check",
+    "section": "4.5",
+    "title": "냉각수 수위 확인",
+    "grade": "A",
+    "minutes": 5,
+    "cause": "CL-3",
+    "score": 6.6,
+    "alternatives": [
+     {
+      "section": "4.4",
+      "grade": "C",
+      "minutes": 10,
+      "pct": 47
+     },
+     {
+      "section": "4.5",
+      "grade": "A",
+      "minutes": 5,
+      "pct": 33
+     },
+     {
+      "section": "4.6",
+      "grade": "A",
+      "minutes": 4,
+      "pct": 20
+     }
+    ]
+   }
+  },
+  "after_4_3_4_5_normal": {
+   "ranking": [
+    {
+     "code": "CL-2",
+     "name": "냉각 팬 열화",
+     "score": 3.13,
+     "pct": 70,
+     "evidence_n": 3
+    },
+    {
+     "code": "CL-4",
+     "name": "냉각 설정 오류",
+     "score": 1.31,
+     "pct": 30,
+     "evidence_n": 1
+    }
+   ],
+   "next": {
+    "decision": "call",
+    "section": "4.4",
+    "title": "냉각 팬 분해 점검",
+    "grade": "C",
+    "minutes": 10,
+    "cause": "CL-2"
+   }
+  }
+ },
+ "restart_inside_value": 9.1,
+ "sections": {
+  "1.2": {
+   "title": "잠금 확인",
+   "grade": "A",
+   "minutes": 2,
+   "text": "### 1.2 잠금 확인\n\n**권한 등급** A 단독 가능 · **소요** 약 2분\n\n> **규칙** 잠금을 확인하기 전에는 어떤 점검도 시작하지 않는다. 점검 중 다른 설비로 옮기면 그 설비에서 다시 잠금을 확인한다.\n\n1. 운전자에게 정지를 알리고 가공 중인 프로그램을 끝낸다.\n2. 주 차단기를 내리고 자물쇠와 작업자 이름 표지를 건다.\n3. 재기동 시험 스위치를 눌러 설비가 움직이지 않는 것을 확인한다.\n4. 잠금 완료 시각을 기록한다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.2": {
+   "title": "고온부 확인과 온도 기록",
+   "grade": "A",
+   "minutes": 3,
+   "text": "### 4.2 고온부 확인과 온도 기록\n\n**권한 등급** A 단독 가능 · **소요** 약 3분 · **원인을 가르지 않는 사전 확인**\n\n1. 접촉식 온도계로 스핀들 하우징 표면 온도를 잰다. 60 °C 를 넘으면 10분 냉각을 기다린다.\n2. 공기 온도와 공정 온도를 기록한다. 외부 기온이 높은 날에는 공기 온도가 올라 온도 차가 작아질 수 있다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.3": {
+   "title": "흡기 필터 육안 점검",
+   "grade": "A",
+   "minutes": 3,
+   "text": "### 4.3 흡기 필터 육안 점검\n\n**권한 등급** A 단독 가능 · **소요** 약 3분 · **연결 원인** CL-1 냉각 필터 막힘(확정)\n\n#### 4.3.1 점검 방법\n\n1. 측면 냉각 커버의 고정 나사 2개를 푼다.\n2. 필터 표면 전체를 눈으로 확인한다.\n3. 기름때·먼지가 표면의 절반 이상을 덮으면 \"이상\"이다.\n4. 커버를 닫고 나사를 조인다.\n\n**판정 기준** 기름때·먼지가 필터 표면의 절반 이상을 덮으면 \"이상\"이다.\n\n#### 4.3.2 조치: 흡기 필터 교체\n\n**권한 등급** A 단독 가능 · **소요** 약 10분\n\n1. 흡기구 덮개를 열고 필터를 빼낸다.\n2. 새 필터를 화살표 방향(공기 흐름 방향)에 맞춰 넣는다.\n3. 덮개를 닫고 고정 나사를 조인다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.3.2": {
+   "title": "흡기 필터 교체",
+   "grade": "A",
+   "minutes": 10,
+   "text": "",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.4": {
+   "title": "냉각 팬 분해 점검",
+   "grade": "C",
+   "minutes": 10,
+   "text": "### 4.4 냉각 팬 분해 점검\n\n**권한 등급** C 승인 필요 · **소요** 약 10분 · **연결 원인** CL-2 냉각 팬 열화(확정)\n\n#### 4.4.1 점검 방법\n\n1. 측면 커버를 열고 냉각 팬 모듈 커넥터를 분리한다.\n2. 고정 나사 4개를 풀고 모듈을 꺼낸다.\n3. 팬 축의 유격과 날개 손상을 확인한다.\n\n**판정 기준** 축을 손으로 흔들 때 유격이 느껴지거나 날개가 깨져 있으면 \"이상\"이다.\n\n#### 4.4.2 조치: 냉각 팬 모듈 교체\n\n**권한 등급** C 승인 필요 · **소요** 약 40분\n\n1. 새 모듈을 장착하고 고정 나사 4개를 조인다.\n2. 커넥터를 연결하고 재가동 후 두 팬의 회전과 풍량을 확인한다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.5": {
+   "title": "냉각수 수위 확인",
+   "grade": "A",
+   "minutes": 5,
+   "text": "### 4.5 냉각수 수위 확인\n\n**권한 등급** A 단독 가능 · **소요** 약 5분 · **연결 원인** CL-3 냉각수 부족(확정)\n\n#### 4.5.1 점검 방법\n\n1. 냉각수 탱크 앞 커버를 연다.\n2. 수위계의 MIN·MAX 선과 현재 수위를 비교한다.\n3. 탱크 아래 바닥에 누설 흔적이 있는지 본다.\n\n**판정 기준** 수위가 MIN 선 아래면 \"이상\"이다. 누설 흔적이 있으면 보충하지 말고 숙련자에게 넘긴다.\n\n#### 4.5.2 조치: 냉각수 보충\n\n**권한 등급** B 확인 후 · **소요** 약 10분\n\n**시작 전 체크리스트**\n\n- [ ] 지정 냉각수(희석 비율 표기)를 확인했다\n- [ ] 누설 흔적이 없다\n- [ ] 보충 후 수위가 MIN–MAX 사이다\n\n1. 지정 냉각수를 MAX 선 아래까지 보충한다.\n2. 보충량을 기록한다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.5.2": {
+   "title": "냉각수 보충",
+   "grade": "B",
+   "minutes": 10,
+   "text": "",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "4.6": {
+   "title": "냉각 설정값 확인",
+   "grade": "A",
+   "minutes": 4,
+   "text": "### 4.6 냉각 설정값 확인\n\n**권한 등급** A 단독 가능 · **소요** 약 4분 · **연결 원인** CL-4 냉각 설정 오류(확정)\n\n#### 4.6.1 점검 방법\n\n1. 조작반 냉각 설정 화면을 연다.\n2. 냉각 팬 속도와 절삭유 펌프 설정을 표준값과 비교한다.\n\n**판정 기준** 어느 하나라도 표준값보다 낮게 설정되어 있으면 \"이상\"이다.\n\n#### 4.6.2 조치: 냉각 설정값 변경\n\n**권한 등급** C 승인 필요 · **소요** 약 5분\n\n1. 파트장 승인을 받은 뒤 표준값으로 바꾼다.\n2. 바꾼 값과 승인자를 기록한다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "6.1": {
+   "title": "재가동",
+   "grade": "B",
+   "minutes": 3,
+   "text": "### 6.1 재가동\n\n**권한 등급** B 확인 후 · **소요** 약 3분\n\n**시작 전 체크리스트**\n\n- [ ] 주변 공구·이물질 치움\n- [ ] 냉각 커버 고정 확인\n- [ ] 작업자 대피 확인\n\n1. 체크리스트를 모두 확인한 뒤 잠금을 푼다.\n2. 무부하로 3분 운전한다.\n3. 알람이 난 값이 경계 이내로 돌아왔는지 확인하고 기록한다.",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  },
+  "6.2": {
+   "title": "이상 없음·감시 마감",
+   "grade": "A",
+   "minutes": 2,
+   "text": "### 6.2 이상 없음·감시 마감\n\n**권한 등급** A 단독 가능 · **소요** 약 2분\n\n1. 빠르게 할 수 있는 점검(A·B)이 모두 정상이고 재가동 후 값이 경계 이내면 \"이상 없음, 감시\"로 마감한다.\n2. 설비를 감시 대상으로 등록하고, 다음 교대 시작 때 같은 값을 다시 확인하도록 인계한다.\n3. 재가동 후에도 값이 경계 밖이면 감시로 마감하지 않고 남은 점검을 위해 호출한다(1.4).",
+   "steps": [],
+   "abnormal": "",
+   "checklist": []
+  }
+ },
+ "grade_rows": [
+  {
+   "id": "1.2",
+   "title": "잠금 확인",
+   "grade": "A",
+   "kind": "common"
+  },
+  {
+   "id": "2.3",
+   "title": "교체 기록 대조",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "2.3.2",
+   "title": "마모 카운터 정정",
+   "grade": "B",
+   "kind": "action"
+  },
+  {
+   "id": "2.4",
+   "title": "날 끝 확대경 점검",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "2.4.2",
+   "title": "공구 교체",
+   "grade": "A",
+   "kind": "action"
+  },
+  {
+   "id": "2.5",
+   "title": "시험 가공 치수 확인",
+   "grade": "B",
+   "kind": "check"
+  },
+  {
+   "id": "2.6",
+   "title": "편마모·콜릿 흔들림 점검",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "2.6.2",
+   "title": "콜릿 청소 후 공구 교체",
+   "grade": "A",
+   "kind": "action"
+  },
+  {
+   "id": "3.3",
+   "title": "회전 조건 설정 확인",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "3.3.2",
+   "title": "가공 설정값 원복",
+   "grade": "C",
+   "kind": "action"
+  },
+  {
+   "id": "3.4",
+   "title": "엔코더 커넥터·케이블 육안 점검",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "3.4.2",
+   "title": "엔코더 커넥터 재체결",
+   "grade": "A",
+   "kind": "action"
+  },
+  {
+   "id": "3.5",
+   "title": "인버터 경고 이력 확인",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "3.6",
+   "title": "전원 단자대 점검",
+   "grade": "C",
+   "kind": "check"
+  },
+  {
+   "id": "4.3",
+   "title": "흡기 필터 육안 점검",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "4.3.2",
+   "title": "흡기 필터 교체",
+   "grade": "A",
+   "kind": "action"
+  },
+  {
+   "id": "4.4",
+   "title": "냉각 팬 분해 점검",
+   "grade": "C",
+   "kind": "check"
+  },
+  {
+   "id": "4.4.2",
+   "title": "냉각 팬 모듈 교체",
+   "grade": "C",
+   "kind": "action"
+  },
+  {
+   "id": "4.5",
+   "title": "냉각수 수위 확인",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "4.5.2",
+   "title": "냉각수 보충",
+   "grade": "B",
+   "kind": "action"
+  },
+  {
+   "id": "4.6",
+   "title": "냉각 설정값 확인",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "4.6.2",
+   "title": "냉각 설정값 변경",
+   "grade": "C",
+   "kind": "action"
+  },
+  {
+   "id": "5.3",
+   "title": "절삭유 노즐 분사 확인",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "5.3.2",
+   "title": "절삭유 노즐 청소·교체",
+   "grade": "A",
+   "kind": "action"
+  },
+  {
+   "id": "5.4",
+   "title": "절삭 조건 대조",
+   "grade": "A",
+   "kind": "check"
+  },
+  {
+   "id": "5.4.2",
+   "title": "절삭 조건 조정",
+   "grade": "C",
+   "kind": "action"
+  },
+  {
+   "id": "5.5",
+   "title": "스핀들 진동 측정",
+   "grade": "B",
+   "kind": "check"
+  },
+  {
+   "id": "5.6",
+   "title": "스핀들 베어링 분해 점검",
+   "grade": "D",
+   "kind": "check"
+  },
+  {
+   "id": "6.1",
+   "title": "재가동",
+   "grade": "B",
+   "kind": "common"
+  },
+  {
+   "id": "6.2",
+   "title": "이상 없음·감시 마감",
+   "grade": "A",
+   "kind": "common"
+  },
+  {
+   "id": "7.1",
+   "title": "전기 계통 작업",
+   "grade": "D",
+   "kind": "scope_out"
+  },
+  {
+   "id": "7.2",
+   "title": "스핀들·베어링 분해",
+   "grade": "D",
+   "kind": "scope_out"
+  }
+ ],
+ "same_night_alarms": [
+  {
+   "udi": "4490",
+   "equipment_id": "M-19",
+   "at": "22:44",
+   "group": "CL"
+  },
+  {
+   "udi": "4491",
+   "equipment_id": "M-20",
+   "at": "23:36",
+   "group": "PW"
+  },
+  {
+   "udi": "4492",
+   "equipment_id": "M-01",
+   "at": "00:29",
+   "group": "CL"
+  },
+  {
+   "udi": "4494",
+   "equipment_id": "M-03",
+   "at": "02:14",
+   "group": "CL"
+  },
+  {
+   "udi": "4495",
+   "equipment_id": "M-04",
+   "at": "03:06",
+   "group": "CL"
+  },
+  {
+   "udi": "4496",
+   "equipment_id": "M-05",
+   "at": "03:59",
+   "group": "CL"
+  },
+  {
+   "udi": "4497",
+   "equipment_id": "M-06",
+   "at": "04:52",
+   "group": "CL"
+  },
+  {
+   "udi": "4498",
+   "equipment_id": "M-07",
+   "at": "05:44",
+   "group": "CL"
+  }
+ ]
+}

@@ -1,0 +1,3249 @@
+{
+ "artifact": "evaluation_report",
+ "run_at": "2026-10-14T16:49:32+09:00",
+ "mode": "fixture",
+ "rules": "사용자 결정 020 ③ ⑤ ~ ⑧ ⑩(.vibe-factory/runs/2026-10-11-c1a15-product-r2/sources/intent/020.md)",
+ "metrics": [
+  {
+   "id": "similar_top3",
+   "name": "유사 사례 Top-3 포함률",
+   "target": 80.0,
+   "unit": "%",
+   "better": "higher",
+   "value": 45.5,
+   "numerator": 10,
+   "denominator": 22,
+   "met": false
+  },
+  {
+   "id": "cause_top3",
+   "name": "원인 Top-3 포함률",
+   "target": 80.0,
+   "unit": "%",
+   "better": "higher",
+   "value": 90.9,
+   "numerator": 20,
+   "denominator": 22,
+   "met": true
+  },
+  {
+   "id": "minutes_reduction",
+   "name": "점검 소요 분 단축률",
+   "target": 20.0,
+   "unit": "%",
+   "better": "higher",
+   "value": -6.5,
+   "numerator": 230,
+   "denominator": 216,
+   "met": false
+  },
+  {
+   "id": "section_match",
+   "name": "인용 절 일치율",
+   "target": 95.0,
+   "unit": "%",
+   "better": "higher",
+   "value": 100.0,
+   "numerator": 261,
+   "denominator": 261,
+   "met": true
+  },
+  {
+   "id": "fabricated_causes",
+   "name": "날조 원인 수",
+   "target": 0,
+   "unit": "건",
+   "better": "lower",
+   "value": 0,
+   "numerator": 0,
+   "denominator": null,
+   "met": true
+  },
+  {
+   "id": "grade_violations",
+   "name": "등급 위반 수",
+   "target": 0,
+   "unit": "건",
+   "better": "lower",
+   "value": 0,
+   "numerator": 0,
+   "denominator": null,
+   "met": true
+  }
+ ],
+ "cards": 30,
+ "graded_cards": 22,
+ "ungraded_cards": {
+  "none": 5,
+  "out_of_graph": 3
+ },
+ "failed_cards": 0,
+ "calls": 22,
+ "outcome_match": 27,
+ "records": [
+  {
+   "card_id": "EC-01",
+   "group": "PW",
+   "hidden": {
+    "type": "none",
+    "description": "점검 대상 이상 없음, 일시적 이탈"
+   },
+   "expected_outcome": "이상 없음·감시",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.4",
+    "3.3",
+    "3.3",
+    "3.5",
+    "3.5",
+    "6.1",
+    "6.2"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    4,
+    4,
+    3
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "confirm_question 3.4",
+    "instruct 3.4",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.5",
+    "confirm_question 3.5",
+    "instruct 3.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "monitor_close 6.2",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 1,
+   "initial_probabilities": {
+    "PW-1": 32,
+    "PW-2": 6,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-3",
+    "PW-3"
+   ],
+   "outcome": "monitor",
+   "report_cause_code": null,
+   "report_cause": "이상 없음 · 감시",
+   "report_id": 1,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-02",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-1",
+    "description": "흡기 필터에 기름때·먼지가 쌓여 냉각 공기가 부족"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.3",
+    "4.4",
+    "4.5",
+    "4.6"
+   ],
+   "check_minutes_until_confirm": [
+    3
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "action 4.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 2,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-1",
+   "report_cause": "냉각 필터 막힘",
+   "report_id": 2,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-03",
+   "group": "CL",
+   "hidden": {
+    "type": "out_of_graph",
+    "description": "공정 온도 센서 고정 클립이 빠져 센서가 측정 위치에서 떠 공정 온도가 낮게 읽힘"
+   },
+   "expected_outcome": "숙련자 인계",
+   "calls": 2,
+   "answers": [
+    "approved",
+    "assign"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "confirm_question 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "confirm_question 4.5",
+    "instruct 4.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "handover",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 3,
+   "initial_probabilities": {
+    "CL-1": 84,
+    "CL-2": 6,
+    "CL-3": 5,
+    "CL-4": 5
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "unknown",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 3,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-04",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-4",
+    "description": "냉각 팬 속도 설정이 표준보다 낮게 들어가 있음"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ],
+    [
+     "4.6.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.6.2",
+    "4.6.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.4",
+    "4.5",
+    "4.6"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.6.2",
+    "action 4.6.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 4,
+   "initial_probabilities": {
+    "CL-1": 83,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 5
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-4",
+   "report_cause": "냉각 설정 오류",
+   "report_id": 4,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-05",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-3",
+    "description": "냉각수 탱크 수위가 MIN 아래로 내려가 열을 충분히 못 뺌"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "confirm_question 4.3",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "action_after_checklist 4.5.2",
+    "action_after_checklist 4.5.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 5,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-3",
+   "report_cause": "냉각수 부족",
+   "report_id": 5,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-06",
+   "group": "CL",
+   "hidden": {
+    "type": "none",
+    "description": "점검 대상 이상 없음, 일시적 이탈"
+   },
+   "expected_outcome": "이상 없음·감시",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5",
+    "6.1",
+    "6.2"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "confirm_question 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "confirm_question 4.5",
+    "instruct 4.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "monitor_close 6.2",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 6,
+   "initial_probabilities": {
+    "CL-1": 83,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 5
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "monitor",
+   "report_cause_code": null,
+   "report_cause": "이상 없음 · 감시",
+   "report_id": 6,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-07",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-2",
+    "description": "냉각 팬 베어링 마모로 풍량이 줄어듦"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 2,
+   "answers": [
+    "approved",
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ],
+    [
+     "4.4.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4.2",
+    "4.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.4",
+    "4.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "confirm_question 4.3",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "call 4.4.2",
+    "action 4.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 7,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-2",
+   "report_cause": "냉각 팬 열화",
+   "report_id": 7,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-08",
+   "group": "CL",
+   "hidden": {
+    "type": "none",
+    "description": "점검 대상 이상 없음, 일시적 이탈"
+   },
+   "expected_outcome": "이상 없음·감시",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5",
+    "6.1",
+    "6.2"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "confirm_question 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "confirm_question 4.5",
+    "instruct 4.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "monitor_close 6.2",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 8,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "monitor",
+   "report_cause_code": null,
+   "report_cause": "이상 없음 · 감시",
+   "report_id": 8,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-09",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-2",
+    "description": "냉각 팬 축 유격과 날개 결손으로 풍량이 줄어듦"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 2,
+   "answers": [
+    "approved",
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ],
+    [
+     "4.4.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4.2",
+    "4.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.4",
+    "4.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "confirm_question 4.6",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "call 4.4.2",
+    "action 4.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 9,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-2",
+   "report_cause": "냉각 팬 열화",
+   "report_id": 9,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-10",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-3",
+    "description": "냉각수 수위가 MIN 선 아래로 내려감"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "confirm_question 4.3",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "confirm_question 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "action_after_checklist 4.5.2",
+    "action_after_checklist 4.5.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 10,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-3",
+   "report_cause": "냉각수 부족",
+   "report_id": 10,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-11",
+   "group": "CL",
+   "hidden": {
+    "type": "none",
+    "description": "점검 대상 이상 없음, 일시적 이탈"
+   },
+   "expected_outcome": "이상 없음·감시",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.6",
+     "report"
+    ],
+    [
+     "4.4",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "4.5",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.6",
+    "4.4",
+    "4.4",
+    "4.5",
+    "4.5",
+    "6.1",
+    "6.2"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    10,
+    5
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "instruct 4.6",
+    "call 4.4",
+    "instruct 4.4",
+    "instruct 4.5",
+    "confirm_question 4.5",
+    "instruct 4.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "monitor_close 6.2",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 11,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "monitor",
+   "report_cause_code": null,
+   "report_cause": "이상 없음 · 감시",
+   "report_id": 11,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-12",
+   "group": "CL",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "CL-1",
+    "description": "흡기 필터가 먼지와 기름으로 절반 넘게 막혀 냉각 공기 부족"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "4.2",
+     "report"
+    ],
+    [
+     "4.3",
+     "report"
+    ],
+    [
+     "4.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "4.4",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "4.2",
+    "4.3",
+    "4.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "4.3",
+    "4.4",
+    "4.5",
+    "4.6"
+   ],
+   "check_minutes_until_confirm": [
+    3
+   ],
+   "candidate_names": [
+    "냉각 필터 막힘",
+    "냉각 팬 열화",
+    "냉각수 부족",
+    "냉각 설정 오류"
+   ],
+   "path": [
+    "precheck 4.2",
+    "instruct 4.3",
+    "action 4.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "CL",
+   "session_id": 12,
+   "initial_probabilities": {
+    "CL-1": 82,
+    "CL-2": 6,
+    "CL-3": 6,
+    "CL-4": 6
+   },
+   "similar_top3_causes": [
+    "CL-1",
+    "CL-1",
+    "CL-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "CL-1",
+   "report_cause": "냉각 필터 막힘",
+   "report_id": 12,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-13",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-4",
+    "description": "콜릿 안쪽 칩·흠집으로 공구가 미세하게 흔들려 날 한쪽만 빨리 닳고, 공구 수명을 다 쓰기 전에 마모 한계에 이름"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.6",
+     "report"
+    ],
+    [
+     "2.6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.4",
+    "2.6",
+    "2.6.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.3",
+    "2.5",
+    "2.6"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "confirm_question 2.4",
+    "instruct 2.4",
+    "instruct 2.6",
+    "action 2.6.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 13,
+   "initial_probabilities": {
+    "TW-1": 22,
+    "TW-2": 56,
+    "TW-3": 6,
+    "TW-4": 16
+   },
+   "similar_top3_causes": [
+    "TW-2",
+    "TW-4",
+    "TW-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-4",
+   "report_cause": "공구 편마모",
+   "report_id": 13,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-14",
+   "group": "PW",
+   "hidden": {
+    "type": "out_of_graph",
+    "description": "스핀들 구동 벨트 장력 과다로 마찰 부하가 늘어 출력이 올라감"
+   },
+   "expected_outcome": "숙련자 인계",
+   "calls": 1,
+   "answers": [
+    "assign"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.3",
+    "3.3",
+    "3.5",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    4,
+    4,
+    3
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "handover",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 14,
+   "initial_probabilities": {
+    "PW-1": 32,
+    "PW-2": 6,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-3",
+    "PW-3"
+   ],
+   "outcome": "unknown",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 14,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-15",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-1",
+    "description": "가공 프로그램 회전수가 표준보다 낮고 이송이 높게 설정됨"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ],
+    [
+     "3.3.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.4",
+    "3.3",
+    "3.3.2",
+    "3.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.3",
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4,
+    4
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "confirm_question 3.4",
+    "instruct 3.4",
+    "instruct 3.3",
+    "call 3.3.2",
+    "action 3.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 15,
+   "initial_probabilities": {
+    "PW-1": 32,
+    "PW-2": 6,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-3",
+    "PW-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "PW-1",
+   "report_cause": "회전 조건 설정 오류",
+   "report_id": 15,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-16",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-2",
+    "description": "전원 단자 체결이 풀리고 변색되어 공급 전력이 불안정"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 2,
+   "answers": [
+    "approved",
+    "daytime"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "3.6",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ],
+    [
+     "7.1",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.3",
+    "3.3",
+    "3.5",
+    "3.6",
+    "3.6",
+    "7.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4,
+    4,
+    3,
+    6
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.5",
+    "call 3.6",
+    "instruct 3.6",
+    "call 7.1",
+    "report 7.1"
+   ],
+   "registered_group": "PW",
+   "session_id": 16,
+   "initial_probabilities": {
+    "PW-1": 32,
+    "PW-2": 6,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-3",
+    "PW-3"
+   ],
+   "outcome": "daytime",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 16,
+   "outcome_match": false
+  },
+  {
+   "card_id": "EC-17",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-3",
+    "description": "지난 공구 교체 때 마모 카운터를 초기화하지 않아 실제보다 크게 표시"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.6",
+     "report"
+    ],
+    [
+     "2.3",
+     "report"
+    ],
+    [
+     "2.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.4",
+    "2.6",
+    "2.3",
+    "2.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.3",
+    "2.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    2
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "confirm_question 2.4",
+    "instruct 2.4",
+    "instruct 2.6",
+    "instruct 2.3",
+    "action_after_checklist 2.3.2",
+    "action_after_checklist 2.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 17,
+   "initial_probabilities": {
+    "TW-1": 22,
+    "TW-2": 57,
+    "TW-3": 6,
+    "TW-4": 15
+   },
+   "similar_top3_causes": [
+    "TW-1",
+    "TW-4",
+    "TW-2"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-3",
+   "report_cause": "마모 카운터 미초기화",
+   "report_id": 17,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-18",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-1",
+    "description": "가공 프로그램 회전수가 표준보다 크게 높게 설정됨"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ],
+    [
+     "3.3.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.3",
+    "3.3.2",
+    "3.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.3",
+    "3.4",
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.3",
+    "call 3.3.2",
+    "action 3.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 18,
+   "initial_probabilities": {
+    "PW-1": 80,
+    "PW-2": 6,
+    "PW-3": 14
+   },
+   "similar_top3_causes": [
+    "PW-1",
+    "PW-1",
+    "PW-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "PW-1",
+   "report_cause": "회전 조건 설정 오류",
+   "report_id": 18,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-19",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-2",
+    "description": "공구 날 끝에 결손과 치핑이 생김"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.3",
+    "2.4",
+    "2.5",
+    "2.6"
+   ],
+   "check_minutes_until_confirm": [
+    3
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "action 2.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 19,
+   "initial_probabilities": {
+    "TW-1": 22,
+    "TW-2": 57,
+    "TW-3": 6,
+    "TW-4": 15
+   },
+   "similar_top3_causes": [
+    "TW-4",
+    "TW-1",
+    "TW-2"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-2",
+   "report_cause": "공구 날 손상",
+   "report_id": 19,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-20",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-2",
+    "description": "공구 날 끝 한 곳이 깨져 떨어져 나감"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.3",
+    "2.4",
+    "2.5",
+    "2.6"
+   ],
+   "check_minutes_until_confirm": [
+    3
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "action 2.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 20,
+   "initial_probabilities": {
+    "TW-1": 22,
+    "TW-2": 57,
+    "TW-3": 6,
+    "TW-4": 15
+   },
+   "similar_top3_causes": [
+    "TW-4",
+    "TW-1",
+    "TW-2"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-2",
+   "report_cause": "공구 날 손상",
+   "report_id": 20,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-21",
+   "group": "PW",
+   "hidden": {
+    "type": "out_of_graph",
+    "description": "새 소재 로트 표면 흑피·균열로 절삭 부하가 커짐"
+   },
+   "expected_outcome": "숙련자 인계",
+   "calls": 1,
+   "answers": [
+    "assign"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.3",
+    "3.3",
+    "3.5",
+    "3.5",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    4,
+    4,
+    3
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.5",
+    "confirm_question 3.5",
+    "instruct 3.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "handover",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 21,
+   "initial_probabilities": {
+    "PW-1": 33,
+    "PW-2": 6,
+    "PW-3": 61
+   },
+   "similar_top3_causes": [
+    "PW-1",
+    "PW-3",
+    "PW-3"
+   ],
+   "outcome": "unknown",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 21,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-22",
+   "group": "LD",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "LD-1",
+    "description": "절삭유 노즐이 막혀 분사가 끊기고 방향이 빗나가 윤활 부족"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "5.2",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.3.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "5.6",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "5.2",
+    "5.3",
+    "5.3.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "5.3",
+    "5.4",
+    "5.5",
+    "5.6"
+   ],
+   "check_minutes_until_confirm": [
+    3
+   ],
+   "candidate_names": [
+    "절삭유 노즐 막힘",
+    "스핀들 베어링 열화",
+    "절삭 조건 과다"
+   ],
+   "path": [
+    "precheck 5.2",
+    "instruct 5.3",
+    "action 5.3.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "LD",
+   "session_id": 22,
+   "initial_probabilities": {
+    "LD-1": 74,
+    "LD-2": 6,
+    "LD-3": 20
+   },
+   "similar_top3_causes": [
+    "LD-1",
+    "LD-1",
+    "LD-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "LD-1",
+   "report_cause": "절삭유 노즐 막힘",
+   "report_id": 22,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-23",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-1",
+    "description": "날 끝은 멀쩡하나 마모 누적으로 치수·가공면이 나빠짐"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.6",
+     "report"
+    ],
+    [
+     "2.3",
+     "report"
+    ],
+    [
+     "2.3",
+     "report"
+    ],
+    [
+     "2.5",
+     "report"
+    ],
+    [
+     "2.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.6",
+    "2.3",
+    "2.3",
+    "2.5",
+    "2.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    2,
+    8
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "instruct 2.6",
+    "instruct 2.3",
+    "confirm_question 2.3",
+    "instruct 2.3",
+    "instruct_after_checklist 2.5",
+    "instruct_after_checklist 2.5",
+    "action 2.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 23,
+   "initial_probabilities": {
+    "TW-1": 21,
+    "TW-2": 58,
+    "TW-3": 6,
+    "TW-4": 15
+   },
+   "similar_top3_causes": [
+    "TW-4",
+    "TW-2",
+    "TW-2"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-1",
+   "report_cause": "공구 수명 도래",
+   "report_id": 23,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-24",
+   "group": "LD",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "LD-3",
+    "description": "이송 속도와 절삭 깊이가 공정 표준을 넘게 설정됨"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "approved"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "5.2",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.4",
+     "report"
+    ],
+    [
+     "5.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "5.6",
+     "unresolved"
+    ],
+    [
+     "5.4.2",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "5.2",
+    "5.3",
+    "5.3",
+    "5.4",
+    "5.4.2",
+    "5.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "5.4",
+    "5.5",
+    "5.6"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4
+   ],
+   "candidate_names": [
+    "절삭유 노즐 막힘",
+    "스핀들 베어링 열화",
+    "절삭 조건 과다"
+   ],
+   "path": [
+    "precheck 5.2",
+    "instruct 5.3",
+    "confirm_question 5.3",
+    "instruct 5.3",
+    "instruct 5.4",
+    "call 5.4.2",
+    "action 5.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "LD",
+   "session_id": 24,
+   "initial_probabilities": {
+    "LD-1": 73,
+    "LD-2": 6,
+    "LD-3": 21
+   },
+   "similar_top3_causes": [
+    "LD-1",
+    "LD-1",
+    "LD-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "LD-3",
+   "report_cause": "절삭 조건 과다",
+   "report_id": 24,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-25",
+   "group": "LD",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "LD-2",
+    "description": "스핀들 베어링 마모로 회전 저항과 진동이 커짐"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 1,
+   "answers": [
+    "daytime"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "5.2",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.4",
+     "report"
+    ],
+    [
+     "5.4",
+     "report"
+    ],
+    [
+     "5.5",
+     "report"
+    ],
+    [
+     "5.6",
+     "unresolved"
+    ],
+    [
+     "5.6",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "5.2",
+    "5.3",
+    "5.3",
+    "5.4",
+    "5.4",
+    "5.5",
+    "5.6"
+   ],
+   "remaining_candidate_sections": [
+    "5.5",
+    "5.6"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    8
+   ],
+   "candidate_names": [
+    "절삭유 노즐 막힘",
+    "스핀들 베어링 열화",
+    "절삭 조건 과다"
+   ],
+   "path": [
+    "precheck 5.2",
+    "instruct 5.3",
+    "confirm_question 5.3",
+    "instruct 5.3",
+    "instruct 5.4",
+    "confirm_question 5.4",
+    "instruct 5.4",
+    "instruct_after_checklist 5.5",
+    "instruct_after_checklist 5.5",
+    "call 5.6",
+    "report 5.6"
+   ],
+   "registered_group": "LD",
+   "session_id": 25,
+   "initial_probabilities": {
+    "LD-1": 73,
+    "LD-2": 6,
+    "LD-3": 21
+   },
+   "similar_top3_causes": [
+    "LD-1",
+    "LD-1",
+    "LD-1"
+   ],
+   "outcome": "daytime",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 25,
+   "outcome_match": false
+  },
+  {
+   "card_id": "EC-26",
+   "group": "LD",
+   "hidden": {
+    "type": "none",
+    "description": "점검 대상 이상 없음, 일시적 이탈"
+   },
+   "expected_outcome": "이상 없음·감시",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "5.2",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.3",
+     "report"
+    ],
+    [
+     "5.4",
+     "report"
+    ],
+    [
+     "5.4",
+     "report"
+    ],
+    [
+     "5.5",
+     "report"
+    ],
+    [
+     "5.5",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "6.2",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "5.2",
+    "5.3",
+    "5.3",
+    "5.4",
+    "5.4",
+    "5.5",
+    "5.5",
+    "6.1",
+    "6.2"
+   ],
+   "remaining_candidate_sections": [],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    8
+   ],
+   "candidate_names": [
+    "절삭유 노즐 막힘",
+    "스핀들 베어링 열화",
+    "절삭 조건 과다"
+   ],
+   "path": [
+    "precheck 5.2",
+    "instruct 5.3",
+    "confirm_question 5.3",
+    "instruct 5.3",
+    "instruct 5.4",
+    "confirm_question 5.4",
+    "instruct 5.4",
+    "instruct_after_checklist 5.5",
+    "instruct_after_checklist 5.5",
+    "confirm_question 5.5",
+    "instruct_after_checklist 5.5",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "monitor_close 6.2",
+    "report"
+   ],
+   "registered_group": "LD",
+   "session_id": 26,
+   "initial_probabilities": {
+    "LD-1": 73,
+    "LD-2": 6,
+    "LD-3": 21
+   },
+   "similar_top3_causes": [
+    "LD-1",
+    "LD-1",
+    "LD-1"
+   ],
+   "outcome": "monitor",
+   "report_cause_code": null,
+   "report_cause": "이상 없음 · 감시",
+   "report_id": 26,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-27",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-3",
+    "description": "엔코더 커넥터가 덜 꽂히고 케이블 피복이 닳아 회전 신호가 흔들림"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.3",
+    "3.4",
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "action 3.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 27,
+   "initial_probabilities": {
+    "PW-1": 33,
+    "PW-2": 5,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-1",
+    "PW-3"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "PW-3",
+   "report_cause": "엔코더 신호 이상",
+   "report_id": 27,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-28",
+   "group": "TW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "TW-1",
+    "description": "날 끝 손상 없이 마모가 누적되어 가공 치수가 공차를 벗어남"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "2.2",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.4",
+     "report"
+    ],
+    [
+     "2.6",
+     "report"
+    ],
+    [
+     "2.6",
+     "report"
+    ],
+    [
+     "2.3",
+     "report"
+    ],
+    [
+     "2.3",
+     "report"
+    ],
+    [
+     "2.5",
+     "report"
+    ],
+    [
+     "2.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "2.2",
+    "2.4",
+    "2.4",
+    "2.6",
+    "2.6",
+    "2.3",
+    "2.3",
+    "2.5",
+    "2.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "2.5"
+   ],
+   "check_minutes_until_confirm": [
+    3,
+    4,
+    2,
+    8
+   ],
+   "candidate_names": [
+    "공구 수명 도래",
+    "공구 날 손상",
+    "마모 카운터 미초기화",
+    "공구 편마모"
+   ],
+   "path": [
+    "precheck 2.2",
+    "instruct 2.4",
+    "confirm_question 2.4",
+    "instruct 2.4",
+    "instruct 2.6",
+    "confirm_question 2.6",
+    "instruct 2.6",
+    "instruct 2.3",
+    "confirm_question 2.3",
+    "instruct 2.3",
+    "instruct_after_checklist 2.5",
+    "instruct_after_checklist 2.5",
+    "action 2.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "TW",
+   "session_id": 28,
+   "initial_probabilities": {
+    "TW-1": 22,
+    "TW-2": 57,
+    "TW-3": 6,
+    "TW-4": 15
+   },
+   "similar_top3_causes": [
+    "TW-4",
+    "TW-2",
+    "TW-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "TW-1",
+   "report_cause": "공구 수명 도래",
+   "report_id": 28,
+   "outcome_match": true
+  },
+  {
+   "card_id": "EC-29",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-2",
+    "description": "전원 단자 이완·그을음으로 공급 전력이 흔들림"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 2,
+   "answers": [
+    "approved",
+    "daytime"
+   ],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.5",
+     "report"
+    ],
+    [
+     "3.6",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ],
+    [
+     "7.1",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.4",
+    "3.4",
+    "3.3",
+    "3.3",
+    "3.5",
+    "3.6",
+    "3.6",
+    "7.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4,
+    4,
+    3,
+    6
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.4",
+    "confirm_question 3.4",
+    "instruct 3.4",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.5",
+    "call 3.6",
+    "instruct 3.6",
+    "call 7.1",
+    "report 7.1"
+   ],
+   "registered_group": "PW",
+   "session_id": 29,
+   "initial_probabilities": {
+    "PW-1": 32,
+    "PW-2": 6,
+    "PW-3": 62
+   },
+   "similar_top3_causes": [
+    "PW-3",
+    "PW-3",
+    "PW-1"
+   ],
+   "outcome": "daytime",
+   "report_cause_code": null,
+   "report_cause": "원인 미상",
+   "report_id": 29,
+   "outcome_match": false
+  },
+  {
+   "card_id": "EC-30",
+   "group": "PW",
+   "hidden": {
+    "type": "manual_cause",
+    "code": "PW-3",
+    "description": "엔코더 케이블 피복이 갈라져 회전 신호가 튐"
+   },
+   "expected_outcome": "원인 확정",
+   "calls": 0,
+   "answers": [],
+   "violations": 0,
+   "citations": [
+    [
+     "1.2",
+     "report"
+    ],
+    [
+     "3.2",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.3",
+     "report"
+    ],
+    [
+     "3.4",
+     "report"
+    ],
+    [
+     "3.4.2",
+     "report"
+    ],
+    [
+     "6.1",
+     "report"
+    ],
+    [
+     "3.6",
+     "unresolved"
+    ]
+   ],
+   "performed_sections": [
+    "1.2",
+    "3.2",
+    "3.3",
+    "3.3",
+    "3.4",
+    "3.4.2",
+    "6.1"
+   ],
+   "remaining_candidate_sections": [
+    "3.4",
+    "3.5",
+    "3.6"
+   ],
+   "check_minutes_until_confirm": [
+    4,
+    4
+   ],
+   "candidate_names": [
+    "회전 조건 설정 오류",
+    "전원 단자 이완",
+    "엔코더 신호 이상"
+   ],
+   "path": [
+    "precheck 3.2",
+    "instruct 3.3",
+    "confirm_question 3.3",
+    "instruct 3.3",
+    "instruct 3.4",
+    "action 3.4.2",
+    "restart_check 6.1",
+    "restart_value 6.1",
+    "report"
+   ],
+   "registered_group": "PW",
+   "session_id": 30,
+   "initial_probabilities": {
+    "PW-1": 81,
+    "PW-2": 6,
+    "PW-3": 13
+   },
+   "similar_top3_causes": [
+    "PW-1",
+    "PW-1",
+    "PW-1"
+   ],
+   "outcome": "confirmed",
+   "report_cause_code": "PW-3",
+   "report_cause": "엔코더 신호 이상",
+   "report_id": 30,
+   "outcome_match": true
+  }
+ ],
+ "isolation": {
+  "history_rows_before": 300,
+  "history_rows_after": 300,
+  "eval_mode_alarms": 30,
+  "forbidden_open_in_api": 0,
+  "file_watch_active_in_api": true,
+  "history_udi_x_card_udi": 0,
+  "history_udi_count": 300
+ }
+}

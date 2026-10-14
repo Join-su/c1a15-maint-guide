@@ -1,0 +1,234 @@
+{
+ "what": "S-05 구조 대조 기준(사용자 결정 017 ③ · 점검표 C4) — G5 ~ G7은 이 부록만 읽는다",
+ "version": "v2",
+ "source_lock": {
+  "manifest": "manifests/prototype_bundle-v17.json",
+  "files": {
+   "prototype/v17/index.html": "3463b0d16625670bb96597a0139e606927a83894655cf600df1b87270f5fcf98",
+   "prototype/v17/regions.json": "4ed4e5ce143002bf3f43a1080916c9589b7da3ff0a0a1cff565925ee84dc3f84",
+   "prototype/v17/prototype-coverage.json": "d447241d21eaee9784f6ba029788d7759c3d04df642919d7ef6e0e3bbc9a1f86"
+  }
+ },
+ "extracted_at": "2026-10-14T09:49:47+09:00",
+ "states": [
+  {
+   "state": "L04--call_corrected",
+   "path": "execution/S-05/prototype-appendix/templates/L04--call_corrected.html",
+   "sha256": "abb0725298f3474d0029b28c879a2ec181f582124268046c9be341ae156cca3a",
+   "role": "slice"
+  },
+  {
+   "state": "L04--call_detail",
+   "path": "execution/S-05/prototype-appendix/templates/L04--call_detail.html",
+   "sha256": "b0774794b5cb4360cd65c4e7c04631859c12602fc37fa80766407742ca0d9161",
+   "role": "base_only"
+  },
+  {
+   "state": "L06--correction",
+   "path": "execution/S-05/prototype-appendix/templates/L06--correction.html",
+   "sha256": "8f86a1c5f0adbb11d1e9e4f9111b72221b4c0cfa3f01bb016c18ff5e6e7e0a57",
+   "role": "slice"
+  },
+  {
+   "state": "T08--corrected_path",
+   "path": "execution/S-05/prototype-appendix/templates/T08--corrected_path.html",
+   "sha256": "da3855b4e6cda5aacee4021d506d792f4d546a120dde768062c922ba8285f3dc",
+   "role": "slice"
+  },
+  {
+   "state": "T09--draft",
+   "path": "execution/S-05/prototype-appendix/templates/T09--draft.html",
+   "sha256": "a6384212974c36b23d283db57323c2cdc6a95bedbb80f79c39d5a0bd787afd7b",
+   "role": "base_only"
+  },
+  {
+   "state": "T10--ans_daytime",
+   "path": "execution/S-05/prototype-appendix/templates/T10--ans_daytime.html",
+   "sha256": "9e9376110fc299fc5598e0e15a98e8cef4491ab01ed2fb2850ed4adf51582251",
+   "role": "base_only"
+  },
+  {
+   "state": "T10--ans_direct",
+   "path": "execution/S-05/prototype-appendix/templates/T10--ans_direct.html",
+   "sha256": "453838806b8efe743ca760486b10d19c5be948a9a26e005aa5364e34b4818c7a",
+   "role": "base_only"
+  },
+  {
+   "state": "T10--summary_corrected",
+   "path": "execution/S-05/prototype-appendix/templates/T10--summary_corrected.html",
+   "sha256": "dc5ff4d30ec88d2b79a278e61237321616646846831c480d4d101bc3a0d51518",
+   "role": "slice"
+  },
+  {
+   "state": "T15--action",
+   "path": "execution/S-05/prototype-appendix/templates/T15--action.html",
+   "sha256": "5b0f3d803c5ff62e2b851dd2b2796feaf0ea6af7b03a17d2b23c46cfe7aef9a8",
+   "role": "slice"
+  },
+  {
+   "state": "T15--alarm",
+   "path": "execution/S-05/prototype-appendix/templates/T15--alarm.html",
+   "sha256": "084daf2b33c829961347a039ca5e4db2aa2bb3efc3a335e6c5c2882c14c1fd43",
+   "role": "slice"
+  },
+  {
+   "state": "T15--call",
+   "path": "execution/S-05/prototype-appendix/templates/T15--call.html",
+   "sha256": "115b7f3f974541c7e2c30f86181c9ff7d64fb568f8b3392eb9ea9dc1a44fb5fa",
+   "role": "slice"
+  },
+  {
+   "state": "T15--check",
+   "path": "execution/S-05/prototype-appendix/templates/T15--check.html",
+   "sha256": "a669e012794f65dcc91a30dd5d53126caddccb8a973a0b1de012283f559b8c54",
+   "role": "slice"
+  },
+  {
+   "state": "T15--check_b",
+   "path": "execution/S-05/prototype-appendix/templates/T15--check_b.html",
+   "sha256": "fcfa7f83fb92088aa4b55cdfaa3cbaf3c9ae92d917fb3e16a8ffbf1b602b3215",
+   "role": "slice"
+  },
+  {
+   "state": "T15--check_current",
+   "path": "execution/S-05/prototype-appendix/templates/T15--check_current.html",
+   "sha256": "689082a18217ca8511856be28e7d7ef1d935882f4d391dbcff289f925f3cac1a",
+   "role": "slice"
+  },
+  {
+   "state": "T15--closed",
+   "path": "execution/S-05/prototype-appendix/templates/T15--closed.html",
+   "sha256": "1eb5e3981562bc6e8b95d64a2b925fd4b4ff4b59eb49c5726eb2924150986a0d",
+   "role": "slice"
+  },
+  {
+   "state": "T15--correct",
+   "path": "execution/S-05/prototype-appendix/templates/T15--correct.html",
+   "sha256": "98459c856b271db4ca25fe23f1d8eadcf51fd1f07fc8a0c490b4f4055c5664d7",
+   "role": "slice"
+  },
+  {
+   "state": "T15--correct_confirm",
+   "path": "execution/S-05/prototype-appendix/templates/T15--correct_confirm.html",
+   "sha256": "df1f2b3e197a4399b3b46f744943d60a9db684adaee2cbc22796272217fda17b",
+   "role": "slice"
+  },
+  {
+   "state": "T15--correct_value",
+   "path": "execution/S-05/prototype-appendix/templates/T15--correct_value.html",
+   "sha256": "7f75ee99ecb51d31151da7f7482ab2cd62ed9be233afa8b9bc87def215d8f453",
+   "role": "slice"
+  },
+  {
+   "state": "T15--corrected",
+   "path": "execution/S-05/prototype-appendix/templates/T15--corrected.html",
+   "sha256": "46802bd18c86af4e70012e9f29fbe61e36ddda476c7c09ccf56e5fbdfb28c6a1",
+   "role": "slice"
+  },
+  {
+   "state": "T15--diagnosis",
+   "path": "execution/S-05/prototype-appendix/templates/T15--diagnosis.html",
+   "sha256": "71af9be20d31f955ffa0f324463772f8c6acbd256c4e1954019cb54624bffbfd",
+   "role": "slice"
+  },
+  {
+   "state": "T15--lock",
+   "path": "execution/S-05/prototype-appendix/templates/T15--lock.html",
+   "sha256": "26229ab7b1eb520b10cbb2d956e29a1bf28ec2281e87ddb0f34a24b841da8aa0",
+   "role": "slice"
+  },
+  {
+   "state": "T15--note",
+   "path": "execution/S-05/prototype-appendix/templates/T15--note.html",
+   "sha256": "5b9a7973be492b45ddc038d9c6b4a20a66f09edda4ab17e50c980275404727af",
+   "role": "slice"
+  },
+  {
+   "state": "T15--precheck",
+   "path": "execution/S-05/prototype-appendix/templates/T15--precheck.html",
+   "sha256": "d550a668c1a972f23e231b4a8ccaba1aabaf8c943dd3f87fe6bf8712aebc2f50",
+   "role": "slice"
+  }
+ ],
+ "regions": {
+  "path": "execution/S-05/prototype-appendix/regions.json",
+  "sha256": "a360c92e65c0754604914761c7f98f4055a6f0b5d3268d1c7d8806fe2e8f77ae",
+  "count": 87
+ },
+ "prototype_derived_states": [
+  {
+   "state": "T15--check_b",
+   "base": "T15--check",
+   "acceptance_refs": [
+    "AC-41",
+    "AC-48"
+   ],
+   "rule": "B 점검 기록의 지난 화면. 그 단계의 원래 화면이 T06 / b_precheck이므로, T15 / check의 R-PASTVIEW 왼쪽 지시 카드 절차 위에 승인 T06 / b_precheck의 시작 전 체크리스트 패널을 그때 상태(모두 확인)로 넣었다(체크는 누를 수 없는 보기). 패널이 더해져 1080 × 740 틀을 넘으므로 이 화면에서만 표시 조정 ③을 쓴다(체크 행 20px · 체크 · 절차 글자 14px · 여백 축소, 사용자 결정 012로 공개, PBC에서 실제 화면 높이로 다시 본다). 지금 점검 단계 · 정정 뒤 · 확정 뒤 보기(check_current · corrected · closed)에서도 B 기록이면 같은 패널을 같은 자리에 넣는다. 띠 · 오른쪽 결과 카드 · '이 기록 정정'은 그대로"
+  },
+  {
+   "state": "T15--call",
+   "base": "T15--lock",
+   "acceptance_refs": [
+    "AC-41",
+    "AC-48"
+   ],
+   "rule": "점검 단계의 파트장 호출 · 숙련자 인계 기록을 보는 지난 화면(승인 R-PASTBAR의 점검 단계 기록 '잠금 · 사전 확인 · 각 점검' 뒤에 호출 · 인계 기록을 시간순으로 더함 — AC-47-C2 · AC-48-C1 근거). T15 / lock(정정하지 않는 기록 보기)의 띠 · 왼쪽 기록 상자 · 오른쪽 '기록' 카드 · '메모 덧붙이기'를 그대로 두고, 왼쪽 상자의 자물쇠 아이콘을 호출 아이콘으로, 잠금 절차 목록을 '보낸 요약' 읽기 전용 패널로 바꿨다. 값(호출 시각 · 필요한 작업 · 요약 · 답 상태 · 붙은 정정 수)은 세션 기록"
+  },
+  {
+   "state": "T15--correct_value",
+   "base": "T15--correct",
+   "acceptance_refs": [
+    "AC-45"
+   ],
+   "rule": "사전 확인 측정값(4.2)의 정정 창. T15 / correct의 창 · 원래 값 · 정정할 칸 · 필수 사유 · 취소 / 정정 저장(사유 전 잠김)을 그대로 두고, 측정값에는 결과 버튼이 없어 '정정할 결과' 칸을 빼고 '정정할 메모'를 '정정할 값'으로 바꿨다"
+  }
+ ],
+ "decision_derived_states": [
+  {
+   "state": "L04--handover_corrected",
+   "base": "L04--call_corrected",
+   "decision": "019 ②",
+   "rule": "보낸 숙련자 인계에 '보낸 뒤 정비자 정정' 상자 — L04 / call_corrected와 같은 상자, 선택지는 숙련자 인계 2개(주간 숙련자 배정 · 직접 확인)"
+  },
+  {
+   "state": "L04--correction_call_detail",
+   "base": "L04--call_detail",
+   "decision": "019 ⑧",
+   "rule": "조치 뒤 정정 호출의 답하기 — L04 / call_detail 구조 그대로, 필요한 작업 '정정 확인 · …', '승인 후 진행' 설명만 '정비자가 정정 때 하던 단계로 이어서 합니다'"
+  },
+  {
+   "state": "T09--draft_corrected",
+   "base": "T09--draft",
+   "decision": "019 ⑤",
+   "rule": "점검 경로 행 문장만 정정 표기('… (정정 n회)', 무효 기록 '정정으로 무효') — 영역 · 행 · 버튼은 T09 / draft 그대로"
+  },
+  {
+   "state": "T10--corrected_ans_daytime",
+   "base": "T10--ans_daytime",
+   "decision": "019 ①",
+   "rule": "조치 뒤 정정 호출에 주간 처리 답 — 왼쪽 카드(R-CALLHEAD)는 그 호출의 T10 / summary_corrected 머리(정정 · 조치 칩 · 지금까지 점검 · 조치 · 순위 다시 계산 안 함) 그대로, 오른쪽 카드(R-CALLACT)는 T10 / ans_daytime 답 배너 · '보고서 작성'",
+   "region_base": {
+    "R-CALLHEAD": "T10--summary_corrected"
+   }
+  },
+  {
+   "state": "T10--corrected_ans_direct",
+   "base": "T10--ans_direct",
+   "decision": "019 ① · 018 ③",
+   "rule": "조치 뒤 정정 호출에 직접 확인 답 — 왼쪽 카드(R-CALLHEAD)는 T10 / summary_corrected 머리 그대로, 오른쪽 카드(R-CALLACT)는 T10 / ans_direct 답 배너 + 결정 018 ③ '보고서 작성'(S-04 X-1과 같음)",
+   "region_base": {
+    "R-CALLHEAD": "T10--summary_corrected"
+   }
+  }
+ ],
+ "base_only_states": [
+  "L04--call_detail",
+  "T09--draft",
+  "T10--ans_daytime",
+  "T10--ans_direct"
+ ],
+ "note": "stripped/ = 아이콘 svg를 이름표로 바꾼 읽기용 사본(대조는 templates/ 원본). Prototype 파생 상태는 자기 template이 있어 그 template으로 대조하고, 결정 파생 상태는 base template의 영역 selector로 대조한다 · v2(G5 구조 대조 중): 정정 호출 답 화면 파생 규칙을 영역별 기준(왼쪽 = summary_corrected, 오른쪽 = ans_*)으로 정확히 적음 — template · 영역 · 기준 파일은 그대로",
+ "history": {
+  "v1": "execution/S-05/history/prototype-appendix-v1.json"
+ }
+}

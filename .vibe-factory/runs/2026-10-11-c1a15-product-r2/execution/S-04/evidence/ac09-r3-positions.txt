@@ -1,0 +1,2 @@
+AC-09 R3 순위(BM25, pgvector, RRF 합친 순위): 승인 전 (None, None, None) · 승인 뒤 (3, 82, 20)
+1 passed, 126 deselected in 2.46s

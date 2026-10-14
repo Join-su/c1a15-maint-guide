@@ -1,0 +1,12 @@
+{
+  "baseline_role": "structure_workflow_only",
+  "semantic_alias": "selected_structure_render_baseline",
+  "pages": {
+    "P01": {
+      "default": {
+        "path": "wireframes/structure/selected/P01--default.html",
+        "sha256": "{{SHA-256 of the exact approved renderable screen}}"
+      }
+    }
+  }
+}

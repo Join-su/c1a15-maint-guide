@@ -1,0 +1,25 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "feasibility_probe",
+  "version": "v1",
+  "checks": [
+    {
+      "id": "FP-01",
+      "plan_item_ids": ["P-01"],
+      "assumption": "",
+      "coupled_controls": [""],
+      "material_to": "authority_boundary | verifier | recovery",
+      "temporary_isolation": "",
+      "command_summary": "",
+      "prohibited_actions": ["external connection", "product/dependency source change"],
+      "allows_external_connection": false,
+      "allows_product_or_dependency_source_change": false,
+      "allows_live_or_sensitive_data": false,
+      "expected_observation": "",
+      "observed_result": "",
+      "result": "pass",
+      "evidence_paths": [],
+      "cleanup": ""
+    }
+  ]
+}

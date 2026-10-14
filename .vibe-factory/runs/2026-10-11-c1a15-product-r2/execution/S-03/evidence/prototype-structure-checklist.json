@@ -1,0 +1,986 @@
+{
+ "rules": [
+  {
+   "id": "I-1 진행 표시 pick",
+   "regions": [
+    "R-STEP"
+   ],
+   "sign": "±",
+   "pattern": "div\\.done(\\.pick)?\\.sp$",
+   "explanation": "완료 단계의 지난 화면(T15)은 S-05(P-15)에서 연결 — 그 전에는 누를 수 있는 표시(pick)를 붙이지 않는다"
+  },
+  {
+   "id": "I-2 입력 칸 textarea",
+   "regions": "all",
+   "sign": "±",
+   "pattern": "(div\\.memo|span\\.cur|textarea\\.memo)$",
+   "explanation": "Prototype의 contentEditable 메모 칸을 실제 입력 칸(textarea.memo)으로 — 같은 .memo 토큰"
+  },
+  {
+   "id": "I-3 입력 전 잠김 토큰",
+   "regions": "all",
+   "sign": "±",
+   "pattern": "span\\.btn(\\.dis)?\\.full\\.lg$|span\\.btn(\\.dis)?\\.warnb$",
+   "explanation": "보낼 것이 없거나(결과 · 로그인 칸 빈 상태) 다음 slice 화면(숙련자 인계, S-03)이면 승인 잠김 토큰 .dis"
+  },
+  {
+   "id": "D-1 S-03 · S-04 데이터 없음",
+   "regions": [
+    "R-ALARMS",
+    "R-HOMEBG",
+    "R-NOTIFY",
+    "R-SHIFT"
+   ],
+   "sign": "±",
+   "pattern": "(div\\.rl|span\\.amber\\.ch|span\\.ch\\.green|span\\.dot\\.green|div\\.grp|div\\.nt-item|div\\.al|div\\.empty|svg\\.ic\\.lucide\\.lucide-file-text)$",
+   "explanation": "보고서 · 완료 알람 · 호출 답 · 반려는 S-03(P-09 · P-10) · S-04(P-11 · P-12)에서 생긴다 — 그 전에는 빈 목록 안내"
+  },
+  {
+   "id": "R-1 잠금 전 가린 자리",
+   "regions": [
+    "R-MASK"
+   ],
+   "sign": "-",
+   "pattern": "(ol\\.proc|^\\d+:li)$",
+   "explanation": "R1: 잠금 전에는 지시 내용을 내려받지 않으므로 가린 자리는 내용 없는 줄(개수는 모름)"
+  },
+  {
+   "id": "I-4 근거 기록 번호 누름 자리",
+   "regions": [
+    "R-BG",
+    "R-INSTR"
+   ],
+   "sign": "+",
+   "pattern": "^[23]:span$|^[34]:span$",
+   "explanation": "'근거 H-… · H-…'의 기록 번호마다 누르는 자리(span) — 같은 .lk 안(앱 DOM에서 .refs .lk 안 span으로 확인)"
+  },
+  {
+   "id": "D-3 종 숫자 값",
+   "regions": [
+    "R-TOP"
+   ],
+   "sign": "±",
+   "pattern": "^2:i$",
+   "explanation": "종 숫자 = 지금 배정된 새 알람 수(AC-13). 세션을 연 알람은 진행 중이라 세지 않는다 — Prototype 예시 화면의 '1'은 예시 값"
+  },
+  {
+   "id": "D-4 점검 경로 줄 수 · 점 색",
+   "regions": [
+    "R-PATH"
+   ],
+   "sign": "±",
+   "pattern": "^0:div\\.(ok|bad|void|now)\\.tli$",
+   "explanation": "점검 경로 줄 = 그 세션의 업무 기록(점검 수 · 결과 · 확인 불가 반복은 데이터, AC-17-C2) — 줄 구조(tt · td · b · span)는 template과 같음"
+  },
+  {
+   "id": "D-2 데이터 값 차이",
+   "regions": [
+    "R-BG",
+    "R-INSTR"
+   ],
+   "sign": "±",
+   "pattern": "(^\\d+:li$|span\\.lk$|div\\.banner\\.warn$)",
+   "explanation": "절차 단계 수 · 근거 기록 유무 · 앞선 확인 불가 배너는 세션 데이터(Prototype 예시 값 아님, AC-17-C2)"
+  }
+ ],
+ "regions": [
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "diff",
+   "diff": [
+    "- 0:div.ok.tli",
+    "- 1:span.tt",
+    "- 1:span.td",
+    "- 1:div",
+    "- 2:b",
+    "- 2:span"
+   ],
+   "classes": [
+    "D-4 점검 경로 줄 수 · 점 색"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "corrected_path",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "corrected_path",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T08",
+   "state": "corrected_path",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T08",
+   "state": "corrected_path",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary_corrected",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "not_in_slice",
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary_corrected",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "not_in_slice",
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary_corrected",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "not_in_slice",
+   "classes": []
+  },
+  {
+   "page_id": "T10",
+   "state": "summary_corrected",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)",
+   "status": "not_in_slice",
+   "classes": []
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "diff",
+   "diff": [
+    "- 0:div.bad.tli",
+    "- 1:span.tt",
+    "- 1:span.td",
+    "- 1:div",
+    "- 2:b",
+    "- 2:span"
+   ],
+   "classes": [
+    "D-4 점검 경로 줄 수 · 점 색"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "diff",
+   "diff": [
+    "+ 0:div.ok.tli",
+    "+ 1:span.tt",
+    "+ 1:span.td",
+    "+ 1:div",
+    "+ 2:b",
+    "+ 2:span",
+    "+ 0:div.ok.tli",
+    "+ 1:span.tt",
+    "+ 1:span.td",
+    "+ 1:div",
+    "+ 2:b",
+    "+ 2:span",
+    "+ 0:div.ok.tli",
+    "+ 1:span.tt",
+    "+ 1:span.td",
+    "+ 1:div",
+    "+ 2:b",
+    "+ 2:span"
+   ],
+   "classes": [
+    "D-4 점검 경로 줄 수 · 점 색"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-TOP",
+   "selector": ".ap-top",
+   "status": "diff",
+   "diff": [
+    "- 2:i"
+   ],
+   "classes": [
+    "D-3 종 숫자 값"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STEP",
+   "selector": ".ap-step",
+   "status": "diff",
+   "diff": [
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp",
+    "- 0:div.done.pick.sp",
+    "+ 0:div.done.sp"
+   ],
+   "classes": [
+    "I-1 진행 표시 pick"
+   ],
+   "unclassified": []
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)",
+   "status": "match",
+   "diff": [],
+   "classes": []
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-PATH",
+   "selector": ".tlw",
+   "status": "diff",
+   "diff": [
+    "+ 0:div.ok.tli",
+    "+ 1:span.tt",
+    "+ 1:span.td",
+    "+ 1:div",
+    "+ 2:b",
+    "+ 2:span",
+    "- 0:div.ok.tli",
+    "+ 0:div.bad.tli",
+    "+ 0:div.bad.tli",
+    "+ 1:span.tt",
+    "+ 1:span.td",
+    "+ 1:div",
+    "+ 2:b",
+    "+ 2:span"
+   ],
+   "classes": [
+    "D-4 점검 경로 줄 수 · 점 색"
+   ],
+   "unclassified": []
+  }
+ ]
+}

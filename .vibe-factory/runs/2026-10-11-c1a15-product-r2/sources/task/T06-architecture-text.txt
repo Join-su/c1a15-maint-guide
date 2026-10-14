@@ -1,0 +1,76 @@
+ 
+ 정비 길잡이 시스템 아키텍처 
+ 정비 길잡이 시스템 아키텍처
+ 구성 요소와 연결 관계 · React 앱 2개(브라우저) → nginx → API 서버(FastAPI + agent 패키지) → DB 2개 · Agent 내부 처리 흐름은 제외
+ 화면 
+ 서버 
+ DB 
+ 외부·스크립트 
+ 정비자
+ 설비 앞 태블릿 브라우저
+ 정비자 앱 React
+ 정비 파트장
+ 사무실 PC 브라우저
+ 파트장 앱 React
+ Docker Compose
+ 웹 서버 nginx 
+ 앱 파일 제공 
+정비자 앱 · 파트장 앱 빌드 결과(정적 파일)
+ /api 중계 
+앱의 API 요청을 API 서버로 넘김
+ 브라우저는 주소 하나만 사용
+새 알람은 앱이 주기적으로 조회
+ 알람 발생기
+ AI4I CSV 행 + 알람 경계 규칙으로 알람 등록 · 실제 설비 연동을 대신함
+ API 서버 · 컨테이너 1개, 프로세스 1개 
+ FastAPI 계층
+ 라우터 정비자 API · 파트장 API · 알람 API
+ 로그인 · 역할 확인 
+ 요청·응답 schema Pydantic → OpenAPI
+ agent 패키지
+ LangGraph 그래프 HITL 중단과 재개
+ 도구 · 코드 규칙 잠금 · 권한 등급 · 근거 검사
+ 검색 BM25 메모리 색인 + pgvector 질의
+ LLM Adapter 문장 생성 · 임베딩 요청
+ DB 접근 운영 DB · 벡터 DB
+ 함수 호출 (import)
+ 운영 DB PostgreSQL 
+ 세션 상태 (LangGraph checkpoint)
+ 보고서 · 승인 기록
+ 감사 로그 (지시 · 입력 · 승인)
+ 권한 등급표
+ 벡터 DB PostgreSQL + pgvector 
+ 매뉴얼 MG-MM 절 (원문 + 임베딩)
+ 정비 이력 (원문 · 필드 + 임베딩)
+ 승인된 보고서가 이력으로 추가
+ 외부 LLM API
+ 과정 제공 API로 개발 · 이후 sLLM으로 교체
+문장 생성 · 임베딩
+ 연결 읽는 법
+ 운영 중 호출
+ 한 번 실행 · 분리 실행
+ 앱은 브라우저에서 실행되고 DB에 직접 붙지 않음
+모든 데이터는 nginx → API 서버를 거침
+ 프론트엔드 코드 React + TypeScript + Vite 
+ 정비자 앱 
+ 파트장 앱 
+ 공통 UI 패키지 상단 바 · 등급 배지 · 기록 카드 · API 클라이언트(OpenAPI 타입)
+ 평가 실행기 분리 실행 
+ 평가 카드 30건으로 API를 호출해 성능 측정
+DB · agent 코드에는 접근하지 않음
+ 데이터 적재 스크립트 한 번 실행 
+ 매뉴얼 · 이력 300건 → 임베딩 → 벡터 DB
+초기 권한 등급표 → 운영 DB
+ HTTP
+ HTTP
+ /api
+ HTTP
+ 빌드
+ SQL
+ 검색 · 추가
+ HTTPS · 문장 생성 · 임베딩
+ HTTP
+ 적재
+ 초기 등급표
+ 임베딩
+ ※ 기준: C1-a15 제안서 · 정비 길잡이 사용 가이드 v1.0 · 2026-10-09 결정(화면 React 앱 2개 + 공통 UI 패키지 · nginx가 앱 파일 제공과 /api 중계 · FastAPI가 agent 패키지를 import · DB 용도별 2개 · BM25는 agent 패키지 안)

@@ -1,0 +1,842 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "wireframe_structure",
+ "artifact_version": "v2",
+ "pages": [
+  {
+   "id": "T01",
+   "title": "정비자 로그인",
+   "guide_page": "—",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-20"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02"
+   ],
+   "comparison_states": [
+    "default",
+    "role_error"
+   ]
+  },
+  {
+   "id": "T02",
+   "title": "홈",
+   "guide_page": "4쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-01",
+    "SC-07",
+    "SC-18"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02",
+    "FLOW-06"
+   ],
+   "comparison_states": [
+    "empty",
+    "new_alarm",
+    "in_progress",
+    "rejected"
+   ]
+  },
+  {
+   "id": "T03",
+   "title": "알람 화면",
+   "guide_page": "5쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-01"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02"
+   ],
+   "comparison_states": [
+    "default"
+   ]
+  },
+  {
+   "id": "T04",
+   "title": "진단",
+   "guide_page": "6쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-02",
+    "SC-09"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "default",
+    "low_evidence"
+   ]
+  },
+  {
+   "id": "T05",
+   "title": "잠금 확인 · 사전 확인",
+   "guide_page": "7쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-03",
+    "SC-10"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "before_lock",
+    "locked"
+   ]
+  },
+  {
+   "id": "T06",
+   "title": "점검 지시 · 결과 입력",
+   "guide_page": "8~9쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-04",
+    "SC-13",
+    "SC-17",
+    "SC-21"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "default",
+    "fallback",
+    "unable_next",
+    "llm_repeat"
+   ]
+  },
+  {
+   "id": "T07",
+   "title": "확인 질문 · 맞지 않는 소견",
+   "guide_page": "10쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-08",
+    "SC-13"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "confirm_question",
+    "out_of_scope"
+   ]
+  },
+  {
+   "id": "T08",
+   "title": "원인 확정 · 조치 · 재가동",
+   "guide_page": "11쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-05",
+    "SC-15"
+   ],
+   "logical_flow_refs": [
+    "FLOW-04"
+   ],
+   "comparison_states": [
+    "action_a",
+    "checklist_b",
+    "restart_check"
+   ]
+  },
+  {
+   "id": "T09",
+   "title": "정비 보고서",
+   "guide_page": "12쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-06",
+    "SC-16"
+   ],
+   "logical_flow_refs": [
+    "FLOW-06"
+   ],
+   "comparison_states": [
+    "draft",
+    "check_failed",
+    "confirmed"
+   ]
+  },
+  {
+   "id": "T10",
+   "title": "파트장 호출",
+   "guide_page": "13쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-11",
+    "SC-12",
+    "SC-19"
+   ],
+   "logical_flow_refs": [
+    "FLOW-05"
+   ],
+   "comparison_states": [
+    "summary",
+    "waiting",
+    "sent",
+    "ans_approved",
+    "ans_daytime",
+    "ans_direct"
+   ]
+  },
+  {
+   "id": "T11",
+   "title": "그 밖의 멈춤",
+   "guide_page": "14쪽",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-13",
+    "SC-14",
+    "SC-15"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03",
+    "FLOW-04"
+   ],
+   "comparison_states": [
+    "expert_handover",
+    "monitor_close",
+    "unable_repeat"
+   ]
+  },
+  {
+   "id": "T12",
+   "title": "알람 · 할 일 목록",
+   "guide_page": "— (004 사용자 결정)",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-22",
+    "SC-25"
+   ],
+   "logical_flow_refs": [
+    "FLOW-13"
+   ],
+   "comparison_states": [
+    "list",
+    "empty"
+   ]
+  },
+  {
+   "id": "T13",
+   "title": "과거 기록 전체",
+   "guide_page": "— (명세 S2)",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-23"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "default"
+   ]
+  },
+  {
+   "id": "T14",
+   "title": "매뉴얼 원문",
+   "guide_page": "— (명세 S3)",
+   "ui_surface_ids": [
+    "tech"
+   ],
+   "scenario_refs": [
+    "SC-24"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "comparison_states": [
+    "default"
+   ]
+  },
+  {
+   "id": "L01",
+   "title": "파트장 로그인",
+   "guide_page": "—",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-30"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "comparison_states": [
+    "default",
+    "role_error"
+   ]
+  },
+  {
+   "id": "L02",
+   "title": "승인 대기 목록",
+   "guide_page": "15쪽",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-31",
+    "SC-32"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "comparison_states": [
+    "list",
+    "empty"
+   ]
+  },
+  {
+   "id": "L03",
+   "title": "보고서 검토",
+   "guide_page": "16쪽",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-33",
+    "SC-34",
+    "SC-35"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "comparison_states": [
+    "review",
+    "edit",
+    "edit_failed",
+    "reject"
+   ]
+  },
+  {
+   "id": "L04",
+   "title": "처리할 호출",
+   "guide_page": "16쪽 아래",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-36",
+    "SC-37"
+   ],
+   "logical_flow_refs": [
+    "FLOW-08"
+   ],
+   "comparison_states": [
+    "list",
+    "call_detail",
+    "handover_detail"
+   ]
+  },
+  {
+   "id": "L05",
+   "title": "권한 등급",
+   "guide_page": "17쪽",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-38"
+   ],
+   "logical_flow_refs": [
+    "FLOW-09"
+   ],
+   "comparison_states": [
+    "default",
+    "lower_warning"
+   ]
+  },
+  {
+   "id": "L06",
+   "title": "감사 기록",
+   "guide_page": "—",
+   "ui_surface_ids": [
+    "lead"
+   ],
+   "scenario_refs": [
+    "SC-39"
+   ],
+   "logical_flow_refs": [
+    "FLOW-10"
+   ],
+   "comparison_states": [
+    "default",
+    "filtered"
+   ]
+  }
+ ],
+ "scenario_handoffs": [
+  {
+   "scenario_id": "SC-01",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T02:empty",
+    "T02:new_alarm",
+    "T03:default"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-02",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T04:default"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-03",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T05:before_lock",
+    "T05:locked"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-04",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T06:default"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-05",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T08:action_a",
+    "T08:checklist_b",
+    "T08:restart_check"
+   ],
+   "logical_flow_refs": [
+    "FLOW-04"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-06",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T09:draft",
+    "T09:confirmed"
+   ],
+   "logical_flow_refs": [
+    "FLOW-06"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-07",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T02:in_progress"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-08",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T07:confirm_question"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-09",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T04:low_evidence"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-10",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T05:before_lock"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-11",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T10:summary",
+    "T10:sent"
+   ],
+   "logical_flow_refs": [
+    "FLOW-05"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-12",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T10:ans_approved",
+    "T10:ans_daytime",
+    "T10:ans_direct"
+   ],
+   "logical_flow_refs": [
+    "FLOW-05"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-13",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T07:out_of_scope",
+    "T11:expert_handover",
+    "T11:unable_repeat",
+    "T06:unable_next"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-14",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T11:monitor_close"
+   ],
+   "logical_flow_refs": [
+    "FLOW-04"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-15",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T08:restart_check",
+    "T11:expert_handover"
+   ],
+   "logical_flow_refs": [
+    "FLOW-04"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-16",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T09:check_failed"
+   ],
+   "logical_flow_refs": [
+    "FLOW-06"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-17",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T06:fallback",
+    "T06:llm_repeat"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-18",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T02:rejected"
+   ],
+   "logical_flow_refs": [
+    "FLOW-06"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-19",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T10:waiting"
+   ],
+   "logical_flow_refs": [
+    "FLOW-05"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-20",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T01:default",
+    "T01:role_error"
+   ],
+   "logical_flow_refs": [
+    "FLOW-02"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-21",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T06:fallback"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-22",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T12:list"
+   ],
+   "logical_flow_refs": [
+    "FLOW-13"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-25",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T12:empty"
+   ],
+   "logical_flow_refs": [
+    "FLOW-13"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-23",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T13:default"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-24",
+   "representation": "page_state",
+   "page_state_refs": [
+    "T14:default"
+   ],
+   "logical_flow_refs": [
+    "FLOW-03"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-30",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L01:default",
+    "L01:role_error"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-31",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L02:list"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-32",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L02:empty"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-33",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L03:review"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-34",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L03:edit",
+    "L03:edit_failed"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-35",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L03:reject"
+   ],
+   "logical_flow_refs": [
+    "FLOW-07"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-36",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L04:list",
+    "L04:call_detail"
+   ],
+   "logical_flow_refs": [
+    "FLOW-08"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-37",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L04:handover_detail"
+   ],
+   "logical_flow_refs": [
+    "FLOW-08"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-38",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L05:default",
+    "L05:lower_warning"
+   ],
+   "logical_flow_refs": [
+    "FLOW-09"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-39",
+   "representation": "page_state",
+   "page_state_refs": [
+    "L06:default",
+    "L06:filtered"
+   ],
+   "logical_flow_refs": [
+    "FLOW-10"
+   ],
+   "reason": ""
+  },
+  {
+   "scenario_id": "SC-50",
+   "representation": "non_ui",
+   "page_state_refs": [],
+   "logical_flow_refs": [
+    "FLOW-01"
+   ],
+   "reason": "시연 알람은 명령으로 발생시킨다. 가이드에 알람 발생 화면이 없고(D17), 명세가 '명령(또는 시연용 버튼)'으로 둘 중 하나를 허용하므로 버튼 화면은 두지 않는다(G1 CO-09 결정 · G2A Gate에서 확인). 결과는 T02:new_alarm에 보인다."
+  },
+  {
+   "scenario_id": "SC-51",
+   "representation": "non_ui",
+   "page_state_refs": [],
+   "logical_flow_refs": [
+    "FLOW-01"
+   ],
+   "reason": "미배정·다음 로그인 배정은 서버 배정 규칙이며 화면이 없다. 배정된 뒤 T02:new_alarm에 보인다."
+  },
+  {
+   "scenario_id": "SC-52",
+   "representation": "non_ui",
+   "page_state_refs": [],
+   "logical_flow_refs": [
+    "FLOW-12"
+   ],
+   "reason": "평가 실행기는 화면 없이 정비자 처리를 호출하고 지표 보고서를 만든다."
+  },
+  {
+   "scenario_id": "SC-53",
+   "representation": "non_ui",
+   "page_state_refs": [],
+   "logical_flow_refs": [
+    "FLOW-11"
+   ],
+   "reason": "데이터 적재는 한 번 실행하는 명령이며 화면이 없다. 적재 결과는 T04 과거 기록과 L05 등급표에 보인다."
+  }
+ ]
+}

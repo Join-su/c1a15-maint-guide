@@ -1,0 +1,1791 @@
+{
+ "run_at": "2026-10-12T11:54:24+09:00",
+ "checks": [
+  "승인 구조 계약(wireframes/v3)의 Page / State / Region마다 prototype template 안 selector 존재",
+  "승인 화면(wireframes/v3/structure/selected/*.html) 본문 마크업과 prototype template(로그인 입력칸 변환 · CO-20 문구 뒤)의 SHA-256 비교",
+  "지난 단계 보기 창(T15)은 진행 표시에서 열 때 세션 기록으로 다시 그린다 — 승인 T15 template 5종과 같은 현재 단계에서 실제 경로로 연 창(알람 · 진단 · 점검은 조치 단계 T08, 지금 점검은 4.5 지시 T06, 조치는 보고서 단계 T09)의 요소 골격(태그 · class, 반복 행은 한 번)과 단계 목록 항목 전부(class · 글자: 완료 · 지금 · 남음)가 같은지. template이나 실제 창이 없으면 실패",
+  "새 경로 25개 화면(진단 다음 점검 B · C, 확정 보고서의 홈 · 파트장 검토 포함, 승인 뒤 4.4 · 4.4.2 · 4.6 · 재가동 · 감시 마감 · 남은 대안 없음 · 지난 단계 보기 · B 시작 전 확인 · 등급 경고 · 등급 반영)에서 화면 틀(.ap / .wb) 밖으로 나간 글자 요소 수"
+ ],
+ "regions_total": 199,
+ "regions": [
+  {
+   "page_id": "T01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selector": ".lg-card"
+  },
+  {
+   "page_id": "T01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selector": ".lg-card"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-ALARMS",
+   "selector": ".g2 > div:nth-child(1) > .cd"
+  },
+  {
+   "page_id": "T02",
+   "state": "empty",
+   "region_id": "R-SHIFT",
+   "selector": ".g2 > div:nth-child(2)"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-ALARMS",
+   "selector": ".g2 > div:nth-child(1) > .cd"
+  },
+  {
+   "page_id": "T02",
+   "state": "new_alarm",
+   "region_id": "R-SHIFT",
+   "selector": ".g2 > div:nth-child(2)"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-ALARMS",
+   "selector": ".g2 > div:nth-child(1) > .cd"
+  },
+  {
+   "page_id": "T02",
+   "state": "in_progress",
+   "region_id": "R-SHIFT",
+   "selector": ".g2 > div:nth-child(2)"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-ALARMS",
+   "selector": ".g2 > div:nth-child(1) > .cd"
+  },
+  {
+   "page_id": "T02",
+   "state": "rejected",
+   "region_id": "R-SHIFT",
+   "selector": ".g2 > div:nth-child(2)"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-ALARM",
+   "selector": ".g73 > .cd"
+  },
+  {
+   "page_id": "T03",
+   "state": "default",
+   "region_id": "R-AI",
+   "selector": ".g73 > div:nth-child(2)"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RANK",
+   "selector": ".g64 > div:nth-child(1) > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-RECORDS",
+   "selector": ".hcs"
+  },
+  {
+   "page_id": "T04",
+   "state": "default",
+   "region_id": "R-NEXT",
+   "selector": ".cd.hl"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RANK",
+   "selector": ".g64 > div:nth-child(1) > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-RECORDS",
+   "selector": ".hcs"
+  },
+  {
+   "page_id": "T04",
+   "state": "low_evidence",
+   "region_id": "R-NEXT",
+   "selector": ".cd.hl"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-LOCK",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T05",
+   "state": "before_lock",
+   "region_id": "R-MASK",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-LOCK",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T05",
+   "state": "locked",
+   "region_id": "R-MASK",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T06",
+   "state": "default",
+   "region_id": "R-RESULT",
+   "selector": ".res"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T06",
+   "state": "fallback",
+   "region_id": "R-RESULT",
+   "selector": ".res"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T06",
+   "state": "unable_next",
+   "region_id": "R-RESULT",
+   "selector": ".res"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T06",
+   "state": "llm_repeat",
+   "region_id": "R-RESULT",
+   "selector": ".res"
+  },
+  {
+   "page_id": "T06",
+   "state": "b_precheck",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T06",
+   "state": "b_precheck",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T06",
+   "state": "b_precheck",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T06",
+   "state": "b_precheck",
+   "region_id": "R-RESULT",
+   "selector": ".res"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T07",
+   "state": "confirm_question",
+   "region_id": "R-MODAL",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-INSTR",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T07",
+   "state": "out_of_scope",
+   "region_id": "R-MODAL",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T08",
+   "state": "action_a",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T08",
+   "state": "checklist_b",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-ACTION",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T08",
+   "state": "restart_check",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd"
+  },
+  {
+   "page_id": "T09",
+   "state": "draft",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd"
+  },
+  {
+   "page_id": "T09",
+   "state": "check_failed",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-REPORT",
+   "selector": ".g73 > .cd"
+  },
+  {
+   "page_id": "T09",
+   "state": "confirmed",
+   "region_id": "R-PRECHECK",
+   "selector": ".ckl"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "summary",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "waiting",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "sent",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_approved",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_daytime",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLHEAD",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T10",
+   "state": "ans_direct",
+   "region_id": "R-CALLACT",
+   "selector": ".g64 > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T11",
+   "state": "expert_handover",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T11",
+   "state": "monitor_close",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-STOP",
+   "selector": ".g64 > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "T11",
+   "state": "unable_repeat",
+   "region_id": "R-PATH",
+   "selector": ".tlw"
+  },
+  {
+   "page_id": "L01",
+   "state": "default",
+   "region_id": "R-LOGIN",
+   "selector": ".lg-card"
+  },
+  {
+   "page_id": "L01",
+   "state": "role_error",
+   "region_id": "R-LOGIN",
+   "selector": ".lg-card"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TILES",
+   "selector": ".kts"
+  },
+  {
+   "page_id": "L02",
+   "state": "list",
+   "region_id": "R-TABLE",
+   "selector": ".wt"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TILES",
+   "selector": ".kts"
+  },
+  {
+   "page_id": "L02",
+   "state": "empty",
+   "region_id": "R-TABLE",
+   "selector": ".wt"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-REPORTVIEW",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L03",
+   "state": "review",
+   "region_id": "R-DECISION",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-REPORTVIEW",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit",
+   "region_id": "R-DECISION",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-REPORTVIEW",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L03",
+   "state": "edit_failed",
+   "region_id": "R-DECISION",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-REPORTVIEW",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L03",
+   "state": "reject",
+   "region_id": "R-DECISION",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L04",
+   "state": "list",
+   "region_id": "R-CALLS",
+   "selector": ".wb-main .cd"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L04",
+   "state": "call_detail",
+   "region_id": "R-CALLS",
+   "selector": ".wb-main .cd"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L04",
+   "state": "handover_detail",
+   "region_id": "R-CALLS",
+   "selector": ".wb-main .cd"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-GRADES",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L05",
+   "state": "default",
+   "region_id": "R-CHANGES",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-GRADES",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L05",
+   "state": "lower_warning",
+   "region_id": "R-CHANGES",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L05",
+   "state": "raise_warning",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L05",
+   "state": "raise_warning",
+   "region_id": "R-GRADES",
+   "selector": ".wg > .cd:nth-child(1)"
+  },
+  {
+   "page_id": "L05",
+   "state": "raise_warning",
+   "region_id": "R-CHANGES",
+   "selector": ".wg > .cd:nth-child(2)"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-FILTER",
+   "selector": ".flt"
+  },
+  {
+   "page_id": "L06",
+   "state": "default",
+   "region_id": "R-AUDIT",
+   "selector": ".wt"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-NAV",
+   "selector": ".wb-side"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-FILTER",
+   "selector": ".flt"
+  },
+  {
+   "page_id": "L06",
+   "state": "filtered",
+   "region_id": "R-AUDIT",
+   "selector": ".wt"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-HOMEBG",
+   "selector": ".g2"
+  },
+  {
+   "page_id": "T12",
+   "state": "list",
+   "region_id": "R-NOTIFY",
+   "selector": ".panel"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-HOMEBG",
+   "selector": ".g2"
+  },
+  {
+   "page_id": "T12",
+   "state": "empty",
+   "region_id": "R-NOTIFY",
+   "selector": ".panel"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-BG",
+   "selector": ".g64"
+  },
+  {
+   "page_id": "T13",
+   "state": "default",
+   "region_id": "R-RECORD",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-BG",
+   "selector": ".g64"
+  },
+  {
+   "page_id": "T14",
+   "state": "default",
+   "region_id": "R-MANUAL",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T15",
+   "state": "alarm",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T15",
+   "state": "alarm",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T15",
+   "state": "alarm",
+   "region_id": "R-BG",
+   "selector": ".ap-body"
+  },
+  {
+   "page_id": "T15",
+   "state": "alarm",
+   "region_id": "R-HISTORY",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T15",
+   "state": "diagnosis",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T15",
+   "state": "diagnosis",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T15",
+   "state": "diagnosis",
+   "region_id": "R-BG",
+   "selector": ".ap-body"
+  },
+  {
+   "page_id": "T15",
+   "state": "diagnosis",
+   "region_id": "R-HISTORY",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T15",
+   "state": "check",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T15",
+   "state": "check",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T15",
+   "state": "check",
+   "region_id": "R-BG",
+   "selector": ".ap-body"
+  },
+  {
+   "page_id": "T15",
+   "state": "check",
+   "region_id": "R-HISTORY",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T15",
+   "state": "check_current",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T15",
+   "state": "check_current",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T15",
+   "state": "check_current",
+   "region_id": "R-BG",
+   "selector": ".ap-body"
+  },
+  {
+   "page_id": "T15",
+   "state": "check_current",
+   "region_id": "R-HISTORY",
+   "selector": ".modal"
+  },
+  {
+   "page_id": "T15",
+   "state": "action",
+   "region_id": "R-TOP",
+   "selector": ".ap-top"
+  },
+  {
+   "page_id": "T15",
+   "state": "action",
+   "region_id": "R-STEP",
+   "selector": ".ap-step"
+  },
+  {
+   "page_id": "T15",
+   "state": "action",
+   "region_id": "R-BG",
+   "selector": ".ap-body"
+  },
+  {
+   "page_id": "T15",
+   "state": "action",
+   "region_id": "R-HISTORY",
+   "selector": ".modal"
+  }
+ ],
+ "markup": [
+  {
+   "page_state": "T01:default",
+   "baseline_path": "wireframes/v3/structure/selected/T01--default.html",
+   "baseline_inner_sha256": "c8f2fea785bb04622f98212a979f4f8834bf0f04ff9f5df8dd28bd15fafdc705",
+   "template_sha256": "ef7e0ec379850176f3cdd2ce12ea403eebdd1271b8e0025c23969cf6dc8a7652",
+   "identical": false,
+   "difference": "로그인 ID · 비밀번호 칸을 입력 가능한 input으로 바꿈(값 · 위치 · class 같음)"
+  },
+  {
+   "page_state": "T01:role_error",
+   "baseline_path": "wireframes/v3/structure/selected/T01--role_error.html",
+   "baseline_inner_sha256": "25c928aba4c516121f4f5b4d819469d5f43ae0053478cfdac90c1b47f511429a",
+   "template_sha256": "d93926bf17e97fcf41df6ae566c80e28e674b2ead046826e50e27d03b5f46ab6",
+   "identical": false,
+   "difference": "로그인 ID · 비밀번호 칸을 입력 가능한 input으로 바꿈(값 · 위치 · class 같음)"
+  },
+  {
+   "page_state": "T02:empty",
+   "baseline_path": "wireframes/v3/structure/selected/T02--empty.html",
+   "baseline_inner_sha256": "9c0be1d893a21d4b1d33f3c3c44536c3cffad8f52b20334421ce3b29b951e006",
+   "template_sha256": "9c0be1d893a21d4b1d33f3c3c44536c3cffad8f52b20334421ce3b29b951e006",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T02:new_alarm",
+   "baseline_path": "wireframes/v3/structure/selected/T02--new_alarm.html",
+   "baseline_inner_sha256": "5f9acfeb1875c8039a71a2344d58aef9c6d98229648a77570bdaa3deb76945cd",
+   "template_sha256": "5f9acfeb1875c8039a71a2344d58aef9c6d98229648a77570bdaa3deb76945cd",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T02:in_progress",
+   "baseline_path": "wireframes/v3/structure/selected/T02--in_progress.html",
+   "baseline_inner_sha256": "1f892937f1d10e09c916a6ea1a1a78fa7e15fb1711df03547f3cd39ec4115496",
+   "template_sha256": "1f892937f1d10e09c916a6ea1a1a78fa7e15fb1711df03547f3cd39ec4115496",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T02:rejected",
+   "baseline_path": "wireframes/v3/structure/selected/T02--rejected.html",
+   "baseline_inner_sha256": "faf6a4433da3e8fe39e0ced67c462743640a68ff75c64cbce96be80807833763",
+   "template_sha256": "faf6a4433da3e8fe39e0ced67c462743640a68ff75c64cbce96be80807833763",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T03:default",
+   "baseline_path": "wireframes/v3/structure/selected/T03--default.html",
+   "baseline_inner_sha256": "51a6c6796d0c31defb2199e636c2a778327243df6795bb0b6902be4d88b6b67b",
+   "template_sha256": "51a6c6796d0c31defb2199e636c2a778327243df6795bb0b6902be4d88b6b67b",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T04:default",
+   "baseline_path": "wireframes/v3/structure/selected/T04--default.html",
+   "baseline_inner_sha256": "7e3d5459966af5265c0129c8b3fc4b8c1506b973db96be3b04c1a760b798091d",
+   "template_sha256": "7e3d5459966af5265c0129c8b3fc4b8c1506b973db96be3b04c1a760b798091d",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T04:low_evidence",
+   "baseline_path": "wireframes/v3/structure/selected/T04--low_evidence.html",
+   "baseline_inner_sha256": "adb73ae17aa6c08a20bc92a02f68c39d43185e6485e7d48f16baaf17afe40100",
+   "template_sha256": "adb73ae17aa6c08a20bc92a02f68c39d43185e6485e7d48f16baaf17afe40100",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T05:before_lock",
+   "baseline_path": "wireframes/v3/structure/selected/T05--before_lock.html",
+   "baseline_inner_sha256": "9c513e81d4f92d3cd76641fd323bcc5ea709c7b72080773ba5ec10e025cce27e",
+   "template_sha256": "9c513e81d4f92d3cd76641fd323bcc5ea709c7b72080773ba5ec10e025cce27e",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T05:locked",
+   "baseline_path": "wireframes/v3/structure/selected/T05--locked.html",
+   "baseline_inner_sha256": "e88ed0fbe3bc5f8b03131cec352071273d3aee9a7078d3f468369f5c85e655e2",
+   "template_sha256": "e88ed0fbe3bc5f8b03131cec352071273d3aee9a7078d3f468369f5c85e655e2",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T06:default",
+   "baseline_path": "wireframes/v3/structure/selected/T06--default.html",
+   "baseline_inner_sha256": "6877318c9cbafa00327d67fc82ba288057ce986f87f0f25928ee2f186dd9264a",
+   "template_sha256": "6877318c9cbafa00327d67fc82ba288057ce986f87f0f25928ee2f186dd9264a",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T06:fallback",
+   "baseline_path": "wireframes/v3/structure/selected/T06--fallback.html",
+   "baseline_inner_sha256": "9532427ba00c7f4f5502130da7306ecd83178db66f9b183af39103ddbe2f3fc2",
+   "template_sha256": "9532427ba00c7f4f5502130da7306ecd83178db66f9b183af39103ddbe2f3fc2",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T06:unable_next",
+   "baseline_path": "wireframes/v3/structure/selected/T06--unable_next.html",
+   "baseline_inner_sha256": "e30738be062636551933dd3c0d4d84b35d2a98bdb91e2bdff7ccd1e9987cf738",
+   "template_sha256": "e30738be062636551933dd3c0d4d84b35d2a98bdb91e2bdff7ccd1e9987cf738",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T06:llm_repeat",
+   "baseline_path": "wireframes/v3/structure/selected/T06--llm_repeat.html",
+   "baseline_inner_sha256": "fd3ab82ea624dd6183a44adcda3ae7f4aa3821e9c8dd7a909c67f4a3795146f4",
+   "template_sha256": "fd3ab82ea624dd6183a44adcda3ae7f4aa3821e9c8dd7a909c67f4a3795146f4",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T06:b_precheck",
+   "baseline_path": "wireframes/v3/structure/selected/T06--b_precheck.html",
+   "baseline_inner_sha256": "7f6b7dea939f156d423b81a7b53cc1ba15bcd618b0fe1f933c58fa8fc88db3a0",
+   "template_sha256": "7f6b7dea939f156d423b81a7b53cc1ba15bcd618b0fe1f933c58fa8fc88db3a0",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T07:confirm_question",
+   "baseline_path": "wireframes/v3/structure/selected/T07--confirm_question.html",
+   "baseline_inner_sha256": "adfdcff4a91e785ca4f117ed1d5adfd79ad09afff2106fc6c2b4cecfced4afbc",
+   "template_sha256": "adfdcff4a91e785ca4f117ed1d5adfd79ad09afff2106fc6c2b4cecfced4afbc",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T07:out_of_scope",
+   "baseline_path": "wireframes/v3/structure/selected/T07--out_of_scope.html",
+   "baseline_inner_sha256": "65fbc6799a9d3ca3605cc64a2c05f0b3bbc64af80b1e9750418437b2088c18cb",
+   "template_sha256": "65fbc6799a9d3ca3605cc64a2c05f0b3bbc64af80b1e9750418437b2088c18cb",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T08:action_a",
+   "baseline_path": "wireframes/v3/structure/selected/T08--action_a.html",
+   "baseline_inner_sha256": "951c164e72bd58acf9186b43c4d2fba49a7a80b5b5282039c799a9fd343769bf",
+   "template_sha256": "951c164e72bd58acf9186b43c4d2fba49a7a80b5b5282039c799a9fd343769bf",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T08:checklist_b",
+   "baseline_path": "wireframes/v3/structure/selected/T08--checklist_b.html",
+   "baseline_inner_sha256": "d55e34d24e9f6803a6eab6fdf5d0810aa27f9a4a48eada1223d4297c6253ef5e",
+   "template_sha256": "d55e34d24e9f6803a6eab6fdf5d0810aa27f9a4a48eada1223d4297c6253ef5e",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T08:restart_check",
+   "baseline_path": "wireframes/v3/structure/selected/T08--restart_check.html",
+   "baseline_inner_sha256": "b594889ac42c17900f1021e446e8159e39ff536a206c3ef4a63ad4bbd4c41f75",
+   "template_sha256": "b594889ac42c17900f1021e446e8159e39ff536a206c3ef4a63ad4bbd4c41f75",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T09:draft",
+   "baseline_path": "wireframes/v3/structure/selected/T09--draft.html",
+   "baseline_inner_sha256": "7a7d53c5bb94f83d0bab636881243cac97309c0b75ffd4b2ab820cb185bbcece",
+   "template_sha256": "7a7d53c5bb94f83d0bab636881243cac97309c0b75ffd4b2ab820cb185bbcece",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T09:check_failed",
+   "baseline_path": "wireframes/v3/structure/selected/T09--check_failed.html",
+   "baseline_inner_sha256": "64f5e99c4c87bc1a7a8847a0a126221f3ca8f1d9fdfdf7aa3fcdb5e2bd2a011e",
+   "template_sha256": "eb0f83a8c3c7306dc7e55fbb8c179732e5757e072129401835c4d56eaaa7fe6d",
+   "identical": false,
+   "difference": "실패한 자동 검사 행 문구를 결과 문장 '근거 없는 문장 1건'으로 바꿈(CO-20, G2B v2 결정)"
+  },
+  {
+   "page_state": "T09:confirmed",
+   "baseline_path": "wireframes/v3/structure/selected/T09--confirmed.html",
+   "baseline_inner_sha256": "b4895600abd065c869aefc57cfadabaa42e7188cf224b4ce3650536c890d0d46",
+   "template_sha256": "b4895600abd065c869aefc57cfadabaa42e7188cf224b4ce3650536c890d0d46",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:summary",
+   "baseline_path": "wireframes/v3/structure/selected/T10--summary.html",
+   "baseline_inner_sha256": "4771b91d59f454c4b94ba01508a5cebb822487a80ef2be26a7529ee4e490cba2",
+   "template_sha256": "4771b91d59f454c4b94ba01508a5cebb822487a80ef2be26a7529ee4e490cba2",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:waiting",
+   "baseline_path": "wireframes/v3/structure/selected/T10--waiting.html",
+   "baseline_inner_sha256": "e0ca23cdc4ba9626db638bddc0376df2b6e2d9feb99644ce15ab7f5c7b09aec9",
+   "template_sha256": "e0ca23cdc4ba9626db638bddc0376df2b6e2d9feb99644ce15ab7f5c7b09aec9",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:sent",
+   "baseline_path": "wireframes/v3/structure/selected/T10--sent.html",
+   "baseline_inner_sha256": "c9e4534b92e811dcb9c5660a38c0dd80268379dc2e009c0b3f5ccc592c5b4695",
+   "template_sha256": "c9e4534b92e811dcb9c5660a38c0dd80268379dc2e009c0b3f5ccc592c5b4695",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:ans_approved",
+   "baseline_path": "wireframes/v3/structure/selected/T10--ans_approved.html",
+   "baseline_inner_sha256": "aa7c8655060f055001bde323083e346011bd2ebdfa029c079754eabcfb66f5d1",
+   "template_sha256": "aa7c8655060f055001bde323083e346011bd2ebdfa029c079754eabcfb66f5d1",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:ans_daytime",
+   "baseline_path": "wireframes/v3/structure/selected/T10--ans_daytime.html",
+   "baseline_inner_sha256": "ec35d4bdc3003753036e486e3ee40b32b61e3fbb2b645860e3bb863b0b7d9bbf",
+   "template_sha256": "ec35d4bdc3003753036e486e3ee40b32b61e3fbb2b645860e3bb863b0b7d9bbf",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T10:ans_direct",
+   "baseline_path": "wireframes/v3/structure/selected/T10--ans_direct.html",
+   "baseline_inner_sha256": "cde343430a7dbb03c878edb146c717ff6411887464d562fdd66deb979395e3b0",
+   "template_sha256": "cde343430a7dbb03c878edb146c717ff6411887464d562fdd66deb979395e3b0",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T11:expert_handover",
+   "baseline_path": "wireframes/v3/structure/selected/T11--expert_handover.html",
+   "baseline_inner_sha256": "5125d88e1b4ba123016ac390accd67bed67d0385d3a3b62310e094f18581fdce",
+   "template_sha256": "5125d88e1b4ba123016ac390accd67bed67d0385d3a3b62310e094f18581fdce",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T11:monitor_close",
+   "baseline_path": "wireframes/v3/structure/selected/T11--monitor_close.html",
+   "baseline_inner_sha256": "9b7679d77cbeed714c2a67747f6f9980f03a6668c83231cd4b1bfbb2083376de",
+   "template_sha256": "9b7679d77cbeed714c2a67747f6f9980f03a6668c83231cd4b1bfbb2083376de",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T11:unable_repeat",
+   "baseline_path": "wireframes/v3/structure/selected/T11--unable_repeat.html",
+   "baseline_inner_sha256": "afa5b65d633465b608ed0470c6a26d20b45f351ad91ae02e2bcd69afd4b1fb11",
+   "template_sha256": "afa5b65d633465b608ed0470c6a26d20b45f351ad91ae02e2bcd69afd4b1fb11",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L01:default",
+   "baseline_path": "wireframes/v3/structure/selected/L01--default.html",
+   "baseline_inner_sha256": "b329e08e345f5024a217412053fc86db55b7a20723e2d36503692dcd9fd962e6",
+   "template_sha256": "7518ae3343375fc34c7896460ffab532959e002b996ee9cc7d058b79ef96ce25",
+   "identical": false,
+   "difference": "로그인 ID · 비밀번호 칸을 입력 가능한 input으로 바꿈(값 · 위치 · class 같음)"
+  },
+  {
+   "page_state": "L01:role_error",
+   "baseline_path": "wireframes/v3/structure/selected/L01--role_error.html",
+   "baseline_inner_sha256": "6a1e1dd74076994691157df817750e697065129e921f78f270c868839bcd0f16",
+   "template_sha256": "bdce83438d44374dee66df0035afbdbf371d8bd21ecef529e5d3451899de7f67",
+   "identical": false,
+   "difference": "로그인 ID · 비밀번호 칸을 입력 가능한 input으로 바꿈(값 · 위치 · class 같음)"
+  },
+  {
+   "page_state": "L02:list",
+   "baseline_path": "wireframes/v3/structure/selected/L02--list.html",
+   "baseline_inner_sha256": "3e92b1c0ce1ce1ddb5837af2cae2b5020d55aa65bfa881130299d24e79e8d830",
+   "template_sha256": "3e92b1c0ce1ce1ddb5837af2cae2b5020d55aa65bfa881130299d24e79e8d830",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L02:empty",
+   "baseline_path": "wireframes/v3/structure/selected/L02--empty.html",
+   "baseline_inner_sha256": "611379f60fb2be4c80009d8f3f1f676b60bc44d36d5059eee3fb748e1cac8d42",
+   "template_sha256": "611379f60fb2be4c80009d8f3f1f676b60bc44d36d5059eee3fb748e1cac8d42",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L03:review",
+   "baseline_path": "wireframes/v3/structure/selected/L03--review.html",
+   "baseline_inner_sha256": "58b55dbd28d5bb0f8859fd04612c45bd4acc6c8fd8a9ac43b347201b81507353",
+   "template_sha256": "58b55dbd28d5bb0f8859fd04612c45bd4acc6c8fd8a9ac43b347201b81507353",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L03:edit",
+   "baseline_path": "wireframes/v3/structure/selected/L03--edit.html",
+   "baseline_inner_sha256": "694a82d6004d892e418f3507ec2c99f89000891fbb5b11ab01df1efa6033a355",
+   "template_sha256": "694a82d6004d892e418f3507ec2c99f89000891fbb5b11ab01df1efa6033a355",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L03:edit_failed",
+   "baseline_path": "wireframes/v3/structure/selected/L03--edit_failed.html",
+   "baseline_inner_sha256": "366ca98f8572e82b36e1715f8f64549160db3ffc383e322d61c5b916e78384f6",
+   "template_sha256": "366ca98f8572e82b36e1715f8f64549160db3ffc383e322d61c5b916e78384f6",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L03:reject",
+   "baseline_path": "wireframes/v3/structure/selected/L03--reject.html",
+   "baseline_inner_sha256": "bffdfef87cc885b1125292685adf3285fb719ec068c04018d753d09b5631c056",
+   "template_sha256": "bffdfef87cc885b1125292685adf3285fb719ec068c04018d753d09b5631c056",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L04:list",
+   "baseline_path": "wireframes/v3/structure/selected/L04--list.html",
+   "baseline_inner_sha256": "3fa948e1a1feaa863676fcfb282a8b67294f6b48caa52a159bd5304ceac096a7",
+   "template_sha256": "3fa948e1a1feaa863676fcfb282a8b67294f6b48caa52a159bd5304ceac096a7",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L04:call_detail",
+   "baseline_path": "wireframes/v3/structure/selected/L04--call_detail.html",
+   "baseline_inner_sha256": "b0774794b5cb4360cd65c4e7c04631859c12602fc37fa80766407742ca0d9161",
+   "template_sha256": "b0774794b5cb4360cd65c4e7c04631859c12602fc37fa80766407742ca0d9161",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L04:handover_detail",
+   "baseline_path": "wireframes/v3/structure/selected/L04--handover_detail.html",
+   "baseline_inner_sha256": "851d8cffa47f5a1237440f8bd5013554cd149f4492eabda830e645ad3bd1fadb",
+   "template_sha256": "851d8cffa47f5a1237440f8bd5013554cd149f4492eabda830e645ad3bd1fadb",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L05:default",
+   "baseline_path": "wireframes/v3/structure/selected/L05--default.html",
+   "baseline_inner_sha256": "8a34d4f97e0a1c56efa4e73c7ebe7375192bfedac034a0ab9c6227f82fd26c55",
+   "template_sha256": "8a34d4f97e0a1c56efa4e73c7ebe7375192bfedac034a0ab9c6227f82fd26c55",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L05:lower_warning",
+   "baseline_path": "wireframes/v3/structure/selected/L05--lower_warning.html",
+   "baseline_inner_sha256": "1b795397bc905db6d55d385685011bb1e7ade50a8882742d2fd7763bfff3a323",
+   "template_sha256": "1b795397bc905db6d55d385685011bb1e7ade50a8882742d2fd7763bfff3a323",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L05:raise_warning",
+   "baseline_path": "wireframes/v3/structure/selected/L05--raise_warning.html",
+   "baseline_inner_sha256": "0c82097b68863c3aa819248fccba61298f1721b6136578ca524d0b8551c57c87",
+   "template_sha256": "0c82097b68863c3aa819248fccba61298f1721b6136578ca524d0b8551c57c87",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L06:default",
+   "baseline_path": "wireframes/v3/structure/selected/L06--default.html",
+   "baseline_inner_sha256": "00dd66a47b540c142825eae5e4d28d64a14a04f51470b81d76af4e15c0c74a54",
+   "template_sha256": "00dd66a47b540c142825eae5e4d28d64a14a04f51470b81d76af4e15c0c74a54",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "L06:filtered",
+   "baseline_path": "wireframes/v3/structure/selected/L06--filtered.html",
+   "baseline_inner_sha256": "897c7e38a2bf667695e3c74af5246ba35dd75e7f4b513adf433fc6a497382dae",
+   "template_sha256": "897c7e38a2bf667695e3c74af5246ba35dd75e7f4b513adf433fc6a497382dae",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T12:list",
+   "baseline_path": "wireframes/v3/structure/selected/T12--list.html",
+   "baseline_inner_sha256": "2a3946dd2ec50304a16e41ab4cc9de10bee8a8b3d6487011be3d52742d0c2864",
+   "template_sha256": "2a3946dd2ec50304a16e41ab4cc9de10bee8a8b3d6487011be3d52742d0c2864",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T12:empty",
+   "baseline_path": "wireframes/v3/structure/selected/T12--empty.html",
+   "baseline_inner_sha256": "b715f9a6e7f7c7434012baafdc363b69ffada315f8c579740a48f274b4ee607e",
+   "template_sha256": "b715f9a6e7f7c7434012baafdc363b69ffada315f8c579740a48f274b4ee607e",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T13:default",
+   "baseline_path": "wireframes/v3/structure/selected/T13--default.html",
+   "baseline_inner_sha256": "958687cf12ed9dcb3364cf4737c9877687d5079ae3a5c5d127cec14fcba91a57",
+   "template_sha256": "958687cf12ed9dcb3364cf4737c9877687d5079ae3a5c5d127cec14fcba91a57",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T14:default",
+   "baseline_path": "wireframes/v3/structure/selected/T14--default.html",
+   "baseline_inner_sha256": "9b083a8f474161de895e0c01b36cd66dddaf3d7316a19447a2d22bcec8e3489c",
+   "template_sha256": "9b083a8f474161de895e0c01b36cd66dddaf3d7316a19447a2d22bcec8e3489c",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T15:alarm",
+   "baseline_path": "wireframes/v3/structure/selected/T15--alarm.html",
+   "baseline_inner_sha256": "2f1223973c40013ac641d5b86080b1bc65a8080e0e2c4e356784325bbcfa07b6",
+   "template_sha256": "2f1223973c40013ac641d5b86080b1bc65a8080e0e2c4e356784325bbcfa07b6",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T15:diagnosis",
+   "baseline_path": "wireframes/v3/structure/selected/T15--diagnosis.html",
+   "baseline_inner_sha256": "7140c06e37349fbb99b8ba333cee199aec033977e3d8adb6427bda642b75b853",
+   "template_sha256": "7140c06e37349fbb99b8ba333cee199aec033977e3d8adb6427bda642b75b853",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T15:check",
+   "baseline_path": "wireframes/v3/structure/selected/T15--check.html",
+   "baseline_inner_sha256": "4a81331dbb1ec3a97c651153f5f2d249f9c50df7e5382bc144c54192c988e7ff",
+   "template_sha256": "4a81331dbb1ec3a97c651153f5f2d249f9c50df7e5382bc144c54192c988e7ff",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T15:check_current",
+   "baseline_path": "wireframes/v3/structure/selected/T15--check_current.html",
+   "baseline_inner_sha256": "a2afc785f307ba68e5f95d75c89edb8ab297f3e785d5eed5c6fabb7ccd335b32",
+   "template_sha256": "a2afc785f307ba68e5f95d75c89edb8ab297f3e785d5eed5c6fabb7ccd335b32",
+   "identical": true,
+   "difference": ""
+  },
+  {
+   "page_state": "T15:action",
+   "baseline_path": "wireframes/v3/structure/selected/T15--action.html",
+   "baseline_inner_sha256": "a4c693ed02a537ec3e57c804d7925920871b03d6717cf4c6b2a47907c7f4b035",
+   "template_sha256": "a4c693ed02a537ec3e57c804d7925920871b03d6717cf4c6b2a47907c7f4b035",
+   "identical": true,
+   "difference": ""
+  }
+ ],
+ "markup_identical": 53,
+ "markup_total": 58,
+ "t15_window_skeleton": {
+  "alarm": {
+   "from": "T08:action_a → 진행 표시 알람",
+   "skeleton_same": true,
+   "nav_same": true,
+   "template_nav": [
+    "on|알람",
+    "|진단",
+    "|점검",
+    "|조치 · 지금"
+   ],
+   "live_nav": [
+    "on|알람",
+    "|진단",
+    "|점검",
+    "|조치 · 지금"
+   ],
+   "template_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "live_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "template_rows": 2,
+   "live_rows": 2,
+   "pass": true
+  },
+  "diagnosis": {
+   "from": "T08:action_a → 창 안 진단",
+   "skeleton_same": true,
+   "nav_same": true,
+   "template_nav": [
+    "|알람",
+    "on|진단",
+    "|점검",
+    "|조치 · 지금"
+   ],
+   "live_nav": [
+    "|알람",
+    "on|진단",
+    "|점검",
+    "|조치 · 지금"
+   ],
+   "template_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "live_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "template_rows": 2,
+   "live_rows": 2,
+   "pass": true
+  },
+  "check": {
+   "from": "T08:action_a → 창 안 점검",
+   "skeleton_same": true,
+   "nav_same": true,
+   "template_nav": [
+    "|알람",
+    "|진단",
+    "on|점검",
+    "|조치 · 지금"
+   ],
+   "live_nav": [
+    "|알람",
+    "|진단",
+    "on|점검",
+    "|조치 · 지금"
+   ],
+   "template_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "live_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "template_rows": 3,
+   "live_rows": 3,
+   "pass": true
+  },
+  "check_current": {
+   "from": "T06:second_check(4.5, 정상 · 메모 입력) → 진단 → 창 안 점검 · 지금",
+   "skeleton_same": true,
+   "nav_same": true,
+   "template_nav": [
+    "|알람",
+    "|진단",
+    "on|점검 · 지금",
+    "off|조치"
+   ],
+   "live_nav": [
+    "|알람",
+    "|진단",
+    "on|점검 · 지금",
+    "off|조치"
+   ],
+   "template_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hist-row.unsent(span.tt,div.(b.,span.sm),div.(span.amber.ch,span.btn.ghost.sm2)),div.hint(svg))))",
+   "live_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hist-row.unsent(span.tt,div.(b.,span.sm),div.(span.amber.ch,span.btn.ghost.sm2)),div.hint(svg))))",
+   "template_rows": 4,
+   "live_rows": 4,
+   "pass": true
+  },
+  "action": {
+   "from": "T09:draft → 진행 표시 조치",
+   "skeleton_same": true,
+   "nav_same": true,
+   "template_nav": [
+    "|알람",
+    "|진단",
+    "|점검",
+    "on|조치"
+   ],
+   "live_nav": [
+    "|알람",
+    "|진단",
+    "|점검",
+    "on|조치"
+   ],
+   "template_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "live_skeleton": "div.modal.wide(div.mh(svg,b.,span.ch.gray,span.btn.ghost.mclose.sm2),div.hist-wrap(div.hist-nav(span.),div.(div.hist-row(span.tt,div.(b.,span.sm),span.ch.gray),div.hint(svg))))",
+   "template_rows": 2,
+   "live_rows": 3,
+   "pass": true
+  }
+ },
+ "t15_row_count_note": "기록 행 수는 값이라 비교하지 않는다. 조치 창은 승인 template 2행(조치 완료 · 재가동)에 '재가동 확인' 1행이 더 있다 — AC-41-C2의 제출 항목(재가동 확인)이라 세션 기록에서 그린다",
+ "overflow_new_paths": {
+  "result": "25 scenarios; overflow: {}",
+  "scenarios": 25
+ }
+}

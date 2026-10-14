@@ -1,0 +1,113 @@
+{
+ "T01": {
+  "default": "wireframes/v4/structure/guide-a/T01--default.html",
+  "role_error": "wireframes/v4/structure/guide-a/T01--role_error.html"
+ },
+ "T02": {
+  "empty": "wireframes/v4/structure/guide-a/T02--empty.html",
+  "new_alarm": "wireframes/v4/structure/guide-a/T02--new_alarm.html",
+  "in_progress": "wireframes/v4/structure/guide-a/T02--in_progress.html",
+  "rejected": "wireframes/v4/structure/guide-a/T02--rejected.html"
+ },
+ "T03": {
+  "default": "wireframes/v4/structure/guide-a/T03--default.html"
+ },
+ "T04": {
+  "default": "wireframes/v4/structure/guide-a/T04--default.html",
+  "low_evidence": "wireframes/v4/structure/guide-a/T04--low_evidence.html"
+ },
+ "T05": {
+  "before_lock": "wireframes/v4/structure/guide-a/T05--before_lock.html",
+  "locked": "wireframes/v4/structure/guide-a/T05--locked.html"
+ },
+ "T06": {
+  "default": "wireframes/v4/structure/guide-a/T06--default.html",
+  "fallback": "wireframes/v4/structure/guide-a/T06--fallback.html",
+  "unable_next": "wireframes/v4/structure/guide-a/T06--unable_next.html",
+  "llm_repeat": "wireframes/v4/structure/guide-a/T06--llm_repeat.html",
+  "b_precheck": "wireframes/v4/structure/guide-a/T06--b_precheck.html"
+ },
+ "T07": {
+  "confirm_question": "wireframes/v4/structure/guide-a/T07--confirm_question.html",
+  "out_of_scope": "wireframes/v4/structure/guide-a/T07--out_of_scope.html"
+ },
+ "T08": {
+  "action_a": "wireframes/v4/structure/guide-a/T08--action_a.html",
+  "checklist_b": "wireframes/v4/structure/guide-a/T08--checklist_b.html",
+  "restart_check": "wireframes/v4/structure/guide-a/T08--restart_check.html",
+  "corrected_path": "wireframes/v4/structure/guide-a/T08--corrected_path.html"
+ },
+ "T09": {
+  "draft": "wireframes/v4/structure/guide-a/T09--draft.html",
+  "check_failed": "wireframes/v4/structure/guide-a/T09--check_failed.html",
+  "confirmed": "wireframes/v4/structure/guide-a/T09--confirmed.html"
+ },
+ "T10": {
+  "summary": "wireframes/v4/structure/guide-a/T10--summary.html",
+  "waiting": "wireframes/v4/structure/guide-a/T10--waiting.html",
+  "sent": "wireframes/v4/structure/guide-a/T10--sent.html",
+  "ans_approved": "wireframes/v4/structure/guide-a/T10--ans_approved.html",
+  "ans_daytime": "wireframes/v4/structure/guide-a/T10--ans_daytime.html",
+  "ans_direct": "wireframes/v4/structure/guide-a/T10--ans_direct.html",
+  "summary_corrected": "wireframes/v4/structure/guide-a/T10--summary_corrected.html"
+ },
+ "T11": {
+  "expert_handover": "wireframes/v4/structure/guide-a/T11--expert_handover.html",
+  "monitor_close": "wireframes/v4/structure/guide-a/T11--monitor_close.html",
+  "unable_repeat": "wireframes/v4/structure/guide-a/T11--unable_repeat.html"
+ },
+ "L01": {
+  "default": "wireframes/v4/structure/guide-a/L01--default.html",
+  "role_error": "wireframes/v4/structure/guide-a/L01--role_error.html"
+ },
+ "L02": {
+  "list": "wireframes/v4/structure/guide-a/L02--list.html",
+  "empty": "wireframes/v4/structure/guide-a/L02--empty.html"
+ },
+ "L03": {
+  "review": "wireframes/v4/structure/guide-a/L03--review.html",
+  "edit": "wireframes/v4/structure/guide-a/L03--edit.html",
+  "edit_failed": "wireframes/v4/structure/guide-a/L03--edit_failed.html",
+  "reject": "wireframes/v4/structure/guide-a/L03--reject.html"
+ },
+ "L04": {
+  "list": "wireframes/v4/structure/guide-a/L04--list.html",
+  "call_detail": "wireframes/v4/structure/guide-a/L04--call_detail.html",
+  "handover_detail": "wireframes/v4/structure/guide-a/L04--handover_detail.html",
+  "call_corrected": "wireframes/v4/structure/guide-a/L04--call_corrected.html"
+ },
+ "L05": {
+  "default": "wireframes/v4/structure/guide-a/L05--default.html",
+  "lower_warning": "wireframes/v4/structure/guide-a/L05--lower_warning.html",
+  "raise_warning": "wireframes/v4/structure/guide-a/L05--raise_warning.html"
+ },
+ "L06": {
+  "default": "wireframes/v4/structure/guide-a/L06--default.html",
+  "filtered": "wireframes/v4/structure/guide-a/L06--filtered.html",
+  "correction": "wireframes/v4/structure/guide-a/L06--correction.html"
+ },
+ "T12": {
+  "list": "wireframes/v4/structure/guide-a/T12--list.html",
+  "empty": "wireframes/v4/structure/guide-a/T12--empty.html"
+ },
+ "T13": {
+  "default": "wireframes/v4/structure/guide-a/T13--default.html"
+ },
+ "T14": {
+  "default": "wireframes/v4/structure/guide-a/T14--default.html"
+ },
+ "T15": {
+  "alarm": "wireframes/v4/structure/guide-a/T15--alarm.html",
+  "diagnosis": "wireframes/v4/structure/guide-a/T15--diagnosis.html",
+  "check": "wireframes/v4/structure/guide-a/T15--check.html",
+  "check_current": "wireframes/v4/structure/guide-a/T15--check_current.html",
+  "lock": "wireframes/v4/structure/guide-a/T15--lock.html",
+  "precheck": "wireframes/v4/structure/guide-a/T15--precheck.html",
+  "action": "wireframes/v4/structure/guide-a/T15--action.html",
+  "note": "wireframes/v4/structure/guide-a/T15--note.html",
+  "correct": "wireframes/v4/structure/guide-a/T15--correct.html",
+  "correct_confirm": "wireframes/v4/structure/guide-a/T15--correct_confirm.html",
+  "corrected": "wireframes/v4/structure/guide-a/T15--corrected.html",
+  "closed": "wireframes/v4/structure/guide-a/T15--closed.html"
+ }
+}

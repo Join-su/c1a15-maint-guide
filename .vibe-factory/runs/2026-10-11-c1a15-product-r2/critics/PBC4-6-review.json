@@ -1,0 +1,86 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A6",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v6/prebuild-contract.md",
+  "version": "v6",
+  "sha256": "f876008b6e94979cae939ac749de10be7b715a2e379632edde631cf318baaf92"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-6-input.json",
+  "sha256": "309738c8ab89a0d5a6db705f2d3ac77062317bbcb8ef155814801bd0aef6fa3a"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v17.json",
+   "version": "v17",
+   "sha256": "ba27e0b2209963f40e4f6d725c7100f41733afd7f8a1ff1a383e3e056000569b"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v6/coding-plan.json",
+   "version": "v6",
+   "sha256": "cd437cb048654659b215f53df4141094f150ae3cb07468929fd69a6dbb9682c5"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v6/verification-matrix.json",
+   "version": "v6",
+   "sha256": "590c9cc74ee908ea1d9cfd30a9cf167cf82e7b5ed15c03e0b914263e1817afad"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v6/selection-register.json",
+   "version": "v6",
+   "sha256": "06144b0ad31dfe757621441fe7bb050fd99096b27c082837b227851a6765340b"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v6/pbc-consistency-check.json",
+   "version": "v6",
+   "sha256": "6789f92f1ab826110cadc6528363c729f21d86bfe3427dba91f1411c97f9e327"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v6/prebuild-contract.md",
+   "version": "v6",
+   "sha256": "f876008b6e94979cae939ac749de10be7b715a2e379632edde631cf318baaf92"
+  }
+ ],
+ "prior_blocking_resolution": [
+  {
+   "id": "ISS-001",
+   "resolved": true,
+   "note": "matrix AC-02의 P-08 L3가 T04 / first_call → 잠금 → T05 / locked까지만 판정하고, T10 진입은 P-10(S-03) L3로 옮겼다. P-08 verifier · ui_state_interaction, first_end_to_end_flow, contract 문장이 같은 slice 규칙을 말한다. T05 · T04는 P-08 범위이고 값은 같은 cycle의 P-18이 낸다."
+  },
+  {
+   "id": "ISS-002",
+   "resolved": true,
+   "note": "P-09 · P-10 behavior에 Prototype v17 385행 흐름 원문과 '점검 전' 값을 넣었다. P-09 verifier · matrix L2(S-03), P-10 verifier · matrix L3(S-03)에도 넣었다. 값은 T10 / summary의 승인 영역(지금까지 점검 · 남은 후보 · 자동 요약)에 맞고 changed-scope-v2의 P-09 · P-10 행과도 맞다."
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "오래된 판 문구가 남아 있다. plan-amendment-v6 '그대로인 것'은 'Selection Register v5'라고 적었고, plan execution_status.note는 'v5는 …'이라고 적었다. consistency check의 v4 대비 최상위 변경 목록에는 change_summary · diagram_paths · director_review · selection_register · supersedes(가리키는 값)가 빠졌다. matrix manual_reviews 변경(OOS-01 해결 줄, CO-40)도 빠졌다. 사람용 문서를 만들 때 맞추면 좋다.",
+  "P-08 L3의 T05 / locked 안내('다음: 파트장 호출 요약(4.4절 냉각 팬 분해 점검, C등급)')에는 호출 경로의 확인 점검 이름이 있어야 한다. 이 값을 P-06의 잠금 응답과 P-18의 미리보기 중 어느 쪽이 내는지 적혀 있지 않다. S-02 2차 cycle G4에서 그 출처를 정하고 P-18 또는 P-08 시험에서 서버 값임을 확인하면 좋다.",
+  "P-18이 S02-G6-3에 따라 완료된 P-06 API 코드(결과 입력 검증 · 재전송 비교)도 고친다. 그런데 P-18 acceptance_ids(AC-02 · AC-06 · AC-31)에는 이 동작의 AC가 없고, 추적은 carryover_resolution으로만 된다. G4에서 P-18이 손대는 P-06 파일과 연결 AC를 slice packet에 적으면 좋다."
+ ],
+ "recorded_by": "generator(독립 critic agent가 돌려준 JSON 내용을 그대로 저장)"
+}

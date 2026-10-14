@@ -1,0 +1,44 @@
+{
+ "checked_at": "2026-10-14T10:31:59+09:00",
+ "repository_revision": "f73c24018246f7a2ba833bf348b2f997d3ca8c02",
+ "head_unchanged": true,
+ "files": [
+  {
+   "path": "package-lock.json",
+   "g4_baseline": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+   "now": "d75b4818b55c9b5460006cc16bdffecbc652010644809e5c2def230737774de2",
+   "changed": false
+  },
+  {
+   "path": "server/uv.lock",
+   "g4_baseline": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997",
+   "now": "a5d3473321ed79b62b4e18dae7e13c67667acd7ab13593c5600e636d43587997",
+   "changed": false
+  },
+  {
+   "path": "data/manifest.json",
+   "g4_baseline": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+   "now": "93d1e2a05f2017486bb267d559f4a50117aab50b04efad7ca0b2db6b079ac676",
+   "changed": false
+  },
+  {
+   "path": "data/alarm_rules.json",
+   "g4_baseline": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+   "now": "3b7ec128f3d5fc8e75b1c2f8e8d4ce3d91de6f24443f18cbeea5c6ebeb0b3898",
+   "changed": false
+  },
+  {
+   "path": "data/demo/scenarios.json",
+   "g4_baseline": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "now": "f374d051ea2e040870e06f9fd2c2f7b65cb722bcd178aaa927079b7d2ca1c45c",
+   "changed": false
+  },
+  {
+   "path": "server/openapi.json",
+   "g4_baseline": "a92637275ecf48eca2bc8dd98b05df053e465b1ab5a3578eb2ad66d4591d7597",
+   "now": "4f84020dd2b4659128c9d62067a556537f83a9ebc9c2362b87e3469122919585",
+   "changed": true,
+   "cause": "P-14 정정 · 메모 덧붙이기 · 지난 화면 API(CorrectionBody · NoteBody · SessionPast · PastRecord 등)와 호출 응답의 정정 필드(CallCorrection · ActionDone · CheckDone.note · LeadCall.need · corrections) — 승인 item의 예상 변경"
+  }
+ ]
+}

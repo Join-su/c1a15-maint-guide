@@ -1,0 +1,223 @@
+{
+ "gate": "G3",
+ "attempt": 2,
+ "cycle": 8,
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v13/prototype-slice.md",
+  "version": "v13",
+  "sha256": "79eaaef102c7d390f3d557b785eb97016f130024ea0eb9bef05e56dff21a6d83"
+ },
+ "input_bundle": {
+  "path": "critics/G3-13-input.json",
+  "sha256": "3d28db6f6379f69abfb5f828a9d9db8773ec6f8091b9e9cac1df782f2814148a"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v5.json",
+   "version": "v5",
+   "sha256": "20ebc692007221b3b539e3af32c4ffddfb02f4f715f27536425ec9a6b25e866e"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v5/acceptance-criteria.json",
+   "version": "v5",
+   "sha256": "8b9cde56b12730af6a466ebe7ae1ef0b190afcf69c08ff55b86c760a8f511b44"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v5/scenario-coverage.json",
+   "version": "v5",
+   "sha256": "c23661471beeb493ec8b84b21582af0efcc4c729674ce3b2c5cc866358acdc5c"
+  },
+  {
+   "artifact": "use_case_packet",
+   "path": "use-case/v5/use-case-packet.md",
+   "version": "v5",
+   "sha256": "0a1f19a79a2b94018ec6c7bab9f1d525153642c505bf63206e494648e699f763"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v3/structure/selected.md",
+   "version": "v3",
+   "sha256": "0ba7d2af3299771c00d22d25898a50b4217f49745a48758e55762fce991dbc9c"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v3/structure/selected-structure-contract.json",
+   "version": "v3",
+   "sha256": "7fac9fc368f6b185b75988c542c34d65f3adbebe4a514bc8e7874110a88b81c3"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/v3/structure/selected-visual-baseline.json",
+   "version": "v3",
+   "sha256": "7d5f21c40c9b12e07162e90d79b1eabd81bb2e69101d67b85bb91cf0f0d95b39"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/v3/design/selected-visual-rules.md",
+   "version": "v3",
+   "sha256": "5c575104febb3409362341e483a127a8394f7dc0ac57531e937ba71c6b3d88ef"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "prior_g3_review_3",
+   "path": "critics/G3-3-review.json",
+   "version": "v3",
+   "sha256": "ec03950288e506f57720121e7c370978da837e642b2beae408b2c36903650259"
+  },
+  {
+   "artifact": "prior_g3_review_4",
+   "path": "critics/G3-4-review.json",
+   "version": "v4",
+   "sha256": "45d5ca49994c1445123d8696360f52f4726685c5a17ea4db9827fc038f688278"
+  },
+  {
+   "artifact": "prior_g3_review_5",
+   "path": "critics/G3-5-review.json",
+   "version": "v5",
+   "sha256": "e1540c93623e8c6d60a8ee3ef2f5b52f75922e1640895bd91c8e3e9adbdf09fd"
+  },
+  {
+   "artifact": "prior_g3_review_6",
+   "path": "critics/G3-6-review.json",
+   "version": "v6",
+   "sha256": "42df7fb5adc3f1afcdf4a2163516e8c82c237337dda4c5e6b918b08dd5eb0b28"
+  },
+  {
+   "artifact": "prior_g3_review_7",
+   "path": "critics/G3-7-review.json",
+   "version": "v7",
+   "sha256": "0b5cbf2c264180b7249b3c0a0e155f689fd86a2d25d907ecc69b16cfa33ed963"
+  },
+  {
+   "artifact": "prior_g3_review_8",
+   "path": "critics/G3-8-review.json",
+   "version": "v8",
+   "sha256": "7bfd2b5c99ad7a89376131c5a0bbc2f1f747cedac0cb3d11d2fbf4118bd7879b"
+  },
+  {
+   "artifact": "prior_g3_review_9",
+   "path": "critics/G3-9-review.json",
+   "version": "v9",
+   "sha256": "a2bbfc9dd60b1b38ff672eefe24bea4660b310f494aec713ad17caf02f5144c4"
+  },
+  {
+   "artifact": "user_decision_004",
+   "path": "sources/intent/004.md",
+   "version": "004",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "user_decision_005",
+   "path": "sources/intent/005.md",
+   "version": "005",
+   "sha256": "937a7a0291844f07e483afcbac4bd64a2af3a5d5183304b9d3ac349904704b3a"
+  },
+  {
+   "artifact": "user_decision_006",
+   "path": "sources/intent/006.md",
+   "version": "006",
+   "sha256": "6c8e83bb47d150428dc5499147fbfa014a77c66d4974ca39cdb8544ec7edf8a4"
+  },
+  {
+   "artifact": "user_decision_007",
+   "path": "sources/intent/007.md",
+   "version": "007",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "user_decision_008",
+   "path": "sources/intent/008.md",
+   "version": "008",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v13/prototype-coverage.json",
+   "version": "v13",
+   "sha256": "da40129fb3a75e0a8ef128745e7ddc8cf6f4602970de54b19dd64f5f8a91aa84"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v13/index.html",
+   "version": "v13",
+   "sha256": "322b74ba9a367ffc03e36f65d9e5ca0f1432c677ba133731d5a97a7ccc3d3fac"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v13/selftest-result.json",
+   "version": "v13",
+   "sha256": "3134a2e3a40e525b3edb80d584b89e7f8a9e3edb200bae609815ef54e011389e"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v13/mutation-check.json",
+   "version": "v13",
+   "sha256": "978c2e984963a5de4567b9ac93ba3a4e8f32b020e763ed4e9a09299d635f78d9"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v13/structure-check.json",
+   "version": "v13",
+   "sha256": "e8c4f3b2e9e6600e82a14e3ce202320d3c4fd49e67b1cdf7bbd0e9ccce5c4acc"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v13/axes.json",
+   "version": "v13",
+   "sha256": "fa502881723af347dea5b1c6e5462b0ba5f1cd02dad03c383a31b6945c9c5ca0"
+  },
+  {
+   "artifact": "subject_bundle_control_audit",
+   "path": "verification/g3-v13/control-audit.json",
+   "version": "v13",
+   "sha256": "7871dc8dc70f883e5899b053636e29d514143caac25b604e8ee7b93eed4eeed0"
+  },
+  {
+   "artifact": "prior_g3_review_10",
+   "path": "critics/G3-10-review.json",
+   "version": "v10",
+   "sha256": "fd5838c51720cba83ae1e2fadb7899d698415c8ad3f74fb2f0c74e37f2769754"
+  },
+  {
+   "artifact": "prior_g3_review_11",
+   "path": "critics/G3-11-review.json",
+   "version": "v11",
+   "sha256": "fb9851c1e306fd5ab3fdead04acf2643f7320516bef9d783b61212955fbf0857"
+  },
+  {
+   "artifact": "user_decision_009",
+   "path": "sources/intent/009.md",
+   "version": "009",
+   "sha256": "434eab487342cc79d5c625c63470606f7b592151fe3ab7093eecc9059681e13c"
+  },
+  {
+   "artifact": "prior_g3_review_12",
+   "path": "critics/G3-12-review.json",
+   "version": "v12",
+   "sha256": "83aa8d9878f4a2db8b087d80bfe350e41406f4829f01a4e93ff3af13f405ddbe"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "확인한 핵심 사실이다. ① G3-12 ISS-001은 해소됐다. index.html 237행 go()의 점검 화면 선택은 ss.n과 관계없이 d.g===\"B\"를 승인 기록보다 먼저 판정해 T06:b_precheck를 연다. 240행 조치도 d.g===\"B\"면 승인과 관계없이 T08:checklist_b를 연다. d.g는 decide()(224 · 229행)가 지금 등급 grade()로 채운다. 266~267행 patchCheck가 .act.pre에 그 절 목록 또는 EN.common_pre를 넣는다. selftest CTL-18(642~646행)은 toCall → 승인 4.4 → 확인 불가 → 4.6 → setGrade('4.4','B')(433행, 올림 경고를 거쳐 저장) → 4.6 정상 → check:4.4 · g B · T06:b_precheck · '공통 시작 전 확인' · 결과 버튼과 결과 보내기 잠김 → 모두 확인하면 열림을 판정한다. selftest-result.json 479~482행이 pass이고, mutation-check.json X-15(741~752행, 배정 CTL-18)가 detected다. slice 315행 승인 범위 문장에 'B로 바뀌면 승인 기록과 관계없이 시작 전 체크리스트가 먼저(AC-43 · A11 · CTL-18)'가 적혔다. ② G3-12 비차단 의견이 모두 반영됐다. patchL03(284~286행)의 연결 표에 '근거 사례'가 들어갔고, 고친 '설비 · 알람'은 검토 제목(.wg .cd-h b)에 잇는다. slice 314행은 '고치지 않은 행은 승인 화면 값 그대로'로 고쳤다. prototype-coverage AC-02 partial(65 · 95행)은 D 부분을 CTL-17로 확인한다고 고쳤다. slice 315행 끝에 R13 '점검 시작' 설명이 있다. ③ 회귀는 없다. CTL-16 · 17, AC-11 · 43, X-12~14가 그대로 pass · detected이고, structure-check는 마크업 53/58 · Region 199 · t15_window_skeleton 5종 pass · 넘침 27 화면 overflow {}다. ④ 숫자가 서로 맞는다. selftest는 criteria 20(나머지 deferred 23) · 화면 조건 14(2 · 2 · 2 · 3 · 4 · 1) · controls 17(CTL-01 · 03~18)이다. 상호작용 축은 14개다. control-audit은 scenario_count 148(목록 148행)이고, summary 합은 178+1785+100+896+383+17+88+203=3650이다. mismatch는 [] · nosample 152 · NOOP 100 · panel_closed 203이다. 음성 시험은 40개 모두 detected이고 W-1 2 · W-2 40 · U-6 DEAD 92 · V-8 7 · V-2 90 · X-2 DEAD 173 · X-1 ERROR 19다. 모두 slice 359~366행과 같다.",
+  "[추적 문서 정합 의견] 승인 뒤 B가 된 점검의 시작 전 확인은 AC-43-C1('B등급 점검 지시에서 … 잠겨 있다')의 한 경우다. 그런데 prototype-coverage.json AC-43 assertion(860행)과 slice AC-43 행(411행)의 음성 시험 목록에는 CTL-18 · X-15가 없고, CTL 목록(slice 361행)과 mutation-check에만 있다. 판별 증거는 있으므로 차단은 아니다. 다만 PBC 인계 때 AC-43 근거에서 바로 찾을 수 있도록 AC-43 assertion에 'CTL-18(승인 뒤 B) · X-15'를 한 줄 더하기를 권한다.",
+  "[승인 범위 · 도구 메모] slice 315행의 R13 설명은 점검 '점검 시작'만 다룬다. 132행 '시작'은 조치 호출의 '조치 시작'에도 같은 방식으로 쓰인다. 호출 때 등급(d.g)으로 go()를 부르므로, 답 저장 뒤 시작 전에 조치 절이 B로 바뀌어도 T08:action_a가 열린다. 승인 R13('이미 열린 호출 화면은 그대로')으로 설명되는 동작이다. 그래도 조치에도 같은 규칙이 적용된다는 점을 Gate Brief나 slice에 한 줄 밝히고, Human Gate에서 사용자가 이 해석을 확인하기를 권한다. 검토 도구 제약이다. 이 환경에는 Grep · Glob이 없었고, 지시대로 Bash 없이 Read(offset/limit)만 썼다. 그래서 파일 sha256은 다시 계산하지 못했다. 대신 selftest · mutation · control-audit의 prototype_sha256이 bundle 값(322b74…)과 같은지 확인했다. 긴 template 줄과 X-15 결함 복사본 코드(scratch 생성기)는 직접 보지 못했다. .act.pre 존재 · '공통 시작 전 확인' 표시와 X-15 판별은 CTL-18 selftest 출력과 mutation-check.json으로 간접 확인했다."
+ ]
+}

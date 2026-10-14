@@ -1,0 +1,109 @@
+{
+ "gate": "G0",
+ "attempt": 3,
+ "cycle": 3,
+ "subject": {
+  "artifact": "evidence_pack",
+  "path": "evidence-pack-v5.md",
+  "version": "v5",
+  "sha256": "d77aa3cf9a2c20041e045f5774d96b1d3f23ded93cdf76a7665ca56c40f38ea0"
+ },
+ "input_bundle": {
+  "path": "critics/G0-5-input.json",
+  "sha256": "326f73d247e73e6526ee7e173f162120c777c6bc1967fa20354f2b10804b8d0c"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "context_packet",
+   "path": "context-packet-v5.md",
+   "version": "v5",
+   "sha256": "b2222ea9a0cec3c7d9d0e315f8b1cfbf7f514cc34e579028c8f6b55d5c8c31d5"
+  },
+  {
+   "artifact": "source_manifest",
+   "path": "source-manifest.json",
+   "version": "v4",
+   "sha256": "abf8539ed772a4312350a0f91ce573d06bf071d9c506c6034cb24ddfc17da26d"
+  },
+  {
+   "artifact": "prior_evidence_pack",
+   "path": "evidence-pack-v4.md",
+   "version": "v4",
+   "sha256": "3f9aaeb42dc50c95db8957faeb8c0ae852a617da7d0c039337ede2bbca892324"
+  },
+  {
+   "artifact": "task_evidence_T01",
+   "path": "sources/task/T01-user-guide-text.txt",
+   "version": "f73c240",
+   "sha256": "ba5432ebdc070ff5017f7670ba2d17972b71cfff1a56f36ca2a4026f1a4fdd7b"
+  },
+  {
+   "artifact": "task_evidence_T02",
+   "path": "sources/task/T02-manual_sections.json",
+   "version": "f73c240",
+   "sha256": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598"
+  },
+  {
+   "artifact": "task_evidence_T03",
+   "path": "sources/task/T03-data-manifest.json",
+   "version": "f73c240",
+   "sha256": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d"
+  },
+  {
+   "artifact": "task_evidence_T04",
+   "path": "sources/task/T04-alarm_rules.json",
+   "version": "f73c240",
+   "sha256": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
+  },
+  {
+   "artifact": "task_evidence_T05",
+   "path": "sources/task/T05-eval-cards-README.md",
+   "version": "f73c240",
+   "sha256": "31b6110b58ef6a2c017dfe80b6f0a25ce709ebe89451b07229f3d9c152d13f10"
+  },
+  {
+   "artifact": "task_evidence_T06",
+   "path": "sources/task/T06-architecture-text.txt",
+   "version": "f73c240",
+   "sha256": "0e39003fe9da03b755effdde3e77beb83e90e1b17faedbd77848567f701778ca"
+  },
+  {
+   "artifact": "intent_007",
+   "path": "sources/intent/007.md",
+   "version": "2026-10-12",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "intent_004",
+   "path": "sources/intent/004.md",
+   "version": "2026-10-11",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "intent_008",
+   "path": "sources/intent/008.md",
+   "version": "2026-10-12",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g0_review",
+   "path": "critics/G0-3-review.json",
+   "version": "v3",
+   "sha256": "825c8805969dbcd3c2196b4349470d9d0933baf2544a904398db3f7fa601edf6"
+  },
+  {
+   "artifact": "prior_g0_review_2",
+   "path": "critics/G0-4-review.json",
+   "version": "v4",
+   "sha256": "299820e70ce7dadafa25d955adcbbf1c15127d6b92f7c000707bf88f2d7045cc"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "B 점검에서 확인 전에 무엇이 보이는지가 source마다 조금 다르다. 008 2장 선택지 설명은 '지시 앞에 안전 확인 목록을 보이고, 모두 확인해야 결과 입력이 열린다'이고, 002 R2와 Evidence Pack의 등급 의미 줄은 'B 체크리스트 확인 뒤 지시'다. v5 EV-066 · Actors 행은 008을 따라 '확인 뒤 결과 입력이 열린다'로 적었다. 제품 의미가 바뀌지는 않지만, G1 AC를 쓸 때 B 점검의 절차 본문을 확인 전에 보일지 확인 뒤에 보일지 관찰 지점을 하나로 정해 두면 R2와 어긋나지 않는다.",
+  "EV-066의 6.1 출처는 '작업자 대피 확인'만 들었다. 그러나 T02 6.1의 시작 전 체크리스트에는 '주변 공구·이물질 치움'과 '냉각 커버 고정 확인'도 있고, 둘은 공통 목록의 주변 정리 · 커버 항목과 뜻이 같다. 지금 적은 출처가 틀린 것은 아니다(2.5 · 5.5 인용과 '2.5와 5.5에 함께 나오는 것은 커버 하나뿐'은 T02 원문과 맞다). 다만 PBC · 구현에서 공통 목록 데이터를 만들 때 6.1의 이 두 항목도 근거로 적어 두면 대조하기가 더 쉽다.",
+  "context-packet-v5에서 004 · 007 · 008 블록은 각자의 intent-source 주석 바로 아래에 snapshot 원문과 같은 줄로 끊김 없이 들어 있다. 008은 007이 끝난 뒤 따로 시작해 007 안에 끼어 있지 않다. 001 · 002 · 003 블록도 다른 source 주석이 사이에 끼지 않고 처음부터 끝까지 이어진다(001: 방향 축~change_note, 002: 0장~부록 D19, 003: 1~4장). 다만 001~003 snapshot 파일은 이번 bundle에 없어 원문을 줄 단위로 대조하지 못했다. 이 세 블록이 snapshot과 같은지는 validator의 sha256 대조로 확인해야 한다."
+ ]
+}

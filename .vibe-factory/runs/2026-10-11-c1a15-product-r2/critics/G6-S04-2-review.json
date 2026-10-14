@@ -1,0 +1,66 @@
+{
+ "gate": "G6",
+ "slice_id": "S-04",
+ "attempt": 2,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-04/verification-report.json",
+  "version": "v2",
+  "sha256": "3cbac3c5d2765abef1172f521ecac80810b19b20d0f5139d6e34c794e44f4195"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S04-2-input.json",
+  "sha256": "cb52b8d35136c1f5e2031508af0254c2e2f7204c337389f26629690f269a2525"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-04/history/slice-execution-packet-v2.json",
+   "version": "v2",
+   "sha256": "46bfe442af4eca4ab3ec994ea4aba118177b42da8744ed851882672f2bd7bc1b"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-04/history/implementation-contract-v1.md",
+   "version": "v1",
+   "sha256": "f923a5aff0f960657dc289c6d7a68ce89ab3b93dc049bdeaa49bc3fcb8414077"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-04/history/execution-ledger-v2.json",
+   "version": "v2",
+   "sha256": "14721d1bb63ad3cb8a5ff98d963bfc61fce7bf3b7455626eb92d2726a68c68ee"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-04/verification-report.json",
+   "version": "v2",
+   "sha256": "3cbac3c5d2765abef1172f521ecac80810b19b20d0f5139d6e34c794e44f4195"
+  }
+ ],
+ "prior_blocking_resolution": [
+  {
+   "id": "B1",
+   "resolved": true,
+   "evidence": "사용자 결정 B1('L1로 고치고 G7 amendment')과 추가 질문('다음 알람 + 기록 API로')대로 처리됐다. ledger UF-S04-01은 impact L1 · recheck_result amendment_required이고, affected 항목에 AC-09-C1 · P-13 verifier ② · Matrix AC-09 L3를 적었다. report AC-09는 result fail이며 'Matrix L3 다음 같은 증상군 알람의 진단 과거 기록 후보에 다시 읽힘은 충족되지 않음'을 명시하고, L2 판정은 결정 018 ⑥ 해석(packet 밖)이라고 밝혔다. L2 시험 server/tests/test_lead.py r3_positions는 서버 경로 그대로 BM25 메모리 색인과 DB vector_ranks를 RRF로 합친다. 승인 전 (None, None, None)을 확인하고, 승인 뒤 BM25 ≤ 5 · pgvector 순위 · 합친 순위가 None이 아님을 확인한다. 승인 전 대조가 있으므로 색인 추가에 대한 판별력이 생겼다. e2e/tests/cross.spec.ts:34 첫 시험은 승인 뒤 DEMO-01 다음 알람의 진단 화면까지 간다. 세션 similar_cards(H-0248 · H-0295 · H-0262)에 R-0001이 없음을 단언 · 첨부하고(e2e-report next-alarm-cards, T04-next_alarm-after_approve.png 화면과 일치), /api/records/R-0001이 200 · source approved_report임을 확인한다. P-13 verifier_result fail은 l0_decisions에서 verifier ②에만 묶였다."
+  },
+  {
+   "id": "B2",
+   "resolved": true,
+   "evidence": "(a) AC-29: cross.spec.ts:235 시험은 toFirstCheck의 before 단계(진단 보기 전)에서 score 시뮬레이션을 넣고 checkpoint를 지운다. 그다음 진단 화면에서 '.banner.warn b = 근거 적음'을 확인한다(T04-low_evidence.png에 순위 머리 칩 · 배너 · '비슷한 과거 기록 2건'이 보임). 이어 ins-h 지시와 API low_evidence true · step instruct, 보고서 근거 사례 줄 칩 '근거 적음'(T09-low_evidence.png), 파트장 행 tr.low 칩을 차례로 확인한다. 시뮬레이션은 score ≥ 0.5를 2건으로 만들므로 배너 단언에 판별력이 있다. 순위 머리 칩은 단언하지 않고 캡처로만 남았다. (b) AC-25-C4: cross.spec.ts:152 시험은 열린 지시의 절 4.3을 A → C로 올리고 변경 기록 'A → C' 2건을 확인한다. 새로고침 뒤 .ins-h innerText(제목 · GradeBadge · 절 · 분)가 바꾸기 전과 같은지 비교한다. T06-open_after_grade_change.png는 A 단독 가능 그대로다. 서버가 현재 등급으로 다시 그리면 실패하므로 판별력이 있다. 증거 verify-e2e.txt는 21 passed · exit 0이고, e2e-report 21개 시험의 external-requests는 모두 []다. verify-e2e는 cross.spec.ts(22:35) · tech-s03.spec.ts(22:45) 수정 뒤인 22:46에 실행됐다."
+  },
+  {
+   "id": "B3",
+   "resolved": true,
+   "evidence": "부록 v2(appendix.json fc6bc2a4…)에 T10--ans_direct(453838…) · T11--unable_repeat(a51cde…)가 added v2로 들어갔고, 재계산한 sha256이 23개 template 전부와 맞는다. regions.json은 v1 58개를 그대로 두고 8영역(T10/ans_direct 4 · T11/unable_repeat 4)만 더했다(집합 비교, 삭제 0). derived_states는 결정 018 ③(직접 확인 답 뒤 note 자리에 '보고서 작성')과 ④ · 7 정정(T11 같은 틀, 보내기 버튼 자리만 보냄 배너 · 답 대기 안내, 점검 경로 카드 유지)에 맞는다. structure-classify.py의 X_STATES는 X-1을 T10--ans_direct에만, X-2를 T11--handover_sent에만 건다. 실제로 X-1은 T10/ans_direct R-CALLACT('- note', '+ btn.full.lg', '+ svg file-text')에만, X-2는 T11/handover_sent R-STOP(banner.info · send · 그 자식 div · b, '- warnb' · phone-call)에만 붙었다. 같은 영역의 T10/sent · ans_approved R-CALLACT는 match다. templates/와 structure-dom/을 별도 파서로 다시 대조해도 체크리스트의 diff와 같다. 집계는 일치 37 · 차이 28 · slice 밖 3 · base_only 4 · 미분류 0이고, report AC-17 · gate-applicability의 62 + 파생 6 = 68과 맞는다."
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "기록 정리(G7 판단에는 영향 없음): (1) ledger scope_notes 'P-17로 넘기는 일'에 '이 slice 60영역'이 남아 있다(지금은 68영역). (2) appendix.json note에 v2 문장이 두 번 들어갔다. (3) packet lead_value_definitions ④는 아직 'T10 / sent 구조'라고 적혀 있다(7 정정은 execution_interpretations[7]에만 있음). structure-dom-capture.mjs:56 주석도 같다. (4) implementation-contract.md는 packet v1 sha(98def…)를 가리킨다. (5) report AC-26은 확인 질문 답 감사를 'S-02 · S-03 시험 그대로'라고 적었다. 그러나 이번에 더한 test_lead_audit_records_review_call_and_grade가 '확인 질문 답 · 아니요' 문구와 날짜 필터 일치(오늘 · 전날)를 직접 확인하므로, 그 시험을 근거로 적는 편이 정확하다. (6) P-13 gate ac_verifier는 pass인데 verifier_result는 fail이다. gate-applicability ac_verifier 행에도 'verifier ②는 화면 미충족'을 한 줄 적어 두면 읽는 사람이 헷갈리지 않는다.",
+  "cross.spec.ts:34의 `expect(cards).not.toContain(hid)`는 미충족 상태를 단언으로 고정한다. G7 amendment 뒤 데이터 · 임베딩(live)이 바뀌어 R-번호가 카드에 들어오면 바람직한 변화인데도 시험이 실패한다. 단언 대신 기록(attach)만 남기는 것을 G7 뒤에 검토할 만하다. 시험 제목도 'AC-09(SC-33)'을 통과 시험처럼 적고 있다.",
+  "AC-09 L2의 pgvector '순위'(vector_ranks limit 300)는 사실상 같은 증상군 pool 전체를 돌려준다. 그래서 판별력은 승인 전 None → 승인 뒤 포함이라는 대조에서만 나오고, 순위 값 자체는 증거에 남지 않는다. G7 amendment 문구 '검색 대상에 들어 순위가 매겨짐'을 정할 때 이 한계를 함께 적어 두면 좋다. 그리고 deps.conn after_commit은 코드상 예외 시(endpoint 예외 · commit 실패) hook을 건너뛰고 finally에서 info를 비워 다른 경로에 부작용이 없다. 다만 '승인 뒤 실패하면 색인에 남지 않음'을 직접 확인하는 시험은 없다."
+ ]
+}

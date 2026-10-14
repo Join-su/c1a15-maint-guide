@@ -1,0 +1,68 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "evidence_pack",
+ "version": "v6",
+ "status": "draft",
+ "supersedes": "v5",
+ "contents": [
+  {
+   "role": "evidence_pack",
+   "path": "evidence-pack-v6.md",
+   "sha256": "0c8d490f026080a335e2f387e6adf9a724291520c5a65adcffad1e3a2d85439b"
+  }
+ ],
+ "sources": [
+  {
+   "path": "context-packet-v6.md",
+   "reason": "G0 Context Packet v6"
+  },
+  {
+   "path": "source-manifest.json",
+   "reason": "선택 · 제외 source 목록"
+  },
+  {
+   "path": "sources/task/T01-user-guide-text.txt",
+   "reason": "화면·흐름 기준(D1), 글자 추출본"
+  },
+  {
+   "path": "sources/task/T02-manual_sections.json",
+   "reason": "매뉴얼 절 구조·등급·소요 분"
+  },
+  {
+   "path": "sources/task/T03-data-manifest.json",
+   "reason": "데이터 출처·이력 분포"
+  },
+  {
+   "path": "sources/task/T04-alarm_rules.json",
+   "reason": "알람 경계·배치 규칙"
+  },
+  {
+   "path": "sources/task/T05-eval-cards-README.md",
+   "reason": "평가 카드 존재·작성 방식(정답 내용 제외)"
+  },
+  {
+   "path": "sources/task/T06-architecture-text.txt",
+   "reason": "구성 요소 연결(DB 표기는 D2로 대체), 글자 추출본"
+  },
+  {
+   "path": "sources/intent/007.md",
+   "reason": "사용자 결정 007"
+  },
+  {
+   "path": "sources/intent/008.md",
+   "reason": "Q-05 사용자 답"
+  },
+  {
+   "path": "sources/intent/010.md",
+   "reason": "사용자 결정 010"
+  },
+  {
+   "path": "evidence-pack-v5.md",
+   "reason": "이전 판(pass, 007 · 008 반영)"
+  },
+  {
+   "path": "critics/G0-5-review.json",
+   "reason": "v5 pass · 비차단 3건"
+  }
+ ]
+}

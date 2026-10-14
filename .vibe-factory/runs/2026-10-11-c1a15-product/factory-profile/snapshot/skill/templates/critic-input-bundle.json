@@ -1,0 +1,7 @@
+{
+  "gate": "G0 | G1 | G3 | PBC-4 | G6",
+  "subject": {"artifact": "{{result under review}}", "path": "{{run-relative path}}", "version": "{{version}}", "sha256": "{{SHA-256}}"},
+  "comparison_sources": [
+    {"artifact": "{{declared comparison source}}", "path": "{{run-relative path}}", "version": "{{version or n/a}}", "sha256": "{{SHA-256}}"}
+  ]
+}

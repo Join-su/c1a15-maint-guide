@@ -1,0 +1,256 @@
+{
+ "run_at": "2026-10-11T21:39:23+09:00",
+ "command": "Chrome headless --dump-dom prototype/index.html?selftest=1",
+ "prototype_sha256": "7832b4431ced43415263567625d83ce395d99e0f2380e04faca66fcc87b6e184",
+ "criteria": {
+  "AC-07": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-07-C1",
+     "pass": true,
+     "observed": "확정 전 확인 실패 시 실패 항목 표시 · 확정 버튼 잠김"
+    },
+    {
+     "id": "AC-07-C2",
+     "pass": true,
+     "observed": "통과 후 확정 → 파트장 승인 대기 목록에 M-03"
+    }
+   ]
+  },
+  "AC-08": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-08-C1",
+     "pass": true,
+     "observed": "답 전: 4.4 지시 없음"
+    },
+    {
+     "id": "AC-08-C2",
+     "pass": true,
+     "observed": "승인 후 진행 뒤: 4.4 지시와 승인자 · 시각"
+    }
+   ]
+  },
+  "AC-11": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-11-C1",
+     "pass": true,
+     "observed": "반려 사유가 정비자 앱 최근 보고서에"
+    },
+    {
+     "id": "AC-11-C2",
+     "pass": true,
+     "observed": "다시 확정 → 승인 대기"
+    }
+   ]
+  },
+  "AC-12": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-12-C1",
+     "pass": true,
+     "observed": "정비자 앱 · 파트장 계정 거부"
+    },
+    {
+     "id": "AC-12-C2",
+     "pass": true,
+     "observed": "파트장 앱 · 정비자 계정 거부"
+    },
+    {
+     "id": "AC-12-C3",
+     "pass": true,
+     "observed": "역할이 맞으면 로그인"
+    }
+   ]
+  },
+  "AC-17": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-17-C1",
+     "pass": true,
+     "observed": "Region 158/158 발견"
+    },
+    {
+     "id": "AC-17-C2",
+     "pass": true,
+     "observed": "T04 값이 sample(data/ 계산)과 같음: 32·31·23·14%, H-0299"
+    }
+   ]
+  },
+  "AC-21": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-21-C1",
+     "pass": true,
+     "observed": "미확인이면 잠김, 모두 확인하면 열림"
+    },
+    {
+     "id": "AC-21-C2",
+     "pass": true,
+     "observed": "재가동 후 현재 값 9.1 K · 경계 8.3 K"
+    },
+    {
+     "id": "AC-21-C3",
+     "pass": true,
+     "observed": "여전히 밖 → 숙련자 인계 · 원인 미상"
+    }
+   ]
+  },
+  "AC-22": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-22-C1",
+     "pass": true,
+     "observed": "감시 마감 6.2 기록 · 확정 원인 이상 없음 · 감시"
+    }
+   ]
+  },
+  "AC-24": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-24-C1",
+     "pass": true,
+     "observed": "사유가 비면 저장 잠김, 입력하면 열림"
+    }
+   ]
+  },
+  "AC-27": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-27-C1",
+     "pass": true,
+     "observed": "타일 = 실제 건수(2/1/0, 행 2)"
+    },
+    {
+     "id": "AC-27-C2",
+     "pass": true,
+     "observed": "행 항목 머리 6개"
+    },
+    {
+     "id": "AC-27-C3",
+     "pass": true,
+     "observed": "모두 처리하면 빈 목록"
+    }
+   ]
+  },
+  "AC-29": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-29-C1",
+     "pass": true,
+     "observed": "진단 화면 근거 적음"
+    },
+    {
+     "id": "AC-29-C2",
+     "pass": true,
+     "observed": "보고서 근거 적음(파생 상태 T09 / low_evidence)"
+    },
+    {
+     "id": "AC-29-C3",
+     "pass": true,
+     "observed": "파트장 목록 행 근거 적음"
+    },
+    {
+     "id": "AC-29-C4",
+     "pass": true,
+     "observed": "다음 점검 지시 그대로"
+    }
+   ]
+  },
+  "AC-30": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-30-C1",
+     "pass": true,
+     "observed": "파트장 호출 목록에 M-03 없음"
+    },
+    {
+     "id": "AC-30-C2",
+     "pass": true,
+     "observed": "세션 대기"
+    }
+   ]
+  },
+  "AC-31": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-31-C1",
+     "pass": true,
+     "observed": "원문 대체 표시 · 다음 단계 진행"
+    },
+    {
+     "id": "AC-31-C2",
+     "pass": true,
+     "observed": "3회 연속 실패 → 숙련자 인계 권함"
+    }
+   ]
+  },
+  "AC-32": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-32-C1",
+     "pass": true,
+     "observed": "A 조치 완료 시각"
+    },
+    {
+     "id": "AC-32-C2",
+     "pass": true,
+     "observed": "B 체크리스트 전부 확인해야 진행 버튼 열림"
+    }
+   ]
+  },
+  "AC-33": {
+   "pass": true,
+   "conditions": [
+    {
+     "id": "AC-33-C1",
+     "pass": true,
+     "observed": "확정 뒤 연필 없음 · 수정 동작 없음"
+    }
+   ]
+  }
+ },
+ "axes": {
+  "result_button": {
+   "values": [
+    "이상",
+    "정상",
+    "확인 불가"
+   ],
+   "observed": [
+    "T08:action_a",
+    "T06:second_check",
+    "T06:unable_next"
+   ],
+   "distinct": true
+  },
+  "review_decision": {
+   "values": [
+    "그대로 승인",
+    "수정 후 승인",
+    "반려"
+   ],
+   "observed": [
+    "L03:review|그대로 승인",
+    "L03:edit|수정 후 승인",
+    "L03:reject|반려"
+   ],
+   "distinct": true
+  }
+ },
+ "regions": 158
+}

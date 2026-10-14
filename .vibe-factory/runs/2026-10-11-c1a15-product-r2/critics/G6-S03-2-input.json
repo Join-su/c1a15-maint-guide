@@ -1,0 +1,107 @@
+{
+ "gate": "G6",
+ "slice_id": "S-03",
+ "attempt": 2,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-03/history/verification-report-v2.json",
+  "version": "v2",
+  "sha256": "1471609f5c2f5ca8d56449c3668a9dbca57325d904e7d61600a3d139bf67dfad"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-03/history/slice-execution-packet-v1.json",
+   "version": "v1",
+   "sha256": "a8f1658bc7173a114283202a44682a30e77aa68596148e561da8a80474714b37"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-03/history/implementation-contract-v1.md",
+   "version": "v1",
+   "sha256": "bede853e78e67ff5a3aa1f40c9462dbdc2b07e37fa305e88626d42ff6107fac4"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-03/history/execution-ledger-v2.json",
+   "version": "v2",
+   "sha256": "8f5242995d4a8b40bc497690296706e874f75e4f55ff70e369457ea5b6865e95"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-03/history/verification-report-v2.json",
+   "version": "v2",
+   "sha256": "1471609f5c2f5ca8d56449c3668a9dbca57325d904e7d61600a3d139bf67dfad"
+  }
+ ],
+ "prior_review": {
+  "path": "critics/G6-S03-review.json",
+  "sha256": "8dbc3c79f331141dee8ef1d1f24af2338b19d447ffe11d4a8e07e594cd7cdbca"
+ },
+ "supporting_records": [
+  {
+   "path": "execution/S-03/history/g6-revise-decision-v1.md",
+   "sha256": "ece80ab41299792ce7cd634320483e0f431debb073c9ff9b7eb015ec506ceb89"
+  },
+  {
+   "path": "execution/S-03/history/execution-ledger-v1.json",
+   "sha256": "ce41222cf025c66dd30d9902bb863bbb7318b0045353ef7658d095d2385894c7"
+  },
+  {
+   "path": "execution/S-03/history/verification-report-v1.json",
+   "sha256": "5f6bfe8f357bdd5d67415e1333a792ca1dd85a0800446955db625854d3485166"
+  },
+  {
+   "path": "execution/S-03/history/baseline-revalidation-v1.json",
+   "sha256": "bbba3cb469f643856bd5aa44ee13fecbfa339b4fba92704c817830763b675756"
+  },
+  {
+   "path": "execution/S-03/history/decision-016.md",
+   "sha256": "e047c941c6eab46dcca8cb94f29b8ad6a62fa75ef5ff440bbbeec9dbd3f93a9a"
+  },
+  {
+   "path": "sources/intent/015.md",
+   "sha256": "13e5b075fe70eca6a28fc9ea2bb47e68b2a5a985fe5a2e2894c1293418b807c1"
+  },
+  {
+   "path": "execution/S-03/evidence/gate-applicability.md",
+   "sha256": "7a6664f6586c761d112913a8bce101827afafe3db90e3bf62955d7f353382e52"
+  },
+  {
+   "path": "execution/S-03/evidence/prototype-reread-check.json",
+   "sha256": "041c67dbe3cc04c682645ed4e2d2f848b86c8c1f367e3afad434a354f0165082"
+  },
+  {
+   "path": "execution/S-03/evidence/prototype-structure-checklist.json",
+   "sha256": "d024cac3adb7025e9bb792d6619976895b99fa3e3f8dd3370e3afab0caecf1ab"
+  },
+  {
+   "path": "execution/S-03/evidence/hash-changes.json",
+   "sha256": "d8ca1462a80d820623d1cd232112e5bc270a21fc352b025c0410d0f805ac3427"
+  },
+  {
+   "path": "execution/S-03/evidence/evidence-secret-check.txt",
+   "sha256": "01d57213e003ae3b7996d4c7dc8f494feba9220a625bfc5d4a7563d60b99d4d8"
+  },
+  {
+   "path": "execution/S-03/evidence/secret-check-fault-injection.txt",
+   "sha256": "f2fcfaade096e57d14a292c816f40b92abcf7a5d5f720a1188d0ec36eee71161"
+  },
+  {
+   "path": "execution/S-03/evidence/check-fast.txt",
+   "sha256": "4d9b7d178930d8dcc5f760955e2180da710e16c12b52f494649e39cfd155af9c"
+  },
+  {
+   "path": "execution/S-03/evidence/verify-db.txt",
+   "sha256": "318080a0532ddd1d82790cdc2f4530bb903c83954f8be37ff6d53959e50e1549"
+  },
+  {
+   "path": "execution/S-03/evidence/verify-e2e.txt",
+   "sha256": "e0203419168b98d49923bd690c94230f80361de93a038f3c3102b4970e15fe4d"
+  },
+  {
+   "path": "execution/S-03/evidence/e2e-report.json",
+   "sha256": "2fa71befb83f8393bbeef52ca6fa606aae8a68ce36d33d454409afc3f8995d71"
+  }
+ ]
+}

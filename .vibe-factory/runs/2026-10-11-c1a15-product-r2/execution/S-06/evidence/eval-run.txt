@@ -1,0 +1,73 @@
+ Image c1a15-eval-init Building 
+ Image c1a15-eval-api Building 
+ Image c1a15-eval-init Built 
+ Image c1a15-eval-api Built 
+ Network c1a15-eval_default Creating 
+ Network c1a15-eval_default Created 
+ Container c1a15-eval-db-1 Creating 
+ Container c1a15-eval-db-1 Created 
+ Container c1a15-eval-init-1 Creating 
+ Container c1a15-eval-init-1 Created 
+ Container c1a15-eval-api-1 Creating 
+ Container c1a15-eval-api-1 Created 
+ Container c1a15-eval-web-1 Creating 
+ Container c1a15-eval-web-1 Created 
+ Container c1a15-eval-db-1 Starting 
+ Container c1a15-eval-db-1 Started 
+ Container c1a15-eval-db-1 Waiting 
+ Container c1a15-eval-db-1 Healthy 
+ Container c1a15-eval-init-1 Starting 
+ Container c1a15-eval-init-1 Started 
+ Container c1a15-eval-init-1 Waiting 
+ Container c1a15-eval-init-1 Exited 
+ Container c1a15-eval-api-1 Starting 
+ Container c1a15-eval-api-1 Started 
+ Container c1a15-eval-web-1 Starting 
+ Container c1a15-eval-web-1 Started 
+ Container c1a15-eval-db-1 Waiting 
+ Container c1a15-eval-init-1 Waiting 
+ Container c1a15-eval-api-1 Waiting 
+ Container c1a15-eval-web-1 Waiting 
+ Container c1a15-eval-init-1 Exited 
+ Container c1a15-eval-api-1 Healthy 
+ Container c1a15-eval-web-1 Healthy 
+ Container c1a15-eval-db-1 Healthy 
+EC-01 monitor
+EC-02 confirmed
+EC-03 unknown
+EC-04 confirmed
+EC-05 confirmed
+EC-06 monitor
+EC-07 confirmed
+EC-08 monitor
+EC-09 confirmed
+EC-10 confirmed
+EC-11 monitor
+EC-12 confirmed
+EC-13 confirmed
+EC-14 unknown
+EC-15 confirmed
+EC-16 daytime
+EC-17 confirmed
+EC-18 confirmed
+EC-19 confirmed
+EC-20 confirmed
+EC-21 unknown
+EC-22 confirmed
+EC-23 confirmed
+EC-24 confirmed
+EC-25 daytime
+EC-26 monitor
+EC-27 confirmed
+EC-28 confirmed
+EC-29 daytime
+EC-30 confirmed
+유사 사례 Top-3 포함률: 45.5% (목표 80.0%, 미달)
+원인 Top-3 포함률: 90.9% (목표 80.0%, 달성)
+점검 소요 분 단축률: -6.5% (목표 20.0%, 미달)
+인용 절 일치율: 100.0% (목표 95.0%, 달성)
+날조 원인 수: 0건 (목표 0건, 달성)
+등급 위반 수: 0건 (목표 0건, 달성)
+{"history_rows_before": 300, "history_rows_after": 300, "eval_mode_alarms": 30, "forbidden_open_in_api": 0, "file_watch_active_in_api": true, "history_udi_x_card_udi": 0, "history_udi_count": 300}
+eval-run: done
+exit 0

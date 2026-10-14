@@ -1,0 +1,16 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "batch_evidence_index",
+  "version": "v1",
+  "plan_version": "v1",
+  "scope_plan_item_ids": ["P-01"],
+  "slices": [
+    {
+      "slice_id": "S-01",
+      "plan_item_ids": ["P-01"],
+      "execution_packet": {"path": "implementation/S-01/slice-execution-packet.json", "sha256": ""},
+      "execution_ledger": {"path": "execution/S-01/execution-ledger.json", "sha256": ""},
+      "verification_report": {"path": "verification/S-01/verification-report.json", "sha256": ""}
+    }
+  ]
+}

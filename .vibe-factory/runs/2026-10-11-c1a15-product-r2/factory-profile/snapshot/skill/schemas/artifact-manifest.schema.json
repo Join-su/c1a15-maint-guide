@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Vibe Factory Artifact Manifest",
+  "type": "object",
+  "required": ["run_id", "artifact", "version", "status", "sources"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "artifact": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"enum": ["draft", "critic_passed", "approved", "rejected", "superseded"]},
+    "contents": {"type": "array", "items": {"type": "object", "required": ["role", "path", "sha256"], "properties": {"role": {"type": "string"}, "path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}}},
+    "sources": {"type": "array", "items": {"type": "object", "required": ["path", "reason"], "properties": {"path": {"type": "string"}, "reason": {"type": "string"}, "context_role": {"enum": ["intent", "task_evidence"]}, "content_mode": {"enum": ["full_document", "reference_only"]}, "snapshot_path": {"type": "string"}, "content_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}}}
+  },
+  "additionalProperties": true
+}

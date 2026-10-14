@@ -1,0 +1,21 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "gate": "G2B",
+ "artifact": "visual_design",
+ "artifact_version": "v2",
+ "decision": "approved",
+ "approved_scope": [
+  "direction-guide v2(가이드 시각 언어 + 자동 검사 상태 아이콘 + 새 화면 패널 · 창 규칙) + Craft Review 보정 1회",
+  "방향 수 예외(D17)",
+  "실패 행 문구는 G3에서 결과 문장으로(CO-20)"
+ ],
+ "excluded_scope": [
+  "G2A 구조 변경",
+  "기능 · 권한 · AC 변경"
+ ],
+ "reviewer_note": "사용자 승인(2026-10-11, v2)",
+ "selection_export_path": "",
+ "selected_direction_id": "direction-guide",
+ "selected_visual_rules_path": "wireframes/v2/design/selected-visual-rules.md",
+ "decided_at": "2026-10-11T23:08:46+09:00"
+}

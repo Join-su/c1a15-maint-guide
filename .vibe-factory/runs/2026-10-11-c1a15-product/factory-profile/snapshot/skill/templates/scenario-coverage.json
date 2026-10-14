@@ -1,0 +1,34 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "use_case",
+  "artifact_version": "{{version}}",
+  "feature_id": "{{stable-kebab-case-feature-id}}",
+  "interaction_surface_mode": "single | multiple | non_ui",
+  "ui_surfaces": [],
+  "scenarios": [
+    {
+      "id": "S-01",
+      "feature": "{{feature or user action}}",
+      "type": "happy_path | alternate | failure | cancel | empty_no_result | permission_authority | external_dependency_failure | timeout_expiry",
+      "trigger": "{{what starts it}}",
+      "expected_outcome": "{{observable outcome}}",
+      "use_case_section": "{{heading or step}}",
+      "diagram_ref": "{{node or arrow label in use-case-map.svg}}",
+      "evidence_refs": ["E-01"],
+      "ui_surface_id": null
+    }
+  ],
+  "coverage": {
+    "happy_path": {"status": "covered | not_applicable", "scenario_ids": ["S-01"], "reason": ""},
+    "alternate": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "failure": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "cancel": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "empty_no_result": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "permission_authority": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "external_dependency_failure": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""},
+    "timeout_expiry": {"status": "covered | not_applicable", "scenario_ids": [], "reason": ""}
+  },
+  "handoff_readiness": {
+    "blocking_product_unknowns": []
+  }
+}

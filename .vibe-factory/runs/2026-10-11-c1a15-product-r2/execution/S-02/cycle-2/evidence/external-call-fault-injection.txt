@@ -1,0 +1,11 @@
+baseline: external_call_check: 0 hit(s) exit=0
+py | from urllib3 import PoolManager | exit 1 | EXTERNAL code server/src/c1a15/_inject_tmp.py:1: from urllib3
+py | import http.client | exit 1 | EXTERNAL code server/src/c1a15/_inject_tmp.py:1: import http.client
+py | from socket import create_connection | exit 1 | EXTERNAL code server/src/c1a15/_inject_tmp.py:1: from socket import
+py | import socket | exit 1 | EXTERNAL code server/src/c1a15/_inject_tmp.py:1: import socket
+py | s = socket.create_connection(('x', 80)) | exit 1 | EXTERNAL code server/src/c1a15/_inject_tmp.py:1: socket.create_connection
+ts | new WebSocket('ws://127.0.0.1:1') | exit 1 | EXTERNAL code apps/tech/src/_inject_tmp.ts:1: new WebSocket(
+ts | const x = new XMLHttpRequest(); | exit 1 | EXTERNAL code apps/tech/src/_inject_tmp.ts:1: XMLHttpRequest
+ts | navigator.sendBeacon('/x') | exit 1 | EXTERNAL code apps/tech/src/_inject_tmp.ts:1: navigator.sendBeacon(
+ts | fetch('https://api.openai.com/v1') | exit 1 | EXTERNAL code apps/tech/src/_inject_tmp.ts:1: https://api.openai.com
+after cleanup: external_call_check: 0 hit(s)

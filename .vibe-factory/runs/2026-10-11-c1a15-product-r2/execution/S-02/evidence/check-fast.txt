@@ -1,0 +1,11 @@
+2026-10-13T01:56:53Z
+secret_scan: 0 finding(s)
+forbidden_paths_check: 0 hit(s)
+external_call_check: 0 hit(s)
+{"demo_rows": 10, "history_rows": 300, "eval_card_rows": 30, "demo∩history": [], "demo∩eval_cards": [], "history∩eval_cards": []}
+50 files already formatted
+All checks passed!
+...................................................                      [100%]
+51 passed, 15 deselected in 0.79s
+openapi_check: pass (11 paths)
+check-fast: pass

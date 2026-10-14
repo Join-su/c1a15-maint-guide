@@ -1,0 +1,13 @@
+{
+  "run_id": "{{run_id}}",
+  "artifact": "planning_baseline",
+  "version": "v1",
+  "repository_revision": "{{git sha or unavailable}}",
+  "dependency_revision": "{{lockfile hash or unavailable}}",
+  "environment_facts": [],
+  "recorded_at": "{{ISO-8601 timestamp}}",
+  "revalidate_before_implementation_when": [
+    "repository revision or dependency revision changes",
+    "selected model, framework, or external contract changes"
+  ]
+}

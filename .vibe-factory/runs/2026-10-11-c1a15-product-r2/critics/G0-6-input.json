@@ -1,0 +1,95 @@
+{
+ "gate": "G0",
+ "subject": {
+  "artifact": "evidence_pack",
+  "path": "evidence-pack-v6.md",
+  "version": "v6",
+  "sha256": "0c8d490f026080a335e2f387e6adf9a724291520c5a65adcffad1e3a2d85439b"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "context_packet",
+   "path": "context-packet-v6.md",
+   "version": "v6",
+   "sha256": "abdb79d2404925b78b0f19e2922ae97405f5b32048744f6462a8b62e7fe97368"
+  },
+  {
+   "artifact": "source_manifest",
+   "path": "sources/history/source-manifest-v5.json",
+   "version": "v5",
+   "sha256": "1cbce2a2c8dae13b72e28eca5f0c41c4f9b9457562b83e1a919f60bb78520614"
+  },
+  {
+   "artifact": "prior_evidence_pack",
+   "path": "evidence-pack-v5.md",
+   "version": "v5",
+   "sha256": "d77aa3cf9a2c20041e045f5774d96b1d3f23ded93cdf76a7665ca56c40f38ea0"
+  },
+  {
+   "artifact": "intent_010",
+   "path": "sources/intent/010.md",
+   "version": "2026-10-12",
+   "sha256": "172d7562521c059c0842d861a60c07ce174ae46849c454b059e9343e968b335e"
+  },
+  {
+   "artifact": "task_evidence_T01",
+   "path": "sources/task/T01-user-guide-text.txt",
+   "version": "f73c240",
+   "sha256": "ba5432ebdc070ff5017f7670ba2d17972b71cfff1a56f36ca2a4026f1a4fdd7b"
+  },
+  {
+   "artifact": "task_evidence_T02",
+   "path": "sources/task/T02-manual_sections.json",
+   "version": "f73c240",
+   "sha256": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598"
+  },
+  {
+   "artifact": "task_evidence_T03",
+   "path": "sources/task/T03-data-manifest.json",
+   "version": "f73c240",
+   "sha256": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d"
+  },
+  {
+   "artifact": "task_evidence_T04",
+   "path": "sources/task/T04-alarm_rules.json",
+   "version": "f73c240",
+   "sha256": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
+  },
+  {
+   "artifact": "task_evidence_T05",
+   "path": "sources/task/T05-eval-cards-README.md",
+   "version": "f73c240",
+   "sha256": "31b6110b58ef6a2c017dfe80b6f0a25ce709ebe89451b07229f3d9c152d13f10"
+  },
+  {
+   "artifact": "task_evidence_T06",
+   "path": "sources/task/T06-architecture-text.txt",
+   "version": "f73c240",
+   "sha256": "0e39003fe9da03b755effdde3e77beb83e90e1b17faedbd77848567f701778ca"
+  },
+  {
+   "artifact": "intent_007",
+   "path": "sources/intent/007.md",
+   "version": "2026-10-12",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "intent_004",
+   "path": "sources/intent/004.md",
+   "version": "2026-10-11",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  },
+  {
+   "artifact": "intent_008",
+   "path": "sources/intent/008.md",
+   "version": "2026-10-12",
+   "sha256": "9d7fd8fa9e310f875d18faf012fc6e50f9bb0e70dc926d048ad6bb8d60da9274"
+  },
+  {
+   "artifact": "prior_g0_review",
+   "path": "critics/G0-5-review.json",
+   "version": "v5",
+   "sha256": "110881392e9992e5b15541400325de67eb89ded9d423da426c50602d2976136b"
+  }
+ ]
+}

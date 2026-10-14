@@ -1,0 +1,62 @@
+{
+ "run_id": "2026-10-11-c1a15-product-r2",
+ "artifact": "prebuild_contract",
+ "version": "v9",
+ "status": "approved",
+ "contents": [
+  {
+   "role": "prebuild_contract",
+   "path": "prebuild/v9/prebuild-contract.md",
+   "sha256": "cd9d241e26e87dfad07a5400f9dfff211473bbb544009868647d062ddc71778a"
+  },
+  {
+   "role": "pbc_consistency_check",
+   "path": "prebuild/v9/pbc-consistency-check.json",
+   "sha256": "f95b2408f30315e93bd31821ad752e54c00f73901fe53f3af5bc19179111b03f"
+  },
+  {
+   "role": "plan_amendment",
+   "path": "coding-plan/amendments/A-04/plan-amendment.md",
+   "sha256": "ec98c358ef9cc25f8940aa2043ab4f288e86005fdacad25829302d861a456cfe"
+  }
+ ],
+ "sources": [
+  {
+   "path": "approved-inputs/approved-artifact-manifest.json",
+   "reason": "PBC-0 재잠금 v2(Use Case v6 · Prototype v17) — 바뀌지 않음"
+  },
+  {
+   "path": "discovery/planning-baseline.json",
+   "reason": "PBC-0 기준선 v3"
+  },
+  {
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "reason": "PBC-2 FP-01 · FP-02(item ID 같음)"
+  },
+  {
+   "path": "execution/S-02/cycle-2/g5-stop-2.md",
+   "reason": "G5 시작 전 재대조 — T04 R-RANK 원인 이름, 사용자 결정 'L1 수정 A-04'"
+  },
+  {
+   "path": "coding-plan/amendments/A-03/plan-amendment.md",
+   "reason": "A-03(P-19 추가)"
+  },
+  {
+   "path": "sources/intent/014.md",
+   "reason": "화면 값 정의 결정 014(그대로)"
+  },
+  {
+   "path": "critics/PBC4-8-review.json",
+   "reason": "부모 attempt PBC4-A8 pass"
+  },
+  {
+   "path": "decisions/history/PBC-4-prebuild-contract-v8.json",
+   "reason": "PBC-4 v8 승인(부모, 바뀌지 않는 사본)"
+  },
+  {
+   "path": "coding-plan/amendments/A-04/learning-record.md",
+   "reason": "LR-04"
+  }
+ ],
+ "supersedes": "v8"
+}

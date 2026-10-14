@@ -1,0 +1,2 @@
+[PBC-3 시점(복사본, gate만 PBC-3으로)] PASS: . at PBC-3 / completed [pinned_snapshot]
+[음성 시험(복사본): 파트장 L3(AC-11 · AC-24) 제거] FAIL: every multi-UI delivery requires L3 evidence in its integrated slice

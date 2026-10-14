@@ -1,0 +1,119 @@
+{
+  "run_id": "2026-10-11-c1a15-product",
+  "project_id": "c1a15-maint-guide",
+  "skill_version": "0.8.20",
+  "factory_profile": {
+    "path": "factory-profile/profile.json",
+    "sha256": "baec5c620b9bc674b88174fda4adf3fc70fc6682a4b7e9eb52002dbc37ebe4cd",
+    "skill_version": "0.8.20"
+  },
+  "work_type": "new_flow",
+  "risk_level": "standard",
+  "phase": "prebuild",
+  "current_gate": "G0",
+  "status": "awaiting_human_gate",
+  "artifacts": {
+    "context_packet": {
+      "version": "v1",
+      "status": "critic_passed",
+      "path": "context-packet.md",
+      "manifest": "manifests/context_packet-v1.json"
+    },
+    "evidence_pack": {
+      "version": "v2",
+      "status": "critic_passed",
+      "path": "evidence-pack.md",
+      "manifest": "manifests/evidence_pack-v2.json",
+      "evidence_ids": [
+        "EV-001",
+        "EV-002",
+        "EV-003",
+        "EV-004",
+        "EV-005",
+        "EV-006",
+        "EV-007",
+        "EV-008",
+        "EV-009",
+        "EV-010",
+        "EV-011",
+        "EV-012",
+        "EV-013",
+        "EV-014",
+        "EV-015",
+        "EV-016",
+        "EV-017",
+        "EV-018",
+        "EV-019",
+        "EV-020",
+        "EV-021",
+        "EV-022",
+        "EV-023",
+        "EV-024",
+        "EV-025",
+        "EV-026",
+        "EV-027",
+        "EV-028",
+        "EV-029",
+        "EV-030",
+        "EV-031",
+        "EV-032",
+        "EV-033",
+        "EV-034",
+        "EV-035",
+        "EV-036",
+        "EV-037",
+        "EV-038",
+        "EV-039",
+        "EV-040",
+        "EV-041",
+        "EV-042",
+        "EV-043",
+        "EV-044",
+        "EV-045",
+        "EV-046",
+        "EV-047",
+        "EV-048",
+        "EV-049",
+        "EV-050",
+        "EV-051",
+        "EV-053",
+        "EV-054",
+        "EV-052"
+      ],
+      "critic_attempts": 2,
+      "critic_reviews": [
+        "critics/G0-1-review.json",
+        "critics/G0-2-review.json"
+      ]
+    }
+  },
+  "next_action": "g0_human_brief_review",
+  "carryover_notes": [
+    {
+      "id": "CO-06",
+      "from": "critics/G0-2-review.json",
+      "note": "EV-032(기술 구조)에서 LangGraph가 빠졌습니다. 구현 명세 9장 '아키텍처 결정(PBC 입력)'에는 agent 패키지가 'LangGraph 그래프 HITL'로 적혀 있고, 5.2 ops schema에는 'LangGraph checkpoint 표'가 있으며, T06에도 같은 내용이 있습니다. 001의 기각안(Streamlit·SQLite·Chroma)과 달리 LangGraph는 그대로 유지되는 선택입니다. PBC에서 빠뜨리지 않도록 EV-032 또는 CO-03 옆에 한 줄 적어 두는 것을 권합니다.",
+      "target_gate": "PBC"
+    },
+    {
+      "id": "CO-06",
+      "from": "critics/G0-2-review.json",
+      "note": "아이디어(001)의 세부 값 가운데 구현 명세(002)·데이터(T02)로 대체된 것이 ledger에 '대체됨'으로 표시되어 있지 않습니다. 해당 항목은 매뉴얼 24절·원인 12개(현재 32절·원인 14개), T3 점수식 '가르는 후보 비율 ÷ 소요 분'(현재 D5 '확률 ÷ 분'), 근거 적음 '근거 사례 3건 미만'(현재 R6 'score ≥ 0.5 기록 3건 미만')입니다. Evidence Pack은 최신 값을 올바르게 썼습니다. 다만 G1 이후 Full Intent Context의 001 전문을 다시 읽는 단계에서 옛 값을 쓰지 않도록, EV-039 또는 별도 행에 대체 관계를 적어 두면 좋겠습니다.",
+      "target_gate": "G1"
+    },
+    {
+      "id": "CO-06",
+      "from": "critics/G0-2-review.json",
+      "note": "흐름 세부 두 곳이 source보다 좁게 적혀 있습니다. (1) EV-043과 Failure 행은 맞지 않는 소견을 '확인 후 인계'로만 적었는데, R7(c)는 '정비자가 인계 또는 계속을 고름'이라고 합니다. (2) 알람 발생기를 '시연 각본 알람 등록'으로만 적었는데, 6장 `POST /internal/alarms`는 `scenario_id 또는 udi`를 받습니다. 둘 다 G1 Scenario 작성 때 source의 원래 선택지를 그대로 가져가면 됩니다.",
+      "target_gate": "G1"
+    }
+  ],
+  "known_runtime_issues": [
+    {
+      "id": "RT-01",
+      "issue": "pinned validator는 G1 이상에서 evidence_pack의 모든 G0 review가 현재 subject를 가리키길 요구해, 허용된 revise→pass 이력(critic 최대 3회)이 항상 실패함",
+      "evidence": "scratchpad 복제 run에서 G1 시뮬레이션 시 'FAIL: G0 critic input subject hash does not match'",
+      "status": "awaiting_user_decision"
+    }
+  ]
+}

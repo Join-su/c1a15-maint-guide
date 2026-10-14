@@ -1,0 +1,101 @@
+{
+ "gate": "G3",
+ "subject": {
+  "artifact": "prototype",
+  "path": "prototype/v3/prototype-slice.md",
+  "version": "v3",
+  "sha256": "2ad079d73a8deea390932807599fa58010d1e7b7cb7b63b62b8e828705dfdba4"
+ },
+ "comparison_sources": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case-v2.json",
+   "version": "v2",
+   "sha256": "397b80fb7bb64147371d0d49c76b13c7571784f9e3636164938f9897c7172c06"
+  },
+  {
+   "artifact": "use_case_acceptance_criteria",
+   "path": "use-case/v2/acceptance-criteria.json",
+   "version": "v2",
+   "sha256": "53ae892a230bf2fa4af6c661b7281fd7feb81356d7d2440d86cb6c456d1db27d"
+  },
+  {
+   "artifact": "use_case_scenario_coverage",
+   "path": "use-case/v2/scenario-coverage.json",
+   "version": "v2",
+   "sha256": "57d83411cce988ef2bff686061952486f73b9b27770ce3776a73efd7cc29ca15"
+  },
+  {
+   "artifact": "wireframe_structure",
+   "path": "wireframes/structure/selected.md",
+   "version": "v1",
+   "sha256": "422983539f4d5cb4aac078e87ad9be87dd210d6ae8b1c36895d566d83996ec2a"
+  },
+  {
+   "artifact": "wireframe_selected_structure_contract",
+   "path": "wireframes/structure/selected-structure-contract.json",
+   "version": "v1",
+   "sha256": "abbd2d88ae421d3854ae94c665acf0610307b14f0aa16e70133ecfa04b55c1d2"
+  },
+  {
+   "artifact": "wireframe_structure_render_baseline",
+   "path": "wireframes/structure/selected-visual-baseline.json",
+   "version": "v1",
+   "sha256": "d216b925696377259cd9a838f1f7bc34cc7f38ddd3bf41cb27473b08110e8333"
+  },
+  {
+   "artifact": "visual_design",
+   "path": "wireframes/design/selected-visual-rules.md",
+   "version": "v1",
+   "sha256": "0931c63ba32f3a58cb0df94964439c910cf651b56ac8287cc65af23191c8ea71"
+  },
+  {
+   "artifact": "prior_g3_review",
+   "path": "critics/G3-1-review.json",
+   "version": "v1",
+   "sha256": "2ae4cd33ef9fc3fa890bcc5bdacaeb94895b44b70ce439f0d755914d95040a70"
+  },
+  {
+   "artifact": "prior_g3_review_2",
+   "path": "critics/G3-2-review.json",
+   "version": "v2",
+   "sha256": "841aa79e15fa81e398f895a6483d0ef174fb33c41bf199e805f61d49db931bcd"
+  },
+  {
+   "artifact": "subject_bundle_prototype_coverage",
+   "path": "prototype/v3/prototype-coverage.json",
+   "version": "v3",
+   "sha256": "6708094674c64b142969471a6f8935c77adb6e54211a046ff87581ccb4cebb8e"
+  },
+  {
+   "artifact": "subject_bundle_prototype_renderable",
+   "path": "prototype/v3/index.html",
+   "version": "v3",
+   "sha256": "98b947f8146633b678a10c171a71777c551f03d46bfce8401e1af589226b508d"
+  },
+  {
+   "artifact": "subject_bundle_selftest_result",
+   "path": "verification/g3-v3/selftest-result.json",
+   "version": "v3",
+   "sha256": "c59b50c02180a06bee33e9446b4778c6acfd5b42e8c493c75b05517779ec0a23"
+  },
+  {
+   "artifact": "subject_bundle_mutation_check",
+   "path": "verification/g3-v3/mutation-check.json",
+   "version": "v3",
+   "sha256": "3d1be11ca7c468729e57e0e832328a248f594e8123262d59ce8f100d257e3674"
+  },
+  {
+   "artifact": "subject_bundle_structure_check",
+   "path": "verification/g3-v3/structure-check.json",
+   "version": "v3",
+   "sha256": "fc0483a6756f72d3384cf707de6cce9d8a6041fe5deccdc380a46f3e4b6b07fb"
+  },
+  {
+   "artifact": "subject_bundle_axes",
+   "path": "verification/g3-v3/axes.json",
+   "version": "v3",
+   "sha256": "fc9e88aab8e18f2bc25b7a3d79527dad2eb3cc180f6a7f424f8e2df3761bed26"
+  }
+ ]
+}

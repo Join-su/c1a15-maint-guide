@@ -1,0 +1,67 @@
+{
+ "gate": "G6",
+ "slice_id": "S-05",
+ "attempt": 1,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-05/verification-report.json",
+  "version": "v1",
+  "sha256": "480c5415888ab02d46ec8c15065f60e6fc846f28b2c4b234fc5d0c2fc544164e"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S05-input.json",
+  "sha256": "83b71b6791fcf537c196ff2e6ff7511f65608066ecc063d40fccd6301939e2e6"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-05/history/slice-execution-packet-v3.json",
+   "version": "v3",
+   "sha256": "2a731e4d33fe80eb02e7559b185b5bc70f92e990eaab856ed00267f1c4882a1c"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-05/history/implementation-contract-v3.md",
+   "version": "v3",
+   "sha256": "9356bdcac8760bf2ff67ac8c9a1cf40356aad0fd64e7e876c1c6ec8e85cdfb9b"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-05/history/execution-ledger-v1.json",
+   "version": "v1",
+   "sha256": "3b45f66404d39ed4f57f464a4c60bf661860cebf682639c7448024277d0e7249"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-05/history/verification-report-v1.json",
+   "version": "v1",
+   "sha256": "480c5415888ab02d46ec8c15065f60e6fc846f28b2c4b234fc5d0c2fc544164e"
+  }
+ ],
+ "prior_blocking_resolution": [],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "B1",
+   "category": "AC 관찰 조건 근거 누락(L3 화면 증거)",
+   "subject_location": "execution/S-05/verification-report.json criteria[AC-44] — result 'pass', assertion_summary C3('이어서 하기로 돌아오면 떠난 지시 · 고른 결과 · 메모 그대로(E2E …), 종 목록 진행 중 항목 → 이어서 하기는 S-02 E2E AC-13 · AC-37 그대로')",
+   "comparison_location": "execution/S-05/history/slice-execution-packet-v3.json acceptance_criteria AC-44-C3('홈의 이어서 하기나 종 목록의 진행 중 항목으로 돌아오면 떠난 화면과 보내지 않은 결과 · 메모 · 체크리스트가 그대로다') · verification_entries AC-44 L3 expected_evidence('… 이어서 하기 · 종 목록으로 돌아오면 보내지 않은 결과 · 메모 · 체크 그대로'). AC-44 완료 item은 이 slice의 P-15다",
+   "why_not_mechanical": "자동 gate는 모두 통과하지만 이 관찰 조건의 두 부분을 판별하는 시험이 없다. ① 체크리스트: 보내지 않은 재가동 · B 시작 전 체크리스트 체크를 둔 채 '홈' → 돌아오기를 하는 E2E · component 시험이 없다(e2e/tests 전체에서 체크 항목은 restartWithin · tech-s03가 모두 눌러 바로 보내는 경로뿐, flow.test.tsx ActionScreen은 checked를 props로 줄 뿐 기기 보관 · 복원을 보지 않음, past.test.tsx 세션 시험 draft는 checked: []). 보고서 C3 문장도 체크리스트를 빼고 pass로 적었다. ② 종 목록 경로: tech.spec.ts AC-13 시험은 알람 화면(보내지 않은 입력 없음)으로 돌아오는 것만 보고, 보내지 않은 결과 · 메모를 둔 채 종 목록 '이어서 하기'로 돌아오는 확인은 어디에도 없다. 조건 문장과 시험 내용을 대조해야 보이는 빈틈이라 기계 gate가 잡지 못한다",
+   "minimum_resolution": "fixture · 외부 요청 0 E2E에서 (가) 재가동(또는 B 시작 전) 체크리스트 일부만 체크한 뒤 '홈' → 홈 '이어서 하기'와 (나) 보내지 않은 결과 · 메모(및 체크)를 둔 채 '홈' → 종 목록 진행 중 항목 '이어서 하기'로 돌아와 체크 · 결과 · 메모가 그대로인지 단언한다. verify-e2e를 점검표 C9 순서로 다시 돌리고 report AC-44 C3 문장 · evidence_paths와 ledger 조건 연결을 고친다. 통과하지 못하면 unexpected fact로 적고 수리 · 중단 절차를 따른다"
+  },
+  {
+   "id": "B2",
+   "category": "부풀린 주장 · 판별하지 않는 단언",
+   "subject_location": "execution/S-05/verification-report.json criteria[AC-41].assertion_summary C4('현재 단계로 돌아가면 그 입력을 고칠 수 있음(E2E)') · execution-ledger scope_notes 같은 문장",
+   "comparison_location": "packet v3 AC-41-C4('… 보내지 않은 결과 선택 · 메모는 수정 가능으로 표시되고 고칠 수 있다(기기에만 있음)') · verification_entries AC-41 L3 expected_evidence('보내지 않은 입력은 수정 가능으로 고침') · e2e/tests/s05.spec.ts 첫 시험 63~69행, 둘째 시험 116~119행",
+   "why_not_mechanical": "E2E는 '현재 단계로' 뒤 .rbtn.sel 글자와 메모 칸 toHaveValue만 본다. 돌아온 뒤 입력을 바꾸는 조작 · 단언이 없다. 지난 화면은 결과 버튼에 .dis를 붙여 잠그므로, 그 잠금이 현재 단계로 새는 결함(선택 · 메모가 보이지만 고칠 수 없음)이 있어도 두 단언은 그대로 통과한다. '(E2E)'라는 근거 표기와 실제 시험이 다르다는 판단은 문장 대조가 필요하다",
+   "minimum_resolution": "s05.spec.ts에서 '현재 단계로' 뒤 보내지 않은 결과를 바꾸고(예: 정상 → 이상) 메모를 고친 뒤 바뀐 선택 · 값을 단언한다(가능하면 그 입력을 보내 서버 기록까지 확인). verify-e2e를 C9 순서로 다시 돌리고 report C4 근거를 맞춘다. 시험을 더하지 않으면 C4에서 '(E2E)' 주장을 빼고 실제 근거만 적는다"
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "구조 대조 규칙 D-11(R-PASTVIEW, +)은 패턴에 일반 div · b · s · span.sm을 넣어 넓다. 지금 잡은 줄은 모두 정정 이력 · 정정 상자 자식이고(다시 돌려 같은 결과 — 일치 43 · 차이 61 · 기준 전용 14 · 미분류 0, X-3 상자 구조 차이 0 직접 확인), T15 / call 정정 상자 자식이 X-3 대신 D-11로 분류된 것은 규칙 순서 때문이다. 다음 대조에서는 .corr-list · .corr-h · .corr-box 아래 줄로 좁히는 편이 안전하다",
+  "결정 019 ①의 '직접 확인' 답: 보고서 확정 원인 '원인 미상' · 조치 그대로 · 미확인 정정 확인은 서버 시험이 주간 처리 답만 보고, 직접 확인은 component 답 배너만 본다(코드 경로는 같은 OUTCOME_CAUSE · unresolved). P-17 또는 다음 시험 보강 때 direct 경우를 API 시험에 더하면 좋다",
+  "AC-48-C1 화면의 조치 · 재가동 · 숙련자 인계 기록 '메모 덧붙이기만'은 공통 RecordCard + 서버 correctable · notable 값에 기대고, component 시험은 잠금 · 파트장 호출에서만 버튼을 단언한다(action 시험은 버튼을 보지 않고, 정비자 쪽 인계 기록 화면 시험은 없음). UF-S05-09를 L0 · 점검표 C6(packet v3 실행 해석 ⑨)로 처리한 것은 S-04 UF-S04-08 선례와 같아 받아들인다 — AC-48-C1 문장 정렬은 약속대로 다음 plan 판 목록에서 확인할 것"
+ ]
+}

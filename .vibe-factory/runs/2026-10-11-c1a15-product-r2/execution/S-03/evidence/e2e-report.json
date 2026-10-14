@@ -1,0 +1,929 @@
+{
+ "config": {
+  "argv": [
+   "/Users/insujo/.hermes/node/bin/node",
+   "/Users/insujo/Documents/repo/c1a15-maint-guide/node_modules/.bin/playwright",
+   "test"
+  ],
+  "configFile": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/playwright.config.ts",
+  "rootDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/tests",
+  "failOnFlakyTests": false,
+  "forbidOnly": false,
+  "fullyParallel": false,
+  "globalSetup": null,
+  "globalTeardown": null,
+  "globalTimeout": 0,
+  "grep": {},
+  "grepInvert": null,
+  "maxFailures": 0,
+  "metadata": {
+   "actualWorkers": 1
+  },
+  "preserveOutput": "always",
+  "projects": [
+   {
+    "outputDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/test-results",
+    "repeatEach": 1,
+    "retries": 0,
+    "metadata": {
+     "actualWorkers": 1
+    },
+    "id": "",
+    "name": "",
+    "testDir": "/Users/insujo/Documents/repo/c1a15-maint-guide/e2e/tests",
+    "testIgnore": [],
+    "testMatch": [
+     "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+    ],
+    "timeout": 90000
+   }
+  ],
+  "quiet": false,
+  "reporter": [
+   [
+    "list",
+    null
+   ],
+   [
+    "json",
+    {
+     "outputFile": "/private/tmp/claude-501/-Users-insujo-Documents-repo/7be5e167-c54e-4acb-b0b9-cd9061065b83/scratchpad/s03/gates/e2e-report.json"
+    }
+   ]
+  ],
+  "reportSlowTests": {
+   "max": 5,
+   "threshold": 300000
+  },
+  "shard": null,
+  "tags": [],
+  "updateSnapshots": "missing",
+  "updateSourceMethod": "patch",
+  "version": "1.63.0",
+  "workers": 1,
+  "webServer": null
+ },
+ "suites": [
+  {
+   "title": "tech-s03.spec.ts",
+   "file": "tech-s03.spec.ts",
+   "column": 0,
+   "line": 0,
+   "specs": [
+    {
+     "title": "SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 교체 완료 → 재가동 → 경계 이내 → 보고서 → 근거 없는 수치 → 확정 잠김 → 고쳐 확정 → 승인 대기",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 2938,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:38:40.882Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T08-action_a",
+           "contentType": "image/png",
+           "body": "screens/T08-action_a.png"
+          },
+          {
+           "name": "T08-restart_checklist",
+           "contentType": "image/png",
+           "body": "screens/T08-restart_checklist.png"
+          },
+          {
+           "name": "T08-restart_check",
+           "contentType": "image/png",
+           "body": "screens/T08-restart_check.png"
+          },
+          {
+           "name": "T09-draft",
+           "contentType": "image/png",
+           "body": "screens/T09-draft.png"
+          },
+          {
+           "name": "T09-check_failed",
+           "contentType": "image/png",
+           "body": "screens/T09-check_failed.png"
+          },
+          {
+           "name": "T09-confirmed",
+           "contentType": "image/png",
+           "body": "screens/T09-confirmed.png"
+          },
+          {
+           "name": "T02-recent_report",
+           "contentType": "image/png",
+           "body": "screens/T02-recent_report.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-947d30017f992e1f8468",
+     "file": "tech-s03.spec.ts",
+     "line": 52,
+     "column": 5
+    },
+    {
+     "title": "AC-03 L3 · AC-30 · AC-08 · AC-37: R5 계산 예시 → 4.3 → 정상 뒤 57 · 22 · 21 호출 요약 → 대기 → 요약 고쳐 보내기 → 승인 답 → 종 '답 보기' → 4.4 지시",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 6712,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T09:38:44.047Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T04-r5_example",
+           "contentType": "image/png",
+           "body": "screens/T04-r5_example.png"
+          },
+          {
+           "name": "T10-summary",
+           "contentType": "image/png",
+           "body": "screens/T10-summary.png"
+          },
+          {
+           "name": "T10-waiting",
+           "contentType": "image/png",
+           "body": "screens/T10-waiting.png"
+          },
+          {
+           "name": "T10-sent",
+           "contentType": "image/png",
+           "body": "screens/T10-sent.png"
+          },
+          {
+           "name": "T10-ans_approved",
+           "contentType": "image/png",
+           "body": "screens/T10-ans_approved.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-d80225db3143bbe03d0f",
+     "file": "tech-s03.spec.ts",
+     "line": 106,
+     "column": 5
+    },
+    {
+     "title": "AC-23-C1 · C2: 주간 처리 답 → 답 화면 → 보고서 작성 → '미확인 · 요청', 직접 확인 답 → 설비 정지 대기",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 11665,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          },
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T09:38:50.765Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T10-ans_daytime",
+           "contentType": "image/png",
+           "body": "screens/T10-ans_daytime.png"
+          },
+          {
+           "name": "T10-ans_direct",
+           "contentType": "image/png",
+           "body": "screens/T10-ans_direct.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-54886a0690096ae606ea",
+     "file": "tech-s03.spec.ts",
+     "line": 156,
+     "column": 5
+    },
+    {
+     "title": "AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소견 · 재가동 뒤 밖 → 숙련자 인계 → 보고서 '원인 미상'",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 11537,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:02.435Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T11-unable_repeat",
+           "contentType": "image/png",
+           "body": "screens/T11-unable_repeat.png"
+          },
+          {
+           "name": "T11-expert_handover",
+           "contentType": "image/png",
+           "body": "screens/T11-expert_handover.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-c0b94889ce4de1c6aa8d",
+     "file": "tech-s03.spec.ts",
+     "line": 187,
+     "column": 5
+    },
+    {
+     "title": "AC-22 · AC-32-C2 · AC-43-C4: 모두 정상 → 재가동 → 6.2 감시 마감 → '이상 없음 · 감시', B 조치 체크리스트",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 6344,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:13.978Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T11-monitor_close",
+           "contentType": "image/png",
+           "body": "screens/T11-monitor_close.png"
+          },
+          {
+           "name": "T09-monitor_report",
+           "contentType": "image/png",
+           "body": "screens/T09-monitor_report.png"
+          },
+          {
+           "name": "T08-checklist_b",
+           "contentType": "image/png",
+           "body": "screens/T08-checklist_b.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-2ad0e96476a4eb2a5acc",
+     "file": "tech-s03.spec.ts",
+     "line": 220,
+     "column": 5
+    },
+    {
+     "title": "T08 / corrected_path(값, 정정 기록은 시험 DB): 4.3 정정 → 다시 판정 배너 · 뒤 기록 '정정으로 무효' · 조치",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 3356,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:20.332Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T08-corrected_path",
+           "contentType": "image/png",
+           "body": "screens/T08-corrected_path.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-46cf3079b35093737070",
+     "file": "tech-s03.spec.ts",
+     "line": 248,
+     "column": 5
+    },
+    {
+     "title": "AC-31-C2 연결(사용자 결정 016 ④): 문장 생성 3회 연속 실패 → '숙련자 인계' → 인계 요약 → 보고서 '원인 미상'",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 2544,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:23.693Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T11-llm_failure",
+           "contentType": "image/png",
+           "body": "screens/T11-llm_failure.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-7c97e6926398b066f6ba",
+     "file": "tech-s03.spec.ts",
+     "line": 264,
+     "column": 5
+    },
+    {
+     "title": "AC-02 L3(P-10): 첫 판정 호출 — T04 / first_call → 잠금 → 사전 확인 → T10 / summary '점검 전', 절차 없음",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1024,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:26.242Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T10-summary-first_call-locked",
+           "contentType": "image/png",
+           "body": "screens/T10-summary-first_call-locked.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-a52eb9031a128b2dacea",
+     "file": "tech-s03.spec.ts",
+     "line": 280,
+     "column": 5
+    },
+    {
+     "title": "AC-20 L3 · AC-43 L3: 맞지 않는 소견 → '계속 진행' → 순위 그대로 · 다음 점검, B 점검은 체크리스트 전 결과 입력 잠김",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 6445,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:27.271Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T06-after_continue",
+           "contentType": "image/png",
+           "body": "screens/T06-after_continue.png"
+          },
+          {
+           "name": "T06-b_precheck_done",
+           "contentType": "image/png",
+           "body": "screens/T06-b_precheck_done.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "375c3601b59bd4310122-3de24faf158b1208c8a6",
+     "file": "tech-s03.spec.ts",
+     "line": 300,
+     "column": 5
+    }
+   ]
+  },
+  {
+   "title": "tech.spec.ts",
+   "file": "tech.spec.ts",
+   "column": 0,
+   "line": 0,
+   "specs": [
+    {
+     "title": "AC-13 · AC-37: 새 알람이 5초 안에 홈(빨간 점 · 종 숫자), 종 목록 항목에서 알람 화면 · 이어서 하기",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [
+        {
+         "type": "AC-13-C1",
+         "description": "4832ms"
+        }
+       ],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 5911,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:33.730Z",
+         "annotations": [
+          {
+           "type": "AC-13-C1",
+           "description": "4832ms"
+          }
+         ],
+         "attachments": [
+          {
+           "name": "T02-new_alarm",
+           "contentType": "image/png",
+           "body": "screens/T02-new_alarm.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-82c0c085d357a294d24a",
+     "file": "tech.spec.ts",
+     "line": 8,
+     "column": 5
+    },
+    {
+     "title": "첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠금 → 확인 불가 → 순위 그대로 · 다른 점검, 새로고침 · API 재시작 뒤 같은 단계",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 4847,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:39.646Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T03-default",
+           "contentType": "image/png",
+           "body": "screens/T03-default.png"
+          },
+          {
+           "name": "T04-default",
+           "contentType": "image/png",
+           "body": "screens/T04-default.png"
+          },
+          {
+           "name": "T13-default",
+           "contentType": "image/png",
+           "body": "screens/T13-default.png"
+          },
+          {
+           "name": "T05-before_lock",
+           "contentType": "image/png",
+           "body": "screens/T05-before_lock.png"
+          },
+          {
+           "name": "T05-locked",
+           "contentType": "image/png",
+           "body": "screens/T05-locked.png"
+          },
+          {
+           "name": "T06-default",
+           "contentType": "image/png",
+           "body": "screens/T06-default.png"
+          },
+          {
+           "name": "T14-default",
+           "contentType": "image/png",
+           "body": "screens/T14-default.png"
+          },
+          {
+           "name": "T06-unable_next",
+           "contentType": "image/png",
+           "body": "screens/T06-unable_next.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-d399ec3b5ca1294f02e0",
+     "file": "tech.spec.ts",
+     "line": 34,
+     "column": 5
+    },
+    {
+     "title": "AC-14: 앱을 닫았다 다시 열어도 '이어서 하기'로 같은 단계 · 잠금 시각 · 입력 결과",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1522,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:44.499Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          },
+          {
+           "name": "AC-14-reopened",
+           "contentType": "image/png",
+           "body": "screens/AC-14-reopened.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-68dcb426064eb3814f8f",
+     "file": "tech.spec.ts",
+     "line": 103,
+     "column": 5
+    },
+    {
+     "title": "AC-02(P-08): 첫 판정 호출 — T04 / first_call → 잠금 → T05 / locked '다음: 파트장 호출 요약(…, C등급)', 절차 · 판정 기준 없음",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 1129,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:46.026Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T04-first_call",
+           "contentType": "image/png",
+           "body": "screens/T04-first_call.png"
+          },
+          {
+           "name": "T05-locked-first_call",
+           "contentType": "image/png",
+           "body": "screens/T05-locked-first_call.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-7a030cc55cb2fa4689de",
+     "file": "tech.spec.ts",
+     "line": 134,
+     "column": 5
+    },
+    {
+     "title": "AC-31: LLM 실패 시뮬레이션 세션 — T06 / fallback(원문 대체) · T06 / llm_repeat(인계 권함), 진행은 계속",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 3982,
+         "errors": [],
+         "stdout": [],
+         "stderr": [
+          {
+           "buffer": ""
+          },
+          {
+           "buffer": ""
+          }
+         ],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:47.159Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T06-fallback",
+           "contentType": "image/png",
+           "body": "screens/T06-fallback.png"
+          },
+          {
+           "name": "T06-llm_repeat",
+           "contentType": "image/png",
+           "body": "screens/T06-llm_repeat.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-77eb61d13cdb92bf51b5",
+     "file": "tech.spec.ts",
+     "line": 157,
+     "column": 5
+    },
+    {
+     "title": "AC-12(정비자 앱 부분): 파트장 계정은 거부 배너, 정비자 계정은 로그인",
+     "ok": true,
+     "tags": [],
+     "tests": [
+      {
+       "timeout": 90000,
+       "annotations": [],
+       "expectedStatus": "passed",
+       "projectId": "",
+       "projectName": "",
+       "results": [
+        {
+         "workerIndex": 0,
+         "parallelIndex": 0,
+         "status": "passed",
+         "duration": 598,
+         "errors": [],
+         "stdout": [],
+         "stderr": [],
+         "retry": 0,
+         "startTime": "2026-10-13T09:39:51.147Z",
+         "annotations": [],
+         "attachments": [
+          {
+           "name": "T01-role_error",
+           "contentType": "image/png",
+           "body": "screens/T01-role_error.png"
+          },
+          {
+           "name": "external-requests",
+           "contentType": "application/json",
+           "body": "W10="
+          }
+         ]
+        }
+       ],
+       "status": "expected"
+      }
+     ],
+     "id": "f4f161bc930287175bb7-13efe01acb9bbfdc46c1",
+     "file": "tech.spec.ts",
+     "line": 186,
+     "column": 5
+    }
+   ]
+  }
+ ],
+ "errors": [],
+ "stats": {
+  "startTime": "2026-10-13T09:38:40.590Z",
+  "duration": 71187.406,
+  "expected": 15,
+  "skipped": 0,
+  "unexpected": 0,
+  "flaky": 0
+ }
+}

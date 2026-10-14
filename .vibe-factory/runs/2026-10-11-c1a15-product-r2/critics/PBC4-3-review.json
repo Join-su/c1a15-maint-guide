@@ -1,0 +1,73 @@
+{
+ "gate": "PBC-4",
+ "attempt": 1,
+ "approval_attempt_id": "PBC4-A3",
+ "subject": {
+  "artifact": "prebuild_contract",
+  "path": "prebuild/v3/prebuild-contract.md",
+  "version": "v3",
+  "sha256": "e7647f5254b618a850bb1cc9dd1b08cac48f80fdaee74a969c3eaa4d420e9188"
+ },
+ "input_bundle": {
+  "path": "critics/PBC4-3-input.json",
+  "sha256": "a2d52667ad906d11c9a0106068541392f10d461e73470dfdee964242c4383720"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "use_case_bundle",
+   "path": "manifests/use_case_bundle-v6.json",
+   "version": "v6",
+   "sha256": "492a33836fbaec95d09fba52b7d8d6bbacbcba0617df6083d0fdef7a2b197a94"
+  },
+  {
+   "artifact": "prototype_bundle",
+   "path": "manifests/prototype_bundle-v16.json",
+   "version": "v16",
+   "sha256": "8ef5f23c20140267dda4e936bd725a492954cfd78fd2116190702bfb23ebf7c7"
+  },
+  {
+   "artifact": "coding_plan",
+   "path": "coding-plan/v3/coding-plan.json",
+   "version": "v3",
+   "sha256": "f722def34c9e587aa79b5ad5b5bb6edc74aebd6c21763cfea1f48a100683ef90"
+  },
+  {
+   "artifact": "verification_plan",
+   "path": "coding-plan/v3/verification-matrix.json",
+   "version": "v3",
+   "sha256": "28e3a2b32bf64e458e86b8277e15f057dd4cf5912ed24ff15828b609fe489d36"
+  },
+  {
+   "artifact": "selection_register",
+   "path": "coding-plan/v3/selection-register.json",
+   "version": "v3",
+   "sha256": "8a1dbc01a0a28443144cdb8ed0d058a80a6cee3f7270706da3a38b78d9b9aa8a"
+  },
+  {
+   "artifact": "feasibility_probe",
+   "path": "coding-plan/v1/feasibility-probe.json",
+   "version": "v1",
+   "sha256": "117d4df0de124a8f4d46423cd9da177e76df7d4007ca24819a21b7f650f7efe9"
+  },
+  {
+   "artifact": "pbc_consistency_check",
+   "path": "prebuild/v3/pbc-consistency-check.json",
+   "version": "v3",
+   "sha256": "f294d506fe04efc9356d0e1a3c9c49f72a9bb45f1660d8977a5b6b239101a2b0"
+  },
+  {
+   "artifact": "prebuild_contract",
+   "path": "prebuild/v3/prebuild-contract.md",
+   "version": "v3",
+   "sha256": "e7647f5254b618a850bb1cc9dd1b08cac48f80fdaee74a969c3eaa4d420e9188"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "앞 attempt 지적은 모두 해소됐습니다. PBC4-A2 ISS-001: pbc-consistency-check v3의 logical_flow_compilation 판정 문장이 이제 현재 값과 맞습니다. 대조한 값은 tech SC-06 · S-03 · B-01(P-10) → B-04(P-09) · AC-07/AC-33 L3(완료 P-10), lead SC-35 · S-04 · B-02(P-12, P-13) → B-01(P-13) · AC-11/AC-24 L3(완료 P-13), 첫 end-to-end AC-04 L3(S-02, 완료 P-08), 호출 경로 AC-03 L3(S-03, 완료 P-10)입니다. 이 값은 Coding Plan ui_surface_delivery · boundaries.plan_item_ids, Matrix와 같습니다. PBC4-A1 4건도 v3에 그대로 남아 있습니다. 계약 본문은 실제 값으로 렌더됐고, 별도 승인 7건은 Matrix · proposal에서 같습니다. AC-03 · AC-42의 연결 item과 완료 item, surface 핵심 Scenario, OOS-01 stop_point · pre_decision_behavior · 영향 AC도 그대로입니다. 비차단 3건(승인 범위 P-01~P-07, OOS-01 줄 하나 · 'P-03 완료 즉시', AC-35 · AC-09 표기)도 반영됐습니다. 덧붙일 점이 하나 있습니다. 승인 범위가 S-02 중간(P-07)에서 끝나므로, S-02의 slice gate(e2e_surface_journey · prototype_structure_checklist · 첫 end-to-end)는 이번 승인으로 실행되지 않습니다. P-07 완료 시점에 어떤 자동 gate로 판정하고 멈추는지 한 줄 적어 두면 좋습니다. 예를 들면 item verifier, ADV-01~07, check-fast입니다. 그러면 stop 조건 'failed_or_missing_automatic_gate'가 엉뚱하게 걸리거나 해석이 갈리지 않습니다.",
+  "ADV-07(완료 P-06)의 fail-closed 판정에는 'API가 … 호출 요약으로 응답'이라고 적혀 있습니다. 그런데 P-06의 non_trigger는 '조치 · 호출 · 보고서(P-09)'이고, AC-02(호출 요약)는 P-09에 연결돼 있습니다. 이번 승인 범위(P-01~P-07) 안에서는 호출 요약 본문을 만들 item이 없습니다. 첫 판정이 호출인 OOS-01 경우도 같습니다. P-06이 C · D 차례에 무엇을 돌려주는지 적어 두면 좋습니다. 예를 들면 '다음 단계 = 호출, 지시 내용 없음. 요약 본문은 P-09'입니다. 그러면 ADV-07을 P-06 안에서 판정할 수 있고, P-06이 P-09 범위로 넓어지지도 않습니다.",
+  "OOS-01 문장에 판정을 흐리게 하는 잔여 표현이 있습니다. 첫째, Plan amendment 절의 'OOS-01은 … 그 차례에 멈춘다'는 'P-03 완료 즉시 묻고 P-04~P-07은 계속'과 표현이 다릅니다. 둘째, pre_decision_behavior의 '시연 · E2E · 대조는 지시 경로만'은 P-08 이후가 승인 밖이 되어 실제로 적용될 일이 없습니다. 셋째, P-03 계산표의 대상인 'E2E fixture'는 P-03 시점에 아직 없습니다. 시연 각본 10건과 R5 예시 입력처럼 대상을 구체적으로 적는 것이 좋습니다. 또 P-04~P-07을 진행하는 동안 사용자가 화면을 결정해 Prototype Bundle이 바뀌기 시작하면, 남은 P-04~P-07을 v16 잠금 그대로 계속하는지 정해져 있지 않습니다. stop 조건 'L1_or_out_of_scope_contract_change'로 멈추는지도 정해져 있지 않습니다. 이 점을 한 줄 적어 두면 실행 기록에서 판정하기 쉽습니다."
+ ]
+}

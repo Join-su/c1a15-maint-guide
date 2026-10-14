@@ -1,0 +1,100 @@
+{
+ "gate": "G0",
+ "attempt": 1,
+ "cycle": 3,
+ "subject": {
+  "artifact": "evidence_pack",
+  "path": "evidence-pack-v3.md",
+  "version": "v3",
+  "sha256": "503ba035a39e3f331157b7609cb36f64ec320cdacad3fd8323f785170e695976"
+ },
+ "input_bundle": {
+  "path": "critics/G0-3-input.json",
+  "sha256": "4db47900ff95ae9fd7e8cb4c262bd13328a14e9f957ad1604eebbbf219fa5af4"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "context_packet",
+   "path": "context-packet-v3.md",
+   "version": "v3",
+   "sha256": "9a1acdbbdc254b5c2f3d51bade37cbdf0ee29ff9b792d4b9310556e453151fdf"
+  },
+  {
+   "artifact": "source_manifest",
+   "path": "source-manifest.json",
+   "version": "v3",
+   "sha256": "a1a806fd4e79bc167f5b070eeb2f6b48123c63e0939c42bde30a14c934ad45d7"
+  },
+  {
+   "artifact": "prior_evidence_pack",
+   "path": "evidence-pack-v2.md",
+   "version": "v2",
+   "sha256": "4aa01ac46a448b9295ecd92ebc9ba9cc3fb3a38413eb908eb3c6a0e746e55f05"
+  },
+  {
+   "artifact": "task_evidence_T01",
+   "path": "sources/task/T01-user-guide-text.txt",
+   "version": "f73c240",
+   "sha256": "ba5432ebdc070ff5017f7670ba2d17972b71cfff1a56f36ca2a4026f1a4fdd7b"
+  },
+  {
+   "artifact": "task_evidence_T02",
+   "path": "sources/task/T02-manual_sections.json",
+   "version": "f73c240",
+   "sha256": "68d59f24ef86059ed6d6ef75a6d80343a27328a398825362c06bb66ac90ca598"
+  },
+  {
+   "artifact": "task_evidence_T03",
+   "path": "sources/task/T03-data-manifest.json",
+   "version": "f73c240",
+   "sha256": "7b36f4234634bee098f63ea099ea73c0f3d35de1bba7494b497ed8f2a1cdc10d"
+  },
+  {
+   "artifact": "task_evidence_T04",
+   "path": "sources/task/T04-alarm_rules.json",
+   "version": "f73c240",
+   "sha256": "ef84d5b0317ed9de839c8b7b150bf5f58ce72764192fd9dfd54049dbf3865042"
+  },
+  {
+   "artifact": "task_evidence_T05",
+   "path": "sources/task/T05-eval-cards-README.md",
+   "version": "f73c240",
+   "sha256": "31b6110b58ef6a2c017dfe80b6f0a25ce709ebe89451b07229f3d9c152d13f10"
+  },
+  {
+   "artifact": "task_evidence_T06",
+   "path": "sources/task/T06-architecture-text.txt",
+   "version": "f73c240",
+   "sha256": "0e39003fe9da03b755effdde3e77beb83e90e1b17faedbd77848567f701778ca"
+  },
+  {
+   "artifact": "intent_007",
+   "path": "sources/intent/007.md",
+   "version": "2026-10-12",
+   "sha256": "f4314dc2690df66802f34ecdb0f40d9184cf05515183b1794a5a1e3e710120c7"
+  },
+  {
+   "artifact": "intent_004",
+   "path": "sources/intent/004.md",
+   "version": "2026-10-11",
+   "sha256": "0b6cf5dda318b98a23cee6238f8fb3f36ecdda73e445ca534785fdf77cffade1"
+  }
+ ],
+ "verdict": "revise",
+ "blocking_issues": [
+  {
+   "id": "ISS-001",
+   "category": "왜곡(source로 해소 가능한 질문 전제 오류)",
+   "subject_location": "evidence-pack-v3.md Open questions Q-05 — '매뉴얼은 B 조치(4.5.2 · 6.1)에만 체크리스트가 있다'",
+   "comparison_location": "T02-manual_sections.json 2.5(B 점검) · 5.5(B 점검) · 2.3.2(B 조치) · 4.5.2(B 조치) · 6.1(B 공통)의 '시작 전 체크리스트', T01 7쪽 · 17쪽 'B 확인 후: 체크리스트를 모두 확인한 뒤 진행', 002 R2 · S4-2",
+   "why_not_mechanical": "형식 결함이 아니라 Human Gate에 올라갈 질문의 사실 전제가 매뉴얼과 다르다. 매뉴얼에는 B 점검 절(2.5, 5.5)에도 B 조치 2.3.2에도 시작 전 체크리스트가 있다. 그래서 '원래 B인 점검 절의 체크리스트는 무엇인가'는 source가 이미 답하고(그 절의 시작 전 체크리스트), 사용자가 고를 선택지 3개도 이 틀린 전제 위에서 제시된다. 어디까지가 열린 질문인지는 매뉴얼 내용을 읽고 판단해야 하므로 validator로 잡히지 않는다.",
+   "minimum_resolution": "Q-05의 전제를 T02에 맞게 바로잡는다(B 점검 2.5 · 5.5와 B 조치 2.3.2 · 4.5.2 · 6.1에는 시작 전 체크리스트가 있음). 질문 범위는 매뉴얼에 시작 전 체크리스트가 없는 절(기본 등급이 A · C · D인 절, 예: 4.3 · 4.4 · 4.6)을 파트장이 B로 바꾼 경우로 좁힌다. 선택지와 '바뀌는 것' · '결정 시점'(G1 Human Gate)은 유지해도 된다."
+  }
+ ],
+ "questions": [],
+ "non_blocking_notes": [
+  "EV-061은 '확정 전 보고서 초안'을 '정비자 기기에만 있는 아직 보내지 않은 것'으로 분류한다. 그러나 002 S7 · R10 · 6장(PATCH …/report/items/{key}, 고친 내용은 감사 로그)에 따르면 초안은 서버가 작성해 저장하고, 고친 내용도 서버에 기록된다. 결과(확정 전까지 수정 가능)는 007 §4와 S7이 같으므로 사용자 결정 자체는 문제가 아니다. 다만 G1에서 Durable state의 '아직 보내지 않은 입력은 기기에만 있다'를 보고서 초안에 그대로 적용하지 않도록, 근거가 'S7에 따라 확정 전 수정 가능한 서버 초안'이라는 점을 함께 밝혀 두면 좋다.",
+  "EV-062가 낮춤 경고 규칙을 대체한다고 적었지만, 같은 문서의 ledger EV-020('낮춤 경고')과 EV-051 · 002 7장의 '낮춤 경고' 상태, EV-011(D1 가이드 동작 그대로)에는 대체 표시가 없다. G1 · G2A가 옛 규칙을 읽지 않도록 EV-020에 'EV-062로 경고 범위 대체'를 붙이고, 가이드 17쪽과 다른 동작이 된다는 점(D1 · D17 예외 사유)을 CO-24에 함께 적어 두면 좋다. 참고로 S10과 가이드 17쪽은 원래 A~D 변경을 모두 허용하므로, 실제로 바뀌는 것은 경고 범위다.",
+  "prototype 한정 항목의 표기를 다듬을 것. (a) EV-059의 '다른 알람(M-01 · M-04 · M-19 · M-20)'은 bundle source에서 확인되지 않는다(004는 M-04만 언급). 출처를 밝히거나 'M-03 외 알람'으로 적는다. (b) EV-063은 Known decisions에서는 'prototype(G3)'인데 ledger · CO-25에서는 'G1(scenario 보강)'이다. G1 보강은 기존 R4 · R5 · S4 · S6 · AC-02 규칙을 scenario로 드러내는 일이고, sample에 매인 분기('남은 후보 냉각 설정 오류')는 prototype에만 해당한다는 점을 한 줄로 밝혀 두면 제품 요구로 확대될 위험이 없다."
+ ]
+}

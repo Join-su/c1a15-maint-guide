@@ -1,0 +1,61 @@
+{
+ "gate": "G6",
+ "slice_id": "S-05",
+ "attempt": 2,
+ "subject": {
+  "artifact": "verification_report",
+  "path": "execution/S-05/verification-report.json",
+  "version": "v2",
+  "sha256": "f35e2754dece53fed62614f1698dcaf5ab5808a045b179ecfa4d8e9e5699ea3c"
+ },
+ "input_bundle": {
+  "path": "critics/G6-S05-2-input.json",
+  "sha256": "d3a786c1ab09189a423b0f93e2e91f2eed3ab545a734891849ecb4c6bca91575"
+ },
+ "reference_artifacts": [
+  {
+   "artifact": "slice_execution_packet",
+   "path": "execution/S-05/history/slice-execution-packet-v3.json",
+   "version": "v3",
+   "sha256": "2a731e4d33fe80eb02e7559b185b5bc70f92e990eaab856ed00267f1c4882a1c"
+  },
+  {
+   "artifact": "implementation_contract",
+   "path": "execution/S-05/history/implementation-contract-v3.md",
+   "version": "v3",
+   "sha256": "9356bdcac8760bf2ff67ac8c9a1cf40356aad0fd64e7e876c1c6ec8e85cdfb9b"
+  },
+  {
+   "artifact": "execution_ledger",
+   "path": "execution/S-05/history/execution-ledger-v2.json",
+   "version": "v2",
+   "sha256": "d97bb089319bf7efa157b8496debf1154b208e81fa45176519883b0b284f1d41"
+  },
+  {
+   "artifact": "verification_report",
+   "path": "execution/S-05/history/verification-report-v2.json",
+   "version": "v2",
+   "sha256": "f35e2754dece53fed62614f1698dcaf5ab5808a045b179ecfa4d8e9e5699ea3c"
+  }
+ ],
+ "prior_blocking_resolution": [
+  {
+   "id": "B1",
+   "resolved": true,
+   "evidence": "e2e/tests/s05.spec.ts 85~123행 새 시험 'AC-44-C3: 보내지 않은 B 시작 전 체크 …'(verify-e2e.txt 8번 통과, e2e-report.json expected 27 · unexpected 0, startTime 11:44:24 KST > 마지막 시험 변경 11:42:46). 4.3을 B로 바꾸고 체크 n(>1)개 중 하나만 누른 뒤(.ck.on 1, 결과 버튼 .dis) back('home') · back('bell') 각각에서 .ck.on 수 1 · 첫 항목 on을 단언하고, 나머지를 체크해 결과 '이상' · 메모를 넣은 뒤 두 경로 각각에서 .ck.on n · .rbtn.sel '이상' · 메모 값을 단언한다. 'bell' 경로는 홈 → .tb-bell → '진행 중인 점검' 그룹 → .nt-item '이어서 하기'(Home.tsx 176 · 236행 T12 종 목록). 앱 대조: 일부 체크는 Session.tsx onCheck → setDraft → device.setDraft(localStorage 'draft.<sid>') 에만 있고 Session은 다시 열 때 device.draft(sid)로 복원, Instruction.tsx는 checklist_done || draft.checked로 .ck.on을 그림 — 기기 저장 · 복원이 깨지면 첫 단언(1개 · 첫 항목)이 실패해 판별한다. 모두 체크하면 b_checklist_done이 서버로 가므로 둘째 상태의 체크 n은 서버 값이고 결과 · 메모만 기기 값인데, report AC-44 C3 문장은 '보내지 않은 B 시작 전 체크(일부 체크 — 체크 수 · 체크한 항목), 그 뒤 결과 · 메모를 넣은 상태'로 이를 구분해 적었다. evidence_paths에 e2e-report.json 더함, ledger P-15 changed_files · commands(27 — S-05 6) · UF-S05-13 연결도 맞음"
+  },
+  {
+   "id": "B2",
+   "resolved": true,
+   "evidence": "s05.spec.ts 첫 시험 65~81행: '현재 단계로' 뒤 .pastbar 0 · 같은 지시 · .rbtn.sel '정상' · 메모 값 다음에 .rbtn.dis 0(70행), '이상' 클릭 → .rbtn.sel '이상'(71~72행), 메모 fill → 새 값(73~74행), 홈 → '이어서 하기' 뒤 '이상' · 새 메모 그대로(75~81행). 지난 화면 잠김이 새는 결함 유형별로: .dis 클래스가 남으면 70행, 클릭이 막히면(Instruction.tsx onClick의 !needsChecklist 같은 가드) 72행, textarea disabled면 73행 fill이 실패, 값이 기기에 안 쓰이면 80~81행이 실패 — 1차가 지적한 '보이지만 고칠 수 없음'을 잡는다. report AC-41 C4 문장('결과 버튼 잠김(.dis) 없음 · 정상 → 이상 · 메모 고침 · 홈을 다녀와도 그대로(E2E AC-41 · AC-44)')이 시험과 일치하고, ledger scope_notes의 '고칠 수 있음(E2E)'도 이제 근거가 있다. 서버 기록까지 보내 보는 것은 1차 최소 해결에서 선택 사항이었다"
+  }
+ ],
+ "verdict": "pass",
+ "blocking_issues": [],
+ "questions": [],
+ "non_blocking_notes": [
+  "AC-44-C3 E2E는 B 시작 전 체크만 본다. 조치 · 재가동 체크리스트(ActionScreen — Session.tsx에서 draft.section = 'kind:section' 키로 같은 device.draft에 둠)의 보내지 않은 일부 체크가 홈 · 종 목록 두 경로로 돌아와 그대로인지는 E2E가 없다. 1차 최소 해결이 '재가동(또는 B 시작 전)'을 허용했고 저장 경로가 같아 차단하지 않는다. 다음 시험 보강 때 같은 두 경로 단언을 더하면 좋다",
+  "비차단 ①②③ 반영 확인: ① /tmp 새 폴더에서 structure-compare.mjs → structure-classify.py를 다시 돌려 일치 43 · 차이 61 · 기준 전용 14 · 미분류 0이 나왔고, 규칙 · 영역 118개가 prototype-structure-checklist.json과 같았다(T15 / call R-PASTVIEW = X-3 하나). ② test_correction_after_action_opens_correction_call에 direct(tech.lee · M-02) 경우가 있고, 원인 미상 · 조치 그대로 · unresolved '… · 파트장 직접 확인 · 필터 재확인'을 답마다 다른 label로 단언한다. ③ past.test.tsx handover 시험(실제 API fixture s05-history-handover.json, 비밀번호는 env에서 읽음) · action 시험에 '메모 덧붙이기' 있음 · '이 기록 정정' 없음 단언이 있다. 다만 report AC-48 C1의 'component에서 다섯 기록 모두'에서 조치 · 재가동(경계 확인)은 한 기록 카드(fixture 4단계 record 0)라, 시험으로는 잠금 · 조치/재가동 · 호출 · 인계 네 곳이다 — 문장 정밀도만의 문제",
+  "gate · 비밀값: check-fast를 다시 돌려 exit 0(unit 71 · component 정비자 65 · 파트장 19)이 나왔다. verify-db 65(11:44:04)와 verify-e2e 27(11:44:24 시작, 외부 요청 0 — guard 단언)은 마지막 시험 변경(11:42:46) 뒤다. C9 순서도 지켰다: e2e-report 복사 · 이미지 경로 11:47:01 → --list 11:47:01~06 → 비밀값 검사 11:49:10 마지막. 지금 e2e/test-results/report.json은 --list가 덮어쓴 것이라 증거본과 다른데, 이는 예상된 일이다. UF-S05-14는 env 없이 패턴 검사로만 확인했다. secret_scan(저장소 전체 · run · 증거), 비밀번호 칸, 22자 토큰 꼴(소스 · run execution · critics) 모두 비밀값 0건이고, 22자 꼴 5건은 S-03 ledger · G3-7 검토의 화면 상태 이름이다(10-12 · 10-13 파일). 원문 대조(②)와 dev 스택 값 교체 여부는 stack.env를 읽지 않아 확인하지 않았다. 찍힌 옛 값은 터미널 · 대화 기록에 남을 수 있어 교체가 유일한 처리다"
+ ]
+}
