@@ -1,0 +1,7 @@
+/* 승인 CSS(packages/ui/src/styles) 밖의 최소 조정: 화면 틀 가운데 정렬, 입력 칸을 실제 textarea · input으로 쓰기 위한 초기화.
+   색 · 글자 · 간격 토큰은 바꾸지 않는다. */
+#root { min-height: 100vh; display: grid; place-items: center; }
+.wb textarea.memo, .wb textarea.edit-in { display: block; width: 100%; box-sizing: border-box; font: inherit; color: var(--ink); resize: none; outline: none; background: #fff; }
+.wb textarea.edit-in { min-height: 44px; }
+.wb [role="button"]:not(.dis) { cursor: pointer; }
+.wb .sel2 { cursor: pointer; }

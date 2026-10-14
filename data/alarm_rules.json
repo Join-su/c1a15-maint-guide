@@ -61,5 +61,35 @@
   "PW": 374,
   "CL": 158,
   "LD": 47
+ },
+ "normal_ranges": {
+  "air_temperature_k": {
+   "low": 296.4,
+   "high": 302.4
+  },
+  "process_temperature_k": {
+   "low": 307.3,
+   "high": 311.9
+  },
+  "rotational_speed_rpm": {
+   "low": 1305.0,
+   "high": 1979.0
+  },
+  "torque_nm": {
+   "low": 20.5,
+   "high": 59.7
+  },
+  "tool_wear_min": {
+   "low": 4.0,
+   "high": 214.0
+  },
+  "temp_diff_k": {
+   "low": 8.3,
+   "high": 11.6
+  },
+  "power_w": {
+   "low": 4210,
+   "high": 8366
+  }
  }
 }

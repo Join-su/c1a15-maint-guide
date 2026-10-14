@@ -1,0 +1,8 @@
+/* 승인 CSS(packages/ui/src/styles) 밖의 최소 조정: 화면 틀 가운데 정렬, 입력 칸을 실제 textarea로 쓰기 위한 초기화,
+   종 목록이 열린 동안 뒤 화면 조작을 막는 투명 막(패널 z-index 5 바로 아래). 색 · 글자 · 간격 토큰은 바꾸지 않는다. */
+#root { min-height: 100vh; display: grid; place-items: center; }
+.ap textarea.memo { display: block; width: 100%; box-sizing: border-box; font: inherit; color: var(--ink); resize: none; outline: none; background: #fff; }
+.ap textarea.memo:focus { border-color: var(--pri); }
+.ap textarea.memo:disabled { background: #f3f5f8; }
+.ap .catch { position: absolute; inset: 0; z-index: 4; }
+.ap [role="button"]:not(.dis) { cursor: pointer; }
