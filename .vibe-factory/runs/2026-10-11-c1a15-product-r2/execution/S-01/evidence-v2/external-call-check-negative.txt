@@ -1,8 +1,0 @@
-# external_call_check 음성 확인: 임시 파일에 외부 HTTP 클라이언트 · 외부 주소를 넣으면 실패해야 한다
-EXTERNAL code server/src/c1a15/_probe_external.py:1: import httpx
-EXTERNAL code server/src/c1a15/_probe_external.py:2: https://api.openai.com
-external_call_check: 2 hit(s)
-exit=1
-# 원복 뒤
-external_call_check: 0 hit(s)
-exit=0

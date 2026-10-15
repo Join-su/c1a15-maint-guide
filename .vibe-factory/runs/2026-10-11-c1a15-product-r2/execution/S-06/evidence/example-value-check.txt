@@ -1,2 +1,0 @@
-example_value_check: template 예시 값 103종, 앱 소스에서 찾은 것 0건
-exit 0

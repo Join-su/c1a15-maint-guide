@@ -1,2 +1,0 @@
-$ docker compose config --quiet  (2026-10-13T09:34:28+09:00)
-exit=0

@@ -1,2 +1,0 @@
-{"demo_rows": 10, "history_rows": 300, "eval_card_rows": 30, "demo∩history": [], "demo∩eval_cards": [], "history∩eval_cards": []}
-exit=0

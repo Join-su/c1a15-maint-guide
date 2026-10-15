@@ -1,3 +1,0 @@
-$ uv lock --check
-Resolved 37 packages in 3ms
-exit=0

@@ -1,4 +1,0 @@
-메모 되돌림 시험의 결함 주입(apps/tech/src/__tests__/session.test.tsx):
-- 원래 코드(Session.tsx onConfirm: '아니요' 뒤 draft.memo = 마지막 결과 memo): Tests 24 passed (24)
-- 결함 사본(memo: "" 로 바꿈): session.test.tsx Tests 1 failed (1)
-- 원래 코드로 되돌린 뒤: Tests 24 passed (24), 파일 diff 없음
