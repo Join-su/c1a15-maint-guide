@@ -171,3 +171,24 @@ def test_vc12_one_search_per_session(api, db, monkeypatch):
     )
     tech.get(f"/api/tech/sessions/{sid}")
     assert len(calls) == 1
+
+
+def test_alarm_candidates_reason_check(db):
+    """EV-001 ES-04(가): '사람 판단 필요' 기록 표 — 사유는 low_confidence · rnf · model_failure만, 경계 길 알람의 ml 칸은 null."""
+    import sqlalchemy
+
+    ins = text(
+        "insert into ops.alarm_candidates (equipment_id, reason, boundary_crossed, sensor_snapshot, event) "
+        "values ('M-01', :r, false, '{}'::jsonb, '{}'::jsonb)"
+    )
+    with db.begin() as c:
+        for r in ("low_confidence", "rnf", "model_failure"):
+            c.execute(ins, {"r": r})
+        assert (
+            c.execute(text("select count(*) from ops.alarm_candidates where status = 'needs_human'")).scalar_one() >= 3
+        )
+    with pytest.raises(sqlalchemy.exc.IntegrityError), db.begin() as c:
+        c.execute(ins, {"r": "boundary"})
+    with db.begin() as c:
+        c.execute(text("delete from ops.alarm_candidates"))
+        assert c.execute(text("select count(*) from ops.alarms where ml is not null")).scalar_one() == 0
