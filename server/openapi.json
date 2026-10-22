@@ -2420,6 +2420,267 @@
     "title": "LeadReportRow",
     "type": "object"
    },
+   "LeadSessionHold": {
+    "additionalProperties": false,
+    "properties": {
+     "call_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Call Id"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minutes"
+     },
+     "since": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Since"
+     }
+    },
+    "required": [
+     "kind",
+     "label",
+     "since",
+     "minutes",
+     "call_id"
+    ],
+    "title": "LeadSessionHold",
+    "type": "object"
+   },
+   "LeadSessionRow": {
+    "additionalProperties": false,
+    "properties": {
+     "alarm_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alarm At"
+     },
+     "alarm_id": {
+      "title": "Alarm Id",
+      "type": "integer"
+     },
+     "check_max": {
+      "title": "Check Max",
+      "type": "integer"
+     },
+     "check_no": {
+      "title": "Check No",
+      "type": "integer"
+     },
+     "elapsed_min": {
+      "title": "Elapsed Min",
+      "type": "integer"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "grade": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade"
+     },
+     "group_code": {
+      "title": "Group Code",
+      "type": "string"
+     },
+     "group_name": {
+      "title": "Group Name",
+      "type": "string"
+     },
+     "hold": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/LeadSessionHold"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "last_input_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Input At"
+     },
+     "report_rejected": {
+      "title": "Report Rejected",
+      "type": "boolean"
+     },
+     "section": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Section"
+     },
+     "section_title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Section Title"
+     },
+     "session_id": {
+      "title": "Session Id",
+      "type": "integer"
+     },
+     "stage": {
+      "title": "Stage",
+      "type": "string"
+     },
+     "stage_label": {
+      "title": "Stage Label",
+      "type": "string"
+     },
+     "started_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Started At"
+     },
+     "step_kind": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Step Kind"
+     },
+     "step_no": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Step No"
+     },
+     "technician_name": {
+      "title": "Technician Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "session_id",
+     "alarm_id",
+     "equipment_id",
+     "group_code",
+     "group_name",
+     "technician_name",
+     "stage",
+     "stage_label",
+     "step_no",
+     "step_kind",
+     "section",
+     "section_title",
+     "grade",
+     "check_no",
+     "check_max",
+     "hold",
+     "alarm_at",
+     "started_at",
+     "last_input_at",
+     "elapsed_min",
+     "report_rejected"
+    ],
+    "title": "LeadSessionRow",
+    "type": "object"
+   },
+   "LeadSessions": {
+    "additionalProperties": false,
+    "properties": {
+     "counts": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Counts",
+      "type": "object"
+     },
+     "now": {
+      "title": "Now",
+      "type": "string"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/LeadSessionRow"
+      },
+      "title": "Rows",
+      "type": "array"
+     }
+    },
+    "required": [
+     "now",
+     "counts",
+     "rows"
+    ],
+    "title": "LeadSessions",
+    "type": "object"
+   },
    "LeadTiles": {
     "additionalProperties": false,
     "properties": {
@@ -5683,6 +5944,25 @@
      }
     },
     "summary": "Report Decision"
+   }
+  },
+  "/api/lead/sessions": {
+   "get": {
+    "description": "진행 중 건: 세션마다 지금 단계 · 절 · 정지점 대기 · 시각(운영 기록만, D-227). 판정 · 기록은 읽기만.",
+    "operationId": "in_progress_sessions_api_lead_sessions_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LeadSessions"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "In Progress Sessions"
    }
   },
   "/api/login": {

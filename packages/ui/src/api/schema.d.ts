@@ -253,6 +253,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lead/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * In Progress Sessions
+         * @description 진행 중 건: 세션마다 지금 단계 · 절 · 정지점 대기 · 시각(운영 기록만, D-227). 판정 · 기록은 읽기만.
+         */
+        get: operations["in_progress_sessions_api_lead_sessions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/login": {
         parameters: {
             query?: never;
@@ -1204,6 +1224,74 @@ export interface components {
             session_id: number;
             /** Violations */
             violations: number;
+        };
+        /** LeadSessionHold */
+        LeadSessionHold: {
+            /** Call Id */
+            call_id: number | null;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Minutes */
+            minutes: number | null;
+            /** Since */
+            since: string | null;
+        };
+        /** LeadSessionRow */
+        LeadSessionRow: {
+            /** Alarm At */
+            alarm_at: string | null;
+            /** Alarm Id */
+            alarm_id: number;
+            /** Check Max */
+            check_max: number;
+            /** Check No */
+            check_no: number;
+            /** Elapsed Min */
+            elapsed_min: number;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Grade */
+            grade: string | null;
+            /** Group Code */
+            group_code: string;
+            /** Group Name */
+            group_name: string;
+            hold: components["schemas"]["LeadSessionHold"] | null;
+            /** Last Input At */
+            last_input_at: string | null;
+            /** Report Rejected */
+            report_rejected: boolean;
+            /** Section */
+            section: string | null;
+            /** Section Title */
+            section_title: string | null;
+            /** Session Id */
+            session_id: number;
+            /** Stage */
+            stage: string;
+            /** Stage Label */
+            stage_label: string;
+            /** Started At */
+            started_at: string | null;
+            /** Step Kind */
+            step_kind: string | null;
+            /** Step No */
+            step_no: number | null;
+            /** Technician Name */
+            technician_name: string;
+        };
+        /** LeadSessions */
+        LeadSessions: {
+            /** Counts */
+            counts: {
+                [key: string]: number;
+            };
+            /** Now */
+            now: string;
+            /** Rows */
+            rows: components["schemas"]["LeadSessionRow"][];
         };
         /** LeadTiles */
         LeadTiles: {
@@ -2302,6 +2390,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    in_progress_sessions_api_lead_sessions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeadSessions"];
                 };
             };
         };

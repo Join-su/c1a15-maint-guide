@@ -527,6 +527,44 @@ class LeadCalls(_Out):
     rows: list[LeadCallRow]
 
 
+class LeadSessionHold(_Out):
+    kind: str
+    label: str
+    since: str | None
+    minutes: int | None
+    call_id: int | None
+
+
+class LeadSessionRow(_Out):
+    session_id: int
+    alarm_id: int
+    equipment_id: str
+    group_code: str
+    group_name: str
+    technician_name: str
+    stage: str
+    stage_label: str
+    step_no: int | None
+    step_kind: str | None
+    section: str | None
+    section_title: str | None
+    grade: str | None
+    check_no: int
+    check_max: int
+    hold: LeadSessionHold | None
+    alarm_at: str | None
+    started_at: str | None
+    last_input_at: str | None
+    elapsed_min: int
+    report_rejected: bool
+
+
+class LeadSessions(_Out):
+    now: str
+    counts: dict[str, int]
+    rows: list[LeadSessionRow]
+
+
 class AnswerOption(_Out):
     value: str
     label: str

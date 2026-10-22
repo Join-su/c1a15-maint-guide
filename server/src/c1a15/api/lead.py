@@ -17,6 +17,7 @@ from c1a15.api import deps, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
+from c1a15.engine import session as session_engine
 from c1a15.llm import grounding
 from c1a15.llm.base import Draft
 from c1a15.retrieval.search import HistoryDoc
@@ -523,6 +524,129 @@ def calls(user: User = Depends(lead_user), c: Connection = Depends(conn, scope="
             }
         )
     return {"now": datetime.now(UTC).isoformat(), "rows": out}
+
+
+# ---------------------------------------------------------------- 진행 중 건(EV-002, D-233 (3)) — 읽기만
+
+STAGE_LABEL = {"before_lock": "잠금 전", "check": "점검", "action": "조치", "report": "보고서"}
+STAGE_NO = {"before_lock": None, "check": 3, "action": 4, "report": 5}
+ACTION_KINDS = {"action", "action_after_checklist", "restart_check", "restart_value"}
+CALL_KINDS = {"call", "call_direct"}
+HOLD_LABEL = {
+    "lock": "잠금 확인 전",
+    "call_unsent": "호출 보내기 전",
+    "call_sent": "파트장 답 대기",
+    "call_waiting": "호출하지 않고 대기",
+    "handover_sent": "숙련자 인계 답 대기",
+    "confirm_pending": "정비자 확인 대기",
+}
+
+
+def lead_stage(locked: bool, kind: str, actions_done: bool) -> str:
+    """정비자 앱 진행 표시(apps/tech Session.tsx stepNumber)와 같은 규칙. '알람 · 진단'은 기기 상태라 잠금 전 하나."""
+    if not locked:
+        return "before_lock"
+    if kind in {"report", "closed"}:
+        return "report"
+    if kind in ACTION_KINDS or kind == "monitor_close" or (kind in CALL_KINDS and actions_done):
+        return "action"
+    return "check"
+
+
+def _last_at(events: list[dict], etype: str) -> str | None:
+    return next((e["_at"] for e in reversed(events) if e["type"] == etype), None)
+
+
+def _hold(c: Connection, row, locked: bool, step: dict, events: list[dict]) -> dict | None:
+    """정지점 대기와 그 시작 시각(Change Contract v3 'since 출처')."""
+    kind, status = step.get("kind"), step.get("call_status")
+    if not locked:
+        return {"kind": "lock", "since": _iso(row.created_at), "call_id": None}
+    if kind in {"call", "handover"} | CALL_KINDS:
+        if status == "sent":
+            call = c.execute(
+                select(m.Call.call_id, m.Call.sent_at)
+                .where(m.Call.session_id == row.session_id, m.Call.answer.is_(None))
+                .order_by(m.Call.sent_at.desc())
+            ).first()
+            hold = "handover_sent" if kind == "handover" else "call_sent"
+            return {
+                "kind": hold,
+                "since": _iso(call.sent_at) if call else None,
+                "call_id": call.call_id if call else None,
+            }
+        if status == "waiting":
+            return {"kind": "call_waiting", "since": _last_at(events, "call_wait"), "call_id": None}
+        return {"kind": "call_unsent", "since": _last_at(events, "step_opened"), "call_id": None}
+    if kind in {"confirm_question", "out_of_scope"}:
+        return {"kind": "confirm_pending", "since": _last_at(events, "result"), "call_id": None}
+    return None
+
+
+def _minutes(now: datetime, at: str | None) -> int | None:
+    return max(0, int((now - datetime.fromisoformat(at)).total_seconds() // 60)) if at else None
+
+
+@router.get("/sessions", response_model=responses.LeadSessions)
+def in_progress_sessions(user: User = Depends(lead_user), c: Connection = Depends(conn, scope="function")) -> dict:
+    """진행 중 건: 세션마다 지금 단계 · 절 · 정지점 대기 · 시각(운영 기록만, D-227). 판정 · 기록은 읽기만."""
+    now = datetime.now(UTC)
+    names = _names(c)
+    k = deps.manual()
+    grades = deps.grades(c)[0]
+    sessions_rows = c.execute(
+        select(m.DiagSession.__table__, m.Alarm.equipment_id, m.Alarm.occurred_at)
+        .join(m.Alarm, m.Alarm.alarm_id == m.DiagSession.alarm_id)
+        .where(m.DiagSession.status == "in_progress")
+    ).all()
+    rows = []
+    for r in sessions_rows:
+        events = sessions.events_of(c, r.session_id)
+        state = session_engine.fold(
+            k, r.symptom_group, sessions.similar_of(r), [e for e in events if e["type"] in sessions.INPUT_TYPES]
+        )
+        step = sessions.current_step(events) or {}
+        stage = lead_stage(state.locked, step.get("kind") or "", bool(state.actions_done))
+        sec = step.get("section")
+        hold = _hold(c, r, state.locked, step, events)
+        if hold:
+            hold = {**hold, "label": HOLD_LABEL[hold["kind"]], "minutes": _minutes(now, hold["since"])}
+        started = _iso(r.created_at)
+        rows.append(
+            {
+                "session_id": r.session_id,
+                "alarm_id": r.alarm_id,
+                "equipment_id": r.equipment_id,
+                "group_code": r.symptom_group,
+                "group_name": deps.group_names()[r.symptom_group],
+                "technician_name": names.get(r.user_id, r.user_id),
+                "stage": stage,
+                "stage_label": STAGE_LABEL[stage],
+                "step_no": STAGE_NO[stage],
+                "step_kind": step.get("kind"),
+                "section": sec,
+                "section_title": k.sections[sec]["title"] if sec in k.sections else None,
+                "grade": step.get("grade") or (grades.get(sec) if sec else None),
+                **screen.check_progress(events, k, r.symptom_group, grades, state.approvals),
+                "hold": hold,
+                "alarm_at": _iso(r.occurred_at),
+                "started_at": started,
+                "last_input_at": events[-1]["_at"] if events else None,
+                "elapsed_min": _minutes(now, started) or 0,
+                "report_rejected": state.report_rejected_seq is not None and not state.report_confirmed,
+            }
+        )
+    far = datetime.max.replace(tzinfo=UTC)
+
+    def at(v: str | None) -> datetime:
+        return datetime.fromisoformat(v) if v else far
+
+    rows.sort(key=lambda x: (x["hold"] is None, at((x["hold"] or {}).get("since")), at(x["started_at"])))
+    return {
+        "now": now.isoformat(),
+        "counts": {"in_progress": len(rows), "on_hold": sum(1 for x in rows if x["hold"])},
+        "rows": rows,
+    }
 
 
 @router.get("/calls/{call_id}", response_model=responses.LeadCall)

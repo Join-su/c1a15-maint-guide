@@ -625,3 +625,254 @@ def test_ac06_report_sentences_never_ungrounded(api, db, monkeypatch):
             text("select record from knowledge.history_records where record_id = :i"), {"i": f"R-{rid:04d}"}
         ).scalar()
     assert "12.3" not in rec["narrative"] and "12.3" not in rec["action"]
+
+
+# ---------------------------------------------------------------- 진행 중 건(EV-002 ES-01: VC-01 ~ VC-07)
+
+
+def _at(v):
+    return datetime.fromisoformat(v) if isinstance(v, str) else v
+
+
+def _rows(lc):
+    r = lc.get("/api/lead/sessions")
+    assert r.status_code == 200, r.text[:300]
+    return r.json()
+
+
+def _row(lc, sid):
+    return next(x for x in _rows(lc)["rows"] if x["session_id"] == sid)
+
+
+def _event_at(db, sid, etype):
+    with db.connect() as c:
+        return c.execute(
+            text(
+                "select created_at from ops.session_events where session_id = :s and type = :t order by seq desc limit 1"
+            ),
+            {"s": sid, "t": etype},
+        ).scalar()
+
+
+def _open_call(db, sid):
+    with db.connect() as c:
+        return c.execute(
+            text(
+                "select call_id, sent_at from ops.calls where session_id = :s and answer is null order by sent_at desc"
+            ),
+            {"s": sid},
+        ).first()
+
+
+def test_lead_sessions_role_boundary_and_empty(api, db):
+    """VC-01 · VC-02(EV-002 CH-01 · CH-02): 파트장만 읽음(정비자 · 로그인 없음은 거부), 진행 중 없으면 빈 목록 · 0."""
+    reset_ops(db)
+    tech, _ = login(api, "tech", "tech.kim", __import__("test_api").TECH_PW)
+    assert tech.get("/api/lead/sessions").status_code in {401, 403}
+    assert __import__("test_api").client(api, "lead").get("/api/lead/sessions").status_code in {401, 403}
+    o = _rows(lead(api))
+    assert o["rows"] == [] and o["counts"] == {"in_progress": 0, "on_hold": 0} and _at(o["now"])
+
+
+def test_lead_sessions_demo02_path_stage_and_hold(api, db):
+    """VC-03 · VC-05 · VC-06: DEMO-02 경로(4.3 · 4.6 정상 → 호출 승인 → 4.4 이상 → 조치 호출 승인 → 조치 → 재가동 → 보고서)에서
+    한 행의 stage · step · hold 순서(Preview v2 표), 확정하면 빠지고 반려되면 다시. GET은 쓰기 0, 시각은 운영 기록."""
+    reset_ops(db)
+    lc = lead(api)
+    t0 = datetime.now(__import__("datetime").UTC)
+    tech, s = start(api, db, equipment="M-03")
+    t1 = datetime.now(__import__("datetime").UTC)
+    sid = s["session_id"]
+
+    def counts():
+        with db.connect() as c:
+            return [
+                c.execute(text(q)).scalar()
+                for q in (
+                    "select count(*) from ops.session_events",
+                    "select coalesce(max(seq), 0) from ops.session_events",
+                    "select count(*) from ops.diag_sessions",
+                    "select count(*) from ops.calls",
+                    "select count(*) from ops.audit_log",
+                    "select coalesce(max(change_seq), 0) from ops.alarms",
+                )
+            ]
+
+    before = counts()
+    row = _row(lc, sid)
+    assert counts() == before  # VC-05: 읽기만
+    with db.connect() as c:
+        created, occurred = c.execute(
+            text(
+                "select d.created_at, a.occurred_at from ops.diag_sessions d join ops.alarms a using (alarm_id) where d.session_id = :s"
+            ),
+            {"s": sid},
+        ).one()
+    # VC-06: 알람 시각 = 등록 API가 넣은 지금 시각(각본 · AI4I 행 시각 아님), 시작 · 마지막 입력 = 운영 기록
+    assert t0 <= _at(row["alarm_at"]) <= t1 and _at(row["alarm_at"]) == occurred
+    assert _at(row["started_at"]) == created and _at(row["last_input_at"]) == _event_at(db, sid, "preview_shown")
+    o = _rows(lc)
+    r0 = next(x for x in o["rows"] if x["session_id"] == sid)
+    assert r0["elapsed_min"] == int((_at(o["now"]) - created).total_seconds() // 60)
+    assert r0["hold"]["minutes"] == int((_at(o["now"]) - _at(r0["hold"]["since"])).total_seconds() // 60)
+    # 잠금 전(PR-04): 단계 1.2만, 다음 점검 절 · 본문 없음
+    assert (row["stage"], row["stage_label"], row["step_no"], row["step_kind"], row["section"]) == (
+        "before_lock",
+        "잠금 전",
+        None,
+        "lock",
+        "1.2",
+    )
+    assert row["hold"]["kind"] == "lock" and _at(row["hold"]["since"]) == created and row["hold"]["call_id"] is None
+    assert (
+        row["equipment_id"] == "M-03" and row["group_code"] == "CL" and row["technician_name"] and row["check_no"] == 0
+    )
+    assert not {"text", "instruction", "lock_instruction"} & set(row)
+    s = ok(tech, s, type="lock")
+    row = _row(lc, sid)
+    assert (row["stage"], row["step_kind"], row["hold"]) == ("check", "precheck", None)
+    s = ok(tech, s, type="precheck_done")
+    s = run_until(tech, s, {"call"}, lambda sec: "정상")
+    first = s["step"]["section"]
+    row = _row(lc, sid)
+    assert (row["stage"], row["step_no"], row["step_kind"], row["section"], row["grade"]) == (
+        "check",
+        3,
+        "call",
+        first,
+        "C",
+    )
+    assert row["hold"]["kind"] == "call_unsent" and _at(row["hold"]["since"]) == _event_at(db, sid, "step_opened")
+    s = ok(tech, s, type="call_send")
+    before = counts()
+    row, call = _row(lc, sid), _open_call(db, sid)
+    assert counts() == before  # VC-05: ops.calls를 읽는 상태에서도 쓰기 0
+    assert row["hold"]["kind"] == "call_sent" and row["hold"]["call_id"] == call.call_id
+    assert _at(row["hold"]["since"]) == call.sent_at and row["hold"]["label"] == "파트장 답 대기"
+    assert lc.post(f"/api/lead/calls/{call.call_id}/answer", json={"answer": "approved"}).status_code == 200
+    row = _row(lc, sid)
+    assert (row["stage"], row["step_kind"], row["section"], row["hold"]) == ("check", "instruct", first, None)
+    s = tech.get(f"/api/tech/sessions/{sid}").json()
+    s = ok(tech, s, type="result", section=first, value="이상")
+    second = s["step"]["section"]
+    row = _row(lc, sid)
+    assert (row["stage"], row["step_kind"], row["section"], row["hold"]["kind"]) == (
+        "check",
+        "call",
+        second,
+        "call_unsent",
+    )
+    s = ok(tech, s, type="call_send")
+    call = _open_call(db, sid)
+    assert _row(lc, sid)["hold"]["kind"] == "call_sent"
+    assert lc.post(f"/api/lead/calls/{call.call_id}/answer", json={"answer": "approved"}).status_code == 200
+    s = tech.get(f"/api/tech/sessions/{sid}").json()
+    row = _row(lc, sid)
+    assert row["stage"] == "action" and row["step_no"] == 4 and row["step_kind"] in {"action", "action_after_checklist"}
+    if s["step"]["kind"] == "action_after_checklist":
+        s = ok(tech, s, type="b_checklist_done", section=second, checked=s["instruction"]["checklist"])
+    s = ok(tech, s, type="action_done", section=second)
+    assert (_row(lc, sid)["stage"], _row(lc, sid)["step_kind"]) == ("action", "restart_check")
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    assert (_row(lc, sid)["stage"], _row(lc, sid)["step_kind"]) == ("action", "restart_value")
+    s = ok(tech, s, type="restart_result", outcome="within")
+    row = _row(lc, sid)
+    assert (row["stage"], row["step_no"], row["step_kind"], row["hold"], row["report_rejected"]) == (
+        "report",
+        5,
+        "report",
+        None,
+        False,
+    )
+    s = ok(tech, s, type="report_confirm")
+    assert all(x["session_id"] != sid for x in _rows(lc)["rows"])  # 확정 → 승인 대기(L02)로
+    rid = lc.get("/api/lead/overview").json()["rows"][0]["report_id"]
+    assert (
+        lc.post(
+            f"/api/lead/reports/{rid}/decision", json={"decision": "reject", "memo": "점검 경로 메모를 더 적어 주세요"}
+        ).status_code
+        == 200
+    )
+    row = _row(lc, sid)
+    assert (row["stage"], row["report_rejected"]) == ("report", True)
+
+
+def test_lead_sessions_order_hold_first(api, db):
+    """VC-04: 대기 있는 행 먼저(since 오래된 순), 그다음 시작이 이른 순."""
+    reset_ops(db)
+    lc = lead(api)
+    _, a = start(api, db, equipment="M-01")  # 잠금 전(hold lock)
+    tech_b, b = start(api, db, equipment="M-02")
+    to_instruct(tech_b, b)  # 대기 없음
+    _, c3 = start(api, db, equipment="M-03")  # 잠금 전(hold lock, a보다 늦음)
+    o = _rows(lc)
+    assert [x["session_id"] for x in o["rows"]] == [a["session_id"], c3["session_id"], b["session_id"]]
+    assert o["counts"] == {"in_progress": 3, "on_hold": 2}
+    # 먼저 시작한 b가 나중에 호출을 보내면(since = sent_at) 나중에 시작했지만 일찍부터 기다린 a · c3 뒤에 선다
+    b = run_until(tech_b, tech_b.get(f"/api/tech/sessions/{b['session_id']}").json(), {"call"}, lambda sec: "정상")
+    ok(tech_b, b, type="call_send")
+    o = _rows(lc)
+    assert [x["session_id"] for x in o["rows"]] == [a["session_id"], c3["session_id"], b["session_id"]]
+    _, d = start(api, db, equipment="M-04")  # 가장 늦게 시작 · 가장 늦게 기다림(잠금 전)
+    o = _rows(lc)
+    assert [x["session_id"] for x in o["rows"]] == [a["session_id"], c3["session_id"], b["session_id"], d["session_id"]]
+    assert [x["hold"]["kind"] for x in o["rows"]] == ["lock", "lock", "call_sent", "lock"]
+
+
+def test_lead_sessions_other_holds(api, db):
+    """VC-07: 호출하지 않고 대기 · 숙련자 인계 보냄 · 확인 질문 대기 · 재가동 뒤 인계 — hold 종류 · since 출처 · 단계 번호(앱 규칙 3)."""
+    reset_ops(db)
+    lc = lead(api)
+    # ⓐ 호출 단계에서 '호출하지 않고 대기'
+    tech, s = start(api, db, equipment="M-01")
+    s = run_until(tech, to_instruct(tech, s), {"call"}, lambda sec: "정상")
+    s = ok(tech, s, type="call_wait")
+    row = _row(lc, s["session_id"])
+    assert (row["stage"], row["step_no"], row["hold"]["kind"]) == ("check", 3, "call_waiting")
+    assert _at(row["hold"]["since"]) == _event_at(db, s["session_id"], "call_wait") and row["hold"]["call_id"] is None
+    # ⓑ 확인 불가 반복 → 숙련자 인계 보냄(test_lead_handover_answer와 같은 길)
+    with db.begin() as c:
+        c.execute(text("update ops.grade_table set grade = 'A' where section_id = '4.4'"))
+    tech2, s2 = start(api, db, equipment="M-02")
+    s2 = run_until(
+        tech2, to_instruct(tech2, s2), {"handover"}, lambda sec: "확인 불가" if sec in {"4.3", "4.4"} else "정상"
+    )
+    assert _row(lc, s2["session_id"])["hold"]["kind"] == "call_unsent"
+    s2 = ok(tech2, s2, type="call_send")
+    row, call = _row(lc, s2["session_id"]), _open_call(db, s2["session_id"])
+    assert (row["stage"], row["step_no"], row["step_kind"], row["hold"]["kind"]) == (
+        "check",
+        3,
+        "handover",
+        "handover_sent",
+    )
+    assert _at(row["hold"]["since"]) == call.sent_at and row["hold"]["call_id"] == call.call_id
+    with db.begin() as c:
+        c.execute(text("update ops.grade_table set grade = 'C' where section_id = '4.4'"))
+    # ⓒ 버튼과 어긋난 메모 → 확인 질문(정비자 답 대기)
+    tech3, s3 = start(api, db, equipment="M-03")
+    s3 = to_instruct(tech3, s3)
+    s3 = ok(
+        tech3,
+        s3,
+        type="result",
+        section=s3["instruction"]["section"],
+        value="정상",
+        memo="기름때가 표면 절반 넘게 덮음",
+    )
+    assert s3["step"]["kind"] == "confirm_question"
+    row = _row(lc, s3["session_id"])
+    assert (row["stage"], row["step_no"], row["hold"]["kind"]) == ("check", 3, "confirm_pending")
+    assert _at(row["hold"]["since"]) == _event_at(db, s3["session_id"], "result")
+    # ⓓ 조치 · 재가동 뒤 '여전히 밖' → 숙련자 인계: 앱 규칙대로 점검(3)
+    tech4, s4 = start(api, db, equipment="M-04")
+    s4 = to_instruct(tech4, s4)
+    s4 = ok(tech4, s4, type="result", section="4.3", value="이상", memo="기름때가 필터 표면 절반 넘게 덮음")
+    s4 = ok(tech4, s4, type="action_done", section="4.3.2")
+    s4 = ok(tech4, s4, type="restart", checked=s4["restart"]["checklist"])
+    s4 = ok(tech4, s4, type="restart_result", outcome="outside")
+    assert s4["step"]["kind"] == "handover"
+    row = _row(lc, s4["session_id"])
+    assert (row["stage"], row["step_no"], row["hold"]["kind"]) == ("check", 3, "call_unsent")
+    s4 = ok(tech4, s4, type="call_send")
+    assert _row(lc, s4["session_id"])["hold"]["kind"] == "handover_sent"
