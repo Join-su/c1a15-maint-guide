@@ -4,13 +4,14 @@
 만드는 것
   data/manuals/MG-MM.md            가상 정비 매뉴얼
   data/manuals/manual_sections.json  절 단위 목록(검색 색인·권한 판정용)
-  data/alarm_rules.json            알람 경계(1~9월 분포)와 행 배치 규칙
-  data/history/maintenance_history.jsonl  1~9월 정비 이력 300건
+  data/alarm_rules.json            알람 경계(학습용 train 행 분포)와 행 배치 규칙
+  data/history/maintenance_history.jsonl  학습용(train) 행의 정비 이력 300건
   data/manifest.json               입력·출력 해시와 건수
 
 원칙
   - CSV 에서 고장 라벨 6열은 읽자마자 버린다. 원인은 generation/cause_ratio_table.json(팀 가정)으로만 뽑는다.
-  - 행 순서를 시간 순서로 유지하고, 더운 구간이 9월 말~10월 초에 걸치도록 시작점만 옮긴다.
+  - 행 고르기는 분할 파일(generation/split, D-227)로만 한다: 이력 · 알람 경계 · 평소 범위 · 정규화 = train 행(D-236 (4)). 시간으로 행을 고르지 않는다.
+  - 행 시각 · 설비 번호는 지금 배치 규칙(행 순서 유지, 시작점만 옮김) 그대로 붙인다 — 화면에 닿는 시각은 다음 판(CH-02b).
   - 고정 seed 로 다시 돌려도 같은 결과가 나온다.
 
 실행: python3 scripts/build_data.py [--csv PATH]
@@ -30,12 +31,13 @@ import manual_spec as M
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CSV = ROOT.parent / "manifact_10" / "data" / "raw" / "ai4i2020.csv"
 RATIO_TABLE = ROOT / "generation" / "cause_ratio_table.json"
+SPLIT_FILE = ROOT / "generation" / "split" / "ai4i-split-by-udi.csv"  # 분할 v2(D-227): UDI → segment · split, 라벨 없음
 
 SEED = 10
 N_MACHINES = 20
 YEAR_START = dt.datetime(2026, 1, 1)
 YEAR_MINUTES = 365 * 24 * 60
-HISTORY_END = dt.datetime(2026, 10, 1)  # 이력은 1~9월
+HISTORY_END = dt.datetime(2026, 10, 1)  # 배치 규칙의 기준점(더운 구간 위치)만 — 행 고르기에는 쓰지 않음(CH-02a)
 TARGET_RECORDS = 300
 KST = "+09:00"
 
@@ -198,9 +200,25 @@ def thresholds(history_rows):
     return th
 
 
-# 화면 센서 표의 '평소 범위'(사용자 결정 014 ①): 알람 경계와 같은 방식 — 1~9월 행의 2.5 · 97.5 백분위
+# 화면 센서 표의 '평소 범위'(사용자 결정 014 ①): 알람 경계와 같은 방식 — 학습용(train) 행의 2.5 · 97.5 백분위
 NORMAL_RANGE_KEYS = [("air", "air_temperature_k"), ("proc", "process_temperature_k"), ("rpm", "rotational_speed_rpm"),
                      ("torque", "torque_nm"), ("wear", "tool_wear_min"), ("temp_diff", "temp_diff_k"), ("power", "power_w")]
+
+
+def train_std(history_rows):
+    """train 행 센서 값의 표준편차(모집단) — 평소 범위와 같은 칸 이름."""
+    out = {}
+    for k, snap in NORMAL_RANGE_KEYS:
+        vals = [r[k] for r in history_rows]
+        mean = sum(vals) / len(vals)
+        out[snap] = round(math.sqrt(sum((v - mean) ** 2 for v in vals) / len(vals)), 4)
+    return out
+
+
+def load_split():
+    """분할 파일(D-227): UDI → train · val · test · demo. 라벨은 들어 있지 않다."""
+    with open(SPLIT_FILE, encoding="utf-8") as f:
+        return {r["UDI"]: r["split"] for r in csv.DictReader(f)}
 
 
 def normal_ranges(history_rows):
@@ -609,7 +627,7 @@ def render_manual(th):
            f"issued: \"{d['issued']}\"", "doc_type: equipment_manual", "provenance: synthetic_manual", "---", "",
            f"# {d['title']}", "",
            "> 가상 매뉴얼(synthetic_manual). 캡스톤 과제 10 제안 C1-a15(정비 길잡이)용으로 만든 문서이며 실제 설비의 정비 절차가 아니다. "
-           "알람 경계는 UCI AI4I 2020 센서 값의 1~9월 분포로 정했고, UCI 가 고장 라벨을 만들 때 쓴 조건 수치는 쓰지 않았다. "
+           "알람 경계는 UCI AI4I 2020 센서 값 중 학습용(train) 행의 분포로 정했고, UCI 가 고장 라벨을 만들 때 쓴 조건 수치는 쓰지 않았다. "
            "원인·점검·소요 분·권한 등급은 모두 팀 가정이다.", ""]
     chunks = {}
     current = None
@@ -640,7 +658,7 @@ def render_appendices(th):
         if s.get("grade"):
             m = s.get("minutes") or SCOPE_OUT_MINUTES.get(sid)
             out.append(f"| {sid} | {s['title']} | {grade_text(s['grade'])} | {'약 ' + str(m) + '분' if m else '—'} |")
-    out += ["", "## 부록 C. 알람 경계", "", "2026년 1~9월 센서 값 분포로 계산했다. 데이터가 바뀌면 다시 계산한다.", "",
+    out += ["", "## 부록 C. 알람 경계", "", "학습용(train) 행의 센서 값 분포로 계산했다. 데이터 · 분할이 바뀌면 다시 계산한다.", "",
             "| 증상군 | 값 | 방향 | 경계 |", "|---|---|---|---|"]
     for rule in ALARM_RULES:
         g = next(x for x in M.GROUPS if x["code"] == rule["group"])
@@ -669,12 +687,12 @@ def section_index(chunks):
 
 # ── 검사
 
-def validate(records, manual_md, items):
+def validate(records, manual_md, items, train_udis):
     ids = {i["id"] for i in items}
     for rec in records:
         for ref in rec["manual_refs"]:
             assert ref.split(" ")[1] in ids, ref
-        assert rec["occurred_at"] < iso(HISTORY_END)
+        assert rec["source"]["udi"] in train_udis, rec["record_id"]  # 이력 = train 행만(D-236 (4))
         assert rec["steps"][0]["kind"] == "lock", rec["record_id"]  # 잠금이 언제나 처음
         called = set()
         for st in rec["steps"]:
@@ -696,7 +714,9 @@ def main():
 
     rows = load_rows(args.csv)
     placed, placement = place_rows(rows)
-    hist_rows = [r for r in placed if r["at"] < HISTORY_END]
+    split = load_split()
+    assert set(split) == {r["udi"] for r in placed}, "분할 파일과 CSV 행이 다름"
+    hist_rows = [r for r in placed if split[r["udi"]] == "train"]
     th = thresholds(hist_rows)
 
     alarms = []
@@ -721,7 +741,7 @@ def main():
 
     manual_md, chunks = render_manual(th)
     items = section_index(chunks)
-    validate(records, manual_md, items)
+    validate(records, manual_md, items, {r["udi"] for r in hist_rows})
 
     data = ROOT / "data"
     (data / "manuals").mkdir(parents=True, exist_ok=True)
@@ -733,14 +753,15 @@ def main():
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
     rules = {
-        "period_for_boundaries": ["2026-01-01", "2026-09-30"],
+        "boundary_rows": {"split_file": str(SPLIT_FILE.relative_to(ROOT)), "split_file_sha256": sha256(SPLIT_FILE), "split": "train", "rows": len(hist_rows)},
         "placement": dict(placement, machines=N_MACHINES, year=2026, rule="행 순서 유지, 시작점 이동, 설비 = 위치 % 20 + 1",
                           minutes_per_row=round(YEAR_MINUTES / len(rows), 2)),
         "priority": [r["group"] for r in ALARM_RULES],
         "rules": [{"group": r["group"], "sensor": r["sensor"], "key": r["key"], "unit": r["unit"],
                    "boundaries": {side: th[(r["group"], side)] for side in r["sides"]}} for r in ALARM_RULES],
-        "history_period_alarms": {g: len(v) for g, v in by_group.items()},
+        "train_alarms": {g: len(v) for g, v in by_group.items()},
         "normal_ranges": normal_ranges(hist_rows),
+        "train_std": train_std(hist_rows),  # ML 자리 모델(CH-04)이 읽는 train 행 표준편차
     }
     (data / "alarm_rules.json").write_text(json.dumps(rules, ensure_ascii=False, indent=1), encoding="utf-8")
 
@@ -749,7 +770,7 @@ def main():
         "source": {"name": "UCI AI4I 2020 Predictive Maintenance Dataset", "license": "CC BY 4.0",
                    "sha256": sha256(args.csv), "label_columns_dropped": LABEL_COLUMNS},
         "seed": SEED,
-        "generation_inputs": {"generation/cause_ratio_table.json": sha256(RATIO_TABLE)},
+        "generation_inputs": {"generation/cause_ratio_table.json": sha256(RATIO_TABLE), str(SPLIT_FILE.relative_to(ROOT)): sha256(SPLIT_FILE)},
         "history": {
             "total": len(records),
             "by_symptom_group": dict(Counter(r["symptom_group"]["code"] for r in records)),

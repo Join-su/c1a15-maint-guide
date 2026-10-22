@@ -714,7 +714,7 @@ def test_p19_screen_values_from_api(api, db, monkeypatch):
     sid = s["session_id"]
     a = s["alarm"]  # T03 알람 블록
     assert (a["equipment_type"], a["group_name"], a["system"]) == ("회전 가공 설비", "온도 차 저하", "냉각 계통")
-    assert a["boundary_text"] == "하위 경계 8.3 K" and a["trend_title"] == "온도 차 추이 · 최근 12회 측정"
+    assert a["boundary_text"] == "하위 경계 8.2 K" and a["trend_title"] == "온도 차 추이 · 최근 12회 측정"
     rows = a["sensors"]
     assert [r["key"] for r in rows] == [
         "temp_diff_k",
@@ -723,7 +723,7 @@ def test_p19_screen_values_from_api(api, db, monkeypatch):
         "tool_wear_min",
         "air_temperature_k",
     ]
-    assert rows[0]["range_text"] == "8.3 K 이상" and rows[0]["status"] == "경계 아래"
+    assert rows[0]["range_text"] == "8.2 K 이상" and rows[0]["status"] == "경계 아래"
     for r in rows[1:]:  # 평소 범위 = data/alarm_rules.json normal_ranges(결정 014 ①)
         nr = rules_json["normal_ranges"][r["key"]]
         assert r["range_text"] == f"{screen.fmt(r['key'], nr['low'])} ~ {screen.fmt(r['key'], nr['high'])}"
@@ -800,7 +800,7 @@ def test_p19_pw_alarm_sensor_table(api, db):
     a = s["alarm"]
     assert a["symptom_group"] == "PW" and a["system"] == "구동·전원 계통"
     assert [r["name"] for r in a["sensors"]] == ["기계 출력", "회전 속도", "회전력", "공구 마모", "공기 온도"]
-    assert a["sensors"][0]["range_text"] == "8,366 W 이하" and a["boundary_text"] == "상위 경계 8,366 W"
+    assert a["sensors"][0]["range_text"] == "8,403 W 이하" and a["boundary_text"] == "상위 경계 8,403 W"
 
 
 def test_p19_instruction_guide_grounding_and_repeat(api, db, monkeypatch):
@@ -1029,8 +1029,8 @@ def test_s03_action_restart_report_confirm(api, db, night):
     assert r.status_code == 409 and r.json()["detail"] == "checklist_incomplete"  # AC-21-C1
     s = ok(tech, s, type="restart", checked=rs["checklist"])
     v = s["restart"]["value"]  # AC-21-C2: 재가동 뒤 현재 값과 경계(R11: 경계 + 여유 10%)
-    assert s["step"]["kind"] == "restart_value" and v["value_text"] == "9.1 K"
-    assert v["rule_text"] == "경계 8.3 K 이상이면 경계 이내"
+    assert s["step"]["kind"] == "restart_value" and v["value_text"] == "9.0 K"
+    assert v["rule_text"] == "경계 8.2 K 이상이면 경계 이내"
     s = ok(tech, s, type="restart_result", outcome="within")
     assert s["step"]["kind"] == "report" and s["step"]["outcome"] == "confirmed"
     rep = s["report"]
@@ -1047,7 +1047,7 @@ def test_s03_action_restart_report_confirm(api, db, night):
     ]
     assert [x["source"] for x in rep["fields"]] == ["자동", "센서", "입력", "입력", "기록", "매뉴얼", "자동", "입력"]
     assert f["equipment_alarm"]["text"].startswith("M-01 · 온도 차 저하 · ")
-    assert f["sensor_evidence"]["text"].startswith("온도 차 7.9 K (경계 8.3 K 아래) · ") and f["sensor_evidence"][
+    assert f["sensor_evidence"]["text"].startswith("온도 차 7.9 K (경계 8.2 K 아래) · ") and f["sensor_evidence"][
         "text"
     ].endswith("→ 냉각 계통 쪽")
     assert f["check_path"]["text"].startswith(
@@ -1057,7 +1057,7 @@ def test_s03_action_restart_report_confirm(api, db, night):
     with db.connect() as c:
         sim = c.execute(text('select "similar" from ops.diag_sessions where session_id = :s'), {"s": sid}).scalar()
     assert f["evidence_records"]["text"] == " · ".join(x["record_id"] for x in sim[:3])
-    assert f["action"]["text"] == "흡기 필터 교체(4.3.2, A) · 재가동(6.1, B, 확인 완료) 후 온도 차 9.1 K 경계 이내"
+    assert f["action"]["text"] == "흡기 필터 교체(4.3.2, A) · 재가동(6.1, B, 확인 완료) 후 온도 차 9.0 K 경계 이내"
     assert f["downtime"]["text"].endswith("분")
     assert "냉각 팬 분해 점검(4.4, C등급) · 주간 확인 요청" in f["unresolved"]["text"]  # 결정 015 ④(CL-2가 후보로 남음)
     assert all(x["ok"] for x in rep["checks"]) and rep["can_confirm"] and rep["status"] == "draft"

@@ -25,7 +25,7 @@ python3 - "$OUT" "$HIST_BEFORE" "$HIST_AFTER" "$EVAL_ALARMS" "$FORBIDDEN" "$WATC
 import json, sys
 out, before, after, alarms, forbidden, watch, udis = sys.argv[1:]
 rep = json.load(open(out))
-cards_udi = set(json.load(open("eval/cards/card_udi_map.json")).values())
+cards_udi = set().union(*(json.load(open(f"eval/cards/{k}/card_udi_map.json")).values() for k in ("val", "test")))  # 두 묶음 모두 이력과 분리
 hist_udi = {u for u in udis.split(",") if u}
 rep["isolation"] = {
     "history_rows_before": int(before), "history_rows_after": int(after),  # R12: 평가 모드 보고서는 이력에 안 들어감

@@ -64,7 +64,7 @@ def check_filters(filters: dict) -> None:
 
 
 def sensor_stats(docs: list[HistoryDoc]) -> dict[str, tuple[float, float]]:
-    """1 ~ 9월 생성 이력의 평균 · 표준편차(R3 정규화 기준)."""
+    """학습용(train) 행 생성 이력의 평균 · 표준편차(R3 정규화 기준)."""
     base = [d for d in docs if d.source == "generated"]
     stats = {}
     for key in SENSOR_KEYS:

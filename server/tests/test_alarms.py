@@ -35,9 +35,9 @@ def test_scenarios_follow_r11(items):
 def test_detect_boundaries_and_priority():
     base = {"power_w": 6000, "temp_diff_k": 9.0, "torque_nm": 40.0, "tool_wear_min": 100}
     assert alarm_rules.detect(base, TABLE) is None
-    cl = alarm_rules.detect({**base, "temp_diff_k": 8.2}, TABLE)
-    assert cl["group"] == "CL" and cl["alarm"]["direction"] == "경계 아래" and cl["alarm"]["boundary"] == 8.3
-    assert alarm_rules.detect({**base, "temp_diff_k": 8.3}, TABLE) is None  # 경계 값은 넘지 않음
+    cl = alarm_rules.detect({**base, "temp_diff_k": 8.1}, TABLE)
+    assert cl["group"] == "CL" and cl["alarm"]["direction"] == "경계 아래" and cl["alarm"]["boundary"] == 8.2
+    assert alarm_rules.detect({**base, "temp_diff_k": 8.2}, TABLE) is None  # 경계 값은 넘지 않음
     both = alarm_rules.detect({**base, "temp_diff_k": 8.0, "power_w": 9000}, TABLE)
     assert both["group"] == "PW"  # priority PW → CL → LD → TW
     assert both["alarm"]["trend_title"] == "기계 출력 추이 · 최근 12회 측정"

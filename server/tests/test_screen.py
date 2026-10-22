@@ -118,19 +118,23 @@ SNAP = {
 
 
 def test_sensor_table_cl_matches_prototype_t03(table):
-    """T03 / default: 알람 센서 + 4개, 평소 범위 = 1~9월 2.5 ~ 97.5 백분위, 알람 센서는 경계 쪽 한쪽 범위."""
-    alarm = alarm_rules.detect(SNAP, table)
+    """T03 / default: 알람 센서 + 4개, 평소 범위 = train 행 2.5 ~ 97.5 백분위, 알람 센서는 경계 쪽 한쪽 범위."""
+    snap = {
+        **SNAP,
+        "air_temperature_k": 304.2,
+    }  # 공기 온도를 train 평소 범위(296.7 ~ 303.8) 밖에 둠(EV-001 분할 v2 — 범위가 바뀌어 302.7은 안쪽)
+    alarm = alarm_rules.detect(snap, table)
     assert alarm["group"] == "CL"
-    rows = screen.sensor_rows(alarm["alarm"], "CL", SNAP, table)
+    rows = screen.sensor_rows(alarm["alarm"], "CL", snap, table)
     got = [(r["name"], r["value_text"], r["range_text"], r["status"]) for r in rows]
     assert got == [
-        ("온도 차", "7.8 K", "8.3 K 이상", "경계 아래"),
-        ("회전 속도", "1,511 rpm", "1,305 ~ 1,979", "정상"),
-        ("회전력", "37.7 Nm", "20.5 ~ 59.7", "정상"),
-        ("공구 마모", "60 분", "4 ~ 214", "정상"),
-        ("공기 온도", "302.7 K", "296.4 ~ 302.4", "정상"),  # 경계 없는 센서는 평소 범위 밖이어도 '정상'
+        ("온도 차", "7.8 K", "8.2 K 이상", "경계 아래"),
+        ("회전 속도", "1,511 rpm", "1,308 ~ 1,981", "정상"),
+        ("회전력", "37.7 Nm", "20.3 ~ 60.1", "정상"),
+        ("공구 마모", "60 분", "4 ~ 215", "정상"),
+        ("공기 온도", "304.2 K", "296.7 ~ 303.8", "정상"),  # 경계 없는 센서는 평소 범위 밖이어도 '정상'
     ]
-    assert screen.out_of_range_count(SNAP, table) == 1
+    assert screen.out_of_range_count(snap, table) == 1
 
 
 def test_sensor_table_pw_alarm_sensor_plus_four(table):
@@ -140,7 +144,7 @@ def test_sensor_table_pw_alarm_sensor_plus_four(table):
     assert alarm["group"] == "PW"
     rows = screen.sensor_rows(alarm["alarm"], "PW", snap, table)
     assert [r["name"] for r in rows] == ["기계 출력", "회전 속도", "회전력", "공구 마모", "공기 온도"]
-    assert rows[0]["range_text"] == "8,366 W 이하" and rows[0]["status"] == "경계 위" and rows[0]["is_alarm_sensor"]
+    assert rows[0]["range_text"] == "8,403 W 이하" and rows[0]["status"] == "경계 위" and rows[0]["is_alarm_sensor"]
 
 
 def test_sensor_table_counts_other_boundaries(table):

@@ -2,9 +2,17 @@
  "source": {
   "name": "UCI AI4I 2020",
   "sha256": "dc6630cd9b1f0f853922fad78a1b6436570d3f1ec863f1dd5c4340ac56bc8a8e",
-  "period": "2026-10 ~ 12월 배치 행"
+  "split": "v2 demo",
+  "split_file_sha256": "1929f57ea68b21bbdc90c8532ca27c3014e4ddc32b1b9cfeed68484e9e4bf376",
+  "segments": [
+   53,
+   54,
+   55,
+   68,
+   74
+  ]
  },
- "rule": "R11: 증상군별 시간순 첫 알람 행(평가 카드 · 이력 행 제외), 숨은 원인 없음",
+ "rule": "R11: 분할 v2 시연 몫의 DEMO-01 ~ 10 행 고정(행 · 설비 번호 그대로), 경계 = train 행, 숨은 원인 없음",
  "scenarios": [
   {
    "scenario_id": "DEMO-01",

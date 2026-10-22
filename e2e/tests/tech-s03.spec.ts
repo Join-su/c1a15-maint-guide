@@ -19,7 +19,7 @@ test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 교체 완료
   await expect(page.locator(".act .ch.green")).toHaveText(/^완료 \d\d:\d\d$/);
   await shot(page, info, "T08-restart_checklist");
   await restartWithin(page);
-  await expect(page.locator(".rv-sub")).toHaveText("경계 8.3 K 이상이면 경계 이내");
+  await expect(page.locator(".rv-sub")).toHaveText("경계 8.2 K 이상이면 경계 이내");
   await shot(page, info, "T08-restart_check");
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator(".rf")).toHaveCount(8);

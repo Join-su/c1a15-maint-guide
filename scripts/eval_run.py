@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import eval_metrics  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
-CARDS, INPUTS = ROOT / "eval/cards/cards.jsonl", ROOT / "eval/cards/card_inputs.json"
+CARDS, INPUTS = ROOT / "eval/cards/val/cards.jsonl", ROOT / "eval/cards/val/card_inputs.json"  # 작업 묶음 val 30(EV-001 CH-10) — test 30 숨김 모드는 ES-05
 SECTIONS = ROOT / "data/manuals/manual_sections.json"
 TECHS = ("tech.kim", "tech.lee", "tech.choi", "tech.jung")
 TREND_KEY = {"온도 차": "temp_diff_k", "기계 출력": "power_w", "공구 마모 시간": "tool_wear_min", "토크": "torque_nm"}

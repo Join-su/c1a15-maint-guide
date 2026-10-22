@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """평가 카드 검사.
 
-검사 대상: eval/cards/cards.jsonl (작성자 결과), eval/cards/card_inputs.json (작성자에게 준 알람 입력),
-eval/cards/card_udi_map.json (카드 ↔ 원본 행, 작성자에게는 주지 않음).
+검사 대상(묶음마다 — eval/cards/val · eval/cards/test, EV-001 CH-10): cards.jsonl (작성자 결과), card_inputs.json (작성자에게 준 알람 입력),
+card_udi_map.json (카드 ↔ 원본 행, 작성자에게는 주지 않음). 분할 몫: 카드 원본 행 ⊂ val ∪ test(generation/split).
 
-실행: python3 eval/validate_cards.py   (실패가 있으면 종료 코드 1)
+실행: python3 eval/validate_cards.py [val|test ...]   (기본 = 두 묶음, 실패가 있으면 종료 코드 1)
 """
+import csv
 import json
 import sys
 from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CARDS = ROOT / "eval/cards/cards.jsonl"
-INPUTS = ROOT / "eval/cards/card_inputs.json"
-UDI_MAP = ROOT / "eval/cards/card_udi_map.json"
+SETS = ("val", "test")
+SPLIT = ROOT / "generation/split/ai4i-split-by-udi.csv"
 SECTIONS = ROOT / "data/manuals/manual_sections.json"
 HISTORY = ROOT / "data/history/maintenance_history.jsonl"
 
@@ -26,11 +26,12 @@ CAUSE_NAMES = {
 }
 
 
-def main():
+def check(sname):
+    d = ROOT / "eval/cards" / sname
     errors = []
-    cards = [json.loads(l) for l in CARDS.read_text(encoding="utf-8").splitlines() if l.strip()]
-    inputs = json.loads(INPUTS.read_text(encoding="utf-8"))
-    udi_map = json.loads(UDI_MAP.read_text(encoding="utf-8"))
+    cards = [json.loads(l) for l in (d / "cards.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+    inputs = json.loads((d / "card_inputs.json").read_text(encoding="utf-8"))
+    udi_map = json.loads((d / "card_udi_map.json").read_text(encoding="utf-8"))
     sections = json.loads(SECTIONS.read_text(encoding="utf-8"))
     checks = {}
     for s in sections:
@@ -98,16 +99,32 @@ def main():
         errors.append(f"이력과 겹치는 원본 행 {len(overlap)}건")
     if set(udi_map) != {c["card_id"] for c in cards}:
         errors.append("UDI 표와 카드 ID 불일치")
+    with open(SPLIT, encoding="utf-8") as f:
+        split = {r["UDI"]: r["split"] for r in csv.DictReader(f)}
+    off = sorted(u for u in udi_map.values() if split.get(u) not in ("val", "test"))
+    if off:
+        errors.append(f"val · test 몫 밖 원본 행 {len(off)}건")
+    exc = (json.loads((d / "selection.json").read_text(encoding="utf-8")).get("exception") or {}) if (d / "selection.json").is_file() else {}
+    allowed_cross = set(exc.get("to_val", [])) if sname == "val" else set()   # D-241: val만 test 구간 56 행(예외 기록)을 받음
+    cross = sorted(u for u in udi_map.values() if split.get(u) in ("val", "test") and split.get(u) != sname and u not in allowed_cross)
+    if cross:
+        errors.append(f"다른 몫 원본 행 {len(cross)}건(예외 기록 밖)")
 
     codes = Counter(c["hidden_cause"].get("code", c["hidden_cause"]["type"]) for c in cards)
-    print("정답 유형:", dict(types), "| ambiguous:", amb)
-    print("원인 코드별:", dict(sorted(codes.items())))
+    print(f"[{sname}] 정답 유형:", dict(types), "| ambiguous:", amb)
+    print(f"[{sname}] 원인 코드별:", dict(sorted(codes.items())))
     if errors:
-        print(f"실패 {len(errors)}건:")
+        print(f"[{sname}] 실패 {len(errors)}건:")
         for e in errors:
             print(" -", e)
-        sys.exit(1)
-    print("통과: 형식·건수·일관성·메모·이력 분리")
+        return False
+    print(f"[{sname}] 통과: 형식·건수·일관성·메모·이력 분리·분할 몫")
+    return True
+
+
+def main():
+    names = sys.argv[1:] or list(SETS)
+    sys.exit(0 if all([check(n) for n in names]) else 1)
 
 
 if __name__ == "__main__":

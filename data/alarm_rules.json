@@ -1,8 +1,10 @@
 {
- "period_for_boundaries": [
-  "2026-01-01",
-  "2026-09-30"
- ],
+ "boundary_rows": {
+  "split_file": "generation/split/ai4i-split-by-udi.csv",
+  "split_file_sha256": "1929f57ea68b21bbdc90c8532ca27c3014e4ddc32b1b9cfeed68484e9e4bf376",
+  "split": "train",
+  "rows": 5735
+ },
  "placement": {
   "rotation_offset": 2989,
   "hot_spell_center_udi": "4491",
@@ -24,8 +26,8 @@
    "key": "power",
    "unit": "W",
    "boundaries": {
-    "low": 4210,
-    "high": 8366
+    "low": 4189,
+    "high": 8403
    }
   },
   {
@@ -34,7 +36,7 @@
    "key": "temp_diff",
    "unit": "K",
    "boundaries": {
-    "low": 8.3
+    "low": 8.2
    }
   },
   {
@@ -43,7 +45,7 @@
    "key": "torque",
    "unit": "Nm",
    "boundaries": {
-    "high": 59.7
+    "high": 60.1
    }
   },
   {
@@ -52,44 +54,53 @@
    "key": "wear",
    "unit": "분",
    "boundaries": {
-    "high": 214.0
+    "high": 215.0
    }
   }
  ],
- "history_period_alarms": {
-  "TW": 171,
-  "PW": 374,
-  "CL": 158,
-  "LD": 47
+ "train_alarms": {
+  "TW": 118,
+  "PW": 286,
+  "CL": 122,
+  "LD": 34
  },
  "normal_ranges": {
   "air_temperature_k": {
-   "low": 296.4,
-   "high": 302.4
+   "low": 296.7,
+   "high": 303.8
   },
   "process_temperature_k": {
-   "low": 307.3,
-   "high": 311.9
+   "low": 307.4,
+   "high": 312.8
   },
   "rotational_speed_rpm": {
-   "low": 1305.0,
-   "high": 1979.0
+   "low": 1308.0,
+   "high": 1981.0
   },
   "torque_nm": {
-   "low": 20.5,
-   "high": 59.7
+   "low": 20.3,
+   "high": 60.1
   },
   "tool_wear_min": {
    "low": 4.0,
-   "high": 214.0
+   "high": 215.0
   },
   "temp_diff_k": {
-   "low": 8.3,
-   "high": 11.6
+   "low": 8.2,
+   "high": 11.5
   },
   "power_w": {
-   "low": 4210,
-   "high": 8366
+   "low": 4189,
+   "high": 8403
   }
+ },
+ "train_std": {
+  "air_temperature_k": 1.8317,
+  "process_temperature_k": 1.4152,
+  "rotational_speed_rpm": 177.7222,
+  "torque_nm": 9.9637,
+  "tool_wear_min": 63.6363,
+  "temp_diff_k": 0.9464,
+  "power_w": 1071.0638
  }
 }
