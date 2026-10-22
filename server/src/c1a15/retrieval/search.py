@@ -143,7 +143,10 @@ def query_text(group_name: str, direction: str, results: list[dict]) -> str:
 
 
 class Index:
-    """BM25 메모리 색인 + 문서 목록. R12: 승인 보고서를 추가(평가 모드에서는 하지 않음)."""
+    """BM25 메모리 색인 + 문서 목록(지금 활성 이력 release로 만듦 — R12는 새 판으로 다시 만든다, EV-001 CH-08).
+
+    add_approved는 메모리 시험용(앱 길은 새 판).
+    """
 
     def __init__(
         self,

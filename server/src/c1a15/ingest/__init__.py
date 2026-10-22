@@ -68,9 +68,7 @@ def manual_chunks(manual_md: str, sections: list[dict]) -> list[dict]:
         text = s.get("text")
         if not text:
             continue
-        start = manual_md.find(text, pos)
-        if start < 0:
-            start = manual_md.find(text)
+        start = manual_md.find(text, pos)  # 절 차례대로 — 앞 절과 본문이 같아도 뒤 위치를 잡음
         if start < 0:
             raise ValueError(f"매뉴얼 원문에서 절 본문을 찾지 못함: {s['id']}")
         pos = start + len(text)
@@ -106,7 +104,16 @@ def release(
         for c in chunks
     )
     rsha = sha256(
-        canonical({"kind": kind, "recipe": recipe, "model": FAKE_MODEL, "dim": EMBEDDING_DIM, "chunks": body})
+        canonical(
+            {
+                "kind": kind,
+                "recipe": recipe,
+                "model": FAKE_MODEL,
+                "dim": EMBEDDING_DIM,
+                "chunks": body,
+                "queries": qs or {},
+            }
+        )
     )
     return {
         "release_id": f"{kind}-{rsha[:16]}",

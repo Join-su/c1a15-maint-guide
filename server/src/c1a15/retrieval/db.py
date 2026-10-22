@@ -30,7 +30,7 @@ def load_release_docs(conn: Connection, release_id: str) -> list[HistoryDoc]:
             "'cause_code', c.embedding::text, r.source "
             "from knowledge.release_chunks c join knowledge.history_records r on r.record_id = c.metadata "
             "->> 'record_id' "
-            "where c.release_id = :rel"
+            "where c.release_id = :rel order by c.chunk_id"
         ),
         {"rel": release_id},
     ).all()

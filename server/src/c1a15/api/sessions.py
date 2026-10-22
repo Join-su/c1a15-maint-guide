@@ -220,7 +220,7 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     existing = c.execute(select(m.DiagSession.session_id).where(m.DiagSession.alarm_id == alarm.alarm_id)).scalar()
     if existing:
         return existing
-    idx = deps.index()
+    idx = deps.fresh_index(c)
     pool = [d for d in idx.docs if d.symptom_group == alarm.symptom_group]
     qtext = search.query_text(GROUP_NAME.get(alarm.symptom_group, ""), alarm.alarm.get("direction", ""), [])
     if qtext in idx.queries:  # 이력 release에 미리 계산한 질의 벡터(EV-001 Q-2)

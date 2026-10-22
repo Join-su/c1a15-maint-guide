@@ -51,6 +51,8 @@ def test_vc08_same_recipe_same_release():
         other["release_id"] != a["release_id"] and other["recipe_sha256"] != a["recipe_sha256"]
     )  # recipe가 바뀌면 다른 판
     fewer = ingest.release("history", ingest.HISTORY_RECIPE, ingest.history_chunks(recs[:-1]), {"n": 1})
+    noq = ingest.release("history", ingest.HISTORY_RECIPE, ingest.history_chunks(recs), {"n": 1})
+    assert noq["release_id"] != a["release_id"]  # 미리 계산한 질의 벡터도 판 hash에 들어감
     assert fewer["release_id"] != a["release_id"]  # 조각이 바뀌면 다른 판
     assert len(a["chunks"]) == 300 and all(c["chunk_id"].endswith("#0") for c in a["chunks"])  # 기본 recipe '1건 1조각'
 
@@ -81,7 +83,15 @@ def test_vc24_retriever_settings_file(tmp_path):
     raw = (DATA / "retriever.json").read_text(encoding="utf-8")
     body = json.loads(raw)
     assert not settings.USER_SETTING_NAMES & set(body) and "about" in body
-    for bad in ({"alpha": 0.5}, {"top_k": 12}, {"similarity_threshold": 0.3}, {"call_threshold": 50}):
+    for bad in (
+        {"alpha": 0.5},
+        {"top_k": 12},
+        {"similarity_threshold": 0.3},
+        {"call_threshold": 50},
+        {"cause_alpha": 1},
+        {"metadata_filter": ["symptom_group", "cause_code"]},
+        {"rerank_weights": {"rrf": 0.5, "sensor": 0.5, "alpha": 1}},
+    ):
         p = tmp_path / "r.json"
         p.write_text(json.dumps({**body, **bad}), encoding="utf-8")
         with pytest.raises(ValueError):

@@ -13,12 +13,12 @@ def write(c: Connection, rel: dict) -> bool:
     """판을 넣는다. 같은 판(release_id)이 이미 있으면 그대로 둔다(같은 입력 = 같은 판)."""
     if c.execute(text("select 1 from knowledge.data_releases where release_id = :r"), {"r": rel["release_id"]}).first():
         return False
-    c.execute(
+    c.execute(  # 같은 판을 동시에 넣으면 앞 것이 이김(판 내용은 hash로 같음)
         text(
             "insert into knowledge.data_releases (release_id, kind, recipe, recipe_sha256, "
             "embedding_model, embedding_dim, source, "
             "parent_release_id, release_sha256, queries) values (:id, :k, cast(:rc as jsonb), :rs, :m, :d, "
-            "cast(:s as jsonb), :p, :h, cast(:q as jsonb))"
+            "cast(:s as jsonb), :p, :h, cast(:q as jsonb)) on conflict (release_id) do nothing"
         ),
         {
             "id": rel["release_id"],
@@ -100,6 +100,9 @@ def sync_history(c: Connection) -> str | None:
     """R12(CH-08): 활성 이력 판에 없는 이력 기록
     (승인 보고서)이 있으면 그것을 더한 새 판을 만들고 가리킴을 옮긴다. 새 판 ID 또는 None.
     """
+    c.execute(
+        text("select pg_advisory_xact_lock(hashtext('c1a15.history_release'))")
+    )  # 승인 둘이 겹쳐도 판은 차례로(transaction 끝에 풀림)
     cur = active(c, "history")
     if cur is None:
         raise RuntimeError("활성 이력 release가 없음 — 적재기(python -m c1a15.loader)를 먼저 돌려야 함")

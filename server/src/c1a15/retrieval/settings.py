@@ -42,11 +42,36 @@ class Settings:
     similarity_threshold: float | None = None
 
 
+ALLOWED_KEYS = {
+    "about",
+    "rrf_k",
+    "top_k",
+    "rerank_weights",
+    "metadata_filter",
+    "search",
+    "sensor_keys",
+    "similarity_threshold",
+}
+ALLOWED_SUB = {
+    "rerank_weights": {"rrf", "sensor"},
+    "search": {"mode", "bm25", "semantic_candidates"},
+    "bm25": {"k1", "b"},
+}
+
+
 def load(path: Path) -> Settings:
     d = json.loads(Path(path).read_text(encoding="utf-8"))
     bad = USER_SETTING_NAMES & set(d) | USER_SETTING_NAMES & set(d.get("search", {}))
     if bad:
         raise ValueError(f"리트리버 설정에 사용자 설정 숫자 이름: {sorted(bad)}")
+    unknown = (set(d) - ALLOWED_KEYS) | (set(d["rerank_weights"]) - ALLOWED_SUB["rerank_weights"])
+    unknown |= (set(d["search"]) - ALLOWED_SUB["search"]) | (set(d["search"]["bm25"]) - ALLOWED_SUB["bm25"])
+    if unknown:  # 허용 목록 — 리트리버 node 옵션(분류표 (가))만
+        raise ValueError(f"리트리버 설정에 모르는 이름: {sorted(unknown)}")
+    from c1a15.retrieval.search import ALLOWED_FILTERS
+
+    if set(d["metadata_filter"]) != ALLOWED_FILTERS:  # 원인 필드 금지는 안전 규칙(옵션 밖) — 지금 허용 필터와 같아야 함
+        raise ValueError(f"메타데이터 필터는 {sorted(ALLOWED_FILTERS)}만(받은 값 {d['metadata_filter']})")
     if d["top_k"] != FIXED_TOP_K:
         raise ValueError(f"상위 k는 이 판에서 {FIXED_TOP_K} 고정(받은 값 {d['top_k']})")
     if d.get("similarity_threshold") is not None:

@@ -90,6 +90,19 @@ def index() -> search.Index:
     return search.Index(docs, retriever(), cur["release_id"], cur["queries"])
 
 
+def fresh_index(c: Connection) -> search.Index:
+    """색인이 지금 활성 이력 release로 만든 것인지 확인하고, 아니면 다시 만든다.
+
+    R12 새 판 · cache_clear 경쟁에도 옛 판으로 검색하지 않는다.
+    """
+    idx = index()
+    now = c.execute(text("select release_id from knowledge.active_releases where kind = 'history'")).scalar()
+    if now != idx.release_id:
+        index.cache_clear()
+        idx = index()
+    return idx
+
+
 @lru_cache
 def stats():
     return search.sensor_stats(index().docs)
@@ -142,7 +155,7 @@ def scenarios() -> dict[str, dict]:
 
 
 def reset_caches() -> None:
-    for f in (engine, manual, index, stats, alarm_table, _chapter_titles, equipment_types, scenarios):
+    for f in (engine, manual, index, retriever, stats, alarm_table, _chapter_titles, equipment_types, scenarios):
         f.cache_clear()
 
 
