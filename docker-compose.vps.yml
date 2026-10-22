@@ -1,0 +1,25 @@
+# VPS 전용 덧파일: 포트를 밖에 열지 않고 Traefik(HTTPS)으로만 접속한다.
+# 쓰는 법: 서버 .env에 COMPOSE_FILE=docker-compose.yml:docker-compose.vps.yml 과 아래 두 주소 이름을 둔다(값은 .env에만).
+#   C1A15_TECH_HOST=정비자 앱 주소   C1A15_LEAD_HOST=파트장 앱 주소
+services:
+  db:
+    ports: !override
+      - "127.0.0.1:55432:5432"   # 서버 안에서만. 이 맥에서는 SSH 터널로 본다.
+    restart: unless-stopped
+  api:
+    restart: unless-stopped
+  web:
+    ports: !reset []
+    restart: unless-stopped
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.c1a15-tech.rule: Host(`${C1A15_TECH_HOST:?.env에 C1A15_TECH_HOST 필요}`)
+      traefik.http.routers.c1a15-tech.entrypoints: websecure
+      traefik.http.routers.c1a15-tech.tls.certresolver: letsencrypt
+      traefik.http.routers.c1a15-tech.service: c1a15-tech
+      traefik.http.services.c1a15-tech.loadbalancer.server.port: "8081"
+      traefik.http.routers.c1a15-lead.rule: Host(`${C1A15_LEAD_HOST:?.env에 C1A15_LEAD_HOST 필요}`)
+      traefik.http.routers.c1a15-lead.entrypoints: websecure
+      traefik.http.routers.c1a15-lead.tls.certresolver: letsencrypt
+      traefik.http.routers.c1a15-lead.service: c1a15-lead
+      traefik.http.services.c1a15-lead.loadbalancer.server.port: "8082"
