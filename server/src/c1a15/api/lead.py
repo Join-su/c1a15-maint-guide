@@ -20,7 +20,6 @@ from c1a15.db import models as m
 from c1a15.engine import session as session_engine
 from c1a15.llm import grounding
 from c1a15.llm.base import Draft
-from c1a15.retrieval.search import HistoryDoc
 
 router = APIRouter(prefix="/api/lead")
 _NUM_TOKEN = re.compile(r"\d[\d,]*(?:\.\d+)?\s*(?:[A-Za-z%°]+)?")
@@ -337,7 +336,10 @@ def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict
 
 
 def _add_history(c: Connection, rec: dict, symptom_group: str, eval_mode: bool) -> bool:
-    """R12: 지식 schema에 넣고 임베딩 · BM25 색인 갱신(commit 뒤, 평가 모드는 하지 않음 — AC-09-C2)."""
+    """R12: 지식 schema에 넣는다(평가 모드는 하지 않음 — AC-09-C2).
+
+    commit 뒤 새 이력 release를 만들고 검색 색인을 다시 만든다(EV-001 CH-08).
+    """
     if eval_mode:
         return False
     from c1a15.loader.embedding import FAKE_MODEL, fake_embedding
@@ -367,18 +369,24 @@ def _add_history(c: Connection, rec: dict, symptom_group: str, eval_mode: bool) 
         ),
         {"id": rec["record_id"], "e": "[" + ",".join(f"{v:.8f}" for v in emb) + "]", "m": FAKE_MODEL},
     )
-    doc = HistoryDoc(
-        rec["record_id"],
-        symptom_group,
-        rec["narrative"],
-        rec["sensor_snapshot"],
-        rec["outcome"]["cause_code"],
-        tuple(emb),
-        "approved_report",
-    )
-    # 메모리 색인(BM25 · 문서 목록)은 DB commit 뒤에 더한다 — 승인이 rollback되면 색인에도 남지 않음
-    c.info["after_commit"].append(lambda: deps.index().add_approved(doc, eval_mode=False))
+    # EV-001 CH-08: 승인이 commit된 뒤 그 보고서 조각을 더한 새 이력 release를 따로 만든다(판 불변 — 새 판).
+    # 실패해도 승인은 남고 감사에 기록, 다음 시도(다음 승인
+    # · 적재)가 밀린 기록까지 넣는다. 승인이 rollback되면 아무것도 하지 않음.
+    c.info["after_commit"].append(lambda: _new_history_release(rec["source"]["report_id"]))
     return True
+
+
+def _new_history_release(report_id) -> str | None:
+    from c1a15.ingest import store as release_store
+
+    try:
+        with deps.engine().begin() as c2:
+            new = release_store.sync_history(c2)
+    except Exception as e:  # noqa: BLE001 — 판 만들기 실패는 승인과 따로(VC-25)
+        sessions.audit_rejection("system", "history_release_failed", f"report:{report_id}", {"error": type(e).__name__})
+        return None
+    deps.index.cache_clear()  # 다음 알람부터 새 판으로 검색(AC-09)
+    return new
 
 
 @router.post(

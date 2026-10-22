@@ -67,10 +67,27 @@ def manual() -> knowledge.ManualKnowledge:
 
 
 @lru_cache
+def retriever():
+    """리트리버 설정(적재 자료 data/retriever.json, EV-001 CH-06)."""
+    from c1a15.retrieval import settings as retriever_settings
+
+    return retriever_settings.load(Path(require_env("DATA_DIR")) / "retriever.json")
+
+
+@lru_cache
 def index() -> search.Index:
+    """지금 활성 이력 release(EV-001 CH-06)의 조각과 벡터로 만든 검색 색인.
+
+    R12 새 판이 생기면 cache_clear로 다시 만든다.
+    """
+    from c1a15.ingest import store as release_store
+
     with engine().connect() as c:
-        docs = rdb.load_docs(c)
-    return search.Index(docs)
+        cur = release_store.active(c, "history")
+        if cur is None:
+            raise RuntimeError("활성 이력 release가 없음 — 적재기(python -m c1a15.loader)를 먼저 돌려야 함")
+        docs = rdb.load_release_docs(c, cur["release_id"])
+    return search.Index(docs, retriever(), cur["release_id"], cur["queries"])
 
 
 @lru_cache

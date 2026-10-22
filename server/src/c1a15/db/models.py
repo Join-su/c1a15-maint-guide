@@ -83,6 +83,48 @@ class HistoryEmbedding(Base):
     model: Mapped[str] = mapped_column(String(64))
 
 
+class DataRelease(Base):
+    """EV-001 CH-05: 이력 · 매뉴얼 조각의 hash 고정 판(고치지 않음 — 새 판을 더함)."""
+
+    __tablename__ = "data_releases"
+    __table_args__ = (CheckConstraint("kind IN ('history', 'manual')", name="kind"), {"schema": "knowledge"})
+
+    release_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(16))
+    recipe: Mapped[dict] = mapped_column(JSONB)
+    recipe_sha256: Mapped[str] = mapped_column(String(64))
+    embedding_model: Mapped[str] = mapped_column(String(64))
+    embedding_dim: Mapped[int] = mapped_column(Integer)
+    source: Mapped[dict] = mapped_column(JSONB)
+    parent_release_id: Mapped[str | None] = mapped_column(String(64))
+    release_sha256: Mapped[str] = mapped_column(String(64))
+    queries: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ReleaseChunk(Base):
+    __tablename__ = "release_chunks"
+    __table_args__ = (PrimaryKeyConstraint("release_id", "chunk_id", name="pk_release_chunks"), {"schema": "knowledge"})
+
+    release_id: Mapped[str] = mapped_column(ForeignKey("knowledge.data_releases.release_id"))
+    chunk_id: Mapped[str] = mapped_column(String(64))
+    doc: Mapped[str] = mapped_column(String(16))
+    locator: Mapped[dict] = mapped_column(JSONB)
+    text: Mapped[str] = mapped_column(Text)
+    metadata_: Mapped[dict] = mapped_column("metadata", JSONB)
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM))
+
+
+class ActiveRelease(Base):
+    """종류(history · manual)마다 지금 검색이 읽는 판."""
+
+    __tablename__ = "active_releases"
+    __table_args__ = {"schema": "knowledge"}
+
+    kind: Mapped[str] = mapped_column(String(16), primary_key=True)
+    release_id: Mapped[str] = mapped_column(ForeignKey("knowledge.data_releases.release_id"))
+
+
 # ---------------------------------------------------------------- ops
 class Account(Base):
     __tablename__ = "accounts"

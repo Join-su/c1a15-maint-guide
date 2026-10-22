@@ -223,12 +223,22 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     idx = deps.index()
     pool = [d for d in idx.docs if d.symptom_group == alarm.symptom_group]
     qtext = search.query_text(GROUP_NAME.get(alarm.symptom_group, ""), alarm.alarm.get("direction", ""), [])
-    from c1a15.loader.embedding import fake_embedding  # fixture 모드 질의 임베딩(live 임베딩은 승인 뒤 LLM Adapter)
+    if qtext in idx.queries:  # 이력 release에 미리 계산한 질의 벡터(EV-001 Q-2)
+        qv = [float(x) for x in idx.queries[qtext].strip("[]").split(",")]
+    else:
+        from c1a15.loader.embedding import fake_embedding  # fixture 모드 질의 임베딩(live 임베딩은 승인 뒤 LLM Adapter)
 
-    qv = fake_embedding(qtext)
+        qv = fake_embedding(qtext)
     vector = search.cosine_rank(qv, pool)
     top = search.similar_records(
-        {"symptom_group": alarm.symptom_group}, qtext, alarm.sensor_snapshot, idx.docs, idx.bm25, vector, deps.stats()
+        {"symptom_group": alarm.symptom_group},
+        qtext,
+        alarm.sensor_snapshot,
+        idx.docs,
+        idx.bm25,
+        vector,
+        deps.stats(),
+        idx.cfg,
     )
     sid = c.execute(
         m.DiagSession.__table__.insert()

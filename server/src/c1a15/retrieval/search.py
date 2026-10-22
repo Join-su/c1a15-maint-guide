@@ -1,5 +1,8 @@
 """R3 검색: 같은 증상군 필터 → BM25 + 의미 검색 → RRF(k=60) 상위 10건 → 센서 거리로 다시 정렬 · score.
 
+숫자(RRF k · 상위 k · 재정렬 가중 · BM25 k1 · b · 의미 후보 수 · 센서 칸)는 리트리버 설정 파일에서 읽는다
+(data/retriever.json, retrieval.settings). 아래 상수는 그 기본값과 같은 값(메모리 시험용). EV-001 CH-06.
+
 원인 필드(확정 원인 · outcome)는 검색 조건 · 순위 입력에 쓰지 않는다(AC-15-C3, EP-PACK-DATA-002).
 결과의 원인은 R4 점수 계산을 위해 검색이 끝난 뒤에만 붙인다.
 """
@@ -9,6 +12,9 @@ from dataclasses import dataclass
 
 from c1a15.engine.rules import Similar
 from c1a15.retrieval.bm25 import BM25
+from c1a15.retrieval.settings import Settings
+
+DEFAULT = Settings()
 
 RRF_K = 60
 TOP_N = 10
@@ -75,8 +81,10 @@ def sensor_stats(docs: list[HistoryDoc]) -> dict[str, tuple[float, float]]:
     return stats
 
 
-def sensor_distance(a: dict, b: dict, stats: dict[str, tuple[float, float]]) -> float:
-    return math.sqrt(sum(((float(a[k]) - float(b[k])) / stats[k][1]) ** 2 for k in SENSOR_KEYS))
+def sensor_distance(
+    a: dict, b: dict, stats: dict[str, tuple[float, float]], keys: tuple[str, ...] = SENSOR_KEYS
+) -> float:
+    return math.sqrt(sum(((float(a[k]) - float(b[k])) / stats[k][1]) ** 2 for k in keys))
 
 
 def cosine_rank(query_vec: list[float], docs: list[HistoryDoc]) -> list[str]:
@@ -101,18 +109,26 @@ def similar_records(
     bm25: BM25,
     vector_ranks: list[str],
     stats: dict[str, tuple[float, float]],
+    cfg: Settings = DEFAULT,
 ) -> list[SimilarRecord]:
     """R3 상위 10건(score 순). RRF정규화 = RRF ÷ 상위 10건 최댓값, d정규화 = d ÷ 상위 10건 최댓값(L0 정의)."""
     check_filters(filters)
     pool = [d for d in docs if d.symptom_group == filters["symptom_group"]]
     ids = {d.record_id for d in pool}
-    fused = rrf([bm25.rank(query_text, sorted(ids)), [r for r in vector_ranks if r in ids]])
-    top = sorted(fused, key=lambda r: (-fused[r], r))[:TOP_N]
+    semantic = [r for r in vector_ranks if r in ids][: cfg.semantic_candidates]
+    fused = rrf([bm25.rank(query_text, sorted(ids)), semantic], k=cfg.rrf_k)
+    top = sorted(fused, key=lambda r: (-fused[r], r))[: cfg.top_k]
     by_id = {d.record_id: d for d in pool}
-    dist = {r: sensor_distance(query_sensor, by_id[r].sensor, stats) for r in top}
+    dist = {r: sensor_distance(query_sensor, by_id[r].sensor, stats, cfg.sensor_keys) for r in top}
     max_rrf, max_d = max(fused[r] for r in top) if top else 1.0, (max(dist.values()) if dist else 0.0) or 1.0
     out = [
-        SimilarRecord(r, by_id[r].cause, fused[r], dist[r], 0.5 * (fused[r] / max_rrf) + 0.5 * (1 - dist[r] / max_d))
+        SimilarRecord(
+            r,
+            by_id[r].cause,
+            fused[r],
+            dist[r],
+            cfg.w_rrf * (fused[r] / max_rrf) + cfg.w_sensor * (1 - dist[r] / max_d),
+        )
         for r in top
     ]
     return sorted(out, key=lambda s: (-s.score, s.record_id))
@@ -129,9 +145,20 @@ def query_text(group_name: str, direction: str, results: list[dict]) -> str:
 class Index:
     """BM25 메모리 색인 + 문서 목록. R12: 승인 보고서를 추가(평가 모드에서는 하지 않음)."""
 
-    def __init__(self, docs: list[HistoryDoc]):
+    def __init__(
+        self,
+        docs: list[HistoryDoc],
+        cfg: Settings = DEFAULT,
+        release_id: str | None = None,
+        queries: dict | None = None,
+    ):
         self.docs = list(docs)
-        self.bm25 = BM25()
+        self.cfg, self.release_id, self.queries = (
+            cfg,
+            release_id,
+            queries or {},
+        )  # 이력 release(EV-001 CH-06) · 미리 계산한 질의 벡터
+        self.bm25 = BM25(cfg.bm25_k1, cfg.bm25_b)
         for d in self.docs:
             self.bm25.add(d.record_id, d.narrative)
 

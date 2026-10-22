@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(sys.argv[sys.argv.index("--root") + 1]) if "--root" in sys.argv else Path(__file__).resolve().parents[1]  # --root: 시험용 사본(ADV-09)
-PRODUCT_DIRS = [ROOT / "server" / "src", ROOT / "apps", ROOT / "packages", ROOT / "infra"]
+PRODUCT_DIRS = [ROOT / "server" / "src", ROOT / "apps", ROOT / "packages", ROOT / "infra", ROOT / "tools"]  # tools/ingest(EV-001 ES-03)도 범위
 FORBIDDEN = re.compile(r"eval/cards|cards\.jsonl|card_inputs|card_udi_map|cause_ratio_table|generation/")
 SKIP = {"node_modules", "dist", "dist-types", "__pycache__"}
 

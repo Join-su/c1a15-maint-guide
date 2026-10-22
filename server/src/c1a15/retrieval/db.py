@@ -19,6 +19,27 @@ def load_docs(conn: Connection) -> list[HistoryDoc]:
     ]
 
 
+def load_release_docs(conn: Connection, release_id: str) -> list[HistoryDoc]:
+    """EV-001 CH-06: 이력 release의 조각과 벡터를 읽는다(기본 recipe '1건 1조각' — 조각 = 기록).
+
+    센서 · 원인은 이력 기록에서 붙인다(원인은 검색 뒤에만 씀).
+    """
+    rows = conn.execute(
+        text(
+            "select r.record_id, r.symptom_group, c.text, r.sensor_snapshot, r.record -> 'outcome' ->> "
+            "'cause_code', c.embedding::text, r.source "
+            "from knowledge.release_chunks c join knowledge.history_records r on r.record_id = c.metadata "
+            "->> 'record_id' "
+            "where c.release_id = :rel"
+        ),
+        {"rel": release_id},
+    ).all()
+    return [
+        HistoryDoc(rid, grp, narr, sensor, cause, tuple(float(x) for x in emb.strip("[]").split(",")), source)
+        for rid, grp, narr, sensor, cause, emb, source in rows
+    ]
+
+
 def vector_ranks(conn: Connection, filters: dict, query_vec: list[float], limit: int = 300) -> list[str]:
     check_filters(filters)
     rows = conn.execute(
