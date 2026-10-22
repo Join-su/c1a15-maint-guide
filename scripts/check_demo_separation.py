@@ -22,12 +22,15 @@ with open(ROOT / "generation/split/ai4i-split-by-udi.csv", encoding="utf-8") as 
     split = {r["UDI"]: r["split"] for r in csv.DictReader(f)}
 outside = lambda rows, allowed: sorted(u for u in rows if split.get(u) not in allowed)
 sel = ROOT / "eval/cards/val/selection.json"
-to_val = set(((json.loads(sel.read_text()).get("exception") or {}).get("to_val", [])) if sel.is_file() else [])   # D-241 예외 기록(구간 56)
+exc = (json.loads(sel.read_text()).get("exception") or {}) if sel.is_file() else {}   # D-241 예외 기록(구간 56)
+sel_t = ROOT / "eval/cards/test/selection.json"
+exc_ok = not exc or ((json.loads(sel_t.read_text()).get("exception") if sel_t.is_file() else None) == exc and all(split.get(u) == "test" for u in exc.get("cl_alarm_rows", [])) and set(exc.get("to_val", [])) <= set(exc.get("cl_alarm_rows", [])))
+to_val = set(exc.get("to_val", [])) if exc_ok else set()
 cross = sorted([u for u in sets.get("val", set()) if split.get(u) != "val" and u not in to_val] + [u for u in sets.get("test", set()) if split.get(u) != "test"])
 results = {"demo_rows": len(demo), "history_rows": len(history), "eval_card_rows": {k: len(v) for k, v in sets.items()},
            "demo∩history": sorted(overlap(demo, history)), "demo∩eval_cards": sorted(overlap(demo, cards)), "history∩eval_cards": sorted(overlap(history, cards)),
            "val∩test_cards": sorted(overlap(sets.get("val", set()), sets.get("test", set()))),
-           "history_not_train": outside(history, {"train"}), "cards_not_val_test": outside(cards, {"val", "test"}), "cards_cross_split_outside_exception": cross, "demo_not_demo": outside(demo, {"demo"})}
+           "history_not_train": outside(history, {"train"}), "cards_not_val_test": outside(cards, {"val", "test"}), "cards_cross_split_outside_exception": cross, "demo_not_demo": outside(demo, {"demo"}), "exception_record_bad": [] if exc_ok else ["val · test 예외 기록이 다르거나 test 몫 · 행 목록 밖"]}
 print(json.dumps(results, ensure_ascii=False))
 bad = [k for k, v in results.items() if isinstance(v, list) and v] + ([] if set(sets) == {"val", "test"} else ["card_sets"])
 sys.exit(1 if bad else 0)

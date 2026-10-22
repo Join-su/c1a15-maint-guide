@@ -106,6 +106,17 @@ def check(sname):
         errors.append(f"val · test 몫 밖 원본 행 {len(off)}건")
     exc = (json.loads((d / "selection.json").read_text(encoding="utf-8")).get("exception") or {}) if (d / "selection.json").is_file() else {}
     allowed_cross = set(exc.get("to_val", [])) if sname == "val" else set()   # D-241: val만 test 구간 56 행(예외 기록)을 받음
+    if exc:   # 예외 기록 자체 검사: 행이 그 구간의 test 몫인지 · to_val + to_test = 전부(겹침 0) · 두 묶음 기록이 같은지
+        with open(SPLIT, encoding="utf-8") as f:
+            segs = {r["UDI"]: int(r["segment"]) for r in csv.DictReader(f)}
+        rows_ = exc.get("cl_alarm_rows", [])
+        if any(split.get(u) != "test" or segs.get(u) != exc.get("segment") for u in rows_):
+            errors.append("예외 기록 행이 그 구간의 test 몫이 아님")
+        if sorted(exc.get("to_val", []) + exc.get("to_test", [])) != sorted(rows_) or set(exc.get("to_val", [])) & set(exc.get("to_test", [])):
+            errors.append("예외 기록 to_val · to_test가 행 목록과 맞지 않음")
+        other = ROOT / "eval/cards" / ("test" if sname == "val" else "val") / "selection.json"
+        if other.is_file() and json.loads(other.read_text(encoding="utf-8")).get("exception") != exc:
+            errors.append("val · test selection.json의 예외 기록이 다름")
     cross = sorted(u for u in udi_map.values() if split.get(u) in ("val", "test") and split.get(u) != sname and u not in allowed_cross)
     if cross:
         errors.append(f"다른 몫 원본 행 {len(cross)}건(예외 기록 밖)")
