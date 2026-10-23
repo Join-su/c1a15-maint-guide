@@ -105,7 +105,7 @@ def check(sname):
     if off:
         errors.append(f"val · test 몫 밖 원본 행 {len(off)}건")
     exc = (json.loads((d / "selection.json").read_text(encoding="utf-8")).get("exception") or {}) if (d / "selection.json").is_file() else {}
-    allowed_cross = set(exc.get("to_val", [])) if sname == "val" else set()   # D-241: val만 test 구간 56 행(예외 기록)을 받음
+    allowed_cross = set(exc.get("to_val", [])) if sname == "val" else set()   # D-246: val만 test 구간 56 행(예외 기록)을 받음
     if exc:   # 예외 기록 자체 검사: 행이 그 구간의 test 몫인지 · to_val + to_test = 전부(겹침 0) · 두 묶음 기록이 같은지
         with open(SPLIT, encoding="utf-8") as f:
             segs = {r["UDI"]: int(r["segment"]) for r in csv.DictReader(f)}

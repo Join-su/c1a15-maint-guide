@@ -40,7 +40,7 @@
  "rule": "train 경계로 알람인 행 · 증상군별 몫 · seed 표본 · 배치 순서로 번호 · 안 나: test 구간 56 CL 알람 행을 번갈아 val · test",
  "exception": {
   "segment": 56,
-  "decision": "D-241",
+  "decision": "D-246",
   "split_file_unchanged": true,
   "cl_alarm_rows": [
    "4742",

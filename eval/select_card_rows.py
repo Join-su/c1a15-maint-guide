@@ -6,10 +6,10 @@
 - 만드는 것: eval/cards/<val|test>/card_inputs.json(작성자에게 줄 알람 입력, 라벨 없음) · card_udi_map.json(작성자에게 주지 않음) · selection.json(고른 규칙 · 몫 · 후보 수).
 - 카드 내용(숨은 원인 · 메모)은 격리 작성자가 따로 쓴다 — 이 도구는 쓰지 않는다.
 실행: python3 eval/select_card_rows.py --plan 가|나 [--dry-run]
-  가: 분할 그대로(val에 CL 알람 없음) · 나: test 구간 56의 CL 알람 행을 val · test로 번갈아 나눔(질문 007-09 → D-241 = 나)
-- 안 나의 예외(분할 파일은 그대로, D-241 (2)): selection.json의 exception에 구간 56 CL 알람 행 전부 · val로 간 행 · test로 간 행 · 나눈 규칙을 적고,
+  가: 분할 그대로(val에 CL 알람 없음) · 나: test 구간 56의 CL 알람 행을 val · test로 번갈아 나눔(질문 007-09 → D-246 = 나)
+- 안 나의 예외(분할 파일은 그대로, D-246 (2)): selection.json의 exception에 구간 56 CL 알람 행 전부 · val로 간 행 · test로 간 행 · 나눈 규칙을 적고,
   검사 도구(eval/validate_cards.py · scripts/check_demo_separation.py)가 그 기록으로 val 카드의 test 몫 행을 허용한다.
-- 한계(D-241 (3)): 같은 공구 교체 구간의 이웃 행이 val · test로 갈라져 test CL 점수가 조금 낙관적일 수 있다.
+- 한계(D-246 (3)): 같은 공구 교체 구간의 이웃 행이 val · test로 갈라져 test CL 점수가 조금 낙관적일 수 있다.
 """
 import argparse
 import importlib.util
@@ -83,7 +83,7 @@ def main():
         pools["val" if i % 2 else "test"].setdefault("CL", []).append(item)
     exception = None
     if a.plan == "나":
-        exception = {"segment": SPLIT_SEGMENT, "decision": "D-241", "split_file_unchanged": True,
+        exception = {"segment": SPLIT_SEGMENT, "decision": "D-246", "split_file_unchanged": True,
                      "cl_alarm_rows": [r["udi"] for r, _ in cl56],
                      "to_val": [r["udi"] for i, (r, _) in enumerate(cl56) if i % 2], "to_test": [r["udi"] for i, (r, _) in enumerate(cl56) if not i % 2],
                      "rule": "train 경계로 CL 알람인 구간 56 행을 배치 순서로 번갈아(0번째 → test, 1번째 → val, …) — seed 없음",
