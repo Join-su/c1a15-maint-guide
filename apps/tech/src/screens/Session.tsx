@@ -2,9 +2,10 @@
 // T05 · T06 · T07 → T08 조치 · 재가동 · T10 호출 · T11 인계 · 감시 마감 · T09 보고서(S-03).
 // 입력은 업무 key(세션 + seq)로 보내고, 보내지 않은 입력은 기기에 둔다(홈으로 갔다 와도 그대로).
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { errorDetail, StepBar, type Api, type Instruction, type SessionView, type SessionWithPreview } from "@c1a15/ui";
 import { device, emptyDraft, type Draft } from "../device";
+import { PackNotice, trackPack, type PackState } from "../PackNotice";
 import { usePoll } from "../hooks";
 import { AlarmScreen } from "./Alarm";
 import { DiagnosisScreen } from "./Diagnosis";
@@ -48,6 +49,8 @@ export function Session(p: SessionProps) {
   const [stage, setStageState] = useState<Stage>(() => device.stage(sid) ?? "alarm");
   const [draft, setDraftState] = useState<Draft>(() => device.draft(sid));
   const [busy, setBusy] = useState(false);
+  const [pack, setPack] = useState<PackState>(null); // CH-17: 판정 지연 · 실패(배포 서버 길)
+  const packRetry = useRef<(() => void) | null>(null); // 다시 보내기(같은 seq) — ref라 두 번 눌러도 한 번만
   const [, bump] = useState(0); // 기기 표시(seen)를 바꾼 뒤 다시 그리기
   const [repeatDismissed, setRepeatDismissed] = useState(false);
   const [lastIns, setLastIns] = useState<Instruction | null>(() => device.lastInstruction<Instruction>(sid));
@@ -95,11 +98,23 @@ export function Session(p: SessionProps) {
   const send = async (body: Omit<Body, "seq">): Promise<boolean> => {
     if (!s || busy) return false;
     setBusy(true);
-    const { data, error, response } = await api.POST("/api/tech/sessions/{sid}/events", {
-      params: { path: { sid } },
-      body: { seq: s.last_seq + 1, ...body } as never,
-    });
+    const { data, error, response } = await trackPack(
+      () =>
+        api.POST("/api/tech/sessions/{sid}/events", {
+          params: { path: { sid } },
+          body: { seq: s.last_seq + 1, ...body } as never,
+        }),
+      setPack,
+    );
     setBusy(false);
+    packRetry.current = null;
+    if (response.status === 503 && errorDetail(error) === "pack_unavailable") {
+      // 판정 서버 연결 실패: '다시 보내기'를 누를 때까지 이 요청을 끝내지 않는다 — 같은 seq · 같은 본문으로 다시 보내고,
+      // 그 결과로 원래 호출자의 뒤처리(입력 초안 비우기 등)를 이어 간다
+      return new Promise<boolean>((resolve) => {
+        packRetry.current = () => void send(body).then(resolve);
+      });
+    }
     if (response.status === 401) p.onExpired();
     if (data) {
       accept(data);
@@ -291,6 +306,16 @@ export function Session(p: SessionProps) {
         view={past?.no ?? null}
         onPick={(n) => void openPast(n)} // 잠금 전(진단 · 잠금 · 기록 창)에도 완료 단계는 그때 화면(AC-41-C1 · Prototype T04 · T05 · T13)
         currentPickable={s.locked && current >= 3} // 생성자 해석 ①: 지금 단계도 보낸 기록이 있으면 기록 보기
+      />
+      <PackNotice
+        state={pack}
+        onRetry={() => {
+          // 다시 보내는 동안 안내 줄 · 버튼을 먼저 치워 두 번 눌러 같은 seq 요청이 겹치지 않게 한다
+          const retry = packRetry.current;
+          packRetry.current = null;
+          setPack(null);
+          retry?.();
+        }}
       />
       {body}
     </>

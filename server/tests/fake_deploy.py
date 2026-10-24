@@ -34,7 +34,7 @@ def _sha(body: dict) -> str:
 
 
 class FakeDeploy:
-    def __init__(self, deployment_id: str = "c1a15@v1-local"):
+    def __init__(self, deployment_id: str = "c1a15@v1-local", port: int = 0):
         self.deployment_id = deployment_id
         # 새 실행마다 앞에서 하나씩: {"output": {...}} | {"status": 500, "code": ..., "retryable": bool} + 선택 "delay"
         self.plan: list[dict] = []
@@ -65,6 +65,16 @@ class FakeDeploy:
                     pass
 
             def do_GET(self):
+                if self.path == "/_keys":  # 단독 실행 때 시험 스크립트가 받은 키 순서를 증거로 떠 감(VC-42)
+                    seen = [
+                        {
+                            "kind": r["body"].get("kind"),
+                            "key": r["headers"].get("Idempotency-Key"),
+                            "status": (fake.keys.get(r["headers"].get("Idempotency-Key")) or {}).get("status"),
+                        }
+                        for r in fake.posts()
+                    ]
+                    return self._send(200, seen)
                 fake.requests.append({"method": "GET", "path": self.path, "headers": dict(self.headers), "body": None})
                 rid = self.path.rsplit("/", 1)[-1]
                 run = fake.runs.get(rid)
@@ -79,6 +89,9 @@ class FakeDeploy:
                     body = json.loads(raw)
                 except ValueError:
                     return self._send(400, {"error": {"code": "invalid_json", "run_id": None}})
+                if self.path == "/_plan":  # 단독 실행 때 시험 스크립트가 다음 실행 동작을 넣음(화면 한 바퀴 VC-42)
+                    fake.plan = list(body)
+                    return self._send(200, {"plan": len(fake.plan)})
                 fake.requests.append({"method": "POST", "path": self.path, "headers": dict(self.headers), "body": body})
                 if not key:
                     return self._send(400, {"error": {"code": "idempotency_key_missing", "run_id": None}})
@@ -111,6 +124,8 @@ class FakeDeploy:
                         if fake.plan
                         else (fake.default(body) if callable(fake.default) else fake.default)
                     )
+                if step and step.get("use_default"):  # 지연만 주고 출력은 기본 계산으로
+                    step = {**(fake.default(body) if callable(fake.default) else fake.default or {}), **step}
                 step = step or {"output": {}}
                 if step.get("delay"):
                     time.sleep(step["delay"])
@@ -133,7 +148,7 @@ class FakeDeploy:
                 fake.done.set()
                 self._send(status, payload)
 
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), H)
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), H)
         self.url = f"http://127.0.0.1:{self.server.server_address[1]}"
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
 
@@ -177,3 +192,33 @@ class FakeDeploy:
 
     def posts(self) -> list[dict]:
         return [r for r in self.requests if r["method"] == "POST"]
+
+
+def engine_answer(body: dict) -> dict:
+    """가짜가 판정을 계산하는 법: 앱 engine(fold → decide) 그대로.
+
+    두 길 대조(VC-34)는 '본문이 충분하고 저장이 맞다'를 본다.
+
+    실제 Pack과 같은 결과는 ES-09(1건) · VC-43(미리보기 = Pack) · 3단계 대조 몫.
+    """
+    from c1a15.api import deps
+    from c1a15.engine import rules, session
+
+    k = deps.manual()
+    similar = [rules.Similar(s["record_id"], s.get("cause"), s["score"]) for s in body.get("similar", [])]
+    state = session.fold(k, body["group"], similar, body["events"])
+    out = {"decision": session.decide(state, k, body["grades"], body["minutes"])}
+    if body["kind"] == "start":
+        out["similar"] = body.get("similar", [])
+        out["retrieval"] = {"source": "request", "vector_db_version": None, "query_from": None, "top_k": 10}
+    return {"output": out}
+
+
+# 단독 실행: python fake_deploy.py <port> — 기본 = engine_answer(DATABASE_URL 필요), /_plan으로 동작 넣기
+if __name__ == "__main__":
+    import sys
+
+    fake = FakeDeploy(port=int(sys.argv[1]))
+    fake.default = engine_answer
+    print(f"fake deploy {fake.url}", flush=True)
+    fake.server.serve_forever()

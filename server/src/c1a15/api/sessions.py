@@ -12,6 +12,7 @@ from sqlalchemy import Connection, func, select, text
 
 from c1a15.api import deps, flow, screen
 from c1a15.db import models as m
+from c1a15.deploy import runs
 from c1a15.engine import checkpoint, graph, rules, session
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
@@ -166,11 +167,30 @@ def _graph_decision(c: Connection, row: m.DiagSession, inputs: list[dict]) -> tu
     return out["__interrupt__"][0].value["decision"], via
 
 
-def _open_step(c: Connection, sid: int, row: m.DiagSession, events: list[dict], actor: str) -> dict:
-    """다음 단계를 지금 등급표로 판정해 step_opened로 남긴다(R13: 열린 단계는 이후 등급 변경에도 그대로)."""
-    decision, via = _graph_decision(c, row, [e for e in events if e["type"] in INPUT_TYPES])
+def _deploy_decision(c: Connection, row: m.DiagSession, inputs: list[dict]) -> tuple[dict, dict]:
+    """다음 단계 = 배포 서버 judge Run(EV-001 ES-07, C1A15_JUDGE=deploy). 판정 하나 = Run 하나 — checkpoint 안 씀."""
+    g, minutes = deps.grades(c)
+    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes)
+    return res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
+
+
+def _open_step(
+    c: Connection, sid: int, row: m.DiagSession, events: list[dict], actor: str, decided: tuple | None = None
+) -> dict:
+    """다음 단계를 지금 등급표로 판정해 step_opened로 남긴다(R13: 열린 단계는 이후 등급 변경에도 그대로).
+
+    판정 길: 기본 inproc = LangGraph 재개, deploy = 배포 서버 judge Run. decided = 세션 시작 start Run이 낸 첫 단계.
+    """
+    inputs = [e for e in events if e["type"] in INPUT_TYPES]
+    if decided is not None:
+        decision, ref = decided
+    elif runs.deploy_on():
+        decision, ref = _deploy_decision(c, row, inputs)
+    else:
+        decision, via = _graph_decision(c, row, inputs)
+        ref = {"via": via}
     seq = (events[-1]["seq"] if events else 0) + 1
-    _store(c, sid, seq, "step_opened", {"decision": decision, "via": via}, actor)
+    _store(c, sid, seq, "step_opened", {"decision": decision, **ref}, actor)
     if decision["kind"] in {
         "precheck",
         "instruct",
@@ -240,13 +260,21 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
         deps.stats(),
         idx.cfg,
     )
+    similar = [{"record_id": s.record_id, "cause": s.cause, "score": s.score} for s in top]
+    deploy_cols, decided = {}, None
+    if (
+        runs.deploy_on()
+    ):  # 첫 Run = start(P1 다리: 앱 임시 리트리버 상위 10건을 담음, D-259 (3)) — 실패면 세션을 만들지 않음
+        g, minutes = deps.grades(c)
+        res = runs.start(alarm, similar, g, minutes)
+        similar = res.output["similar"]
+        retrieval = {**res.output["retrieval"], "app_release_id": idx.release_id}
+        deploy_cols = {"retrieval": retrieval, "start_run_id": res.run_id, "deployment_id": res.deployment_id}
+        decided = (res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id})
     sid = c.execute(
         m.DiagSession.__table__.insert()
         .values(
-            alarm_id=alarm.alarm_id,
-            user_id=user_id,
-            symptom_group=alarm.symptom_group,
-            similar=[{"record_id": s.record_id, "cause": s.cause, "score": s.score} for s in top],
+            alarm_id=alarm.alarm_id, user_id=user_id, symptom_group=alarm.symptom_group, similar=similar, **deploy_cols
         )
         .returning(m.DiagSession.session_id)
     ).scalar_one()
@@ -256,7 +284,7 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
         .values(status="in_progress", change_seq=deps.next_change_seq(c))
     )
     row = _row(c, sid)
-    _open_step(c, sid, row, [], user_id)
+    _open_step(c, sid, row, [], user_id, decided)
     pv = preview(row, c)  # 처음 보이는 진단 미리보기 문장의 대체 여부를 세션 실패 수에 남긴다(S02-G6-4)
     state = session.fold(deps.manual(), row.symptom_group, similar_of(row), [])
     snap = {  # T15 / diagnosis '그때의 원인 순위 · 첫 지시'(S-05 P-14)

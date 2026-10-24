@@ -1,0 +1,101 @@
+"""앱 → Pack Run 입력 만들기(EV-001 ES-07 · ES-08): 정본 = c1a15-pack 약속 v2(+ README 읽는 법).
+
+- session_id = `S-A<alarm_id>`(알람 하나 = 세션 하나 — 실패로 되돌린 뒤 다시 보내도 같은 값, R6-1)
+- start.event_id = 세션을 연 알람의 event_id, 기본 길로 등록돼 없으면 `C1A-A<alarm_id>`(R6-2)
+- 업무 기록은 판정이 쓰는 칸만(사용자 ID · 표시 이름 · 메모 원문 · 정정 사유 0, VC-35)
+부르기는 deploy.client 한 곳(키 · 재시도 · 감사).
+"""
+
+from functools import lru_cache
+
+from c1a15 import config
+from c1a15.deploy.client import Client, RunResult
+from c1a15.deploy.ledger import DbLedger
+
+SENSORS5 = ("air_temperature_k", "process_temperature_k", "rotational_speed_rpm", "torque_nm", "tool_wear_min")
+EVENT_KEYS = ("seq", "type", "void", "section", "value", "judged_value", "yes", "outcome", "corrected")
+EVENT_KEYS += ("kind", "answer", "mode", "choice")
+SIGNAL_KEYS = ("out_of_scope_finding", "conflicts_with_button", "interpretation", "quote")
+HANDOVER_REASONS = {"llm_failure", "out_of_scope_finding"}  # 정본 event.reason enum — 자유 문장 사유는 넣지 않음
+
+
+@lru_cache
+def settings() -> dict:
+    return config.pack_settings()
+
+
+def deploy_on() -> bool:
+    return settings()["judge"] == "deploy"
+
+
+@lru_cache
+def client() -> Client:
+    return Client(settings()["deploy_url"], DbLedger())
+
+
+def session_ident(alarm_id: int) -> str:
+    return f"S-A{alarm_id}"
+
+
+def start_event_id(alarm) -> str:
+    return alarm.event_id or f"C1A-A{alarm.alarm_id}"
+
+
+def sensors5(snapshot: dict) -> dict:
+    return {k: snapshot[k] for k in SENSORS5}
+
+
+def similar_body(similar: list[dict]) -> list[dict]:
+    return [{"record_id": s["record_id"], "cause": s.get("cause"), "score": s["score"]} for s in similar]
+
+
+def judge_events(inputs: list[dict]) -> list[dict]:
+    """정정 · 무효가 반영된 논리 기록(INPUT_TYPES만)에서 판정이 쓰는 칸만."""
+    out = []
+    for e in inputs:
+        ev = {k: e[k] for k in EVENT_KEYS if k in e}
+        if isinstance(e.get("signal"), dict):
+            ev["signal"] = {k: e["signal"][k] for k in SIGNAL_KEYS if k in e["signal"]}
+        if e["type"] == "handover_request" and e.get("reason") in HANDOVER_REASONS:
+            ev["reason"] = e["reason"]
+        out.append(ev)
+    return out
+
+
+def start_body(alarm, similar: list[dict], grades: dict, minutes: dict) -> dict:
+    return {
+        "kind": "start",
+        "session_id": session_ident(alarm.alarm_id),
+        "event_id": start_event_id(alarm),
+        "group": alarm.symptom_group,
+        "query": {
+            "direction": alarm.alarm.get("direction"),
+            "sensor_snapshot": sensors5(alarm.sensor_snapshot),
+        },  # 없으면 null(정본 enum)
+        "similar": similar_body(similar),
+        "events": [],
+        "grades": grades,
+        "minutes": minutes,
+    }
+
+
+def judge_body(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> dict:
+    return {
+        "kind": "judge",
+        "session_id": session_ident(alarm_id),
+        "group": group,
+        "similar": similar_body(similar),
+        "events": judge_events(inputs),
+        "grades": grades,
+        "minutes": minutes,
+    }
+
+
+def start(alarm, similar: list[dict], grades: dict, minutes: dict) -> RunResult:
+    return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, similar, grades, minutes))
+
+
+def judge(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> RunResult:
+    body = judge_body(alarm_id, group, similar, inputs, grades, minutes)
+    seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
+    return client().run("judge", session_ident(alarm_id), seq, body)

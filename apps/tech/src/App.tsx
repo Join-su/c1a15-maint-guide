@@ -13,6 +13,7 @@ import {
   type SessionWithPreview,
 } from "@c1a15/ui";
 import { device, type Me } from "./device";
+import { PackNotice, trackPack, type PackState } from "./PackNotice";
 import { chime, unlockSound, useClock, usePoll } from "./hooks";
 import { HomeScreen, NotifyPanel } from "./screens/Home";
 import { ManualModal, type ManualView } from "./screens/Instruction";
@@ -72,10 +73,14 @@ export function App() {
   };
   usePoll(refresh, 5000, [me?.user_id]);
 
+  const [pack, setPack] = useState<PackState>(null); // CH-17: 점검 시작(첫 Run)이 늦거나 실패할 때
+  const [packAlarm, setPackAlarm] = useState<number | null>(null);
   const startAlarm = async (alarmId: number) => {
-    const { data, response } = await api.POST("/api/tech/alarms/{alarm_id}/session", {
-      params: { path: { alarm_id: alarmId } },
-    });
+    const { data, response } = await trackPack(
+      () => api.POST("/api/tech/alarms/{alarm_id}/session", { params: { path: { alarm_id: alarmId } } }),
+      setPack,
+    );
+    setPackAlarm(response.status === 503 ? alarmId : null);
     if (response.status === 401) return expired();
     if (data) {
       setOpened(data);
@@ -132,6 +137,7 @@ export function App() {
           setPanel((x) => !x);
         }}
       />
+      {view.name === "home" ? <PackNotice state={pack} onRetry={() => packAlarm !== null && void startAlarm(packAlarm)} /> : null}
       {view.name === "home" ? (
         home ? (
           <HomeScreen

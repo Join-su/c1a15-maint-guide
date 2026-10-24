@@ -197,6 +197,9 @@ class Alarm(Base):
     eval_mode: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))  # R12: 평가 실행기(P-16) 알람
     # EV-001 CH-04: ML 길 알람의 위험도 · Top-3 · 확신도 · 모델 release · 증상군 길(경계 길은 null)
     ml: Mapped[dict | None] = mapped_column(JSONB)
+    event_id: Mapped[str | None] = mapped_column(String(64))  # EV-001 ES-07: 배포 서버 Run 참조(deploy 길만)
+    run_id: Mapped[str | None] = mapped_column(String(64))
+    deployment_id: Mapped[str | None] = mapped_column(String(64))
 
 
 class AlarmCandidate(Base):
@@ -220,6 +223,8 @@ class AlarmCandidate(Base):
     status: Mapped[str] = mapped_column(String(16), server_default="needs_human")
     eval_mode: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    event_id: Mapped[str | None] = mapped_column(String(64))  # EV-001 ES-07
+    run_id: Mapped[str | None] = mapped_column(String(64))
 
 
 class DiagSession(Base):
@@ -233,6 +238,9 @@ class DiagSession(Base):
     similar: Mapped[list] = mapped_column(JSONB)
     status: Mapped[str] = mapped_column(String(16), server_default="in_progress")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    retrieval: Mapped[dict | None] = mapped_column(JSONB)  # EV-001 ES-07: 첫 Run 리트리버 표시(deploy 길만)
+    start_run_id: Mapped[str | None] = mapped_column(String(64))
+    deployment_id: Mapped[str | None] = mapped_column(String(64))
 
 
 class SessionEvent(Base):

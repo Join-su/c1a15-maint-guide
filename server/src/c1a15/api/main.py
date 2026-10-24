@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy import Connection, select
 
 from c1a15 import config
@@ -15,11 +16,21 @@ from c1a15.api import deps, history, lead, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user, internal_token, tech_user
 from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody
 from c1a15.db import models as m
+from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import alarm_rules, rules
 
 PACK = config.pack_settings()  # Pack을 부르는 길 · 배포 서버 주소 — 어긋나면 서버 시작 거절(EV-001 CH-15)
 app = FastAPI(title="정비 길잡이 API", version="0.2.0")
 app.include_router(lead.router)  # 파트장 API(P-11)
+
+
+@app.exception_handler(PackUnavailable)
+def pack_unavailable(request: Request, exc: PackUnavailable) -> JSONResponse:
+    """배포 서버에서 판정을 받지 못함(EV-001 CH-15): 요청 transaction은 되돌려지고(업무 기록 0),
+    감사 pack_call_failed는 클라이언트가 따로 남겼다. 화면은 같은 seq로 다시 보낸다(503 = 앱 쪽 코드, D-265)."""
+    return JSONResponse(status_code=503, content={"detail": "pack_unavailable", "code": exc.code})
+
+
 _hasher = PasswordHasher()
 
 
