@@ -24,7 +24,8 @@ CODE_PATTERNS = re.compile(
 LLM_PACKAGES = {"openai", "anthropic", "langchain", "langchain-openai", "@openai/api", "openai-node"}
 # 승인된 예외(사용자 승인 2026-10-13, execution/S-02/separate-approvals.md): live LLM 경로 한 파일만 openai를 쓴다.
 # 시연 알람 발생기(P-07)는 같은 호스트 · compose 내부 API만 부른다(주소 제한은 그 파일의 check_url · 시험).
-# 배포 서버 클라이언트(EV-001 CH-15, D-274)는 같은 맥 127.0.0.1 배포 서버 POST /runs 한 곳만 부른다(주소 제한은 그 파일의 check_url · 시험).
+# 배포 서버 클라이언트(EV-001 CH-15 · CH-38, D-274)는 배포 서버 POST /runs 한 곳만 부른다 — 맥 host = 127.0.0.1,
+# 컨테이너 = C1A15_DEPLOY_HOST 내부망 이름 하나(주소 제한은 그 파일의 check_url · check_host_name · 시험).
 ALLOWED = {
     "server/src/c1a15/llm/live.py": {"openai"},
     "server/src/c1a15/alarms/__main__.py": {"urllib"},

@@ -1,5 +1,6 @@
-// E2E 도우미: host 실행 조작(알람 발생기 · 시험 DB · 앱 서버 다시 띄우기)과 외부 요청 차단 · 콘솔 오류 수집.
-// EV-001 ES-16(CH-36): 앱 서버 · 도구는 host(scripts/verify-e2e가 환경을 넘김), 시험 DB만 compose `db`.
+// E2E 도우미: 앱 쪽 조작(알람 발생기 · 시험 DB · 앱 서버 다시 띄우기)과 외부 요청 차단 · 콘솔 오류 수집.
+// EV-001 ES-16(CH-36): 기본 = host 길(scripts/verify-e2e가 환경을 넘김, 시험 DB만 compose `db`).
+// EV-001 ES-20(CH-42): E2E_MODE=compose = compose 길(scripts/verify-e2e-compose) — 앱 쪽 조작은 api 컨테이너 안에서.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -11,14 +12,22 @@ const compose = (...args: string[]) =>
   execFileSync("docker", ["compose", ...args], { cwd: ROOT, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
 const SERVER = path.join(ROOT, "server");
 /** host 앱 쪽 python(앱 서버와 같은 환경 — verify-e2e가 넘긴 DATABASE_URL · DATA_DIR · C1A15_* · 토큰). */
+const COMPOSE_MODE = process.env.E2E_MODE === "compose";
 const hostPy = (args: string[], input?: Buffer) =>
-  execFileSync(path.join(SERVER, ".venv", "bin", "python"), args, {
-    cwd: SERVER,
-    encoding: "utf-8",
-    input,
-    env: { ...process.env, PYTHONPATH: "src" },
-    stdio: ["pipe", "pipe", "pipe"],
-  });
+  COMPOSE_MODE
+    ? execFileSync("docker", ["compose", "exec", "-T", "api", "python", ...args], {
+        cwd: ROOT,
+        encoding: "utf-8",
+        input,
+        stdio: ["pipe", "pipe", "pipe"],
+      })
+    : execFileSync(path.join(SERVER, ".venv", "bin", "python"), args, {
+        cwd: SERVER,
+        encoding: "utf-8",
+        input,
+        env: { ...process.env, PYTHONPATH: "src" },
+        stdio: ["pipe", "pipe", "pipe"],
+      });
 
 export const TECH_PW = process.env.C1A15_TECH_PASSWORD ?? "";
 export const LEAD_PW = process.env.C1A15_LEAD_PASSWORD ?? "";
@@ -84,7 +93,8 @@ export function simR5Example(sessionId: number): void {
 }
 
 export async function restartApi(page: Page): Promise<void> {
-  execFileSync(path.join(ROOT, "scripts", "e2e-host-api"), ["restart"], { cwd: ROOT, stdio: ["pipe", "pipe", "pipe"] });
+  if (COMPOSE_MODE) compose("restart", "api");
+  else execFileSync(path.join(ROOT, "scripts", "e2e-host-api"), ["restart"], { cwd: ROOT, stdio: ["pipe", "pipe", "pipe"] });
   for (let i = 0; i < 60; i++) {
     const ok = await page.request.get("/api/health").then((r) => r.ok()).catch(() => false);
     if (ok) return;

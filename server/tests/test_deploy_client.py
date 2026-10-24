@@ -319,7 +319,31 @@ def test_vc36_timeouts_by_kind():
     "env",
     [
         {"C1A15_JUDGE": "deploy"},
-        {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://deploy:8796"},
+        {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://deploy:8796"},  # 이름을 C1A15_DEPLOY_HOST로 정하지 않음
+        {
+            "C1A15_DEPLOY_URL": "http://other:8796",
+            "C1A15_DEPLOY_HOST": "fake-deploy",
+        },  # 정한 이름과 다름(preview X 넷째)
+        {"C1A15_DEPLOY_URL": "http://localhost:8796", "C1A15_DEPLOY_HOST": "localhost"},  # 이름 규칙(preview X 다섯째)
+        {"C1A15_DEPLOY_URL": "http://10.0.0.5:8796", "C1A15_DEPLOY_HOST": "10.0.0.5"},
+        {"C1A15_DEPLOY_URL": "http://Bad_Name:8796", "C1A15_DEPLOY_HOST": "Bad_Name"},
+        {"C1A15_DEPLOY_URL": "http://a..b:8796", "C1A15_DEPLOY_HOST": "a..b"},
+        {"C1A15_DEPLOY_URL": "http://deploy.:8796", "C1A15_DEPLOY_HOST": "deploy."},
+        # ES-20 review B1: IPv4로 읽히는 이름(inet_aton 꼴) · *.localhost · 그 밖 IP 꼴
+        {"C1A15_DEPLOY_URL": "http://0x7f000001:8796", "C1A15_DEPLOY_HOST": "0x7f000001"},
+        {"C1A15_DEPLOY_URL": "http://0x7f.1:8796", "C1A15_DEPLOY_HOST": "0x7f.1"},
+        {"C1A15_DEPLOY_URL": "http://10.0.0.0x5:8796", "C1A15_DEPLOY_HOST": "10.0.0.0x5"},
+        {"C1A15_DEPLOY_URL": "http://0x0:8796", "C1A15_DEPLOY_HOST": "0x0"},
+        {"C1A15_DEPLOY_URL": "http://127.1:8796", "C1A15_DEPLOY_HOST": "127.1"},
+        {"C1A15_DEPLOY_URL": "http://a.localhost:8796", "C1A15_DEPLOY_HOST": "a.localhost"},
+        {"C1A15_DEPLOY_URL": "http://ip6-localhost:8796", "C1A15_DEPLOY_HOST": "ip6-localhost"},
+        {"C1A15_DEPLOY_URL": "http://ip6-loopback:8796", "C1A15_DEPLOY_HOST": "ip6-loopback"},
+        {"C1A15_DEPLOY_URL": "http://0.0.0.0:8796", "C1A15_DEPLOY_HOST": "0.0.0.0"},
+        {"C1A15_DEPLOY_URL": "http://127.0.0.1:8796", "C1A15_DEPLOY_HOST": "127.0.0.1"},
+        {"C1A15_DEPLOY_URL": "http://[::1]:8796", "C1A15_DEPLOY_HOST": "::1"},
+        {"C1A15_DEPLOY_URL": "http://Fake-Deploy:8796", "C1A15_DEPLOY_HOST": "Fake-Deploy"},
+        {"C1A15_DEPLOY_URL": "http://fake-deploy:8796", "C1A15_DEPLOY_HOST": "a" * 254},
+        {"C1A15_DEPLOY_URL": "http://fake-deploy:8796/x", "C1A15_DEPLOY_HOST": "fake-deploy"},
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "https://127.0.0.1:8796"},
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://127.0.0.1"},
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://localhost:8796"},
@@ -343,10 +367,61 @@ def test_vc38_settings_refused(env, tmp_path):
 def test_vc38_deploy_refused_inside_container(tmp_path):
     marker = tmp_path / ".dockerenv"
     marker.write_text("")
+    with pytest.raises(ConfigError) as e:  # 컨테이너 안 127.0.0.1 = 컨테이너 자신(preview X 셋째)
+        pack_settings(
+            {"C1A15_DEPLOY_URL": "http://127.0.0.1:8796", "C1A15_DEPLOY_HOST": "fake-deploy"}, dockerenv=str(marker)
+        )
+    assert "컨테이너 자신" in str(e.value) and "C1A15_DEPLOY_HOST" in str(e.value)
     with pytest.raises(ConfigError):
-        pack_settings({"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=str(marker))
-    with pytest.raises(ConfigError):  # 기본 길도 deploy — 컨테이너 안 앱 서버는 시작 거절(S3-Q2 판까지, ES-16)
         pack_settings({"C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=str(marker))
+
+
+def test_vc60_container_uses_one_internal_name(tmp_path):
+    """VC-60(EV-001 CH-38) · preview X: 컨테이너면 C1A15_DEPLOY_HOST 이름 하나로 시작 · 맥 host 직접은 127.0.0.1 그대로."""
+    marker = tmp_path / ".dockerenv"
+    marker.write_text("")
+    env = {"C1A15_DEPLOY_URL": "http://fake-deploy:18796", "C1A15_DEPLOY_HOST": "fake-deploy"}
+    got = pack_settings(env, dockerenv=str(marker))
+    assert got["deploy_url"] == "http://fake-deploy:18796" and got["deploy_host"] == "fake-deploy"
+    assert pack_settings(env, dockerenv=str(tmp_path / "none"))["deploy_url"] == "http://fake-deploy:18796"
+    with pytest.raises(ValueError):
+        check_url("http://fake-deploy:18796")  # 이름을 정하지 않으면 127.0.0.1만
+    assert check_url("http://fake-deploy:18796", "fake-deploy") == "http://fake-deploy:18796"
+    # D-333 덧 Q-a: 점 있는 DNS 이름(맥 compose → 맥 배포 창 · VPS 서비스 이름)
+    mac = {"C1A15_DEPLOY_URL": "http://host.docker.internal:8796", "C1A15_DEPLOY_HOST": "host.docker.internal"}
+    assert pack_settings(mac, dockerenv=str(marker))["deploy_url"] == "http://host.docker.internal:8796"
+    vps = {
+        "C1A15_DEPLOY_URL": "http://deploy-example-v1:8796",
+        "C1A15_DEPLOY_HOST": "deploy-example-v1",
+    }  # 꼴만(실제 값 0, PR-40)
+    assert pack_settings(vps, dockerenv=str(marker))["deploy_host"] == "deploy-example-v1"
+
+
+@pytest.mark.parametrize(
+    ("env", "msg"),
+    [  # VC-60 · preview X 넷째 · 다섯째 줄 메시지(ES-20 review N5)
+        (
+            {"C1A15_DEPLOY_URL": "http://other:8796", "C1A15_DEPLOY_HOST": "fake-deploy"},
+            "또는 http://<C1A15_DEPLOY_HOST>:<port>만",
+        ),
+        (
+            {"C1A15_DEPLOY_URL": "http://fake-deploy:8796", "C1A15_DEPLOY_HOST": "localhost"},
+            "C1A15_DEPLOY_HOST는 내부망 이름",
+        ),
+        (
+            {"C1A15_DEPLOY_URL": "http://fake-deploy:8796", "C1A15_DEPLOY_HOST": "10.0.0.5"},
+            "C1A15_DEPLOY_HOST는 내부망 이름",
+        ),
+        (
+            {"C1A15_DEPLOY_URL": "http://fake-deploy:8796", "C1A15_DEPLOY_HOST": "Bad_Name"},
+            "C1A15_DEPLOY_HOST는 내부망 이름",
+        ),
+    ],
+)
+def test_vc60_refusal_messages(env, msg, tmp_path):
+    with pytest.raises(ConfigError) as e:
+        pack_settings(env, dockerenv=str(tmp_path / "none"))
+    assert msg in str(e.value)
 
 
 def test_vc38_defaults_and_ok(tmp_path):
@@ -355,9 +430,10 @@ def test_vc38_defaults_and_ok(tmp_path):
         "judge": "deploy",
         "alarm": "boundary",
         "deploy_url": "http://127.0.0.1:8796",
+        "deploy_host": None,
     }  # 기본 = deploy(EV-001 CH-30)
     ok = pack_settings(
         {"C1A15_JUDGE": "deploy", "C1A15_ALARM": "ml", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796/"}, dockerenv=none
     )
-    assert ok == {"judge": "deploy", "alarm": "ml", "deploy_url": "http://127.0.0.1:8796"}
+    assert ok == {"judge": "deploy", "alarm": "ml", "deploy_url": "http://127.0.0.1:8796", "deploy_host": None}
     assert check_url("http://127.0.0.1:8796") == "http://127.0.0.1:8796"

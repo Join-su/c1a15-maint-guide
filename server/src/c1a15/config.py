@@ -32,11 +32,12 @@ def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
     """Pack을 부르는 길(EV-001 CH-15 · CH-30): 판정 C1A15_JUDGE = deploy(기본이자 하나뿐),
     알람 C1A15_ALARM = boundary(기본) | ml.
 
-    배포 서버 주소 C1A15_DEPLOY_URL(맥 http://127.0.0.1:<port>만)이 필요하고, 컨테이너 안에서는 켜지 않는다
-    (127.0.0.1이 컨테이너 자신 — 앱 서버는 맥 host 직접 실행, compose 안 길은 S3-Q2 판).
+    배포 서버 주소 C1A15_DEPLOY_URL 한 곳(EV-001 CH-38): 맥 host 직접 = http://127.0.0.1:<port>,
+    컨테이너(compose · VPS) = http://<C1A15_DEPLOY_HOST>:<port>(내부망 이름 하나).
+    컨테이너 안 127.0.0.1은 컨테이너 자신이라 거절.
     inproc(앱 서버 안 판정)는 3단계에서 빠짐(D-297 (1) · S3-Q8). 어긋나면 ConfigError — 서버 시작을 거절한다.
     """
-    from c1a15.deploy.client import check_url  # 주소 규칙 한 곳
+    from c1a15.deploy.client import check_url, is_loopback  # 주소 규칙 한 곳
 
     judge = env.get("C1A15_JUDGE", "") or "deploy"
     alarm = env.get("C1A15_ALARM", "") or "boundary"
@@ -46,10 +47,11 @@ def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
         raise ConfigError(f"C1A15_JUDGE 는 deploy: {judge!r}")
     if alarm not in ("boundary", "ml"):
         raise ConfigError(f"C1A15_ALARM 은 boundary | ml: {alarm!r}")
-    if os.path.exists(dockerenv):
-        raise ConfigError("C1A15_JUDGE=deploy 는 맥 host 직접 실행에서만(컨테이너 안 127.0.0.1은 컨테이너 자신)")
+    raw, host_name = env.get("C1A15_DEPLOY_URL", ""), env.get("C1A15_DEPLOY_HOST", "") or None
     try:
-        url = check_url(env.get("C1A15_DEPLOY_URL", ""))
+        url = check_url(raw, host_name)
     except ValueError as e:
         raise ConfigError(str(e)) from e
-    return {"judge": judge, "alarm": alarm, "deploy_url": url}
+    if os.path.exists(dockerenv) and is_loopback(url):
+        raise ConfigError("배포 서버 주소: 컨테이너 안 127.0.0.1은 컨테이너 자신 — C1A15_DEPLOY_HOST 이름을 쓰세요")
+    return {"judge": judge, "alarm": alarm, "deploy_url": url, "deploy_host": host_name}

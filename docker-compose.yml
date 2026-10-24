@@ -37,6 +37,11 @@ services:
       APP_MODE: ${APP_MODE:-fixture}
       DATA_DIR: /data
       C1A15_INTERNAL_TOKEN: ${C1A15_INTERNAL_TOKEN:?.env에 C1A15_INTERNAL_TOKEN 필요}
+      # 배포 서버 한 곳(EV-001 CH-38 · CH-41): 컨테이너는 내부망 이름 — 값은 .env(비면 앱 서버가 시작을 거절)
+      C1A15_DEPLOY_URL: ${C1A15_DEPLOY_URL:-}
+      C1A15_DEPLOY_HOST: ${C1A15_DEPLOY_HOST:-}
+      C1A15_ALARM: ${C1A15_ALARM:-boundary}
+      C1A15_R12_INBOX: ${C1A15_R12_INBOX:-}
     # 경계 판정 표 · 시연 각본(읽기만). 알람 발생: docker compose exec api python -m c1a15.alarms DEMO-01
     volumes:
       - ./data:/data:ro

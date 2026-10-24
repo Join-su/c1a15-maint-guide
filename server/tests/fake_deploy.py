@@ -45,7 +45,7 @@ def _sha(body: dict) -> str:
 
 
 class FakeDeploy:
-    def __init__(self, deployment_id: str = "c1a15@v1-local", port: int = 0):
+    def __init__(self, deployment_id: str = "c1a15@v1-local", port: int = 0, host: str = "127.0.0.1"):
         self.deployment_id = deployment_id
         # 새 실행마다 앞에서 하나씩: {"output": {...}} | {"status": 500, "code": ..., "retryable": bool} + 선택 "delay"
         self.plan: list[dict] = []
@@ -159,7 +159,7 @@ class FakeDeploy:
                 fake.done.set()
                 self._send(status, payload)
 
-        self.server = ThreadingHTTPServer(("127.0.0.1", port), H)
+        self.server = ThreadingHTTPServer((host, port), H)  # host = 0.0.0.0은 compose 시험 서비스만(EV-001 CH-42)
         self.url = f"http://127.0.0.1:{self.server.server_address[1]}"
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
 
@@ -295,9 +295,10 @@ def engine_answer(body: dict) -> dict:
     return {"output": out}
 
 
-# 단독 실행: python fake_deploy.py <port> — 기본 = engine_answer(DATABASE_URL 필요), /_plan으로 동작 넣기
+# 단독 실행: python fake_deploy.py <port> [bind] — 기본 = engine_answer(DATABASE_URL 필요), /_plan으로 동작 넣기
+# bind 기본 127.0.0.1(host 시험). compose 시험 서비스(docker-compose.e2e.yml)만 0.0.0.0 — 같은 compose 망 안에서만 열림
 if __name__ == "__main__":
-    fake = FakeDeploy(port=int(sys.argv[1]))
+    fake = FakeDeploy(port=int(sys.argv[1]), host=sys.argv[2] if len(sys.argv) > 2 else "127.0.0.1")
     fake.default = engine_answer
     print(f"fake deploy {fake.url}", flush=True)
     fake.server.serve_forever()

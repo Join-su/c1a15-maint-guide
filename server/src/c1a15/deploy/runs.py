@@ -31,7 +31,7 @@ def deploy_on() -> bool:
 
 @lru_cache
 def client() -> Client:
-    return Client(settings()["deploy_url"], DbLedger())
+    return Client(settings()["deploy_url"], DbLedger(), host_name=settings()["deploy_host"])
 
 
 def session_ident(alarm_id: int) -> str:

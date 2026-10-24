@@ -17,6 +17,7 @@ inproc로 대신하지 않는다.
 
 import hashlib
 import json
+import re
 import time
 import urllib.error
 import urllib.request
@@ -39,7 +40,13 @@ STORED = NEW_KEY | {  # 실행을 시작한 뒤의 실패 — 키에 저장돼 �
     "payload_too_large",
     "artifact_failed",
 }
-LOCAL_HOSTS = {"127.0.0.1"}  # 맥 = 127.0.0.1 포트만(D-261 (4)), compose · VPS 내부망은 AWS 설치 때
+LOCAL_HOSTS = {"127.0.0.1"}  # 맥 host 직접 = 127.0.0.1 포트만(D-261 (4))
+# 컨테이너(compose · VPS) = 내부망 이름 하나(C1A15_DEPLOY_HOST, EV-001 CH-38)
+# — DNS 이름(점으로 나눈 소문자 · 숫자 · - 조각), IP · localhost 아님(D-333 덧 Q-a)
+#   예: deploy-example-v1(VPS 서비스 이름 꼴 — 실제 값은 서버 .env에만) · fake-deploy(compose 시험)
+#   · host.docker.internal(맥 compose → 맥 배포 창)
+LABEL = r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
+HOST_NAME = re.compile(rf"{LABEL}(?:\.{LABEL})*")
 
 
 class PackUnavailable(Exception):
@@ -78,11 +85,39 @@ class Ledger(Protocol):
     def record(self, detail: dict) -> None: ...
 
 
-def check_url(base: str) -> str:
+def check_host_name(name: str) -> str:
+    if (
+        not HOST_NAME.fullmatch(name)
+        or len(name) > 253
+        or name in ("localhost", "ip6-localhost", "ip6-loopback")  # 컨테이너 /etc/hosts의 자기 자신(review N-b)
+        or name.endswith(".localhost")  # RFC 6761 — 늘 자기 자신
+        or _ipv4_like(name)
+    ):
+        raise ValueError(f"C1A15_DEPLOY_HOST는 내부망 이름(DNS 이름 — 소문자 · 숫자 · - · 점, IP 아님): {name!r}")
+    return name
+
+
+def _ipv4_like(name: str) -> bool:
+    """IPv4로 읽히는 이름(0x7f000001 · 0x7f.1 · 127.1 등 inet_aton 꼴).
+
+    getaddrinfo가 IP로 풀기 때문에 이름으로 받지 않음(ES-20 review B1).
+    """
+    parts = name.split(".")  # inet_aton 꼴: 1 ~ 4 조각, 조각마다 10진 · 0x 16진 · 0 8진(socket 없이 — 외부 호출 검사)
+    return 1 <= len(parts) <= 4 and all(re.fullmatch(r"0x[0-9a-f]*|[0-9]+", x) for x in parts)
+
+
+def is_loopback(url: str) -> bool:
+    """주소 호스트가 127.0.0.1인가(컨테이너 안이면 컨테이너 자신 — config.pack_settings가 거절)."""
+    return urlsplit(url).hostname in LOCAL_HOSTS
+
+
+def check_url(base: str, host_name: str | None = None) -> str:
+    """배포 서버 주소 한 곳: http://127.0.0.1:<port> 또는 http://<host_name>:<port>(host_name = C1A15_DEPLOY_HOST)."""
     parts = urlsplit(base)
+    allowed = LOCAL_HOSTS | ({check_host_name(host_name)} if host_name else set())
     if (
         parts.scheme != "http"
-        or parts.hostname not in LOCAL_HOSTS
+        or parts.hostname not in allowed
         or not parts.port
         or parts.username
         or parts.password
@@ -90,7 +125,9 @@ def check_url(base: str) -> str:
         or parts.query
         or parts.fragment
     ):
-        raise ValueError(f"배포 서버 주소는 http://127.0.0.1:<port>만 허용: {base!r}")
+        raise ValueError(
+            f"배포 서버 주소는 http://127.0.0.1:<port> 또는 http://<C1A15_DEPLOY_HOST>:<port>만 허용: {base!r}"
+        )
     return base.rstrip("/")
 
 
@@ -138,10 +175,11 @@ class Client:
         timeouts: dict[str, float] | None = None,
         poll_every: float = POLL_EVERY,
         poll_limit: float = POLL_LIMIT,
+        host_name: str | None = None,
     ):
         if poll_every <= 0 or poll_limit <= 0:
             raise ValueError("poll_every · poll_limit은 0보다 커야 함")
-        self.url, self.ledger, self.sleep, self.clock = check_url(url), ledger, sleep, clock
+        self.url, self.ledger, self.sleep, self.clock = check_url(url, host_name), ledger, sleep, clock
         self.timeouts = {**TIMEOUT, **(timeouts or {})}
         self.poll_every, self.poll_limit = poll_every, poll_limit
 
