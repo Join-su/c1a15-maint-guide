@@ -216,6 +216,14 @@ def _open_step(
             "llm_fallback": guide["fallback"]
         }
         _store(c, sid, seq + 1, "instruction_shown", payload, actor)
+    if decision["kind"] == "report":  # CH-20: 보고서 원인 · 조치 문장은 초안 열쇠마다 한 번(화면 조회는 쓰지 않음)
+        evs = events_of(c, sid)
+        state = session.fold(
+            deps.manual(), row.symptom_group, similar_of(row), [e for e in evs if e["type"] in INPUT_TYPES]
+        )
+        written = flow.report_written_payload(c, row, state, decision, evs, seq)
+        if written is not None:
+            _store(c, sid, seq + 1, "report_written", written, actor)
     return decision
 
 

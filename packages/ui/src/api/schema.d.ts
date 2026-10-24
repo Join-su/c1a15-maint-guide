@@ -1735,6 +1735,8 @@ export interface components {
         ReportField: {
             /** Edited */
             edited: boolean;
+            /** Fallback */
+            fallback?: boolean | null;
             /** Key */
             key: string;
             /** Label */

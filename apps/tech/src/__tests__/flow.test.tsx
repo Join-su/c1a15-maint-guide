@@ -265,6 +265,15 @@ describe("T09 보고서", () => {
     r = render(<ReportScreen report={load("s03-report-unknown").report!} busy={false} send={() => {}} onHome={() => {}} />);
     expect(r.container.querySelector('[data-field="cause"] .rv2')?.textContent).toBe("원인 미상");
   });
+
+  it("원문 대체된 원인 · 조치 칸에만 '원문으로 대체됨' 표지(EV-001 CH-21 · VC-46)", () => {
+    const base = load("s03-report-draft").report!;
+    const report = { ...base, fields: base.fields.map((f) => (f.key === "cause" ? { ...f, fallback: true } : f.key === "action" ? { ...f, fallback: false } : f)) };
+    const { container } = render(<ReportScreen report={report} busy={false} send={() => {}} onHome={() => {}} />);
+    expect(texts(container, '[data-field="cause"] .ch.fb')).toEqual(["원문으로 대체됨"]);
+    expect(container.querySelectorAll(".ch.fb")).toHaveLength(1); // 조치(false) · 나머지 6칸(칸 없음)은 표지 없음
+    expect(container.querySelector('[data-field="cause"] .rv2')?.textContent).toBe(`원문으로 대체됨 ${base.fields.find((f) => f.key === "cause")!.text}`);
+  });
 });
 
 describe("진행 표시 · 점검 경로", () => {

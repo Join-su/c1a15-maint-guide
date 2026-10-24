@@ -301,6 +301,7 @@ class ReportField(_Out):
     edited: bool
     ok: bool
     unsupported_numbers: list[str]
+    fallback: bool | None = None  # 원인 · 조치만: 원문으로 대체됨(EV-001 CH-21)
 
 
 class ReportCheck(_Out):

@@ -4426,6 +4426,17 @@
       "title": "Edited",
       "type": "boolean"
      },
+     "fallback": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fallback"
+     },
      "key": {
       "title": "Key",
       "type": "string"

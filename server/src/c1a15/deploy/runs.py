@@ -1,4 +1,4 @@
-"""앱 → Pack Run 입력 만들기(EV-001 ES-07 · ES-08): 정본 = c1a15-pack 약속 v2(+ README 읽는 법).
+"""앱 → Pack Run 입력 만들기(EV-001 ES-07 · 08 · 10): 정본 = c1a15-pack 약속 v2(+ README 읽는 법) · v3(kind report).
 
 - session_id = `S-A<alarm_id>`(알람 하나 = 세션 하나 — 실패로 되돌린 뒤 다시 보내도 같은 값, R6-1)
 - start.event_id = 세션을 연 알람의 event_id, 기본 길로 등록돼 없으면 `C1A-A<alarm_id>`(R6-2)
@@ -145,3 +145,20 @@ def judge(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], gr
     body = judge_body(alarm_id, group, similar, inputs, grades, minutes)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
     return client().run("judge", session_ident(alarm_id), seq, body)
+
+
+def report_body(alarm_id: int, group: str, similar: list[dict], draft: dict, sections: list[str]) -> dict:
+    """약속 v3 kind report: 앱 코드 초안 8항목(원인 · 조치 = 원문 대체 글) · 세션에서 열린 · 기록된 절."""
+    return {
+        "kind": "report",
+        "session_id": session_ident(alarm_id),
+        "group": group,
+        "similar": similar_body(similar),
+        "report_draft": dict(draft),
+        "allowed_sections": sorted(sections),
+    }
+
+
+def report(alarm_id: int, group: str, similar: list[dict], draft: dict, sections: list[str], seq: int) -> RunResult:
+    """seq = 보고서 단계를 연 기록 — 초안이 바뀌면 본문 hash가 달라 기본 키도 달라짐(CH-20 초안 열쇠)."""
+    return client().run("report", session_ident(alarm_id), seq, report_body(alarm_id, group, similar, draft, sections))

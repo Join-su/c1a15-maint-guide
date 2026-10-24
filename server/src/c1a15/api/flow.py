@@ -5,6 +5,8 @@
 보고서 8항목 = 명세 R10, 계산 세부 = 사용자 결정 015(sources/intent/015.md).
 """
 
+import hashlib
+import json
 import re
 from datetime import UTC, datetime
 
@@ -13,10 +15,12 @@ from sqlalchemy import Connection, select
 
 from c1a15.api import deps, screen
 from c1a15.db import models as m
+from c1a15.deploy import runs
+from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import rules, session
 from c1a15.engine.knowledge import ManualKnowledge
 from c1a15.llm import adapter_for_mode, grounding
-from c1a15.llm.base import Draft, Facts
+from c1a15.llm.base import AdapterError, Draft, Facts
 
 # 정비자 앱이 보내는 S-03 입력(클라이언트 type) → 업무 기록 type
 CLIENT_TYPES = {
@@ -423,7 +427,7 @@ def unresolved(state: session.SessionState, k: ManualKnowledge, events: list[dic
     return " / ".join(dict.fromkeys(items)) or "없음"
 
 
-def report_facts(
+def report_draft(
     c: Connection,
     row: m.DiagSession,
     alarm: m.Alarm,
@@ -431,10 +435,14 @@ def report_facts(
     step: dict,
     events: list[dict],
     confirmed_at: datetime | None,
+    grades: dict | None = None,
 ) -> dict[str, str]:
-    """R10 8항목 초안(코드 사실). 원인 · 조치 문장은 문장 생성기 + R8(실패면 이 템플릿)."""
+    """R10 8항목 초안(코드 사실). 원인 · 조치는 문장 생성 전 원문(실패면 이 글로 대체).
+
+    grades = {}면 등급 글 없이(초안 열쇠용).
+    """
     k = deps.manual()
-    g, minutes = deps.grades(c)
+    g = deps.grades(c)[0] if grades is None else grades
     group = deps.group_names()[alarm.symptom_group]
     system = deps.group_systems()[alarm.symptom_group]
     end = confirmed_at or datetime.now(UTC)
@@ -502,11 +510,92 @@ def report_facts(
         "downtime": f"{downtime_minutes(alarm, events, confirmed_at)}분",
         "unresolved": unresolved(state, k, events, g),
     }
-    gr = _report_grounding(row, events, facts)
-    for fkey in ("cause", "action"):  # R8 대상: 보고서 원인 · 조치 문장
-        r = _write(Facts("report_sentence", "", {"field": fkey, "template": facts[fkey]}), gr, facts[fkey])
-        facts[fkey] = r.text
     return facts
+
+
+REPORT_SENTENCES = ("cause", "action")  # R8 대상: 보고서 원인 · 조치 문장(약속 v3 report 출력 칸)
+REPORT_RUN_WHERE = {"run.write_report", "run.rewrite_report"}  # D-288: Pack 문장 node 실패 = provider_failure
+
+
+def draft_key(row: m.DiagSession, events: list[dict], draft: dict[str, str]) -> str:
+    """초안 열쇠(CH-20): 원인 · 조치 원문 · 근거 절 — 바뀌면 새로 한 번 쓴다(반려 뒤 추가 점검 · 확정 전 정정).
+
+    draft는 등급 글 없는 초안(report_draft grades={}) — 파트장 등급표 변경은 _open_step을 거치지 않으므로
+    열쇠에 넣지 않는다
+    (R13: 열린 단계는 이후 등급 변경에도 그대로 — 쓴 문장도 그때 등급 그대로).
+    """
+    sections = sorted(_report_grounding(row, events, draft).allowed_sections)
+    raw = json.dumps([draft["cause"], draft["action"], sections], ensure_ascii=False)
+    return "sha256:" + hashlib.sha256(raw.encode()).hexdigest()
+
+
+def report_sentences(
+    row: m.DiagSession, events: list[dict], draft: dict[str, str], key: str
+) -> tuple[dict[str, dict], int]:
+    """화면 · 확정이 읽는 원인 · 조치 문장과 그 기록 seq — 화면 조회는 쓰지 않는다(쓰기는 _open_step 한 곳)."""
+    written = [e for e in events if e["type"] == "report_written"]
+    if not written:  # Q-18: 이 판 전에 보고서 단계를 연 세션은 지금 동작(그릴 때 씀)
+        gr = _report_grounding(row, events, draft)
+        return {k: _sentence(k, draft, gr) for k in REPORT_SENTENCES}, 0
+    hit = next((e for e in reversed(written) if e.get("draft_key") == key), None)
+    if hit is not None:
+        return hit["fields"], hit["seq"]
+    fields = {
+        k: {"text": draft[k], "fallback": True, "attempts": None, "reason": "draft_changed"} for k in REPORT_SENTENCES
+    }
+    return fields, written[-1]["seq"]
+
+
+def report_written_payload(
+    c: Connection, row: m.DiagSession, state: session.SessionState, step: dict, events: list[dict], seq: int
+) -> dict | None:
+    """보고서 단계를 열 때(CH-20): 초안 열쇠가 마지막 report_written과 같으면 None, 아니면 새로 쓴 문장."""
+    alarm = sessions_alarm(c, row)
+    draft = report_draft(c, row, alarm, state, step, events, None)
+    key = draft_key(row, events, report_draft(c, row, alarm, state, step, events, None, grades={}))
+    last = next((e for e in reversed(events) if e["type"] == "report_written"), None)
+    if last is not None and last.get("draft_key") == key:
+        return None
+    gr = _report_grounding(row, events, draft)
+    if not runs.deploy_on():
+        return {"draft_key": key, "fields": {k: _sentence(k, draft, gr) for k in REPORT_SENTENCES}, "via": "inproc"}
+    try:  # CH-19: Pack report Run(약속 v3)
+        res = runs.report(alarm.alarm_id, row.symptom_group, row.similar, draft, sorted(gr.allowed_sections), seq)
+    except PackUnavailable as e:  # CH-22: 재시도 뒤 끝내 실패 — 503 대신 두 칸 원문(확정 가능 · 다시 부르지 않음)
+        reason = "provider_failure" if e.code == "run_failed" and e.where in REPORT_RUN_WHERE else "pack_unavailable"
+        fields = {k: {"text": draft[k], "fallback": True, "attempts": None, "reason": reason} for k in REPORT_SENTENCES}
+        return {"draft_key": key, "fields": fields, "via": "deploy", "run_id": e.run_id}
+    try:
+        out = res.output["report"]
+        fields = {k: {x: out[k][x] for x in ("text", "fallback", "attempts", "reason")} for k in REPORT_SENTENCES}
+    except (KeyError, TypeError):  # 201인데 report 모양이 아님 — CH-22 '표 밖'과 같이 원문(세션이 막히지 않게)
+        fields = {
+            k: {"text": draft[k], "fallback": True, "attempts": None, "reason": "pack_unavailable"}
+            for k in REPORT_SENTENCES
+        }
+    return {
+        "draft_key": key,
+        "fields": fields,
+        "via": "deploy",
+        "run_id": res.run_id,
+        "deployment_id": res.deployment_id,
+    }
+
+
+def _sentence(fkey: str, draft: dict[str, str], gr: grounding.Grounding) -> dict:
+    """앱 adapter(기본 길): 생성 → R8 → 1회 다시 → 원문. reason은 앱이 아는 만큼(preview v12 H)."""
+    failed = []
+
+    def generate() -> Draft:
+        try:
+            return adapter_for_mode().write(Facts("report_sentence", "", {"field": fkey, "template": draft[fkey]}))
+        except AdapterError:
+            failed.append(True)
+            raise
+
+    r = grounding.checked(generate, gr, draft[fkey])
+    reason = None if not r.fallback else "provider_failure" if failed else "ungrounded"
+    return {"text": r.text, "fallback": r.fallback, "attempts": r.attempts, "reason": reason}
 
 
 def _report_grounding(row: m.DiagSession, events: list[dict], facts: dict[str, str]) -> grounding.Grounding:
@@ -531,13 +620,24 @@ def report_view(
         fields = stored.fields
         status, confirmed_at = stored.status, stored.confirmed_at
     else:
-        facts = report_facts(c, row, alarm, state, step, events, None)
+        facts = report_draft(c, row, alarm, state, step, events, None)
+        key = draft_key(row, events, report_draft(c, row, alarm, state, step, events, None, grades={}))
+        sent, sent_seq = report_sentences(row, events, facts, key)
+        facts |= {k: sent[k]["text"] for k in REPORT_SENTENCES}
+        fallback = {k: bool(sent[k]["fallback"]) for k in REPORT_SENTENCES}
         gr = _report_grounding(row, events, facts)
         edits = {}
-        since = (state.report_rejected_seq or 0) if reopened else 0
-        if reopened:  # FLOW-06: 반려된 보고서는 확정했던 문장에서 다시 고친다(그 뒤 수정만 새로 검사)
+        rejected_seq = (state.report_rejected_seq or 0) if reopened else 0
+        before = next(  # 반려 전 마지막 문장 기록 — 없으면(이 판 전 세션) FLOW-06 그대로
+            (e for e in reversed(events) if e["type"] == "report_written" and e["seq"] < rejected_seq), None
+        )
+        # CH-20: 반려 뒤 추가 점검 · 정정으로 초안 열쇠가 반려 전과 달라졌으면 새 초안 · 새 문장(A7 · A13)
+        redrafted = reopened and before is not None and before.get("draft_key") != key
+        since = max(rejected_seq, sent_seq)  # 정비자 수정은 그 문장 기록(또는 반려) 뒤 것만
+        if reopened and not redrafted:  # FLOW-06: 반려된 보고서는 확정했던 문장에서 다시 고친다(그 뒤 수정만 새로 검사)
             base = {f["key"]: f["text"] for f in stored.fields}
             facts = {key: base.get(key, facts[key]) for key in facts}
+            fallback = {f["key"]: bool(f.get("fallback")) for f in stored.fields if f["key"] in REPORT_SENTENCES}
             gr = _report_grounding(row, events, {**facts, **base})
         for e in events:
             if e["type"] == "report_edit" and not e.get("void") and e["seq"] > since:
@@ -557,6 +657,7 @@ def report_view(
                     "ok": ok,
                     "unsupported_numbers": missing,
                 }
+                | ({"fallback": fallback.get(key, False) and key not in edits} if key in REPORT_SENTENCES else {})
             )
         status, confirmed_at = "draft", None
     failures = [f for f in fields if not f["ok"]]
@@ -736,7 +837,7 @@ def accept(
         fields = view["fields"]
         for f in fields:  # 확정 때 정지 시간 · 시각을 확정 시각으로 고정
             if f["key"] in {"equipment_alarm", "downtime"} and not f["edited"]:
-                f["text"] = report_facts(c, row, alarm, state, step, events, now)[f["key"]]
+                f["text"] = report_draft(c, row, alarm, state, step, events, now)[f["key"]]
         values = {
             "author": actor,
             "status": "awaiting_approval",

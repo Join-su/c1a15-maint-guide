@@ -595,6 +595,11 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
                       <span className="ch amber">근거 적음</span>{" "}
                     </>
                   ) : null}
+                  {f.fallback ? (
+                    <>
+                      <span className="ch fb">원문으로 대체됨</span>{" "}
+                    </>
+                  ) : null}
                   {f.text}
                 </span>
               )}

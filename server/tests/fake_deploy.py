@@ -19,11 +19,13 @@ REQUIRED = {
     "alarm": {"event_card"},
     "start": {"session_id", "event_id", "group", "query", "events", "grades", "minutes"},
     "judge": {"session_id", "group", "similar", "events", "grades", "minutes"},
+    "report": {"session_id", "group", "similar", "report_draft", "allowed_sections"},  # 약속 v3(EV-001 ES-10)
 }
 FORBIDDEN = {
     "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query"},
     "start": {"event_card", "settings"},
     "judge": {"event_card", "settings", "event_id", "query"},
+    "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes"},
 }
 
 
@@ -225,6 +227,15 @@ def engine_answer(body: dict) -> dict:
                     "sensor_derived": derived,
                     "ml": None,
                     "candidate": None,
+                }
+            }
+        }
+    if body["kind"] == "report":  # Pack 가짜 provider(tools/fake/rule.py)와 같은 뜻: 초안 그대로 · 근거 검사 통과
+        draft = body["report_draft"]
+        return {
+            "output": {
+                "report": {
+                    f: {"text": draft[f], "fallback": False, "attempts": 1, "reason": None} for f in ("cause", "action")
                 }
             }
         }
