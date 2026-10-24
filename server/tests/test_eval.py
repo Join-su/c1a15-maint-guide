@@ -186,7 +186,7 @@ sys.addaudithook(forbidden_open.make_hook(lambda p: HITS.append(p) if WATCH["on"
 
 
 @pytest.mark.db
-def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch):
+def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch, inproc_path):
     """ADV-09(실행 감시): 진단 처리(세션 생성 · 검색 · 판정)를 파일 열기 감시로 감싼다. 지금 코드 = 0건,
     검색이 가짜 평가 카드(tmp_path 사본)를 여는 결함 사본 = 감시가 잡음(fail closed). 실제 카드 파일은 쓰지 않는다."""
     from c1a15.retrieval import search

@@ -19,6 +19,9 @@ from pathlib import Path
 # ML 길 alarm 출력 = c1a15-pack이 뜬 실제 Pack 출력(D-304 (3) · 보고 012-11, 사용자 모델)
 # — 시험 기대값도 여기서 셈(EV-001 CH-28)
 ML_ALARM_DATA = Path(__file__).parent / "fixtures" / "ml_alarm_outputs.jsonl"
+# start = 사람이 승인한 40행(D-314)의 Pack v4 출력(EV-001 CH-35) — 첫 판정은 아래 앱 engine 계산(받은 similar로)
+START_V4_DATA = Path(__file__).parent / "fixtures" / "start_v4_outputs.jsonl"
+STAND_INS: list[str] = []  # 대역을 쓴 start 요청의 session_id(시험 기록 — CH-35 'stand_in: true'를 시험에만)
 
 REQUIRED = {
     "alarm": {"event_card"},
@@ -201,6 +204,31 @@ class FakeDeploy:
         return [r for r in self.requests if r["method"] == "POST"]
 
 
+def start_v4_rows(path: Path | None = None) -> list[dict]:
+    """승인 40행(D-314 — 시연 10 + 카드 val 30, Pack v4 start 출력) + 입력 칸.
+
+    만든 도구 = 기록 폴더 ES-15 make_start_fixture.py.
+    """
+    lines = (path or START_V4_DATA).read_text(encoding="utf-8").splitlines()
+    return [json.loads(x) for x in lines if x.strip()]
+
+
+def start_v4_row(body: dict) -> dict:
+    """요청 (group · direction · 센서 5칸)과 같은 행.
+
+    없으면 같은 group · direction의 첫 행(대역, 40행 밖 시험 알람만 — CH-35).
+    """
+    q = body["query"]
+    rows = [r for r in start_v4_rows() if (r["group"], r["direction"]) == (body["group"], q["direction"])]
+    if not rows:
+        raise KeyError(f"start 자료에 {body['group']} · {q['direction']} 행이 없음")
+    same = [r for r in rows if r["sensor5"] == q["sensor_snapshot"]]
+    if same:
+        return same[0]
+    STAND_INS.append(body.get("session_id"))
+    return {**rows[0], "stand_in": True}
+
+
 def ml_alarm_outputs(path: Path | None = None) -> dict[str, dict]:
     """시험 자료 읽기 한 곳(Q-22): jsonl 한 줄 = 한 행, 열쇠 row_id(= 각본 udi) → output.alarm(약속 v3 alarm 객체)."""
     lines = (path or ML_ALARM_DATA).read_text(encoding="utf-8").splitlines()
@@ -255,12 +283,13 @@ def engine_answer(body: dict) -> dict:
             }
         }
     k = deps.manual()
-    similar = [rules.Similar(s["record_id"], s.get("cause"), s["score"]) for s in body.get("similar", [])]
+    row = start_v4_row(body) if body["kind"] == "start" else None  # start = Pack 리트리버 자리(약속 v4) — 승인 자료에서
+    given = row["similar"] if row else body.get("similar", [])
+    similar = [rules.Similar(s["record_id"], s.get("cause"), s["score"]) for s in given]
     state = session.fold(k, body["group"], similar, body["events"])
     out = {"decision": session.decide(state, k, body["grades"], body["minutes"])}
-    if body["kind"] == "start":
-        out["similar"] = body.get("similar", [])
-        out["retrieval"] = {"source": "request", "vector_db_version": None, "query_from": None, "top_k": 10}
+    if row:
+        out["similar"], out["retrieval"] = row["similar"], row["retrieval"]
     return {"output": out}
 
 

@@ -45,7 +45,7 @@ def assert_one_session(db, alarm_id, a, b):
     assert count(db, "select count(*) from ops.audit_log where action = 'session_start'") == 1
 
 
-def test_concurrent_start_default_path_returns_existing_session(api, db, monkeypatch):
+def test_concurrent_start_default_path_returns_existing_session(api, db, monkeypatch, inproc_path):
     from c1a15.api import sessions
 
     reset_ops(db)

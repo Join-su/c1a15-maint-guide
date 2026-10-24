@@ -108,7 +108,8 @@ def alarm(event_id: str, body: dict) -> RunResult:
     return client().run("alarm", event_id, 0, body)
 
 
-def start_body(alarm, similar: list[dict], grades: dict, minutes: dict) -> dict:
+def start_body(alarm, grades: dict, minutes: dict) -> dict:
+    """약속 v4: 상위 10건은 Pack 리트리버(retrieve_history)가 고름 — similar 칸은 보내지 않음(EV-001 CH-29)."""
     return {
         "kind": "start",
         "session_id": session_ident(alarm.alarm_id),
@@ -118,7 +119,6 @@ def start_body(alarm, similar: list[dict], grades: dict, minutes: dict) -> dict:
             "direction": alarm.alarm.get("direction"),
             "sensor_snapshot": sensors5(alarm.sensor_snapshot),
         },  # 없으면 null(정본 enum)
-        "similar": similar_body(similar),
         "events": [],
         "grades": grades,
         "minutes": minutes,
@@ -137,8 +137,8 @@ def judge_body(alarm_id: int, group: str, similar: list[dict], inputs: list[dict
     }
 
 
-def start(alarm, similar: list[dict], grades: dict, minutes: dict) -> RunResult:
-    return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, similar, grades, minutes))
+def start(alarm, grades: dict, minutes: dict) -> RunResult:
+    return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, grades, minutes))
 
 
 def judge(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> RunResult:

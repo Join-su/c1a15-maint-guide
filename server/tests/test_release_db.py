@@ -56,7 +56,7 @@ def test_loader_makes_first_releases(db):
     assert len(q) == 8 and man > 0 and hist_gen == gen == 300  # 질의 = 증상군 4 × 방향 2 · 이력 조각 = 생성 이력 300
 
 
-def test_vc11_db_release_docs_equal_legacy_docs(db):
+def test_vc11_db_release_docs_equal_legacy_docs(db, monkeypatch):
     """DB 값으로: 활성 이력 release 조각(load_release_docs) ↔ 지금 표(history_records + history_embeddings, load_docs) — 시연 10건 상위 10 같음."""
     from c1a15.api import deps
     from c1a15.engine import alarm_rules
@@ -65,6 +65,7 @@ def test_vc11_db_release_docs_equal_legacy_docs(db):
     from c1a15.retrieval import db as rdb
     from c1a15.retrieval import search
 
+    monkeypatch.setenv("DATA_DIR", str(DATA))  # deps.retriever() — 앞 시험의 캐시에 기대지 않음
     with db.connect() as c:
         cur = store.active(c, "history")
         legacy, released = rdb.load_docs(c), rdb.load_release_docs(c, cur["release_id"])
@@ -152,7 +153,7 @@ def test_vc25_release_failure_keeps_approval_and_next_try_catches_up(api, db, mo
     assert {h1, h2} <= {d.record_id for d in deps.index().docs}
 
 
-def test_vc12_one_search_per_session(api, db, monkeypatch):
+def test_vc12_one_search_per_session(api, db, monkeypatch, inproc_path):
     """검색은 세션 시작 때 한 번(D-237 (2)) — 결과 입력 · 정정 등에서 다시 검색하지 않음."""
     from c1a15.retrieval import search
 

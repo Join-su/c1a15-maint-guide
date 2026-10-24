@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from fake_deploy import FakeDeploy, engine_answer
+from fake_deploy import FakeDeploy, engine_answer, start_v4_row, start_v4_rows
 from test_api import TECH_PW, api, db, login, ok, register  # noqa: F401
 from test_api import reset_ops as _reset_ops
 
@@ -96,7 +96,7 @@ def test_start_and_judge_runs_bodies_and_storage(api, db, deploy):
         "torque_nm",
         "tool_wear_min",
     }
-    assert start["events"] == [] and len(start["similar"]) == 10
+    assert start["events"] == [] and "similar" not in start  # 약속 v4: 상위 10은 Pack 리트리버(EV-001 CH-29)
     with db.connect() as c:
         row = c.execute(
             text(
@@ -108,12 +108,14 @@ def test_start_and_judge_runs_bodies_and_storage(api, db, deploy):
             text("select payload from ops.session_events where session_id = :s and type = 'step_opened' order by seq"),
             {"s": sid},
         ).scalar()
-    assert row.similar == start["similar"] and row.start_run_id == start_run and row.deployment_id == "c1a15@v1-local"
-    assert (
-        row.retrieval["source"] == "request"
-        and row.retrieval["vector_db_version"] is None
-        and row.retrieval["app_release_id"]
-    )
+    want = start_v4_row(start)  # 가짜 배포 서버가 답한 행(승인 자료 · 이 알람은 대역)
+    assert want.get("stand_in") is True and want["case"] == next(
+        r["case"]
+        for r in start_v4_rows()
+        if (r["group"], r["direction"]) == (start["group"], start["query"]["direction"])
+    )  # 대역 = 같은 group · direction의 첫 행(CH-35)
+    assert row.similar == want["similar"] and row.start_run_id == start_run and row.deployment_id == "c1a15@v1-local"
+    assert row.retrieval == want["retrieval"] and "app_release_id" not in row.retrieval  # retrieval 넷 그대로(v4)
     assert (
         first["via"] == "deploy"
         and first["run_id"] == start_run

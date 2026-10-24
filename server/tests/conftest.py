@@ -43,3 +43,18 @@ def deploy_path_everywhere():
                 for rec in fake.keys.values():
                     if rec["status"] in (200, 201):
                         f.write(json.dumps({"response": rec["payload"]["result"]["output"]}, ensure_ascii=False) + "\n")
+
+
+@pytest.fixture
+def inproc_path(monkeypatch):
+    """앱 임시 리트리버를 부르는 기본 길(inproc) 전용 시험 — deploy 길 묶음에서도 inproc로(EV-001 ES-15).
+
+    deploy 길은 상위 10을 Pack 리트리버가 고르므로 앱 리트리버를 부르지 않음.
+    ES-16에서 inproc가 빠질 때 이 시험들을 고침.
+    """
+    from c1a15.deploy import runs
+
+    monkeypatch.setenv("C1A15_JUDGE", "inproc")
+    runs.settings.cache_clear()
+    yield
+    runs.settings.cache_clear()

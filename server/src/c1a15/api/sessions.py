@@ -13,6 +13,7 @@ from sqlalchemy import Connection, func, select, text
 from c1a15.api import deps, flow, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
+from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import checkpoint, graph, rules, session
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
@@ -244,12 +245,30 @@ def current_step(events: list[dict]) -> dict | None:
     return opened[-1]["decision"] if opened else None
 
 
-def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
-    # 같은 알람의 동시 시작은 알람 줄 잠금으로 줄 세움 — 뒤 요청은 앞 요청 commit 뒤 기존 세션을 받음(GAP-18)
-    c.execute(select(m.Alarm.alarm_id).where(m.Alarm.alarm_id == alarm.alarm_id).with_for_update())
-    existing = c.execute(select(m.DiagSession.session_id).where(m.DiagSession.alarm_id == alarm.alarm_id)).scalar()
-    if existing:
-        return existing
+def _check_known_records(c: Connection, alarm: m.Alarm, similar: list[dict], run_id: str) -> None:
+    """PR-24: Pack이 고른 기록이 앱 이력에 모두 있어야 진단 카드 · 기록 전체 화면이 깨지지 않음.
+
+    없으면 세션을 만들지 않음(503 pack_unavailable · code unknown_record).
+    """
+    ids = {s["record_id"] for s in similar}
+    known = (
+        set(c.execute(select(m.HistoryRecord.record_id).where(m.HistoryRecord.record_id.in_(ids))).scalars())
+        if ids
+        else set()
+    )
+    missing = sorted(ids - known)
+    if missing:
+        audit_rejection(
+            "system",
+            "pack_call_failed",
+            f"alarm:{alarm.alarm_id}",
+            {"kind": "start", "code": "unknown_record", "run_id": run_id, "missing": missing},
+            alarm.equipment_id,
+        )
+        raise PackUnavailable("unknown_record", run_id)
+
+
+def _app_similar(alarm: m.Alarm, c: Connection) -> list[dict]:
     idx = deps.fresh_index(c)
     pool = [d for d in idx.docs if d.symptom_group == alarm.symptom_group]
     qtext = search.query_text(GROUP_NAME.get(alarm.symptom_group, ""), alarm.alarm.get("direction", ""), [])
@@ -270,17 +289,29 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
         deps.stats(),
         idx.cfg,
     )
-    similar = [{"record_id": s.record_id, "cause": s.cause, "score": s.score} for s in top]
+    return [{"record_id": s.record_id, "cause": s.cause, "score": s.score} for s in top]
+
+
+def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
+    # 같은 알람의 동시 시작은 알람 줄 잠금으로 줄 세움 — 뒤 요청은 앞 요청 commit 뒤 기존 세션을 받음(GAP-18)
+    c.execute(select(m.Alarm.alarm_id).where(m.Alarm.alarm_id == alarm.alarm_id).with_for_update())
+    existing = c.execute(select(m.DiagSession.session_id).where(m.DiagSession.alarm_id == alarm.alarm_id)).scalar()
+    if existing:
+        return existing
     deploy_cols, decided = {}, None
-    if (
-        runs.deploy_on()
-    ):  # 첫 Run = start(P1 다리: 앱 임시 리트리버 상위 10건을 담음, D-259 (3)) — 실패면 세션을 만들지 않음
+    if runs.deploy_on():  # 첫 Run = start — 상위 10은 Pack 리트리버(약속 v4, EV-001 CH-29) · 실패면 세션을 만들지 않음
         g, minutes = deps.grades(c)
-        res = runs.start(alarm, similar, g, minutes)
+        res = runs.start(alarm, g, minutes)
         similar = res.output["similar"]
-        retrieval = {**res.output["retrieval"], "app_release_id": idx.release_id}
-        deploy_cols = {"retrieval": retrieval, "start_run_id": res.run_id, "deployment_id": res.deployment_id}
+        _check_known_records(c, alarm, similar, res.run_id)
+        deploy_cols = {
+            "retrieval": res.output["retrieval"],
+            "start_run_id": res.run_id,
+            "deployment_id": res.deployment_id,
+        }
         decided = (res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id})
+    else:  # 기본 길(inproc): 앱 임시 리트리버(D-245) — ES-16에서 걷음
+        similar = _app_similar(alarm, c)
     sid = c.execute(
         m.DiagSession.__table__.insert()
         .values(
