@@ -71,13 +71,16 @@ def test_vc56_0009_drops_four_tables_and_downgrade_recreates_empty(db):
         assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
     alembic("downgrade", "0008")
     with db.connect() as c:
+        assert c.execute(text("select version_num from alembic_version")).scalar() == "0008"
         assert all(reg(c, t) for t in FOUR)
         assert [c.execute(text(f"select count(*) from {t}")).scalar() for t in FOUR] == [0] * 4
         assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
     alembic("upgrade", "head")
+    subprocess.run(["python", "-m", "c1a15.loader"], cwd=SERVER, env=env, check=True)  # 다시 upgrade 뒤 적재기
     with db.connect() as c:
         assert [reg(c, t) for t in FOUR] == [None] * 4
         assert c.execute(text("select version_num from alembic_version")).scalar() == "0009"
+        assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
 
 
 def test_adv03_plaintext_store_is_caught(db):

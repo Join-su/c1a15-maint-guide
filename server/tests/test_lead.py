@@ -81,7 +81,8 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
         ).one()
         st = c.execute(text("select status, approval from ops.reports where report_id = :r"), {"r": rid}).one()
     assert h.source == "approved_report" and h.symptom_group == "CL"
-    # VC-58(EV-001 CH-32): 앱은 벡터 · 새 release를 쓰지 않음(그 표는 0009로 없음 — test_db VC-56) — 다음 진단 후보는 배포 서버 R12
+    # VC-58(EV-001 CH-32): 앱은 벡터 · 새 release를 쓰지 않음 — 그 표는 0009로 없어서(test_db VC-56) 쓰기 코드가 되살아나면
+    # 승인이 SQL 오류로 200이 아니게 됨(위 단언). 다음 진단 후보는 배포 서버 R12
     rec = h.record
     assert (
         rec["source"] == {"report_id": rid}
