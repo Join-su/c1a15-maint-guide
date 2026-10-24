@@ -164,9 +164,9 @@ def test_fabricated_and_violation_counts():
 
 def test_adv09_static_check_catches_defect_copy(tmp_path):
     """ADV-09(정적): 진단 처리 결함 사본이 평가 카드 경로를 가리키면 scripts/forbidden_paths_check.py가 실패한다."""
-    bad = tmp_path / "server" / "src" / "c1a15" / "retrieval"
+    bad = tmp_path / "server" / "src" / "c1a15" / "api"  # 진단 처리 자리(ES-18: 앱 retrieval/ 지움)
     bad.mkdir(parents=True)
-    (bad / "search.py").write_text('CARDS = "eval/cards/cards.jsonl"\n', encoding="utf-8")
+    (bad / "sessions.py").write_text('CARDS = "eval/cards/cards.jsonl"\n', encoding="utf-8")
 
     def run(root):
         return subprocess.run(
@@ -176,7 +176,7 @@ def test_adv09_static_check_catches_defect_copy(tmp_path):
         )
 
     r = run(tmp_path)
-    assert r.returncode == 1 and "FORBIDDEN server/src/c1a15/retrieval/search.py" in r.stdout
+    assert r.returncode == 1 and "FORBIDDEN server/src/c1a15/api/sessions.py" in r.stdout
     assert run(REPO).returncode == 0  # 지금 제품 코드는 0건
 
 
