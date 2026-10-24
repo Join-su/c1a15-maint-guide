@@ -28,7 +28,8 @@ def fake_cards():
     plan += [(g, {"type": "none"}) for g in ("CL", "PW", "TW", "LD", "PW")]
     plan += [(g, {"type": "out_of_graph"}) for g in ("CL", "TW", "LD")]
     cards = [{"card_id": f"EC-X{n:02d}", "hidden_cause": h} for n, (_, h) in enumerate(plan, 1)]
-    inputs = [{"card_id": f"EC-X{n:02d}", "symptom_group": {"code": g, "name": NAMES[g]}} for n, (g, _) in enumerate(plan, 1)]
+    alarm = {"sensor": "가상", "value": 1, "unit": "-", "boundary": 0, "direction": "경계 위"}
+    inputs = [{"card_id": f"EC-X{n:02d}", "symptom_group": {"code": g, "name": NAMES[g]}, "alarm": alarm, "sensor_snapshot": {"torque_nm": 1}} for n, (g, _) in enumerate(plan, 1)]
     return cards, inputs
 
 
@@ -200,6 +201,49 @@ class GoldTest(unittest.TestCase):
         self.assertEqual([c for c, _ in outs], [0, 0, 2, 2])
         for _, out in outs:
             self.assertIsNone(re.search(r"H-\d{4}|EC-T|section|Traceback|(CL|PW|TW|LD)-\d", out), out)
+
+    def test_sample_rules(self):  # VC-G6: 반드시 넣기 · 몫 · seed 재현 · val만
+        mg.cmd_build(self.tmp, "val")
+        self.assertEqual(mg.cmd_sample(self.tmp, "val"), 0)
+        first = (self.dir / "human-sample.json").read_bytes()
+        mg.cmd_sample(self.tmp, "val")
+        self.assertEqual(first, (self.dir / "human-sample.json").read_bytes())
+        s = json.loads(first)
+        cards, inputs = fake_cards()
+        by = {c["card_id"]: c for c in cards}
+        grp = {i["card_id"]: i["symptom_group"]["code"] for i in inputs}
+        pick = set(s["cards"])
+        self.assertEqual(len(pick), 20)
+        self.assertTrue({i for i, c in by.items() if c["hidden_cause"].get("code") in ("PW-2", "LD-2")} <= pick)
+        for t in ("none", "out_of_graph"):
+            self.assertGreaterEqual(sum(by[i]["hidden_cause"]["type"] == t for i in pick), 2)
+        counts = {g: sum(grp[i] == g for i in pick) for g in ("CL", "PW", "TW", "LD")}
+        self.assertEqual(counts, s["adjusted_quota"])
+        self.assertEqual(sum(s["adjusted_quota"].values()), 20)
+        with self.assertRaises(mg.GoldError):
+            mg.cmd_sample(self.tmp, "test")
+
+    def test_quota_overflow(self):  # CC-03 2: 넘친 증상군은 두고 여유 큰 증상군부터 줄임
+        cards, inputs = fake_cards()
+        grp = {i["card_id"]: i["symptom_group"]["code"] for i in inputs}
+        rows = [{"card_id": c["card_id"], "evidence": [{"store": "history"}] * 1} for c in cards]  # 모두 이력 1건 → 30장 반드시 넣기
+        with self.assertRaises(mg.GoldError):
+            mg.pick_sample(cards, grp, rows)
+        rows = [{"card_id": c["card_id"], "evidence": [{"store": "history"}] * (1 if grp[c["card_id"]] == "LD" else 9)} for c in cards]
+        s = mg.pick_sample(cards, grp, rows)  # 가상 LD 7장 모두 반드시 → LD 7, 몫 3에서 넘친 4만큼 다른 증상군 줄임
+        n_ld = sum(g == "LD" for g in grp.values())
+        self.assertEqual((n_ld, s["adjusted_quota"]["LD"]), (7, 7))
+        self.assertEqual(sum(s["adjusted_quota"].values()), 20)
+
+    def test_review_html_self_contained(self):  # VC-G7 일부: 외부 자원 0 · 표본 20장 · val만
+        mg.cmd_build(self.tmp, "val")
+        mg.cmd_sample(self.tmp, "val")
+        out = self.tmp / "review.html"
+        self.assertEqual(mg.cmd_review_html(self.tmp, "val", out), 0)
+        html = out.read_text(encoding="utf-8")
+        self.assertNotIn("http", html)
+        self.assertNotIn("/*__DATA__*/null", html)
+        self.assertEqual(html.count('"card_id"'), 20)
 
     def test_tool_reads_no_answer_sources(self):  # VC-G4
         src = (ROOT / "eval/make_gold.py").read_text(encoding="utf-8")

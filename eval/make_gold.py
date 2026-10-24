@@ -10,12 +10,16 @@
 - 만드는 것: eval/cards/<set>/gold.jsonl(auto, 만든 뒤 고치지 않음) · gold-meta.json. 규칙이 하나라도 어긋나면 쓰지 않고 끝난다.
 - test는 숨김(약속 F): 화면에는 줄 수 · sha256만 낸다.
 
+- 사람 표본(CC-03, val만): sample → eval/cards/val/human-sample.json · review-html → 확인 화면 한 장(저장소 밖 경로에 씀).
+
 실행: python3 eval/make_gold.py build --set val|test   ·   python3 eval/make_gold.py check --set val|test
+      python3 eval/make_gold.py sample --set val   ·   python3 eval/make_gold.py review-html --set val --out <파일.html>
 """
 import argparse
 import hashlib
 import json
 import os
+import random
 import re
 import sys
 from collections import Counter
@@ -26,6 +30,11 @@ MANUAL_DOC = "MG-MM"
 TYPES = ("manual_cause", "none", "out_of_graph")
 OUTCOME = {"none": "이상 없음·감시", "out_of_graph": "원인 미상·숙련자 인계"}
 HISTORY_RULE = {"manual_cause": "H-1", "none": "H-2", "out_of_graph": "H-3"}
+SEED = "2026-gold-human"
+QUOTA = {"CL": 5, "PW": 7, "TW": 5, "LD": 3}
+GROUP_ORDER = ("CL", "PW", "TW", "LD")
+SCREENING = ("PW-2", "LD-2")
+TEMPLATE = Path(__file__).resolve().parent / "gold_review_template.html"
 NOTE = "줄 원소의 store · rule은 F 채점 주인(llmops 리드) 확인 중 — 바뀔 수 있음(답장 001-03 3). locator 모양은 약속 F 그대로"
 
 
@@ -249,14 +258,145 @@ def cmd_check(root: Path, sname: str) -> int:
     return 0
 
 
+def pick_sample(cards: list[dict], groups: dict, rows: list[dict]) -> dict:
+    """CC-03 고르는 차례: 반드시 넣기 → 증상군 몫(넘친 만큼 여유 큰 쪽부터 1씩 줄임) → seed 표본."""
+    rng = random.Random(SEED)
+    order = [c["card_id"] for c in cards]
+    by_id = {c["card_id"]: c for c in cards}
+    hist_n = {r["card_id"]: sum(e["store"] == "history" for e in r["evidence"]) for r in rows}
+    must: dict[str, list[str]] = {
+        "screening_cause": [i for i in order if by_id[i]["hidden_cause"].get("code") in SCREENING],
+        "history_le_3": [i for i in order if hist_n[i] <= 3],
+    }
+    picked = set(must["screening_cause"]) | set(must["history_le_3"])
+    for reason, test in (
+        ("none", lambda c: c["hidden_cause"]["type"] == "none"),
+        ("out_of_graph", lambda c: c["hidden_cause"]["type"] == "out_of_graph"),
+        ("ambiguous", lambda c: c.get("memo_style") == "ambiguous"),
+    ):
+        pool = [i for i in order if test(by_id[i])]
+        need = max(0, min(2, len(pool)) - len([i for i in pool if i in picked]))
+        add = sorted(rng.sample([i for i in pool if i not in picked], need), key=order.index)
+        must[reason] = add
+        picked |= set(add)
+    if len(picked) > 20:
+        raise GoldError(f"반드시 넣기만으로 {len(picked)}장 — 20을 넘음")
+    must_g = {g: sum(groups[i] == g for i in picked) for g in GROUP_ORDER}
+    quota = {g: max(QUOTA[g], must_g[g]) for g in GROUP_ORDER}
+    while sum(quota.values()) > 20:
+        slack = {g: quota[g] - must_g[g] for g in GROUP_ORDER}
+        g = max(GROUP_ORDER, key=lambda k: (slack[k], -GROUP_ORDER.index(k)))
+        if slack[g] <= 0:
+            raise GoldError("몫을 줄일 증상군이 없음")
+        quota[g] -= 1
+    for g in GROUP_ORDER:
+        pool = [i for i in order if groups[i] == g and i not in picked]
+        need = quota[g] - must_g[g]
+        if need > len(pool):
+            raise GoldError(f"증상군 {g} 카드가 몫보다 적음")
+        picked |= set(rng.sample(pool, need))
+    return {
+        "artifact": "retriever_gold_human_sample",
+        "set": "val",
+        "seed": SEED,
+        "quota": QUOTA,
+        "adjusted_quota": quota,
+        "must_include": must,
+        "cards": [i for i in order if i in picked],
+        "rule": "change-contract-v3 CC-03",
+    }
+
+
+def cmd_sample(root: Path, sname: str) -> int:
+    if sname != "val":
+        raise GoldError("사람 표본은 val에서만(약속 F)")
+    inp = Inputs(root, sname)
+    gold = inp.dir / "gold.jsonl"
+    rows = [json.loads(line) for line in gold.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if verify(inp, rows):
+        raise GoldError("gold.jsonl 검사 실패 — 먼저 build · check")
+    sample = pick_sample(inp.cards, inp.groups, rows)
+    sample["gold_sha256"] = sha256(gold.read_bytes())
+    write_atomic(inp.dir / "human-sample.json", (json.dumps(sample, ensure_ascii=False, indent=1) + "\n").encode("utf-8"))
+    print(f"[val] 표본 {len(sample['cards'])}장 · 증상군 {sample['adjusted_quota']} · sha256 {sha256((inp.dir / 'human-sample.json').read_bytes())}")
+    return 0
+
+
+def review_data(inp: Inputs) -> dict:
+    """확인 화면에 넣을 자료 — 표본 20장만. 비교 기록 · 보일 이력 3건은 카드마다 seed(센서 거리 안 씀)."""
+    sample_path = inp.dir / "human-sample.json"
+    sample = json.loads(sample_path.read_text(encoding="utf-8"))
+    rows = {json.loads(line)["card_id"]: json.loads(line) for line in (inp.dir / "gold.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()}
+    if sample.get("gold_sha256") != sha256((inp.dir / "gold.jsonl").read_bytes()):
+        raise GoldError("human-sample.json이 지금 gold.jsonl과 짝이 아님")
+    raw = {c["card_id"]: c for c in json.loads(inp.paths["card_inputs"].read_text(encoding="utf-8"))}
+    cards = {c["card_id"]: c for c in inp.cards}
+    hist = {r["record_id"]: r for r in inp.history}
+    man = inp.manual
+    titles = {s["id"]: s.get("title", "") for s in man.sections}
+    out = []
+    for cid in sample["cards"]:
+        card, info, row, group = cards[cid], raw[cid], rows[cid], inp.groups[cid]
+        rng = random.Random(f"{SEED}:{cid}")
+        gold_hist = [e["locator"]["record_id"] for e in row["evidence"] if e["store"] == "history"]
+        shown = sorted(rng.sample(gold_hist, min(3, len(gold_hist))))
+        others = sorted(r["record_id"] for r in inp.history if r["symptom_group"]["code"] == group and r["record_id"] not in set(gold_hist))
+        compare = sorted(rng.sample(others, min(2, len(others))))
+        chapter = man.chapter(group).split(".")[0]
+        sections = [
+            {"id": sid, "title": titles.get(sid, ""), "char_start": a, "char_end": b}
+            for sid, (a, b) in man.span.items()
+            if sid.split(".")[0] in (chapter, "1", "6")
+        ]
+        out.append(
+            {
+                "card_id": cid,
+                "group": group,
+                "group_name": info["symptom_group"]["name"],
+                "alarm": info["alarm"],
+                "sensors": info["sensor_snapshot"],
+                "hidden": card["hidden_cause"],
+                "memo_style": card.get("memo_style"),
+                "history_rule": next((e["rule"] for e in row["evidence"] if e["store"] == "history"), HISTORY_RULE[card["hidden_cause"]["type"]]),
+                "history_count": len(gold_hist),
+                "history_shown": [{"record_id": i, "narrative": hist[i]["narrative"], "outcome": hist[i]["outcome"]} for i in shown],
+                "compare": [{"record_id": i, "narrative": hist[i]["narrative"], "outcome": hist[i]["outcome"]} for i in compare],
+                "manual": [
+                    {"rule": e["rule"], **e["locator"], "title": titles.get(e["locator"]["section"], ""), "text": man.md[e["locator"]["char_start"] : e["locator"]["char_end"]]}
+                    for e in row["evidence"]
+                    if e["store"] == "manual"
+                ],
+                "manual_sections": sections,
+                "group_record_ids": sorted(r["record_id"] for r in inp.history if r["symptom_group"]["code"] == group),
+            }
+        )
+    return {"sample_sha256": sha256(sample_path.read_bytes()), "gold_sha256": sample["gold_sha256"], "cards": out}
+
+
+def cmd_review_html(root: Path, sname: str, out: Path) -> int:
+    if sname != "val":
+        raise GoldError("확인 화면은 val에서만(약속 F)")
+    data = review_data(Inputs(root, sname))
+    blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
+    html = TEMPLATE.read_text(encoding="utf-8").replace("/*__DATA__*/null", blob)
+    write_atomic(out, html.encode("utf-8"))
+    print(f"[val] 확인 화면 {len(data['cards'])}장 → {out} · sample sha256 {data['sample_sha256']}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("command", choices=("build", "check"))
+    ap.add_argument("command", choices=("build", "check", "sample", "review-html"))
     ap.add_argument("--set", required=True, choices=("val", "test"))
     ap.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1], help="저장소 뿌리(시험용 사본)")
+    ap.add_argument("--out", type=Path, help="review-html이 쓸 파일")
     args = ap.parse_args()
     try:
-        return (cmd_build if args.command == "build" else cmd_check)(args.root, args.set)
+        if args.command == "review-html":
+            if args.out is None:
+                raise GoldError("--out 필요")
+            return cmd_review_html(args.root, args.set, args.out)
+        return {"build": cmd_build, "check": cmd_check, "sample": cmd_sample}[args.command](args.root, args.set)
     except GoldError as e:
         print(f"[{args.set}] 오류: {e if args.set == 'val' else '규칙 · 입력 어긋남(test는 내용 숨김)'}", file=sys.stderr)
         return 2

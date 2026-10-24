@@ -2,7 +2,7 @@
  "artifact": "retriever_gold_meta",
  "set": "test",
  "evolution": "EV-003-retriever-gold",
- "tool_sha256": "b41a257484904c55d6c27368148fb96c081ec075880ba608eb85b5aa0238d0fb",
+ "tool_sha256": "ed38332829bd8c7e43fa98b81f712040dc975a39277cae7a6e7fa0d452ec89f5",
  "inputs_sha256": {
   "cards": "ba82f45effc921e3f05cd61b15ddb49ea94228f53cf9a9b5db129a6fc19dda91",
   "card_inputs": "2eead3b21f8f00624b4df6f90dca190880e175467b27109e9871d5c138f55e5c",
@@ -25,5 +25,5 @@
  "cards_without_history": [],
  "contract": "약속 F(records/contract-locked-2026-10-24.md) · change-contract-v3 CC-01 · CC-02",
  "note": "줄 원소의 store · rule은 F 채점 주인(llmops 리드) 확인 중 — 바뀔 수 있음(답장 001-03 3). locator 모양은 약속 F 그대로",
- "created_at": "2026-10-24T15:09:34+09:00"
+ "created_at": "2026-10-24T15:15:03+09:00"
 }

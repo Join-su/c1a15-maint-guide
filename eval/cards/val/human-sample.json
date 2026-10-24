@@ -1,0 +1,62 @@
+{
+ "artifact": "retriever_gold_human_sample",
+ "set": "val",
+ "seed": "2026-gold-human",
+ "quota": {
+  "CL": 5,
+  "PW": 7,
+  "TW": 5,
+  "LD": 3
+ },
+ "adjusted_quota": {
+  "CL": 5,
+  "PW": 7,
+  "TW": 5,
+  "LD": 3
+ },
+ "must_include": {
+  "screening_cause": [
+   "EC-V04",
+   "EC-V15",
+   "EC-V20",
+   "EC-V30"
+  ],
+  "history_le_3": [
+   "EC-V11",
+   "EC-V17",
+   "EC-V18"
+  ],
+  "none": [
+   "EC-V16",
+   "EC-V21"
+  ],
+  "out_of_graph": [
+   "EC-V06"
+  ],
+  "ambiguous": []
+ },
+ "cards": [
+  "EC-V02",
+  "EC-V04",
+  "EC-V06",
+  "EC-V07",
+  "EC-V09",
+  "EC-V11",
+  "EC-V12",
+  "EC-V15",
+  "EC-V16",
+  "EC-V17",
+  "EC-V18",
+  "EC-V19",
+  "EC-V20",
+  "EC-V21",
+  "EC-V22",
+  "EC-V23",
+  "EC-V24",
+  "EC-V26",
+  "EC-V28",
+  "EC-V30"
+ ],
+ "rule": "change-contract-v3 CC-03",
+ "gold_sha256": "dc91ef77a68740c10a8fcd9f057b6bb41d823c39def5471770abeaad1ea4c4d2"
+}
