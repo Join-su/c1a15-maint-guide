@@ -9,6 +9,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env에 POSTGRES_PASSWORD 필요}
     ports:
       - "127.0.0.1:${DB_HOST_PORT:-55432}:5432"
+    # 이름 volume(EV-001 ES-21 · D-335): `down`(-v 없이) 뒤 `up`에도 같은 자료 — 익명 volume이면 빈 DB로 다시 첫 설치가 됨
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U c1a15 -d c1a15"]
       interval: 2s
@@ -73,3 +76,6 @@ services:
       - "127.0.0.1:8082:8082"
     depends_on:
       - api
+
+volumes:
+  pgdata:

@@ -24,6 +24,7 @@ fail() { echo "verify-e2e FAIL: $*"; tail -20 "$E2E_RUN_DIR/init.log" 2>/dev/nul
 # ES-16 N-1: host 포트(화면 중계 8081 · 8082 · 앱 서버 18000 · 가짜 배포 서버 18796)를 이미 쓰면(예 개발 compose 스택) 시작하지 않음
 for p in 8081 8082 18000 18796; do lsof -nP -iTCP:$p -sTCP:LISTEN -t >/dev/null 2>&1 && fail "포트 $p 를 이미 다른 프로세스가 씀 — 개발 compose 스택 등을 먼저 내림"; done
 npm run --silent build >/dev/null
+docker compose down -v --remove-orphans >/dev/null 2>&1 || true  # 이름 volume(D-335): 앞 실행이 남긴 이 시험 project 자료를 비우고 시작
 docker compose up -d --wait db >/dev/null 2>&1
 # compose init 대신 host에서 차례로 — 종료 코드 0이어야 함
 for s in "alembic upgrade head" "python -m c1a15.loader" "python -m c1a15.engine.checkpoint"; do

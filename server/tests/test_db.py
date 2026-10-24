@@ -93,7 +93,7 @@ def test_vc62_dbinit_first_install_then_noop_then_mismatch(db):
     """VC-62 · PR-35(EV-001 CH-39): 빈 DB = head + 적재 · 이미 설치 = migration · 적재 0(운영 자료 그대로) · 판 다름 = 멈춤(1)."""
     alembic("downgrade", "base")  # alembic_version 행 없음 = 첫 설치
     r = dbinit()
-    assert r.returncode == 0 and "빈 DB" in r.stdout and "loaded sections=43 history=300" in r.stdout, (
+    assert r.returncode == 0 and "빈 DB — migration head(0009) · 적재 sections=43 history=300 accounts=5" in r.stdout, (
         r.stdout + r.stderr
     )
     with db.begin() as c:  # 운영 자료 흉내: 승인 이력 한 건 · 등급 바꿈
@@ -105,7 +105,9 @@ def test_vc62_dbinit_first_install_then_noop_then_mismatch(db):
         )
         c.execute(text("update ops.grade_table set grade = 'C' where section_id = '4.3'"))
     r = dbinit()
-    assert r.returncode == 0 and "이미 설치됨(0009)" in r.stdout and "loaded" not in r.stdout, r.stdout + r.stderr
+    assert r.returncode == 0 and r.stdout.strip() == "dbinit: 이미 설치됨(0009) — migration · 적재 0", (
+        r.stdout + r.stderr
+    )
     with db.connect() as c:
         assert (
             c.execute(text("select count(*) from knowledge.history_records where record_id = 'R-9999'")).scalar() == 1
@@ -115,11 +117,41 @@ def test_vc62_dbinit_first_install_then_noop_then_mismatch(db):
         c.execute(text("update alembic_version set version_num = '0008'"))
     r = dbinit()
     assert r.returncode == 1 and "DB 판 0008 ≠ 이미지 0009" in r.stdout and "--profile migrate" in r.stdout, r.stdout
+    with db.begin() as c:  # 이미지가 모르는 판(더 새 DB)
+        c.execute(text("update alembic_version set version_num = '9999'"))
+    r = dbinit()
+    assert r.returncode == 1 and "모르는 판" in r.stdout and "--profile migrate" not in r.stdout, r.stdout
     with db.begin() as c:
         c.execute(text("update alembic_version set version_num = '0009'"))
         c.execute(text("delete from knowledge.history_records where record_id = 'R-9999'"))
     alembic("downgrade", "base")
     assert dbinit().returncode == 0  # 다음 시험을 위해 처음 상태(적재 · 등급 원래 값)
+
+
+def test_vc62_dbinit_recovers_incomplete_first_install(db):
+    """ES-21 review B2: migration은 됐는데 적재가 실패한 반쪽 설치(판 = head · 업무 자료 0행) → 다음 dbinit가 적재를 다시."""
+    alembic("downgrade", "base")
+    alembic("upgrade", "head")  # 적재 없이 head만(적재 실패 흉내)
+    with db.connect() as c:
+        assert c.execute(text("select count(*) from ops.accounts")).scalar() == 0
+    r = dbinit()
+    assert r.returncode == 0 and "첫 설치 미완(0009, 업무 자료 0행)" in r.stdout and "history=300" in r.stdout, (
+        r.stdout + r.stderr
+    )
+    with db.connect() as c:
+        assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
+    assert "이미 설치됨" in dbinit().stdout
+
+
+def test_vc62_dbinit_checks_inputs_before_migration(db):
+    """ES-21 review B2: 적재 입력(자료 폴더)이 없으면 migration 전에 멈춤 — DB는 빈 채(반쪽 설치 0)."""
+    alembic("downgrade", "base")
+    env = {**os.environ, "DATA_DIR": "/nonexistent-c1a15-data", "PYTHONPATH": str(SERVER / "src")}
+    r = subprocess.run(["python", "-m", "c1a15.dbinit"], cwd=SERVER, env=env, capture_output=True, text=True)
+    assert r.returncode != 0
+    with db.connect() as c:
+        assert not c.execute(text("select count(*) from alembic_version")).scalar()
+    assert dbinit().returncode == 0  # 처음 상태로
 
 
 def test_vc63_0009_gate_needs_allow_when_rows(db):

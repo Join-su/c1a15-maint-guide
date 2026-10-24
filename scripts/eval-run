@@ -26,6 +26,7 @@ for p in 18081 18082 18000 18796; do  # ES-16 N-1: 이미 쓰는 포트(개발 c
   lsof -nP -iTCP:$p -sTCP:LISTEN -t >/dev/null 2>&1 && { echo "eval-run: 포트 $p 를 이미 다른 프로세스가 씀"; exit 1; }
 done
 npm run --silent build >/dev/null
+docker compose down -v --remove-orphans >/dev/null 2>&1 || true  # 이름 volume(D-335): 앞 실행이 남긴 이 시험 project 자료를 비우고 시작
 docker compose up -d --wait db >/dev/null 2>&1
 for s in "alembic upgrade head" "python -m c1a15.loader" "python -m c1a15.engine.checkpoint"; do
   (cd server && PYTHONPATH=src uv run --frozen $s >> "$E2E_RUN_DIR/init.log" 2>&1)
