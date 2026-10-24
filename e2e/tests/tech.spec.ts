@@ -32,7 +32,7 @@ test("AC-13 · AC-37: 새 알람이 5초 안에 홈(빨간 점 · 종 숫자), �
 });
 
 test("첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠금 → 확인 불가 → 순위 그대로 · 다른 점검, 새로고침 · API 재시작 뒤 같은 단계", async ({ page }, info) => {
-  const g = guard(page);
+  const g = guard(page, [/status of 502/]); // API 재시작 동안 화면 주기 조회의 502(시연 P-17과 같음, GAP-17)
   await login(page);
   alarm("DEMO-01");
   await page.locator(".al .btn", { hasText: "점검 시작" }).click();

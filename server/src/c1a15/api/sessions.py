@@ -237,6 +237,8 @@ def current_step(events: list[dict]) -> dict | None:
 
 
 def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
+    # 같은 알람의 동시 시작은 알람 줄 잠금으로 줄 세움 — 뒤 요청은 앞 요청 commit 뒤 기존 세션을 받음(GAP-18)
+    c.execute(select(m.Alarm.alarm_id).where(m.Alarm.alarm_id == alarm.alarm_id).with_for_update())
     existing = c.execute(select(m.DiagSession.session_id).where(m.DiagSession.alarm_id == alarm.alarm_id)).scalar()
     if existing:
         return existing

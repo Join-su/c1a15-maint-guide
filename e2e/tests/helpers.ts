@@ -158,6 +158,8 @@ export async function result(page: Page, value: "정상" | "이상" | "확인 �
   const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
   await page.getByText("결과 보내기").click();
   expect((await sent).status()).toBe(200);
+  // 응답 뒤 화면이 다음 단계를 그릴 때까지(보낸 선택 표시가 지워짐) — 그리기 전에 .rbtns를 세면 반복이 한 번 더 돎(GAP-13)
+  await expect(page.locator(".rbtn.sel")).toHaveCount(0);
 }
 
 export async function restartWithin(page: Page): Promise<void> {
