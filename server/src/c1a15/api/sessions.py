@@ -179,7 +179,8 @@ def _open_step(
 ) -> dict:
     """다음 단계를 지금 등급표로 판정해 step_opened로 남긴다(R13: 열린 단계는 이후 등급 변경에도 그대로).
 
-    판정 길: 기본 inproc = LangGraph 재개, deploy = 배포 서버 judge Run. decided = 세션 시작 start Run이 낸 첫 단계.
+    판정 길 = 배포 서버 judge Run(3단계부터 deploy만 — inproc 갈래 정리는 ES-18).
+    decided = 세션 시작 start Run이 낸 첫 단계.
     """
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
     if decided is not None:

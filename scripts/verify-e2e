@@ -20,7 +20,7 @@ cleanup() {
   rm -rf "${E2E_RUN_DIR:?}"
 }
 trap cleanup EXIT
-fail() { echo "verify-e2e FAIL: $*"; tail -40 "$E2E_RUN_DIR/api.log" 2>/dev/null || true; exit 1; }
+fail() { echo "verify-e2e FAIL: $*"; tail -20 "$E2E_RUN_DIR/init.log" 2>/dev/null || true; tail -40 "$E2E_RUN_DIR/api.log" 2>/dev/null || true; exit 1; }
 # ES-16 N-1: host 포트(화면 중계 8081 · 8082 · 앱 서버 18000 · 가짜 배포 서버 18796)를 이미 쓰면(예 개발 compose 스택) 시작하지 않음
 for p in 8081 8082 18000 18796; do lsof -nP -iTCP:$p -sTCP:LISTEN -t >/dev/null 2>&1 && fail "포트 $p 를 이미 다른 프로세스가 씀 — 개발 compose 스택 등을 먼저 내림"; done
 npm run --silent build >/dev/null
@@ -102,5 +102,6 @@ echo "verify-e2e(재시작 재개 L3 — 업무 기록에서 다시 판정): pas
 (cd e2e && BASE_URL=http://127.0.0.1:8081 LEAD_URL=http://127.0.0.1:8082 npx --no-install playwright test ${E2E_PW_ARGS:-}) || fail "앱 E2E(Playwright)"
 STAND=$(grep -c "start stand_in" "$E2E_RUN_DIR/fake.log" || true)
 [ "$STAND" = 0 ] || fail "가짜 배포 서버 start 대역 ${STAND}건 — 시연 알람은 모두 승인 행과 같아야 함(ES-15 NB-1)"
-echo "verify-e2e(P-08 · P-10 · P-13 · P-15 · P-17 정비자 앱 journey · 두 앱 교차 · 지난 화면 · 정정 · 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}"
+SKIPPED=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["stats"]["skipped"])' "${E2E_REPORT:-e2e/test-results/report.json}")
+echo "verify-e2e(P-08 · P-10 · P-13 · P-15 · P-17 정비자 앱 journey · 두 앱 교차 · 지난 화면 · 정정 · 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}$([ "$SKIPPED" = 0 ] || echo " — 멈춤 ${SKIPPED}건(시연 입력표 S3-Q11 승인 대기), 전체 통과 아님")"
 echo "verify-e2e(S-01 smoke): pass"

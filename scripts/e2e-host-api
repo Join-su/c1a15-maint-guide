@@ -6,10 +6,10 @@ set -euo pipefail
 R=$(cd "$(dirname "$0")/.." && pwd)
 RUN=${E2E_RUN_DIR:?E2E_RUN_DIR 가 필요합니다}
 NAMES=(DATABASE_URL DATA_DIR C1A15_TECH_PASSWORD C1A15_LEAD_PASSWORD C1A15_INTERNAL_TOKEN APP_MODE C1A15_JUDGE C1A15_DEPLOY_URL C1A15_ALARM C1A15_R12_INBOX)
-up() { for _ in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:18000/api/health 2>/dev/null && return 0; sleep 0.5; done; echo "host 앱 서버가 안 뜸"; tail -20 "$RUN/api.log"; return 1; }
+up() { for _ in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:18000/api/health 2>/dev/null && return 0; sleep 0.5; done; echo "host 앱 서버가 안 뜸" >&2; tail -20 "$RUN/api.log" >&2; return 1; }
 free() { ! lsof -nP -iTCP:18000 -sTCP:LISTEN -t >/dev/null 2>&1; }
 start() {
-  free || { echo "18000 포트를 이미 다른 프로세스가 씀 — 옛 앱 서버에 health가 붙지 않게 멈춤"; return 1; }
+  free || { echo "18000 포트를 이미 다른 프로세스가 씀 — 옛 앱 서버에 health가 붙지 않게 멈춤" >&2; return 1; }
   local args=(PATH="$PATH" HOME="$HOME" PYTHONPATH="src${E2E_EXTRA_PYTHONPATH:+:$E2E_EXTRA_PYTHONPATH}")
   for n in "${NAMES[@]}"; do [ -n "${!n:-}" ] && args+=("$n=${!n}"); done
   (cd "$R/server" && exec env -i "${args[@]}" .venv/bin/uvicorn c1a15.api.main:app --host 127.0.0.1 --port 18000) >> "$RUN/api.log" 2>&1 &

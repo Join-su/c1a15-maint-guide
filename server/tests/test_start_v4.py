@@ -86,6 +86,7 @@ def test_vc53_judge_uses_stored_similar_and_one_start(api, db, deploy):
     )
     assert r.status_code == 200, r.text
     target = next(x["seq"] for x in r.json()["results"] if x["section"] == sec)
+    before = len([p for p in deploy.posts() if p["body"]["kind"] == "judge"])
     r = tech.post(
         f"/api/tech/sessions/{sid}/corrections",
         json={"target_seq": target, "value": "이상", "reason": "뒷면", "confirmed": True},
@@ -93,7 +94,7 @@ def test_vc53_judge_uses_stored_similar_and_one_start(api, db, deploy):
     assert r.status_code == 200, r.text
     assert tech.get(f"/api/tech/sessions/{sid}").status_code == 200
     judges = [p["body"] for p in deploy.posts() if p["body"]["kind"] == "judge"]
-    assert len(judges) >= 3 and all(j["similar"] == stored.similar for j in judges)
+    assert len(judges) > before >= 3 and all(j["similar"] == stored.similar for j in judges)  # 정정 = 다시 판정 Run
     assert len([p for p in deploy.posts() if p["body"]["kind"] == "start"]) == 1
 
 

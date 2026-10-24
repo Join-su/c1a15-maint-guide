@@ -14,6 +14,7 @@ AC-18 · AC-02-C3 · AC-15.
 """
 
 import argparse
+import functools
 import http.cookiejar
 import json
 import os
@@ -61,6 +62,7 @@ def client(base: str):
     return call
 
 
+@functools.cache
 def source_release() -> str:
     """AI4I 원본 sha256(data/manifest.json) — 앱 deploy.runs.source_release와 같은 값."""
     manifest = json.loads((ROOT / "data" / "manifest.json").read_text(encoding="utf-8"))
