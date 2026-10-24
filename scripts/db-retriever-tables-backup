@@ -3,7 +3,8 @@
 # 사용: scripts/db-retriever-tables-backup <파일>   (같은 compose project · .env로 — 운영 순서서 첫 줄)
 set -euo pipefail
 OUT=${1:?백업 파일 경로가 필요합니다}
-OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"  # 절대 경로로(아래 cd 뒤에도 같은 파일)
+D=$(cd "$(dirname "$OUT")" && pwd) || { echo "백업 폴더가 없음: $(dirname "$OUT")"; exit 1; }  # 대입 따로 — 실패하면 멈춤(review 2차 N1)
+OUT="$D/$(basename "$OUT")"  # 절대 경로로(아래 cd 뒤에도 같은 파일)
 [ ! -e "$OUT" ] && [ ! -e "$OUT.counts" ] || { echo "이미 있는 파일 — 덮어쓰지 않음: $OUT(.counts)"; exit 1; }
 cd "$(dirname "$0")/.."
 q() { docker compose exec -T db psql -U c1a15 -d c1a15 -tAc "$1"; }

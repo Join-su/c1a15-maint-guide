@@ -6,7 +6,8 @@
 set -euo pipefail
 IN=${1:?백업 파일 경로가 필요합니다}
 [ -f "$IN" ] && [ -f "$IN.counts" ] || { echo "백업 파일 · 행 수 파일이 없음: $IN"; exit 1; }
-IN="$(cd "$(dirname "$IN")" && pwd)/$(basename "$IN")"  # 절대 경로로(아래 cd 뒤에도 같은 파일)
+D=$(cd "$(dirname "$IN")" && pwd) || { echo "백업 폴더가 없음"; exit 1; }
+IN="$D/$(basename "$IN")"  # 절대 경로로(아래 cd 뒤에도 같은 파일)
 cd "$(dirname "$0")/.."
 q() { docker compose exec -T db psql -U c1a15 -d c1a15 -tAc "$1"; }
 [ "$(q "select version_num from alembic_version")" = "0008" ] || { echo "DB 판이 0008이 아님 — 먼저 alembic downgrade 0008"; exit 1; }

@@ -148,7 +148,12 @@ def test_vc62_dbinit_checks_inputs_before_migration(db):
     alembic("downgrade", "base")
     env = {**os.environ, "DATA_DIR": "/nonexistent-c1a15-data", "PYTHONPATH": str(SERVER / "src")}
     r = subprocess.run(["python", "-m", "c1a15.dbinit"], cwd=SERVER, env=env, capture_output=True, text=True)
-    assert r.returncode != 0
+    assert r.returncode != 0 and "nonexistent-c1a15-data" in r.stderr, r.stderr[
+        -400:
+    ]  # 자료 폴더 없음 때문(review 2차 N3)
+    no_pw = {k: v for k, v in env.items() if k != "C1A15_TECH_PASSWORD"} | {"DATA_DIR": str(SERVER.parent / "data")}
+    r = subprocess.run(["python", "-m", "c1a15.dbinit"], cwd=SERVER, env=no_pw, capture_output=True, text=True)
+    assert r.returncode != 0 and "C1A15_TECH_PASSWORD" in r.stderr, r.stderr[-400:]
     with db.connect() as c:
         assert not c.execute(text("select count(*) from alembic_version")).scalar()
     assert dbinit().returncode == 0  # 처음 상태로
