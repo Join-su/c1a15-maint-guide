@@ -338,15 +338,12 @@ def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict
 
 
 def _add_history(c: Connection, rec: dict, symptom_group: str, eval_mode: bool) -> bool:
-    """R12: 지식 schema에 넣는다(평가 모드는 하지 않음 — AC-09-C2).
+    """R12: 지식 schema의 이력 한 건으로 넣는다(평가 모드는 하지 않음 — AC-09-C2).
 
-    commit 뒤 새 이력 release를 만들고 검색 색인을 다시 만든다(EV-001 CH-08).
+    다음 진단 후보에 드는 것은 배포 서버 R12(받은 편지 → r12-update → 새 이력 벡터 DB version) 몫이다(EV-001 CH-32).
     """
     if eval_mode:
         return False
-    from c1a15.loader.embedding import FAKE_MODEL, fake_embedding
-
-    emb = fake_embedding(rec["narrative"])
     c.execute(
         text(
             "insert into knowledge.history_records (record_id, equipment_id, symptom_group, occurred_at, narrative, "
@@ -364,17 +361,6 @@ def _add_history(c: Connection, rec: dict, symptom_group: str, eval_mode: bool) 
             "p": f"approved_report:{rec['source']['report_id']}",
         },
     )
-    c.execute(
-        text(
-            "insert into knowledge.history_embeddings (record_id, embedding, model) "
-            "values (:id, cast(:e as vector), :m)"
-        ),
-        {"id": rec["record_id"], "e": "[" + ",".join(f"{v:.8f}" for v in emb) + "]", "m": FAKE_MODEL},
-    )
-    # EV-001 CH-08: 승인이 commit된 뒤 그 보고서 조각을 더한 새 이력 release를 따로 만든다(판 불변 — 새 판).
-    # 실패해도 승인은 남고 감사에 기록, 다음 시도(다음 승인
-    # · 적재)가 밀린 기록까지 넣는다. 승인이 rollback되면 아무것도 하지 않음.
-    c.info["after_commit"].append(lambda: _new_history_release(rec["source"]["report_id"]))
     return True
 
 
@@ -396,19 +382,6 @@ def _to_inbox(c: Connection, rec: dict, approved_at: str, eval_mode: bool) -> No
             sessions.audit_rejection("system", "r12_inbox_skipped", target, {"reason": done})
 
     c.info["after_commit"].append(deliver)
-
-
-def _new_history_release(report_id) -> str | None:
-    from c1a15.ingest import store as release_store
-
-    try:
-        with deps.engine().begin() as c2:
-            new = release_store.sync_history(c2)
-    except Exception as e:  # noqa: BLE001 — 판 만들기 실패는 승인과 따로(VC-25)
-        sessions.audit_rejection("system", "history_release_failed", f"report:{report_id}", {"error": type(e).__name__})
-        return None
-    deps.index.cache_clear()  # 다음 알람부터 새 판으로 검색(AC-09)
-    return new
 
 
 @router.post(

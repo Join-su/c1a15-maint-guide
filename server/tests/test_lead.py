@@ -60,29 +60,8 @@ def test_lead_role_boundary_and_empty_overview(api, db):
     assert lc.get("/api/tech/home").status_code in {401, 403}
 
 
-def r3_positions(db, hid):
-    """다음 온도 차 저하(CL) 알람 질의에서 그 기록의 (BM25 순위, pgvector 순위, RRF 합친 순위) — 없으면 None."""
-    from c1a15.api import deps
-    from c1a15.loader.embedding import fake_embedding
-    from c1a15.retrieval import db as rdb
-    from c1a15.retrieval import search
-
-    idx = deps.index()
-    ids = sorted(dc.record_id for dc in idx.docs if dc.symptom_group == "CL")
-    q = search.query_text("온도 차 저하", "경계 아래", [])
-    bm = idx.bm25.rank(q, ids)
-    with db.connect() as c:
-        vec = rdb.vector_ranks(c, {"symptom_group": "CL"}, fake_embedding(q))
-    fused = search.rrf([bm, [x for x in vec if x in set(ids)]])
-    order = sorted(fused, key=lambda x: (-fused[x], x))
-    pos = lambda xs: xs.index(hid) + 1 if hid in xs else None  # noqa: E731
-    return pos(bm), pos(vec), pos(order)
-
-
 def test_lead_overview_rows_and_approve_adds_history(api, db):
-    """AC-27-C1 · C2 · AC-29-C3 · AC-09-C1 · R12(결정 018 ⑤): 승인 대기 행 → 그대로 승인 → R-번호 이력 · 색인 → 다음 진단 후보."""
-    from c1a15.api import deps
-
+    """AC-27-C1 · C2 · AC-29-C3 · R12(결정 018 ⑤): 승인 대기 행 → 그대로 승인 → R-번호 이력(다음 진단 후보는 배포 서버 R12)."""
     reset_ops(db)
     tech, s, rid = confirmed_report(api, db)
     lc = lead(api)
@@ -93,7 +72,9 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
     assert row["author_name"] and row["confirmed_at"] and row["evidence_count"] == 3 and row["violations"] == 0
     d = lc.get(f"/api/lead/reports/{rid}").json()
     assert [f["label"] for f in d["fields"]] == ["확정 원인", "점검 경로", "조치", "근거 사례", "미확인"]
-    before = r3_positions(db, f"R-{rid:04d}")
+    with db.connect() as c:
+        rel_before = c.execute(text("select count(*) from knowledge.data_releases")).scalar()
+        act_before = dict(c.execute(text("select kind, release_id from knowledge.active_releases")).all())
     r = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
     assert r.status_code == 200 and r.json()["history_record_id"] == f"R-{rid:04d}"
     hid = r.json()["history_record_id"]
@@ -104,8 +85,12 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
         emb = c.execute(
             text("select count(*) from knowledge.history_embeddings where record_id = :i"), {"i": hid}
         ).scalar()
+        rel_after = c.execute(text("select count(*) from knowledge.data_releases")).scalar()
+        act_after = dict(c.execute(text("select kind, release_id from knowledge.active_releases")).all())
         st = c.execute(text("select status, approval from ops.reports where report_id = :r"), {"r": rid}).one()
-    assert h.source == "approved_report" and h.symptom_group == "CL" and emb == 1
+    assert h.source == "approved_report" and h.symptom_group == "CL"
+    # VC-58(EV-001 CH-32): 앱은 벡터 · 새 release를 쓰지 않음 — 다음 진단 후보는 배포 서버 R12(받은 편지 → 새 version)
+    assert emb == 0 and rel_after == rel_before and act_after == act_before
     rec = h.record
     assert (
         rec["source"] == {"report_id": rid}
@@ -114,14 +99,9 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
     )
     assert [x["kind"] for x in rec["steps"]][:2] == ["lock", "check"] and rec["narrative"].endswith("분.")
     assert st.status == "approved" and st.approval["mode"] == "approve"
-    assert any(dc.record_id == hid for dc in deps.index().docs)  # BM25 · 문서 목록에 추가
     home = tech.get("/api/tech/home").json()
     assert home["recent_reports"][0]["status"] == "approved"
-    # 결정 018 ⑥(AC-09-C1): 다음 같은 증상군 알람의 R3 검색 대상(BM25 · pgvector 의미 색인)에 들어 순위가 매겨진다.
-    # 서버 경로 그대로(BM25 메모리 색인 + DB vector_ranks → RRF). 승인 전에는 어느 순위에도 없었다.
-    after = r3_positions(db, hid)
-    print(f"AC-09 R3 순위(BM25, pgvector, RRF 합친 순위): 승인 전 {before} · 승인 뒤 {after}")
-    assert before == (None, None, None) and after[0] <= 5 and after[1] is not None and after[2] is not None
+    # 결정 018 ⑥(AC-09-C1) '다음 같은 증상군 알람의 후보에 듦'은 배포 서버 R12 몫(deploy KS-5 끝-끝, PR-25)
     rec_view = tech.get(f"/api/records/{hid}").json()  # 기록 창에서 R-번호로 열림
     assert rec_view["source"] == "approved_report" and rec_view["outcome"]["cause_name"] == "냉각 필터 막힘"
     assert (
@@ -148,7 +128,7 @@ def test_lead_violation_tile_counts_reports(api, db):
 
 
 def test_approve_index_only_after_commit(api, db, monkeypatch):
-    """R12 · G6-S04-2 비차단 ③: 승인 요청이 commit 전에 실패하면 이력 행도 메모리 색인도 남지 않고, commit 뒤 할 일은 성공 때만 돈다."""
+    """R12 · G6-S04-2 비차단 ③: 승인 요청이 commit 전에 실패하면 이력 행이 남지 않고, commit 뒤 할 일(받은 편지)은 성공 때만 돈다."""
     from c1a15.api import deps
     from c1a15.api import lead as lead_api
 
@@ -175,7 +155,6 @@ def test_approve_index_only_after_commit(api, db, monkeypatch):
     monkeypatch.setattr(lead_api.sessions, "audit", boom)
     with pytest.raises(RuntimeError):
         lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
-    assert not any(dc.record_id == hid for dc in deps.index().docs)
     with db.connect() as c:
         assert not c.execute(
             text("select count(*) from knowledge.history_records where record_id = :i"), {"i": hid}

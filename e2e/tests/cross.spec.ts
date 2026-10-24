@@ -51,7 +51,7 @@ test("AC-27 · AC-09(SC-33, A-07 확인 문장) · AC-29-C3: 승인 대기 목�
   await expect(lead.locator(".empty")).toHaveText("승인 대기 보고서가 없습니다");
   const rid = Number(psql(`select report_id from ops.reports where session_id = ${sid}`));
   const hid = `R-${String(rid).padStart(4, "0")}`;
-  expect(psql(`select source from knowledge.history_records where record_id = '${hid}'`)).toBe("approved_report"); // AC-09-C1(plan v11 A-07: 검색 대상 포함 · 순위)
+  expect(psql(`select source from knowledge.history_records where record_id = '${hid}'`)).toBe("approved_report"); // AC-09-C1 이력 한 건(다음 진단 후보에 드는 것은 배포 서버 R12 — EV-001 ES-17 CH-32)
   await home(page);
   await expect(page.locator(".rl .ch").first()).toHaveText("승인 완료");
   // 다음 같은 증상군 알람(G6-S04 revise 사용자 결정): 진단 화면 카드(상위 10건 중 score ≥ 0.5)를 기록한다 — fixture에서는 R-번호의

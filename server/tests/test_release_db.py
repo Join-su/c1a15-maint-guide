@@ -1,7 +1,7 @@
 # ruff: noqa: F811, E501 — test_api의 fixture(api · db)를 이름으로 가져와 쓴다, 시험 설명 문장은 길이 제한 밖
-"""EV-001 ES-03(시험 DB): 적재기가 만든 첫 판 · 검색이 release를 읽음 · R12 새 판 · 판 실패 뒤 다음 시도 · 세션당 검색 1회.
+"""EV-001 ES-03(시험 DB): 적재기가 만든 첫 판 · 검색이 release를 읽음(파일 전체는 ES-18에서 지움).
 
-VC-10(AC-09) · VC-11(DB 값으로) · VC-12 · VC-25.
+VC-11(DB 값으로). VC-10 · VC-25는 ES-17, VC-12는 ES-16에서 지움.
 """
 
 import json
@@ -11,28 +11,9 @@ import pytest
 from sqlalchemy import text
 
 from test_api import api, db, reset_ops, start  # noqa: F401
-from test_lead import confirmed_report, lead
 
 pytestmark = pytest.mark.db
 DATA = Path(__file__).resolve().parents[2] / "data"
-
-
-def _active(db):
-    with db.connect() as c:
-        rid = c.execute(text("select release_id from knowledge.active_releases where kind = 'history'")).scalar_one()
-        n = c.execute(
-            text("select count(*) from knowledge.release_chunks where release_id = :r"), {"r": rid}
-        ).scalar_one()
-        parent = c.execute(
-            text("select parent_release_id from knowledge.data_releases where release_id = :r"), {"r": rid}
-        ).scalar_one()
-        ids = {
-            r
-            for (r,) in c.execute(
-                text("select metadata->>'record_id' from knowledge.release_chunks where release_id = :r"), {"r": rid}
-            )
-        }
-    return rid, n, parent, ids
 
 
 def test_loader_makes_first_releases(db):
@@ -97,60 +78,7 @@ def test_vc11_db_release_docs_equal_legacy_docs(db, monkeypatch):
         assert [(t.record_id, t.score) for t in ta] == [(t.record_id, t.score) for t in tb], s["scenario_id"]
 
 
-def test_vc10_r12_approval_makes_new_release(api, db):
-    """AC-09 · CH-08: 승인 → 그 보고서 조각을 더한 새 이력 판(앞 판 = 지금 판, 조각 +1) → 검색 색인이 새 판을 읽음."""
-    from c1a15.api import deps
-
-    reset_ops(db)
-    _, _, rid = confirmed_report(api, db)
-    before, n0, _, ids0 = _active(db)
-    r = lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
-    hid = r.json()["history_record_id"]
-    after, n1, parent, ids1 = _active(db)
-    assert r.status_code == 200 and after != before and parent == before and n1 == n0 + 1 and ids1 - ids0 == {hid}
-    assert deps.index().release_id == after and any(d.record_id == hid for d in deps.index().docs)
-    with db.connect() as c:  # 앞 판은 그대로(판 불변)
-        assert (
-            c.execute(
-                text("select count(*) from knowledge.release_chunks where release_id = :r"), {"r": before}
-            ).scalar_one()
-            == n0
-        )
-
-
-def test_vc25_release_failure_keeps_approval_and_next_try_catches_up(api, db, monkeypatch):
-    """판 만들기 실패 주입 → 승인은 저장 · 감사 'history_release_failed' · 가리킴 그대로 → 다음 승인 때 밀린 기록까지 새 판."""
-    from c1a15.api import deps
-    from c1a15.ingest import store
-
-    reset_ops(db)
-    _, _, rid1 = confirmed_report(api, db)
-    _, _, rid2 = confirmed_report(api, db, equipment="M-03")
-    before, n0, _, _ = _active(db)
-    real = store.sync_history
-
-    def boom(c):
-        raise RuntimeError("판 만들기 실패(주입)")
-
-    monkeypatch.setattr(store, "sync_history", boom)
-    r1 = lead(api).post(f"/api/lead/reports/{rid1}/decision", json={"decision": "approve"})
-    h1 = r1.json()["history_record_id"]
-    with db.connect() as c:
-        status = c.execute(text("select status from ops.reports where report_id = :r"), {"r": rid1}).scalar_one()
-        failed = c.execute(
-            text("select count(*) from ops.audit_log where action = 'history_release_failed'")
-        ).scalar_one()
-        stored = c.execute(
-            text("select count(*) from knowledge.history_records where record_id = :i"), {"i": h1}
-        ).scalar_one()
-    assert r1.status_code == 200 and status == "approved" and stored == 1 and failed == 1
-    assert _active(db)[0] == before and not any(d.record_id == h1 for d in deps.index().docs)
-    monkeypatch.setattr(store, "sync_history", real)
-    r2 = lead(api).post(f"/api/lead/reports/{rid2}/decision", json={"decision": "approve"})
-    h2 = r2.json()["history_record_id"]
-    after, n1, parent, ids1 = _active(db)
-    assert after != before and parent == before and n1 == n0 + 2 and {h1, h2} <= ids1  # 다음 시도가 밀린 기록까지
-    assert {h1, h2} <= {d.record_id for d in deps.index().docs}
+# VC-10 · VC-25(승인 → 앱 새 이력 release · 판 실패 뒤 다음 시도)는 EV-001 ES-17(CH-32)에서 지움 — R12는 배포 서버 몫(PR-25 · deploy KS-5).
 
 
 def test_alarm_candidates_reason_check(db):
