@@ -10,12 +10,14 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from sqlalchemy import Connection, select
 
+from c1a15 import config
 from c1a15.api import deps, history, lead, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user, internal_token, tech_user
 from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody
 from c1a15.db import models as m
 from c1a15.engine import alarm_rules, rules
 
+PACK = config.pack_settings()  # Pack을 부르는 길 · 배포 서버 주소 — 어긋나면 서버 시작 거절(EV-001 CH-15)
 app = FastAPI(title="정비 길잡이 API", version="0.2.0")
 app.include_router(lead.router)  # 파트장 API(P-11)
 _hasher = PasswordHasher()
