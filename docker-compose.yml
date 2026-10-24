@@ -1,4 +1,4 @@
-# 실행 순서: db(healthcheck) → init(빈 DB면 migration · 적재 · checkpoint 표, 있으면 판 대조만 — CH-39) → api → web(EP-C1-RUN-001).
+# 실행 순서: db(healthcheck) → init(빈 DB면 migration · 적재, 있으면 판 대조만 — CH-39) → api → web(EP-C1-RUN-001).
 # 포트는 127.0.0.1에만 연다. api 포트는 밖에 열지 않는다. 값은 .env(Git 제외)에서 받는다.
 services:
   db:

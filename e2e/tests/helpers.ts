@@ -50,7 +50,7 @@ export function resetOps(): void {
     "delete from ops.audit_log; delete from ops.calls; delete from ops.reports; delete from ops.session_events; " +
       "delete from ops.diag_sessions; delete from ops.alarms; " +
       "delete from ops.login_sessions; update ops.grade_table g set grade = s.initial_grade " +
-      "from knowledge.manual_sections s where s.section_id = g.section_id; truncate checkpoints, checkpoint_blobs, checkpoint_writes",
+      "from knowledge.manual_sections s where s.section_id = g.section_id",
   );
 }
 
@@ -87,9 +87,7 @@ export function simR5Example(sessionId: number): void {
     { record_id: c, cause: "CL-2", score: 0.84 },
   ]);
   psql(`update ops.diag_sessions set "similar" = '${similar}'::jsonb where session_id = ${sessionId}`);
-  // 다음 판정이 바뀐 입력으로 thread를 다시 세우도록 그 세션의 checkpoint를 지운다(업무 기록은 그대로)
-  for (const t of ["checkpoint_writes", "checkpoint_blobs", "checkpoints"])
-    psql(`delete from ${t} where thread_id = 'session-${sessionId}'`);
+  // 다음 판정 = 배포 서버 judge Run이 저장된 similar를 그대로 받음(LangGraph checkpoint 지울 것 없음 — EV-001 ES-23)
 }
 
 export async function restartApi(page: Page): Promise<void> {

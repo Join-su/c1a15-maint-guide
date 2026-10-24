@@ -195,40 +195,6 @@ def test_adv03_plaintext_store_is_caught(db):
     assert not is_argon2id_hash_of(stored, "plain-pass")
 
 
-def test_langgraph_postgres_checkpoint_resume(db):
-    """P-03 · EP-C1-HITL-001: LangGraph checkpoint를 PostgreSQL에 저장한다.
-
-    새 graph(재시작)가 같은 thread에서 같은 단계로 재개한다."""
-    from langgraph.checkpoint.postgres import PostgresSaver
-    from langgraph.types import Command
-
-    from c1a15.engine import graph, knowledge
-    from c1a15.loader import core
-
-    sections = core.read_manual(SERVER.parent / "data")
-    rows = core.grade_rows(sections)
-    k = knowledge.from_sections(sections)
-    g, m = {r["section_id"]: r["grade"] for r in rows}, {r["section_id"]: r["minutes"] for r in rows}
-    similar = [
-        {"record_id": "H-a", "cause": "CL-1", "score": 0.96},
-        {"record_id": "H-b", "cause": "CL-1", "score": 0.91},
-        {"record_id": "H-c", "cause": "CL-2", "score": 0.84},
-    ]
-    conn_str = URL.replace("postgresql+psycopg://", "postgresql://")
-    cfg = {"configurable": {"thread_id": "db-session-1"}}
-    with PostgresSaver.from_conn_string(conn_str) as saver:
-        saver.setup()
-        app = graph.build(k, lambda: g, lambda: m, checkpointer=saver)
-        app.invoke({"group": "CL", "similar": similar, "events": []}, cfg)
-        app.invoke(Command(resume={"type": "lock", "key": "1"}), cfg)
-        app.invoke(Command(resume={"type": "precheck_done", "key": "2"}), cfg)
-    with PostgresSaver.from_conn_string(conn_str) as saver2:  # 새 연결 · 새 graph = 프로세스 재시작
-        restarted = graph.build(k, lambda: g, lambda: m, checkpointer=saver2)
-        assert restarted.get_state(cfg).values["decision"]["section"] == "4.3"
-        out = restarted.invoke(Command(resume={"type": "result", "section": "4.3", "value": "정상", "key": "3"}), cfg)
-        assert out["__interrupt__"][0].value["decision"]["kind"] == "call"
-
-
 # EV-001 ES-18: test_release_db.py를 지우며 옮겨 옴 — 릴리스와 무관한 ES-04 시험
 def test_alarm_candidates_reason_check(db):
     """EV-001 ES-04(가): '사람 판단 필요' 기록 표 — 사유는 low_confidence · rnf · model_failure만.

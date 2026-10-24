@@ -104,19 +104,10 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
     assignments = dict(c.execute(select(m.EquipmentAssignment.equipment_id, m.EquipmentAssignment.user_id)).all())
     if body.equipment_id not in assignments:
         raise HTTPException(status_code=422, detail="unknown_equipment")
-    pack_cols = {}
-    if runs.deploy_on():  # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2))
-        hit, snapshot, pack_cols = _alarm_via_pack(c, body)
-        if hit is None:
-            return pack_cols  # 알람 없음: '사람 판단 필요' 후보 기록 · ML 길 알람 없음 · ML 유형(CH-24 · CH-25)
-    else:
-        try:
-            hit = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table())
-        except KeyError as e:
-            raise HTTPException(status_code=422, detail="bad_sensor_snapshot") from e
-        if hit is None:
-            raise HTTPException(status_code=422, detail="no_boundary_crossed")
-        snapshot = body.sensor_snapshot
+    # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2)) — 앱 안 경계 판정 갈래는 ES-23에서 지움
+    hit, snapshot, pack_cols = _alarm_via_pack(c, body)
+    if hit is None:
+        return pack_cols  # 알람 없음: '사람 판단 필요' 후보 기록 · ML 길 알람 없음 · ML 유형(CH-24 · CH-25)
     to = rules.assign(body.equipment_id, assignments, sessions.open_alarm_counts(c))
     now = datetime.now(UTC)
     alarm_id = c.execute(

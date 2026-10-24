@@ -238,7 +238,6 @@ test("AC-37: 종 목록 4종류(새 알람 · 진행 중 · 답이 온 호출 ·
   // AC-29: 진단(T04 / low_evidence) 배너 · 칩 → 다음 지시 그대로 나옴 → 보고서 근거 사례 줄 칩(파생 T09 / low_evidence) → 파트장 목록 행
   const lowEvidence = (sid: number) => {
     psql(`update ops.diag_sessions set "similar" = (select jsonb_agg(jsonb_set(e, '{score}', to_jsonb(case when i <= 2 then 0.9 else 0.3 end))) from jsonb_array_elements("similar") with ordinality as t(e, i)) where session_id = ${sid}`);
-    for (const tb of ["checkpoint_writes", "checkpoint_blobs", "checkpoints"]) psql(`delete from ${tb} where thread_id = 'session-${sid}'`);
   };
   const sidR = await toFirstCheck(page, "DEMO-02", lowEvidence, async () => {
     await expect(page.locator(".banner.warn b")).toHaveText("근거 적음"); // AC-29-C1

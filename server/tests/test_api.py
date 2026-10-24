@@ -37,14 +37,10 @@ def db():
         ["alembic", "downgrade", "base"],
         ["alembic", "upgrade", "head"],
         ["python", "-m", "c1a15.loader"],
-        ["python", "-m", "c1a15.engine.checkpoint"],
     )
     for args in steps:
         subprocess.run(args, cwd=SERVER, env=env, check=True)
-    eng = create_engine(URL)
-    with eng.begin() as c:  # 세션 ID가 다시 1부터 시작하므로 지난 실행의 thread를 지운다
-        c.execute(text("truncate checkpoints, checkpoint_blobs, checkpoint_writes"))
-    return eng
+    return create_engine(URL)
 
 
 @pytest.fixture

@@ -28,7 +28,7 @@ done
 npm run --silent build >/dev/null
 docker compose down -v --remove-orphans >/dev/null 2>&1 || true  # 이름 volume(D-335): 앞 실행이 남긴 이 시험 project 자료를 비우고 시작
 docker compose up -d --wait db >/dev/null 2>&1
-for s in "alembic upgrade head" "python -m c1a15.loader" "python -m c1a15.engine.checkpoint"; do
+for s in "alembic upgrade head" "python -m c1a15.loader"; do  # LangGraph checkpoint 표는 ES-23에서 뺌
   (cd server && PYTHONPATH=src uv run --frozen $s >> "$E2E_RUN_DIR/init.log" 2>&1)
 done
 (cd server && PYTHONPATH=src:tests exec .venv/bin/python tests/fake_deploy.py 18796) > "$E2E_RUN_DIR/fake.log" 2>&1 &

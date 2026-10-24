@@ -559,9 +559,6 @@ def report_written_payload(
     last = next((e for e in reversed(events) if e["type"] == "report_written"), None)
     if last is not None and last.get("draft_key") == key:
         return None
-    gr = _report_grounding(row, events, draft)
-    if not runs.deploy_on():
-        return {"draft_key": key, "fields": {k: _sentence(k, draft, gr) for k in REPORT_SENTENCES}, "via": "inproc"}
     body = report_draft(c, row, alarm, state, step, events, None, for_pack=True)  # PR-16: 파트장 답 메모 0(D-294)
     sections = sorted(_report_grounding(row, events, body).allowed_sections)
     try:  # CH-19: Pack report Run(약속 v3)

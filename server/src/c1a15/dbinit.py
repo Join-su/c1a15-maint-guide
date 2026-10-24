@@ -1,7 +1,7 @@
 """DB 준비(compose `init`, EV-001 CH-39): python -m c1a15.dbinit
 
 - 빈 DB(alembic_version 표가 없거나 행이 없음) = 첫 설치
-  → 적재 입력 확인 → migration head + 적재기 + LangGraph checkpoint 표.
+  → 적재 입력 확인 → migration head + 적재기.
 - 판 = 이 이미지의 head인데 업무 자료(매뉴얼 · 계정 · 이력)가 모두 0행 = 첫 설치 미완(적재 실패 뒤)
   → 적재를 다시(지울 자료 0).
 - 이미 설치된 DB = migration · 적재 0. 판이 이미지 head와 다르면 끝(1)
@@ -64,14 +64,12 @@ def check_inputs() -> None:
 
 
 def load() -> str:
-    """적재기 + checkpoint 표 — 적재기 한 줄 요약을 돌려준다."""
-    from c1a15.engine import checkpoint
+    """적재기 — 한 줄 요약을 돌려준다(LangGraph checkpoint 표는 ES-23에서 뺌)."""
     from c1a15.loader.__main__ import main as loader
 
     out = io.StringIO()
     with redirect_stdout(out):
         loader()
-        checkpoint.main()
     lines = out.getvalue().splitlines()
     return next((line.removeprefix("loaded ") for line in lines if line.startswith("loaded ")), "")
 

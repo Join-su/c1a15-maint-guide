@@ -7,14 +7,13 @@ import json
 from datetime import UTC, datetime
 
 from fastapi import HTTPException
-from langgraph.types import Command
 from sqlalchemy import Connection, func, select, text
 
 from c1a15.api import deps, flow, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import checkpoint, graph, rules, session
+from c1a15.engine import rules, session
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
 
@@ -141,32 +140,6 @@ def _store(c: Connection, sid: int, seq: int, etype: str, payload: dict, actor: 
     )
 
 
-def _graph_decision(c: Connection, row: m.DiagSession, inputs: list[dict]) -> tuple[dict, str]:
-    """다음 단계 = LangGraph graph(thread = 세션)를 마지막 입력으로 재개해 받는다(EP-C1-HITL-001).
-
-    graph node는 session.decide를 부르고, 등급은 판정 시점의 등급표를 읽는다(R13).
-    checkpoint가 업무 기록과 어긋나면(새 세션 · checkpoint만 앞섬 · 없음) 업무 기록으로 thread를 다시 세운다.
-    """
-    k = deps.manual()
-    # key에 정정 횟수 · 무효 여부를 넣는다 — 정정으로 값 · 무효가 바뀐 기록이 있으면
-    # checkpoint와 어긋나 업무 기록으로 다시 세운다
-    keyed = [
-        {**e, "key": f"{row.session_id}:{e['seq']}:{len(e.get('corrections', []))}:{int(bool(e.get('void')))}"}
-        for e in inputs
-    ]
-    with checkpoint.saver() as saver:
-        app = graph.build(k, lambda: deps.grades(c)[0], lambda: deps.grades(c)[1], checkpointer=saver)
-        cfg = checkpoint.thread(row.session_id)
-        snap = app.get_state(cfg)
-        have = [e.get("key") for e in snap.values.get("events", [])] if snap.values else None
-        if keyed and snap.next == ("wait",) and have == [e["key"] for e in keyed[:-1]]:
-            out, via = app.invoke(Command(resume=keyed[-1]), cfg), "resume"
-        else:
-            seed = {"group": row.symptom_group, "similar": row.similar, "events": keyed}
-            out, via = app.invoke(seed, cfg), "rebuild"
-    return out["__interrupt__"][0].value["decision"], via
-
-
 def _deploy_decision(c: Connection, row: m.DiagSession, inputs: list[dict]) -> tuple[dict, dict]:
     """다음 단계 = 배포 서버 judge Run(EV-001 ES-07, C1A15_JUDGE=deploy). 판정 하나 = Run 하나 — checkpoint 안 씀."""
     g, minutes = deps.grades(c)
@@ -179,17 +152,11 @@ def _open_step(
 ) -> dict:
     """다음 단계를 지금 등급표로 판정해 step_opened로 남긴다(R13: 열린 단계는 이후 등급 변경에도 그대로).
 
-    판정 길 = 배포 서버 judge Run(3단계부터 deploy만 — inproc 갈래 정리는 ES-18).
+    판정 길 = 배포 서버 judge Run(deploy만 — 앱 안 LangGraph 갈래는 ES-23에서 지움).
     decided = 세션 시작 start Run이 낸 첫 단계.
     """
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
-    if decided is not None:
-        decision, ref = decided
-    elif runs.deploy_on():
-        decision, ref = _deploy_decision(c, row, inputs)
-    else:
-        decision, via = _graph_decision(c, row, inputs)
-        ref = {"via": via}
+    decision, ref = decided if decided is not None else _deploy_decision(c, row, inputs)
     seq = (events[-1]["seq"] if events else 0) + 1
     _store(c, sid, seq, "step_opened", {"decision": decision, **ref}, actor)
     if decision["kind"] in {

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 실행 구성 확인: 두 앱 빌드 → 시험 DB(compose db만) → host 준비(migration · 적재 · checkpoint) → 가짜 배포 서버 · host 앱 서버 · host 화면 중계
+# 실행 구성 확인: 두 앱 빌드 → 시험 DB(compose db만) → host 준비(migration · 적재) → 가짜 배포 서버 · host 앱 서버 · host 화면 중계
 # → 8081/8082 smoke · 권한 경계 · 발생기 · 재시작 · Playwright → 정리.
 # EV-001 ES-16(CH-36, S3-Q7 (가)): 앱 기본 길 = deploy라 compose 안 앱 서버는 켜지지 않음(컨테이너 → 배포 서버 = S3-Q2 판) → host 실행.
 # compose 안에서만 뜻이 있는 확인(API 포트 8000이 밖에 닫힘)은 미룸 목록으로 찍고 S3-Q2 판에서 되살린다.
@@ -27,7 +27,7 @@ npm run --silent build >/dev/null
 docker compose down -v --remove-orphans >/dev/null 2>&1 || true  # 이름 volume(D-335): 앞 실행이 남긴 이 시험 project 자료를 비우고 시작
 docker compose up -d --wait db >/dev/null 2>&1
 # compose init 대신 host에서 차례로 — 종료 코드 0이어야 함
-for s in "alembic upgrade head" "python -m c1a15.loader" "python -m c1a15.engine.checkpoint"; do
+for s in "alembic upgrade head" "python -m c1a15.loader"; do  # LangGraph checkpoint 표는 ES-23에서 뺌
   (cd server && PYTHONPATH=src uv run --frozen $s >> "$E2E_RUN_DIR/init.log" 2>&1) || fail "init(migration · 적재) — $s"
 done
 (cd server && PYTHONPATH=src:tests exec .venv/bin/python tests/fake_deploy.py 18796) > "$E2E_RUN_DIR/fake.log" 2>&1 &

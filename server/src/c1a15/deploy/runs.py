@@ -25,10 +25,6 @@ def settings() -> dict:
     return config.pack_settings()
 
 
-def deploy_on() -> bool:
-    return settings()["judge"] == "deploy"
-
-
 @lru_cache
 def client() -> Client:
     return Client(settings()["deploy_url"], DbLedger(), host_name=settings()["deploy_host"])
