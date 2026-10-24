@@ -2,7 +2,7 @@
  "artifact": "retriever_gold_meta",
  "set": "val",
  "evolution": "EV-003-retriever-gold",
- "tool_sha256": "ed38332829bd8c7e43fa98b81f712040dc975a39277cae7a6e7fa0d452ec89f5",
+ "tool_sha256": "96d93b6f8982c77e5e5b9e6d1c42047fb358c70624fdf0b9dc05e27c81650eb7",
  "inputs_sha256": {
   "cards": "4edbd753f8e5cfbc31f87c43bb254196145efc1de9f26d649ad7f84307a64399",
   "card_inputs": "9b4cb35e6a6829ba95d3e50778a33d57c90980f3a7eed3b95615ace372262a0a",
@@ -10,7 +10,7 @@
   "manual_md": "a33c83f4f3cda3a7aa51affe261236a222b11390fecb2ebd91d33a9e9c2eb26e",
   "manual_sections": "da8e82344e11f37fc177afa6fabf624fa11c034fbc7bbcdecf8a95c22c515326"
  },
- "gold_sha256": "dc91ef77a68740c10a8fcd9f057b6bb41d823c39def5471770abeaad1ea4c4d2",
+ "gold_sha256": "de755bd321a8417fd4f72b73a803b56ba9e9902a188ee5f7c2cf58141a2db8ca",
  "cards": 30,
  "evidence_by_rule": {
   "H-1": 437,
@@ -25,5 +25,5 @@
  "cards_without_history": [],
  "contract": "약속 F(records/contract-locked-2026-10-24.md) · change-contract-v3 CC-01 · CC-02",
  "note": "줄 원소의 store · rule은 F 채점 주인(llmops 리드) 확인 중 — 바뀔 수 있음(답장 001-03 3). locator 모양은 약속 F 그대로",
- "created_at": "2026-10-24T15:15:03+09:00"
+ "created_at": "2026-10-24T15:55:00+09:00"
 }

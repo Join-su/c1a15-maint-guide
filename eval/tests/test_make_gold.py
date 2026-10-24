@@ -56,16 +56,22 @@ class GoldTest(unittest.TestCase):
         self.assertEqual(mg.cmd_build(self.tmp, "val"), 0)
         self.assertEqual(mg.cmd_check(self.tmp, "val"), 0)
         inp = mg.Inputs(self.tmp, "val")
+        texts = {x["id"]: x.get("text") or "" for x in json.loads((self.tmp / "data/manuals/manual_sections.json").read_text(encoding="utf-8"))}
         rows = self.rows()
         self.assertEqual(len(rows), 30)
         for row in rows:
             self.assertEqual(row["source"], "auto")
             stores = [e["store"] for e in row["evidence"]]
             self.assertEqual(stores, sorted(stores, key=lambda s: s != "history"))  # 이력 → 매뉴얼
+            pos = [inp.manual.doc_pos(e["locator"]) for e in row["evidence"] if e["store"] == "manual"]
+            self.assertEqual(pos, sorted(pos))  # 매뉴얼은 문서 차례(절 시작 + 섹션 기준 위치)
             for e in row["evidence"]:
                 if e["store"] == "manual":
-                    cut = inp.manual.md[e["locator"]["char_start"] : e["locator"]["char_end"]]
+                    loc = e["locator"]
+                    cut = texts[loc["section"]][loc["char_start"] : loc["char_end"]]  # 섹션 기준(001-05): 절 text에서 바로 자름
                     self.assertTrue(cut and "\n" not in cut)
+                    self.assertEqual(cut, inp.manual.cut(loc))
+                    self.assertLess(loc["char_end"], len(inp.manual.md) // 10)  # 문서 기준 큰 값이 아님
                 else:
                     self.assertEqual(set(e["locator"]), {"record_id"})
 

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """리트리버 평가 정답 후보(EV-003 · 약속 F): 카드마다 정답 근거의 원문 위치를 규칙으로 뽑는다.
 
-- 정답 = 원문 위치(D-250 (2)): 이력 `{record_id}` · 매뉴얼 `{doc, section, char_start, char_end}`(MG-MM.md 글자 위치,
-  앱 ingest.manual_chunks와 같은 절 범위). 청크 번호가 아니라서 청크 크기 · 오버랩이 바뀌어도 같은 정답으로 채점된다.
+- 정답 = 원문 위치(D-250 (2)): 이력 `{record_id}` · 매뉴얼 `{doc, section, char_start, char_end}` — 글자 위치는 **섹션 처음부터**
+  (질문 001-05 · change-contract-v5 CC-01): 섹션 = manual_sections.json 그 절 text(`### x.y` 줄 첫 글자 = 0), text[char_start:char_end] = 정답 줄.
+  한 절이 여러 조각이어도 조각마다 0부터가 아니라 절 첫 글자부터. 절 본문은 MG-MM.md 안에 차례대로 있어야 한다(앱 ingest.manual_chunks와 같은 확인). 청크 번호가 아니라서 청크 크기 · 오버랩이 바뀌어도 같은 정답으로 채점된다.
 - 규칙(change-contract-v3 CC-02): manual_cause → H-1 · M-1 · M-2 · M-3 / none → H-2 · M-4 / out_of_graph → H-3 · M-5.
   센서 거리 · 알람 방향 · 리트리버 결과는 쓰지 않는다(바퀴 손잡이와 무관하게).
 - 읽는 것: eval/cards/<set>/cards.jsonl(hidden_cause) · card_inputs.json(증상군) · data/history · data/manuals.
@@ -75,7 +76,15 @@ class Manual:
         if len(hits) != 1:
             raise GoldError(f"규칙 줄이 {len(hits)}번 찾힘: 절 {sid} · {pattern}")
         m = hits[0]
-        return {"doc": MANUAL_DOC, "section": sid, "char_start": a + m.start(), "char_end": a + m.end()}
+        return {"doc": MANUAL_DOC, "section": sid, "char_start": m.start(), "char_end": m.end()}
+
+    def doc_pos(self, loc: dict) -> int:
+        """정렬용: 문서 안 자리(절 시작 + 섹션 기준 위치)."""
+        return self.span[loc["section"]][0] + loc["char_start"]
+
+    def cut(self, loc: dict) -> str:
+        a, _ = self.span[loc["section"]]
+        return self.md[a + loc["char_start"] : a + loc["char_end"]]
 
     def chapter(self, group: str) -> str:
         ids = [s["id"] for s in self.sections if s.get("group") == group and s.get("kind") == "info" and s["id"].endswith(".1")]
@@ -150,7 +159,7 @@ def build_rows(inp: Inputs) -> list[dict]:
         manual = manual_evidence(inp.manual, group, hidden)
         hist = sorted(history_evidence(inp.history, group, hidden), key=lambda e: e[1]["record_id"])
         seen, evidence = set(), []
-        for store, items in (("history", hist), ("manual", sorted(manual, key=lambda e: e[1]["char_start"]))):
+        for store, items in (("history", hist), ("manual", sorted(manual, key=lambda e: inp.manual.doc_pos(e[1])))):
             for rule, loc in items:
                 key = json.dumps(loc, sort_keys=True)
                 if key not in seen:
@@ -174,7 +183,7 @@ def verify(inp: Inputs, rows: list[dict]) -> list[str]:
         if set(row) != {"card_id", "set", "evidence", "source"} or row.get("set") != inp.sname:
             errors.append(f"{n}번째 줄: 칸 · set 값이 CC-01과 다름")
         keys = [json.dumps(e.get("locator"), sort_keys=True) for e in row.get("evidence", [])]
-        order = [(e.get("store") != "history", e["locator"].get("record_id", "") if e.get("store") == "history" else e["locator"].get("char_start", 0)) for e in row.get("evidence", [])]
+        order = [(e.get("store") != "history", e["locator"].get("record_id", "") if e.get("store") == "history" else (inp.manual.doc_pos(e["locator"]) if e["locator"].get("section") in inp.manual.span else -1)) for e in row.get("evidence", [])]
         if len(keys) != len(set(keys)) or order != sorted(order) or any(set(e) != {"store", "locator", "rule"} for e in row.get("evidence", [])):
             errors.append(f"{n}번째 줄: 원소 중복 · 순서 · 칸이 CC-01과 다름")
         card = expected.get(row["card_id"])
@@ -197,8 +206,7 @@ def verify(inp: Inputs, rows: list[dict]) -> list[str]:
                 continue
             loc = e["locator"]
             a, b = inp.manual.span.get(loc["section"], (0, -1))
-            cut = inp.manual.md[loc["char_start"] : loc["char_end"]]
-            if not (a <= loc["char_start"] < loc["char_end"] <= b) or "\n" in cut or loc["doc"] != MANUAL_DOC:
+            if not (0 <= loc["char_start"] < loc["char_end"] <= b - a) or "\n" in inp.manual.cut(loc) or loc["doc"] != MANUAL_DOC:
                 errors.append(f"{n}번째 줄: 매뉴얼 위치가 절 범위 · 한 줄을 벗어남")
             got_man[json.dumps(loc, sort_keys=True)] = e["rule"]
         if got_man != want:
@@ -344,7 +352,7 @@ def review_data(inp: Inputs) -> dict:
         compare = sorted(rng.sample(others, min(2, len(others))))
         chapter = man.chapter(group).split(".")[0]
         sections = [
-            {"id": sid, "title": titles.get(sid, ""), "char_start": a, "char_end": b}
+            {"id": sid, "title": titles.get(sid, ""), "char_start": 0, "char_end": b - a}
             for sid, (a, b) in man.span.items()
             if sid.split(".")[0] in (chapter, "1", "6")
         ]
@@ -362,7 +370,7 @@ def review_data(inp: Inputs) -> dict:
                 "history_shown": [{"record_id": i, "narrative": hist[i]["narrative"], "outcome": hist[i]["outcome"]} for i in shown],
                 "compare": [{"record_id": i, "narrative": hist[i]["narrative"], "outcome": hist[i]["outcome"]} for i in compare],
                 "manual": [
-                    {"rule": e["rule"], **e["locator"], "title": titles.get(e["locator"]["section"], ""), "text": man.md[e["locator"]["char_start"] : e["locator"]["char_end"]]}
+                    {"rule": e["rule"], **e["locator"], "title": titles.get(e["locator"]["section"], ""), "text": man.cut(e["locator"])}
                     for e in row["evidence"]
                     if e["store"] == "manual"
                 ],
