@@ -1,11 +1,10 @@
-"""PostgreSQL 1개 · schema 2개(ops · knowledge) · pgvector(EP-C1-DB-001). 앱은 DB에 직접 붙지 않는다.
+"""PostgreSQL 1개 · schema 2개(ops · knowledge)(EP-C1-DB-001). 앱은 DB에 직접 붙지 않는다.
 
 S-01(P-02)은 적재 대상 표만 만든다. 세션 · 호출 · 보고서 · 감사 표는 해당 slice의 migration으로 더한다.
 """
 
 from datetime import datetime
 
-from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -25,8 +24,6 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-
-EMBEDDING_DIM = 256
 
 
 class Base(DeclarativeBase):
@@ -73,57 +70,6 @@ class HistoryRecord(Base):
     record: Mapped[dict] = mapped_column(JSONB)
     source: Mapped[str] = mapped_column(String(16))
     provenance: Mapped[str] = mapped_column(Text)
-
-
-class HistoryEmbedding(Base):
-    __tablename__ = "history_embeddings"
-    __table_args__ = {"schema": "knowledge"}
-
-    record_id: Mapped[str] = mapped_column(ForeignKey("knowledge.history_records.record_id"), primary_key=True)
-    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM))
-    model: Mapped[str] = mapped_column(String(64))
-
-
-class DataRelease(Base):
-    """EV-001 CH-05: 이력 · 매뉴얼 조각의 hash 고정 판(고치지 않음 — 새 판을 더함)."""
-
-    __tablename__ = "data_releases"
-    __table_args__ = (CheckConstraint("kind IN ('history', 'manual')", name="kind"), {"schema": "knowledge"})
-
-    release_id: Mapped[str] = mapped_column(String(64), primary_key=True)
-    kind: Mapped[str] = mapped_column(String(16))
-    recipe: Mapped[dict] = mapped_column(JSONB)
-    recipe_sha256: Mapped[str] = mapped_column(String(64))
-    embedding_model: Mapped[str] = mapped_column(String(64))
-    embedding_dim: Mapped[int] = mapped_column(Integer)
-    source: Mapped[dict] = mapped_column(JSONB)
-    parent_release_id: Mapped[str | None] = mapped_column(String(64))
-    release_sha256: Mapped[str] = mapped_column(String(64))
-    queries: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-
-
-class ReleaseChunk(Base):
-    __tablename__ = "release_chunks"
-    __table_args__ = (PrimaryKeyConstraint("release_id", "chunk_id", name="pk_release_chunks"), {"schema": "knowledge"})
-
-    release_id: Mapped[str] = mapped_column(ForeignKey("knowledge.data_releases.release_id"))
-    chunk_id: Mapped[str] = mapped_column(String(64))
-    doc: Mapped[str] = mapped_column(String(16))
-    locator: Mapped[dict] = mapped_column(JSONB)
-    text: Mapped[str] = mapped_column(Text)
-    metadata_: Mapped[dict] = mapped_column("metadata", JSONB)
-    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIM))
-
-
-class ActiveRelease(Base):
-    """종류(history · manual)마다 지금 검색이 읽는 판."""
-
-    __tablename__ = "active_releases"
-    __table_args__ = {"schema": "knowledge"}
-
-    kind: Mapped[str] = mapped_column(String(16), primary_key=True)
-    release_id: Mapped[str] = mapped_column(ForeignKey("knowledge.data_releases.release_id"))
 
 
 # ---------------------------------------------------------------- ops

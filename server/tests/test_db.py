@@ -52,6 +52,34 @@ def test_loader_counts_and_storage(db):
     assert all(plain[role] not in h for role, h in rows)
 
 
+FOUR = tuple(f"knowledge.{t}" for t in ("active_releases", "release_chunks", "data_releases", "history_embeddings"))
+
+
+def test_vc56_0009_drops_four_tables_and_downgrade_recreates_empty(db):
+    """VC-56(EV-001 CH-34): 0009 = 앱 리트리버 · release 표 넷 지움 · downgrade = 빈 표로 다시 · 다시 upgrade.
+
+    downgrade는 자료를 되살리지 않음(S3-Q5).
+
+    남길 표(history_records · manual_sections)와 적재 자료는 그대로.
+    """
+    env = {**os.environ, "DATA_DIR": str(SERVER.parent / "data"), "PYTHONPATH": str(SERVER / "src")}
+    alembic("upgrade", "head")
+    subprocess.run(["python", "-m", "c1a15.loader"], cwd=SERVER, env=env, check=True)
+    reg = lambda c, t: c.execute(text("select to_regclass(:t)"), {"t": t}).scalar()  # noqa: E731
+    with db.connect() as c:
+        assert [reg(c, t) for t in FOUR] == [None] * 4
+        assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
+    alembic("downgrade", "0008")
+    with db.connect() as c:
+        assert all(reg(c, t) for t in FOUR)
+        assert [c.execute(text(f"select count(*) from {t}")).scalar() for t in FOUR] == [0] * 4
+        assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
+    alembic("upgrade", "head")
+    with db.connect() as c:
+        assert [reg(c, t) for t in FOUR] == [None] * 4
+        assert c.execute(text("select version_num from alembic_version")).scalar() == "0009"
+
+
 def test_adv03_plaintext_store_is_caught(db):
     """ADV-03: 저장 계층을 원문 저장으로 바꾼 결함을 시험 DB에 흉내 내면 저장값 검사가 실패를 잡아야 한다."""
     with db.begin() as c:

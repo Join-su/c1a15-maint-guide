@@ -72,9 +72,6 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
     assert row["author_name"] and row["confirmed_at"] and row["evidence_count"] == 3 and row["violations"] == 0
     d = lc.get(f"/api/lead/reports/{rid}").json()
     assert [f["label"] for f in d["fields"]] == ["확정 원인", "점검 경로", "조치", "근거 사례", "미확인"]
-    with db.connect() as c:
-        rel_before = c.execute(text("select count(*) from knowledge.data_releases")).scalar()
-        act_before = dict(c.execute(text("select kind, release_id from knowledge.active_releases")).all())
     r = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
     assert r.status_code == 200 and r.json()["history_record_id"] == f"R-{rid:04d}"
     hid = r.json()["history_record_id"]
@@ -82,15 +79,9 @@ def test_lead_overview_rows_and_approve_adds_history(api, db):
         h = c.execute(
             text("select source, symptom_group, record from knowledge.history_records where record_id = :i"), {"i": hid}
         ).one()
-        emb = c.execute(
-            text("select count(*) from knowledge.history_embeddings where record_id = :i"), {"i": hid}
-        ).scalar()
-        rel_after = c.execute(text("select count(*) from knowledge.data_releases")).scalar()
-        act_after = dict(c.execute(text("select kind, release_id from knowledge.active_releases")).all())
         st = c.execute(text("select status, approval from ops.reports where report_id = :r"), {"r": rid}).one()
     assert h.source == "approved_report" and h.symptom_group == "CL"
-    # VC-58(EV-001 CH-32): 앱은 벡터 · 새 release를 쓰지 않음 — 다음 진단 후보는 배포 서버 R12(받은 편지 → 새 version)
-    assert emb == 0 and rel_after == rel_before and act_after == act_before
+    # VC-58(EV-001 CH-32): 앱은 벡터 · 새 release를 쓰지 않음(그 표는 0009로 없음 — test_db VC-56) — 다음 진단 후보는 배포 서버 R12
     rec = h.record
     assert (
         rec["source"] == {"report_id": rid}

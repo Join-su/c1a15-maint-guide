@@ -18,13 +18,7 @@ def main() -> int:
     history = core.read_history(data_dir)
     seeds = core.account_seeds(require_env("C1A15_TECH_PASSWORD"), require_env("C1A15_LEAD_PASSWORD"))
     with engine().begin() as conn:
-        # EV-001 ES-18(CH-33): release · 벡터는 쓰지 않음. 옛 행이 남은 DB에서 이력 지우기가 외래 키로 막히지 않게
-        # 네 표(active · chunk · release · embedding)는 비우기만 — 표 자체는 migration 0009(ES-19)에서 지움.
-        for table in (
-            m.ActiveRelease,
-            m.ReleaseChunk,
-            m.DataRelease,
-            m.HistoryEmbedding,
+        for table in (  # EV-001 CH-33: 업무 자료만(release · 벡터 표는 0009에서 지움)
             m.CommonPrecheckItem,
             m.EquipmentAssignment,
             m.GradeEntry,
