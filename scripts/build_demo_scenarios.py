@@ -85,6 +85,7 @@ def main() -> int:
         sid = f"DEMO-{n:02d}"
         chosen.append({
             "scenario_id": sid, "udi": r["udi"], "equipment_id": r["equipment_id"],
+            "product_type": r["quality_grade"],  # AI4I 원본 Type(L · M · H) — Pack 알람 입력 product_type(D-264, EV-001 ES-08)
             "sensor_snapshot": snapshot(r),
             "trend": [{"at": bd.iso(p["at"]), "value": num(p[hit["key"]])} for p in prior],
         })

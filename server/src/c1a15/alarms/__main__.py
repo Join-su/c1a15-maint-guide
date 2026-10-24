@@ -118,6 +118,9 @@ def main(argv: list[str] | None = None) -> int:
             detail = e.read().decode() if isinstance(e, urllib.error.HTTPError) else str(e)
             print(f"{s['scenario_id']} 등록 실패: {detail} — 다시 실행하세요", file=sys.stderr)
             return 1
+        if r.get("alarm_id") is None:  # deploy 길: Pack이 알람 없이 '사람 판단 필요' 후보로 기록(EV-001 ES-08)
+            print(f"{s['scenario_id']} 알람 없음 · 후보 {r['candidate_id']} 기록({r['reason']})")
+            continue
         print(
             f"{s['scenario_id']} 알람 {r['alarm_id']} 등록 · 배정 {r['assigned_to'] or '미배정'} · {r['occurred_at']}"
         )

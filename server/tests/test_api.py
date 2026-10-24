@@ -64,11 +64,15 @@ def login(app, surface, user, pw):
     return c, r
 
 
+# 시험 알람의 출처 표시(deploy 길 Pack 알람 입력 필수 칸, EV-001 ES-08) — 기본 길은 쓰지 않는다
+TEST_LINEAGE = {"source_release": "ai4i-2020@sha256:test", "row_id": 1, "split": "test"}
+
+
 def register(app, equipment="M-01", sensor=None, headers=None):
     c = TestClient(app)
     return c.post(
         "/api/internal/alarms",
-        json={"equipment_id": equipment, "sensor_snapshot": sensor or SENSOR},
+        json={"equipment_id": equipment, "sensor_snapshot": sensor or SENSOR, "data_lineage": TEST_LINEAGE},
         headers=headers if headers is not None else {"X-Internal-Token": "test-internal-token"},
     )
 

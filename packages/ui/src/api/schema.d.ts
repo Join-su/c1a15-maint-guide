@@ -577,6 +577,10 @@ export interface components {
          * @description 시연 알람 발생기 → 알람 등록. 증상군 · 경계 판정 · 시각은 서버가 정한다.
          */
         AlarmBody: {
+            /** Data Lineage */
+            data_lineage?: {
+                [key: string]: number | string | null;
+            } | null;
             /** Equipment Id */
             equipment_id: string;
             /**
@@ -584,6 +588,8 @@ export interface components {
              * @default false
              */
             eval_mode: boolean;
+            /** Product Type */
+            product_type?: ("L" | "M" | "H") | null;
             /** Scenario Id */
             scenario_id?: string | null;
             /** Sensor Snapshot */

@@ -18,6 +18,7 @@
    "scenario_id": "DEMO-01",
    "udi": "4492",
    "equipment_id": "M-01",
+   "product_type": "H",
    "sensor_snapshot": {
     "air_temperature_k": 302.6,
     "process_temperature_k": 310.4,
@@ -82,6 +83,7 @@
    "scenario_id": "DEMO-02",
    "udi": "4494",
    "equipment_id": "M-03",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 302.7,
     "process_temperature_k": 310.5,
@@ -146,6 +148,7 @@
    "scenario_id": "DEMO-03",
    "udi": "4495",
    "equipment_id": "M-04",
+   "product_type": "H",
    "sensor_snapshot": {
     "air_temperature_k": 302.6,
     "process_temperature_k": 310.4,
@@ -210,6 +213,7 @@
    "scenario_id": "DEMO-04",
    "udi": "4496",
    "equipment_id": "M-05",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 302.6,
     "process_temperature_k": 310.4,
@@ -274,6 +278,7 @@
    "scenario_id": "DEMO-05",
    "udi": "4497",
    "equipment_id": "M-06",
+   "product_type": "M",
    "sensor_snapshot": {
     "air_temperature_k": 302.5,
     "process_temperature_k": 310.4,
@@ -338,6 +343,7 @@
    "scenario_id": "DEMO-06",
    "udi": "4511",
    "equipment_id": "M-20",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 302.4,
     "process_temperature_k": 310.2,
@@ -402,6 +408,7 @@
    "scenario_id": "DEMO-07",
    "udi": "4563",
    "equipment_id": "M-12",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 302.7,
     "process_temperature_k": 310.7,
@@ -466,6 +473,7 @@
    "scenario_id": "DEMO-08",
    "udi": "4730",
    "equipment_id": "M-19",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 303.4,
     "process_temperature_k": 311.8,
@@ -530,6 +538,7 @@
    "scenario_id": "DEMO-09",
    "udi": "4732",
    "equipment_id": "M-01",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 303.3,
     "process_temperature_k": 311.6,
@@ -594,6 +603,7 @@
    "scenario_id": "DEMO-10",
    "udi": "4733",
    "equipment_id": "M-02",
+   "product_type": "L",
    "sensor_snapshot": {
     "air_temperature_k": 303.3,
     "process_temperature_k": 311.7,

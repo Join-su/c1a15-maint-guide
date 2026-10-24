@@ -6,6 +6,7 @@
 부르기는 deploy.client 한 곳(키 · 재시도 · 감사).
 """
 
+import secrets
 from functools import lru_cache
 
 from c1a15 import config
@@ -60,6 +61,51 @@ def judge_events(inputs: list[dict]) -> list[dict]:
             ev["reason"] = e["reason"]
         out.append(ev)
     return out
+
+
+@lru_cache
+def source_release() -> str:
+    """시연 · 평가 행의 출처 = AI4I 원본 sha256(data/manifest.json)."""
+    import json
+    import os
+    from pathlib import Path
+
+    manifest = json.loads((Path(os.environ["DATA_DIR"]) / "manifest.json").read_text(encoding="utf-8"))
+    return f"ai4i-2020@sha256:{manifest['source']['sha256']}"
+
+
+def new_event_id() -> str:
+    """알람 Run의 사건 id — 알람 행이 생기기 전에 만든다(ML 길은 Run 결과를 보고 알람을 만들므로)."""
+    return "C1A-E" + secrets.token_hex(6)
+
+
+def alarm_body(
+    event_id: str,
+    equipment_id: str,
+    snapshot: dict,
+    source_mode: str,
+    lineage: dict,
+    product_type: str | None,
+    threshold: float | None,
+) -> dict:
+    card = {
+        "event_id": event_id,
+        "source_mode": source_mode,
+        "equipment_id": equipment_id,
+        "sensor_snapshot": sensors5(snapshot),  # 계산 칸(출력 · 온도 차)은 Pack 한 곳에서 — 7칸이 와도 5칸만
+        "alarm": {"source": "none"},
+        "data_lineage": lineage,
+    }
+    if product_type:
+        card["product_type"] = product_type
+    body = {"kind": "alarm", "event_card": card}
+    if source_mode == "ml_predicted":
+        body["settings"] = {"ml_alarm_threshold": threshold}
+    return body
+
+
+def alarm(event_id: str, body: dict) -> RunResult:
+    return client().run("alarm", event_id, 0, body)
 
 
 def start_body(alarm, similar: list[dict], grades: dict, minutes: dict) -> dict:

@@ -202,8 +202,32 @@ def engine_answer(body: dict) -> dict:
     실제 Pack과 같은 결과는 ES-09(1건) · VC-43(미리보기 = Pack) · 3단계 대조 몫.
     """
     from c1a15.api import deps
-    from c1a15.engine import rules, session
+    from c1a15.engine import alarm_rules, rules, session
 
+    if body["kind"] == "alarm":  # 경계 길: 앱 경계 규칙 그대로(계산 칸은 Pack과 같은 식)
+        import math
+
+        card = body["event_card"]
+        s5 = card["sensor_snapshot"]
+        derived = {
+            "power_w": round(s5["torque_nm"] * s5["rotational_speed_rpm"] * 2 * math.pi / 60),
+            "temp_diff_k": round(s5["process_temperature_k"] - s5["air_temperature_k"], 1),
+        }
+        hit = alarm_rules.detect({**s5, **derived}, deps.alarm_table())
+        return {
+            "output": {
+                "alarm": {
+                    "event_id": card["event_id"],
+                    "alarm": hit is not None,
+                    "group": hit["group"] if hit else None,
+                    "group_source": "sensor_boundary" if hit else None,
+                    "alarm_block": hit["alarm"] if hit else None,
+                    "sensor_derived": derived,
+                    "ml": None,
+                    "candidate": None,
+                }
+            }
+        }
     k = deps.manual()
     similar = [rules.Similar(s["record_id"], s.get("cause"), s["score"]) for s in body.get("similar", [])]
     state = session.fold(k, body["group"], similar, body["events"])

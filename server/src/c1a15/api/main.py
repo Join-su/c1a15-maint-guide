@@ -12,10 +12,12 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import Connection, select
 
 from c1a15 import config
+from c1a15.alarms import ml
 from c1a15.api import deps, history, lead, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user, internal_token, tech_user
 from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody
 from c1a15.db import models as m
+from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import alarm_rules, rules
 
@@ -101,12 +103,19 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
     assignments = dict(c.execute(select(m.EquipmentAssignment.equipment_id, m.EquipmentAssignment.user_id)).all())
     if body.equipment_id not in assignments:
         raise HTTPException(status_code=422, detail="unknown_equipment")
-    try:
-        hit = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table())
-    except KeyError as e:
-        raise HTTPException(status_code=422, detail="bad_sensor_snapshot") from e
-    if hit is None:
-        raise HTTPException(status_code=422, detail="no_boundary_crossed")
+    pack_cols = {}
+    if runs.deploy_on():  # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2))
+        hit, snapshot, pack_cols = _alarm_via_pack(c, body)
+        if hit is None:
+            return pack_cols  # 알람 없이 '사람 판단 필요' 후보로 기록함
+    else:
+        try:
+            hit = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table())
+        except KeyError as e:
+            raise HTTPException(status_code=422, detail="bad_sensor_snapshot") from e
+        if hit is None:
+            raise HTTPException(status_code=422, detail="no_boundary_crossed")
+        snapshot = body.sensor_snapshot
     to = rules.assign(body.equipment_id, assignments, sessions.open_alarm_counts(c))
     now = datetime.now(UTC)
     alarm_id = c.execute(
@@ -115,7 +124,8 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
             equipment_id=body.equipment_id,
             symptom_group=hit["group"],
             alarm=hit["alarm"],
-            sensor_snapshot=body.sensor_snapshot,
+            sensor_snapshot=snapshot,
+            **pack_cols,
             trend=[p.model_dump() for p in body.trend],
             scenario_id=body.scenario_id,
             eval_mode=body.eval_mode,
@@ -134,6 +144,97 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
         body.equipment_id,
     )
     return {"alarm_id": alarm_id, "assigned_to": to, "occurred_at": now.isoformat(), "symptom_group": hit["group"]}
+
+
+def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, dict]:
+    """Pack alarm Run(정본 = c1a15-pack 약속 v2): 알람이면 (경계 판정 모양 hit, 센서 7칸, 저장 칸),
+    후보(낮은 확신 · RNF · 예측 실패 D-275)면 alarm_candidates에 기록하고 (None, {}, 응답)을 돌려준다."""
+    sc = deps.scenarios().get(body.scenario_id or "", {})
+    lineage = body.data_lineage
+    if lineage is None and sc.get("udi"):
+        lineage = {"source_release": runs.source_release(), "row_id": int(sc["udi"]), "split": "demo"}
+    if lineage is None:
+        raise HTTPException(status_code=422, detail="missing_lineage")
+    mode = "ml_predicted" if runs.settings()["alarm"] == "ml" else "sensor_boundary"
+    ptype = body.product_type or sc.get("product_type")
+    if mode == "ml_predicted" and not ptype:
+        raise HTTPException(status_code=422, detail="missing_product_type")
+    try:
+        req = runs.alarm_body(
+            runs.new_event_id(),
+            body.equipment_id,
+            body.sensor_snapshot,
+            mode,
+            lineage,
+            ptype,
+            ml.threshold() if mode == "ml_predicted" else None,
+        )
+    except KeyError as e:
+        raise HTTPException(status_code=422, detail="bad_sensor_snapshot") from e
+    event_id = req["event_card"]["event_id"]
+    try:
+        res = runs.alarm(event_id, req)
+    except PackUnavailable as e:
+        if (
+            e.code == "run_failed" and e.where == "run.predict_failure"
+        ):  # D-275: 예측 실패 = Run 실패 → 후보 model_failure
+            cand = {"reason": "model_failure", "risk": None, "top_k": [], "model_release": None, "run_id": e.run_id}
+            return None, {}, _store_candidate(c, body, req, cand)
+        raise
+    out = res.output["alarm"]
+    refs = {"event_id": event_id, "run_id": res.run_id, "deployment_id": res.deployment_id}
+    if out.get("candidate"):
+        return None, {}, _store_candidate(c, body, req, {**out["candidate"], "run_id": res.run_id})
+    if not out["alarm"]:
+        raise HTTPException(status_code=422, detail="no_boundary_crossed")  # 지금 기본 길과 같은 응답 · 저장 0
+    if out["alarm_block"] is None:  # ML 유형으로 정한 알람(경계 표시 없음) — 화면 · 세션이 알람 행의 경계 표시를 씀
+        sessions.audit_rejection(  # 화면 판(정할 것)까지 알람으로 등록하지 않음 — 감사는 따로 남김
+            "system",
+            "alarm_rejected",
+            f"event:{event_id}",
+            {"reason": "ml_type_alarm_unsupported", **refs},
+            body.equipment_id,
+        )
+        raise HTTPException(status_code=422, detail="ml_type_alarm_unsupported")
+    snapshot = {**req["event_card"]["sensor_snapshot"], **out["sensor_derived"]}  # 화면 · 리트리버 센서 7칸
+    if out.get("ml") is not None:  # 없으면 칸을 빼 SQL NULL(JSON null로 저장하지 않음)
+        refs["ml"] = out["ml"]
+    return {"group": out["group"], "alarm": out["alarm_block"]}, snapshot, refs
+
+
+def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict) -> dict:
+    """알람을 만들지 않은 '사람 판단 필요' 기록(ES-04 표) — 화면 0."""
+    card = req["event_card"]
+    try:
+        crossed = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table()) is not None  # 기록용(판정 아님)
+    except KeyError:
+        crossed = False
+    cid = c.execute(
+        m.AlarmCandidate.__table__.insert()
+        .values(
+            equipment_id=body.equipment_id,
+            reason=cand["reason"],
+            risk=cand.get("risk"),
+            top_k=cand.get("top_k") or [],
+            boundary_crossed=bool(cand.get("boundary_crossed", crossed)),
+            model_release=cand.get("model_release"),
+            sensor_snapshot=card["sensor_snapshot"],
+            event=card,
+            eval_mode=body.eval_mode,
+            event_id=card["event_id"],
+            run_id=cand.get("run_id"),
+        )
+        .returning(m.AlarmCandidate.candidate_id)
+    ).scalar_one()
+    sessions.audit(
+        c,
+        "system",
+        "alarm_candidate",
+        f"candidate:{cid}",
+        {"reason": cand["reason"], "event_id": card["event_id"]},
+        body.equipment_id,
+    )
+    return {"alarm_id": None, "candidate_id": cid, "reason": cand["reason"]}
 
 
 def _alarm_view(a) -> dict:
