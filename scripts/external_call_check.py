@@ -12,7 +12,7 @@ import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CODE_DIRS = [ROOT / "server" / "src", ROOT / "apps", ROOT / "packages", ROOT / "tools"]  # tools/ingest(EV-001 ES-03)도 범위
+CODE_DIRS = [ROOT / "server" / "src", ROOT / "apps", ROOT / "packages", ROOT / "tools"]  # tools도 범위(EV-001 ES-03 — tools/ingest는 ES-18에서 지움)
 SKIP = {"node_modules", "dist", "dist-types", "__pycache__"}
 CODE_PATTERNS = re.compile(
     r"\bimport (httpx|requests|urllib3|aiohttp|openai)\b|\bfrom (httpx|requests|urllib3|urllib|aiohttp|openai)\b|urllib\.request"

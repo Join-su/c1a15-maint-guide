@@ -41,12 +41,10 @@ def test_loader_counts_and_storage(db):
         q = lambda sql: c.execute(text(sql)).scalar()  # noqa: E731
         assert q("select count(*) from knowledge.manual_sections") == 43
         assert q("select count(*) from knowledge.history_records") == 300
-        assert q("select count(*) from knowledge.history_embeddings") == 300
         assert q("select count(*) from ops.grade_table") == 36
         assert q("select count(*) from ops.common_precheck_items") == 3
         assert q("select count(*) from ops.equipment_assignments") == 20
         assert q("select extversion from pg_extension where extname = 'vector'")
-        assert q("select vector_dims(embedding) from knowledge.history_embeddings limit 1") == 256
         rows = c.execute(text("select role, password_hash from ops.accounts")).all()
     assert len(rows) == 5
     plain = {"tech": os.environ["C1A15_TECH_PASSWORD"], "lead": os.environ["C1A15_LEAD_PASSWORD"]}
@@ -66,23 +64,6 @@ def test_adv03_plaintext_store_is_caught(db):
         stored = c.execute(text("select password_hash from ops.accounts where user_id='adv.plain'")).scalar()
         c.execute(text("delete from ops.accounts where user_id='adv.plain'"))
     assert not is_argon2id_hash_of(stored, "plain-pass")
-
-
-def test_pgvector_ranks_match_in_memory_cosine(db):
-    """P-04: DB 의미 검색(pgvector cosine)이 메모리 순위와 같다(가짜 임베딩, 같은 증상군 필터만)."""
-    from c1a15.loader.embedding import fake_embedding
-    from c1a15.retrieval import db as rdb
-    from c1a15.retrieval import search
-
-    q = fake_embedding("온도 차 저하 경계 아래 4.2 고온부 확인")
-    with db.connect() as c:
-        docs = rdb.load_docs(c)
-        ranks = rdb.vector_ranks(c, {"symptom_group": "CL"}, q, limit=20)
-    pool = [d for d in docs if d.symptom_group == "CL"]
-    assert len(docs) == 300 and ranks == search.cosine_rank(q, pool)[:20]
-    with pytest.raises(search.LeakageError):
-        with db.connect() as c:
-            rdb.vector_ranks(c, {"symptom_group": "CL", "outcome": "x"}, q)
 
 
 def test_langgraph_postgres_checkpoint_resume(db):
@@ -117,3 +98,28 @@ def test_langgraph_postgres_checkpoint_resume(db):
         assert restarted.get_state(cfg).values["decision"]["section"] == "4.3"
         out = restarted.invoke(Command(resume={"type": "result", "section": "4.3", "value": "정상", "key": "3"}), cfg)
         assert out["__interrupt__"][0].value["decision"]["kind"] == "call"
+
+
+# EV-001 ES-18: test_release_db.py를 지우며 옮겨 옴 — 릴리스와 무관한 ES-04 시험
+def test_alarm_candidates_reason_check(db):
+    """EV-001 ES-04(가): '사람 판단 필요' 기록 표 — 사유는 low_confidence · rnf · model_failure만.
+
+    경계 길 알람의 ml 칸은 null.
+    """
+    import sqlalchemy
+
+    ins = text(
+        "insert into ops.alarm_candidates (equipment_id, reason, boundary_crossed, sensor_snapshot, event) "
+        "values ('M-01', :r, false, '{}'::jsonb, '{}'::jsonb)"
+    )
+    with db.begin() as c:
+        for r in ("low_confidence", "rnf", "model_failure"):
+            c.execute(ins, {"r": r})
+        assert (
+            c.execute(text("select count(*) from ops.alarm_candidates where status = 'needs_human'")).scalar_one() >= 3
+        )
+    with pytest.raises(sqlalchemy.exc.IntegrityError), db.begin() as c:
+        c.execute(ins, {"r": "boundary"})
+    with db.begin() as c:
+        c.execute(text("delete from ops.alarm_candidates"))
+        assert c.execute(text("select count(*) from ops.alarms where ml is not null")).scalar_one() == 0

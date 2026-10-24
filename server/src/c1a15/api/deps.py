@@ -1,4 +1,4 @@
-"""API 공통: DB · 매뉴얼 지식 · 검색 색인(시작 때 DB에서 만든다) · 인증(앱별 쿠키 · X-App · 역할 대조)."""
+"""API 공통: DB · 매뉴얼 지식 · 인증(앱별 쿠키 · X-App · 역할 대조). 이력 리트리버는 배포 서버 Pack(EV-001 CH-31)."""
 
 import hashlib
 import json
@@ -16,8 +16,6 @@ from c1a15.config import require_env
 from c1a15.db import models as m
 from c1a15.db.session import engine as make_engine
 from c1a15.engine import alarm_rules, knowledge
-from c1a15.retrieval import db as rdb
-from c1a15.retrieval import search
 
 SESSION_HOURS = 12  # 야간 교대 한 번(EP-C1-AUTH-002)
 COOKIE = {"tech": "tech_session", "lead": "lead_session"}
@@ -67,48 +65,6 @@ def manual() -> knowledge.ManualKnowledge:
 
 
 @lru_cache
-def retriever():
-    """리트리버 설정(적재 자료 data/retriever.json, EV-001 CH-06)."""
-    from c1a15.retrieval import settings as retriever_settings
-
-    return retriever_settings.load(Path(require_env("DATA_DIR")) / "retriever.json")
-
-
-@lru_cache
-def index() -> search.Index:
-    """지금 활성 이력 release(EV-001 CH-06)의 조각과 벡터로 만든 검색 색인.
-
-    R12 새 판이 생기면 cache_clear로 다시 만든다.
-    """
-    from c1a15.ingest import store as release_store
-
-    with engine().connect() as c:
-        cur = release_store.active(c, "history")
-        if cur is None:
-            raise RuntimeError("활성 이력 release가 없음 — 적재기(python -m c1a15.loader)를 먼저 돌려야 함")
-        docs = rdb.load_release_docs(c, cur["release_id"])
-    return search.Index(docs, retriever(), cur["release_id"], cur["queries"])
-
-
-def fresh_index(c: Connection) -> search.Index:
-    """색인이 지금 활성 이력 release로 만든 것인지 확인하고, 아니면 다시 만든다.
-
-    R12 새 판 · cache_clear 경쟁에도 옛 판으로 검색하지 않는다.
-    """
-    idx = index()
-    now = c.execute(text("select release_id from knowledge.active_releases where kind = 'history'")).scalar()
-    if now != idx.release_id:
-        index.cache_clear()
-        idx = index()
-    return idx
-
-
-@lru_cache
-def stats():
-    return search.sensor_stats(index().docs)
-
-
-@lru_cache
 def alarm_table() -> dict:
     """FLOW-01 경계 판정 표(적재 자료 data/alarm_rules.json)."""
     return alarm_rules.load(Path(require_env("DATA_DIR")) / "alarm_rules.json")
@@ -155,7 +111,7 @@ def scenarios() -> dict[str, dict]:
 
 
 def reset_caches() -> None:
-    for f in (engine, manual, index, retriever, stats, alarm_table, _chapter_titles, equipment_types, scenarios):
+    for f in (engine, manual, alarm_table, _chapter_titles, equipment_types, scenarios):
         f.cache_clear()
 
 

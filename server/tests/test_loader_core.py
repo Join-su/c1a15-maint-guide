@@ -1,11 +1,8 @@
-import math
-
 import pytest
 from argon2 import PasswordHasher
 
 from c1a15.checks.passwords import is_argon2id_hash_of
 from c1a15.loader import core
-from c1a15.loader.embedding import fake_embedding
 
 
 def test_manual_and_grade_table(data_dir):
@@ -37,13 +34,6 @@ def test_history_and_assignments(data_dir):
     assignments = core.equipment_assignments(history)
     assert len(assignments) == 20
     assert {a["user_id"] for a in assignments} == {uid for uid, _ in core.TECH_ACCOUNTS}
-
-
-def test_fake_embedding_is_deterministic_unit_vector():
-    a, b = fake_embedding("토크 과부하 알람 확인"), fake_embedding("토크 과부하 알람 확인")
-    assert a == b and len(a) == 256
-    assert math.isclose(math.sqrt(sum(v * v for v in a)), 1.0, rel_tol=1e-9)
-    assert a != fake_embedding("냉각수 수위 확인")
 
 
 def test_account_passwords_are_argon2id_and_required():

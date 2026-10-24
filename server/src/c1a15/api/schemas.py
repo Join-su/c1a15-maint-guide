@@ -29,7 +29,7 @@ class AlarmBody(_Strict):
     sensor_snapshot: dict[str, int | float]
     trend: list[TrendPoint] = []
     scenario_id: str | None = None
-    eval_mode: bool = False  # P-16 평가 실행기 알람: 승인해도 이력 · 색인에 넣지 않음(R12 · 결정 017 ②)
+    eval_mode: bool = False  # P-16 평가 실행기 알람: 승인해도 이력 · 받은 편지에 넣지 않음(R12 · 결정 017 ②)
     # deploy 길(EV-001 ES-08)에서 Pack 알람 입력에 담는 것 — 없으면 각본(scenario_id)의 UDI · Type으로 채운다
     data_lineage: dict[str, int | str | None] | None = None
     product_type: Literal["L", "M", "H"] | None = None
