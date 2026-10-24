@@ -13,9 +13,10 @@ test("AC-13 · AC-37: 새 알람이 5초 안에 홈(빨간 점 · 종 숫자), �
   await page.locator(".tb-bell").click();
   await expect(page.locator(".panel .empty")).toHaveText("알람 · 할 일이 없습니다"); // AC-37-C3
   await page.locator(".catch").click();
-  alarm("DEMO-01"); // 등록이 끝난 시각부터 잰다(docker exec 시간은 빼고). 홈 조회 주기가 5초라 여유는 조회 한 번 사이
+  alarm("DEMO-01"); // 등록이 끝난 시각부터 잰다(발생기 시간은 빼고). 홈 조회 주기가 5초라 여유는 조회 한 번 사이
   const t0 = Date.now();
-  await expect(page.locator(".al .dot.red")).toBeVisible({ timeout: 5_000 });
+  // 화면 L3 한도 = 조회 주기 5초 + 응답 · 그리기 0.5초(D-322 — ES-16 host 실행은 발생기가 빨리 끝나 다음 조회까지 거의 5초). API 5초 확인은 verify-e2e P-07
+  await expect(page.locator(".al .dot.red")).toBeVisible({ timeout: 5_500 });
   await expect(page.locator(".tb-bell i")).toHaveText("1");
   info.annotations.push({ type: "AC-13-C1", description: `${Date.now() - t0}ms` });
   await shot(page, info, "T02-new_alarm");

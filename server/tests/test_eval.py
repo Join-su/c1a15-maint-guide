@@ -186,10 +186,11 @@ sys.addaudithook(forbidden_open.make_hook(lambda p: HITS.append(p) if WATCH["on"
 
 
 @pytest.mark.db
-def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch, inproc_path):
-    """ADV-09(실행 감시): 진단 처리(세션 생성 · 검색 · 판정)를 파일 열기 감시로 감싼다. 지금 코드 = 0건,
-    검색이 가짜 평가 카드(tmp_path 사본)를 여는 결함 사본 = 감시가 잡음(fail closed). 실제 카드 파일은 쓰지 않는다."""
-    from c1a15.retrieval import search
+def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch):
+    """ADV-09(실행 감시): 진단 처리(세션 생성 · start Run · 판정)를 파일 열기 감시로 감싼다. 지금 코드 = 0건,
+    세션 시작이 가짜 평가 카드(tmp_path 사본)를 여는 결함 사본 = 감시가 잡음(fail closed). 실제 카드 파일은 쓰지 않는다.
+    상위 10은 Pack 리트리버(ES-15) — 결함 사본 자리 = 앱이 start Run을 부르는 곳(ES-16)."""
+    from c1a15.deploy import runs
 
     fake = tmp_path / "eval" / "cards" / "cards.jsonl"
     fake.parent.mkdir(parents=True)
@@ -201,13 +202,13 @@ def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch, in
         tech, s = start(api, db)
         to_instruct(tech, s)
         assert HITS == []  # 지금 진단 처리는 정답 자료를 열지 않음
-        real = search.similar_records
+        real = runs.start
 
-        def leaky(*a, **kw):  # 결함 사본: 검색이 평가 카드 사본을 연다
+        def leaky(*a, **kw):  # 결함 사본: 세션 시작이 평가 카드 사본을 연다
             fake.read_text(encoding="utf-8")
             return real(*a, **kw)
 
-        monkeypatch.setattr(search, "similar_records", leaky)
+        monkeypatch.setattr(runs, "start", leaky)
         start(api, db, equipment="M-03")
     finally:
         WATCH["on"] = False
@@ -279,3 +280,20 @@ def test_ch27_eval_run_records_not_registered_without_session(tmp_path, monkeypa
         "ml": ml,
     }
     assert (report["cards"], report["registered"], report["not_registered"], report["graded_cards"]) == (2, 1, 1, 1)
+
+
+def test_ch37_eval_card_lineage_has_three_fields_only():
+    """EV-001 CH-37 · S3-Q9(c1a15-eval 003): 카드 출처 = {source_release, row_id(int UDI), split} 세 칸만 — 다른 카드 파일 칸 0."""
+    import eval_run
+
+    inp = {
+        "card_id": "EC-V01",
+        "equipment_id": "M-15",
+        "alarm": {"sensor": "토크"},
+        "sensor_snapshot": {"quality_grade": "M", "torque_nm": 61.7},
+        "recent_12": [{"at": "t", "torque_nm": 61.0}],
+    }
+    body = eval_run.alarm_input(inp, {"EC-V01": "7286"})
+    assert body["data_lineage"] == {"source_release": eval_run.source_release(), "row_id": 7286, "split": "val"}
+    assert eval_run.source_release().startswith("ai4i-2020@sha256:")
+    assert set(body) == {"ref", "equipment_id", "sensor_snapshot", "trend", "data_lineage"}

@@ -4,8 +4,9 @@
 AC-18 · AC-02-C3 · AC-15.
 - 평가 카드(eval/cards)를 여는 유일한 코드다.
   진단 처리에는 카드의 알람 입력(고장 라벨 없음)과 점검 결과 · 메모만 API로 돌려준다.
-- 알람 등록: api 컨테이너의 알람 발생기 CLI(--stdin --eval)에 표준 입력으로 넘긴다.
-  평가 폴더는 제품 컨테이너에 넣지 않는다.
+- 알람 등록: host 알람 발생기 CLI(server/.venv, --stdin --eval)에 표준 입력으로 넘긴다(EV-001 CH-37).
+  카드 출처 칸(source_release · row_id · split)은 이 실행기만 card_udi_map.json에서 읽어 붙인다(S3-Q9).
+  평가 폴더는 제품 코드 · 컨테이너가 읽지 않는다.
 - 정비자 처리 = 공개 API(EVAL_TECH_URL), 파트장 답 = 파트장 API(EVAL_LEAD_URL). 사람 판단은 사용자 결정 020 ③ 고정 규칙.
 - fixture 모드 · 격리된 시험 스택에서만 쓴다(scripts/eval-run). live 평가는 별도 승인 행동.
 - 실패 메시지는 메서드 · 경로 · 상태 코드 · 서버 거부 이유만 찍는다(요청 본문 · 비밀번호 없음).
@@ -28,6 +29,8 @@ import eval_metrics  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 CARDS, INPUTS = ROOT / "eval/cards/val/cards.jsonl", ROOT / "eval/cards/val/card_inputs.json"  # 작업 묶음 val 30(EV-001 CH-10) — test 30 숨김 모드는 ES-05
+# 카드 출처(lineage) = 카드 → AI4I 행 번호(EV-001 CH-37, S3-Q9 c1a15-eval 003: 이 실행기만 읽음 · 본문엔 세 칸만 · test는 한 번 규칙)
+UDI_MAP, SPLIT = ROOT / "eval/cards/val/card_udi_map.json", "val"
 SECTIONS = ROOT / "data/manuals/manual_sections.json"
 TECHS = ("tech.kim", "tech.lee", "tech.choi", "tech.jung")
 TREND_KEY = {"온도 차": "temp_diff_k", "기계 출력": "power_w", "공구 마모 시간": "tool_wear_min", "토크": "torque_nm"}
@@ -58,25 +61,35 @@ def client(base: str):
     return call
 
 
-def alarm_input(inp: dict) -> dict:
-    """카드 알람 입력 → 등록 본문(설비 · 숫자 센서 값 · 알람 센서 직전 측정). 고장 라벨 · 증상군은 넘기지 않는다."""
+def source_release() -> str:
+    """AI4I 원본 sha256(data/manifest.json) — 앱 deploy.runs.source_release와 같은 값."""
+    manifest = json.loads((ROOT / "data" / "manifest.json").read_text(encoding="utf-8"))
+    return f"ai4i-2020@sha256:{manifest['source']['sha256']}"
+
+
+def alarm_input(inp: dict, udis: dict | None = None) -> dict:
+    """카드 알람 입력 → 등록 본문(설비 · 숫자 센서 값 · 알람 센서 직전 측정 · 출처). 고장 라벨 · 증상군은 넘기지 않는다."""
     key = TREND_KEY[inp["alarm"]["sensor"]]
+    udis = udis if udis is not None else json.loads(UDI_MAP.read_text(encoding="utf-8"))
     return {
         "ref": inp["card_id"],
         "equipment_id": inp["equipment_id"],
         "sensor_snapshot": {k: v for k, v in inp["sensor_snapshot"].items() if isinstance(v, (int, float))},
         "trend": [{"at": p["at"], "value": p[key]} for p in inp["recent_12"]],
+        "data_lineage": {"source_release": source_release(), "row_id": int(udis[inp["card_id"]]), "split": SPLIT},
     }
 
 
 def register(inputs: list[dict]) -> dict:
-    lines = "".join(json.dumps(alarm_input(i), ensure_ascii=False) + "\n" for i in inputs)
-    out = subprocess.run(
-        ["docker", "compose", "exec", "-T", "api", "python", "-m", "c1a15.alarms", "--stdin", "--eval"],
+    udis = json.loads(UDI_MAP.read_text(encoding="utf-8"))  # 한 번만 읽음(ES-16 N-10)
+    lines = "".join(json.dumps(alarm_input(i, udis), ensure_ascii=False) + "\n" for i in inputs)
+    out = subprocess.run(  # host 발생기(앱 서버와 같은 환경 — scripts/eval-run이 넘김, EV-001 CH-37)
+        [str(ROOT / "server" / ".venv" / "bin" / "python"), "-m", "c1a15.alarms", "--stdin", "--eval"],
         input=lines,
         capture_output=True,
         text=True,
-        cwd=ROOT,
+        cwd=ROOT / "server",
+        env={**os.environ, "PYTHONPATH": "src"},
         check=True,
     ).stdout
     return {r["ref"]: r for r in (json.loads(x) for x in out.splitlines() if x.strip())}

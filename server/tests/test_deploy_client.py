@@ -325,14 +325,19 @@ def test_vc36_timeouts_by_kind():
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://localhost:8796"},
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://u:p@127.0.0.1:8796"},
         {"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796/x?y=1"},
-        {"C1A15_ALARM": "ml"},
-        {"C1A15_JUDGE": "pack"},
-        {"C1A15_ALARM": "sensor"},
+        {"C1A15_ALARM": "ml"},  # 배포 서버 주소 없음
+        {},  # 배포 서버 주소 없음
+        # ES-16 N-13: 값 때문에 거절되는지 보려고 맞는 주소를 함께 줌
+        {"C1A15_JUDGE": "pack", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796"},
+        {"C1A15_JUDGE": "inproc", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796"},  # 3단계에서 빠짐(ES-16 S3-Q8)
+        {"C1A15_ALARM": "sensor", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796"},
     ],
 )
 def test_vc38_settings_refused(env, tmp_path):
-    with pytest.raises(ConfigError):
+    with pytest.raises(ConfigError) as e:
         pack_settings(env, dockerenv=str(tmp_path / "none"))
+    if env.get("C1A15_JUDGE") == "inproc":
+        assert "inproc" in str(e.value) and "deploy만" in str(e.value)
 
 
 def test_vc38_deploy_refused_inside_container(tmp_path):
@@ -340,12 +345,17 @@ def test_vc38_deploy_refused_inside_container(tmp_path):
     marker.write_text("")
     with pytest.raises(ConfigError):
         pack_settings({"C1A15_JUDGE": "deploy", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=str(marker))
-    assert pack_settings({}, dockerenv=str(marker))["judge"] == "inproc"  # 기본 길은 컨테이너 안에서도 그대로
+    with pytest.raises(ConfigError):  # 기본 길도 deploy — 컨테이너 안 앱 서버는 시작 거절(S3-Q2 판까지, ES-16)
+        pack_settings({"C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=str(marker))
 
 
 def test_vc38_defaults_and_ok(tmp_path):
     none = str(tmp_path / "none")
-    assert pack_settings({}, dockerenv=none) == {"judge": "inproc", "alarm": "boundary", "deploy_url": None}
+    assert pack_settings({"C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=none) == {
+        "judge": "deploy",
+        "alarm": "boundary",
+        "deploy_url": "http://127.0.0.1:8796",
+    }  # 기본 = deploy(EV-001 CH-30)
     ok = pack_settings(
         {"C1A15_JUDGE": "deploy", "C1A15_ALARM": "ml", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796/"}, dockerenv=none
     )

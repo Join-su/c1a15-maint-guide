@@ -219,28 +219,25 @@ def alarm_rows(db):
         ]
 
 
-def test_vc37_demo_alarms_same_on_both_paths_and_alarm_body(api, db, deploy, monkeypatch):
-    """VC-37: 시연 10행 — deploy 길(가짜 = 앱 경계 규칙)과 기본 길의 알람 · 증상군 · 경계 표시 · 센서 7칸이 같다."""
+def test_vc37_demo_alarms_follow_app_boundary_rule_and_alarm_body(api, db, deploy):
+    """VC-37: 시연 10행 — deploy 길 알람 · 증상군 · 경계 표시 · 센서 7칸 = 앱 경계 규칙 값(ES-16: inproc 대조 상대 대신 규칙 직접)."""
+    from c1a15.api import deps
     from c1a15.deploy import runs
+    from c1a15.engine import alarm_rules
 
     reset_ops(db)
     for sc in scenarios():
         assert register_sc(api, sc).status_code == 200
     via_deploy = alarm_rows(db)
     bodies = [p["body"] for p in deploy.posts() if p["body"]["kind"] == "alarm"]
-    monkeypatch.setenv("C1A15_JUDGE", "inproc")
-    runs.settings.cache_clear()
-    reset_ops(db)
-    for sc in scenarios():
-        assert register_sc(api, sc).status_code == 200
-    via_inproc = alarm_rows(db)
-    keys = ("scenario_id", "symptom_group", "alarm", "sensor_snapshot")
-    assert [{k: r[k] for k in keys} for r in via_deploy] == [{k: r[k] for k in keys} for r in via_inproc]
+    for sc, r in zip(scenarios(), via_deploy, strict=True):
+        hit = alarm_rules.detect(sc["sensor_snapshot"], deps.alarm_table())
+        assert (r["scenario_id"], r["symptom_group"], r["alarm"]) == (sc["scenario_id"], hit["group"], hit["alarm"])
+        assert r["sensor_snapshot"] == sc["sensor_snapshot"]
     assert all(
         r["event_id"].startswith("C1A-E") and r["run_id"] and r["deployment_id"] == "c1a15@v1-local" for r in via_deploy
     )
-    assert all(r["event_id"] is None and r["run_id"] is None for r in via_inproc)  # 기본 길은 새 칸을 쓰지 않음
-    assert all(r["ml"] is None for r in via_deploy + via_inproc)  # 경계 길 = ml 칸 SQL NULL(review R-1)
+    assert all(r["ml"] is None for r in via_deploy)  # 경계 길 = ml 칸 SQL NULL(review R-1)
     assert count(db, "select count(*) from ops.alarms where ml is not null") == 0
     sc0, b0 = scenarios()[0], bodies[0]
     card = b0["event_card"]
@@ -356,17 +353,19 @@ def test_alarm_no_alarm_and_pack_candidate(api, db, deploy):
     assert (row.reason, row.risk, row.model_release, row.boundary_crossed) == ("low_confidence", 0.7, "mr-x", False)
 
 
-def test_start_event_id_falls_back_to_c1a_a_for_alarm_registered_on_default_path(api, db, deploy, monkeypatch):
-    """R6-2: 기본 길로 등록돼 event_id가 없는 알람이면 start.event_id = C1A-A<alarm_id>."""
-    from c1a15.deploy import runs
+def test_start_event_id_falls_back_to_c1a_a_for_alarm_registered_on_default_path(api, db, deploy):
+    """R6-2: 예전 기본 길로 등록돼 event_id가 없는 알람이면 start.event_id = C1A-A<alarm_id>.
 
+    운영 DB에 3단계 전 알람이 남을 수 있어 대체 규칙을 지킴(ES-16 A16-N5) — 그런 알람 행을 DB에서 직접 만듦.
+    """
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
-    monkeypatch.setenv("C1A15_JUDGE", "inproc")
-    runs.settings.cache_clear()
     alarm_id = register(api, "M-01").json()["alarm_id"]
-    monkeypatch.setenv("C1A15_JUDGE", "deploy")
-    runs.settings.cache_clear()
+    with db.begin() as c:
+        c.execute(
+            text("update ops.alarms set event_id = null, run_id = null, deployment_id = null where alarm_id = :a"),
+            {"a": alarm_id},
+        )
     assert tech.post(f"/api/tech/alarms/{alarm_id}/session").status_code == 200
     start = next(p["body"] for p in deploy.posts() if p["body"]["kind"] == "start")
     assert start["event_id"] == f"C1A-A{alarm_id}"

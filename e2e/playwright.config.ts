@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-// 정비자 앱 E2E(P-08 L3): compose 스택(nginx 8081)에 붙는다. scripts/verify-e2e가 스택을 띄우고 값(env)을 넘긴다.
+// 정비자 앱 E2E(P-08 L3): host 화면 중계(scripts/host_web.py 8081 · 8082)에 붙는다. scripts/verify-e2e가 스택을 띄우고 값(env)을 넘긴다.
 // 브라우저는 로컬 캐시 chromium(Playwright 1.63.0 = chromium 1243)만 쓰고 내려받지 않는다. 외부 요청은 시험마다 막고 센다.
 export default defineConfig({
   testDir: "tests",

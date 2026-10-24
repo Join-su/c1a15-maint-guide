@@ -1,7 +1,7 @@
 """E2E 시험 도구(제품 코드 아님): 파트장 호출 답 기록을 시험 DB에 넣는다(S-03 — 파트장 답 API는 S-04 P-11).
 
-api 컨테이너 안에서 실행한다:
-  docker compose exec -T api python - <session_id> <approved|daytime|direct|assign> < e2e/sim_lead_answer.py
+host 앱 쪽 python으로 실행한다(앱 서버와 같은 환경 — C1A15_DEPLOY_URL 포함, EV-001 ES-16):
+  server/.venv/bin/python - <session_id> <approved|daytime|direct|assign> < e2e/sim_lead_answer.py
 그 세션의 마지막 호출(ops.calls)에 답을 적고, 업무 기록에 call_answer를 덧붙인 뒤 다음 단계를 다시 연다
 (PBC-4 v10 실행 해석 ③: S-03에서는 시험 DB에 넣은 답 기록으로 화면 · 보고서 반영을 확인한다).
 """

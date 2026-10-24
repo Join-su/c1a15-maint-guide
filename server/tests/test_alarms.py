@@ -151,3 +151,27 @@ def test_cli_stdin_eval_mode(monkeypatch, capsys):
     sent.clear()
     monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(lines[0]) + "\n"))
     assert cli.main(["--stdin"]) == 0 and sent[0]["eval_mode"] is False
+
+
+def test_ch37_stdin_forwards_lineage_and_product_type(monkeypatch, capsys):
+    """EV-001 CH-37: --stdin 입력의 data_lineage · product_type을 등록 본문에 그대로(그 밖 칸은 버림)."""
+    import io
+
+    monkeypatch.setenv("C1A15_INTERNAL_TOKEN", "t")
+    sent = []
+    monkeypatch.setattr(cli, "send", lambda base, token, body: sent.append(body) or {"alarm_id": 1})
+    line = {
+        "ref": "EC-V01",
+        "equipment_id": "M-15",
+        "sensor_snapshot": {"torque_nm": 61.7},
+        "trend": [],
+        "data_lineage": {"source_release": "ai4i-2020@sha256:x", "row_id": 7286, "split": "val"},
+        "product_type": "M",
+        "hidden_cause": "드러나면 안 됨",
+    }
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(line) + "\n"))
+    assert cli.main(["--stdin", "--eval"]) == 0
+    assert sent == [
+        {k: line[k] for k in ("equipment_id", "sensor_snapshot", "trend", "data_lineage", "product_type")}
+        | {"eval_mode": True}
+    ]

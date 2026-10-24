@@ -11,6 +11,7 @@ kind별 필수 · 금지 칸만 본다 — 정본 v2 전체 schema 검사는 받
 
 import hashlib
 import json
+import sys
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -226,6 +227,7 @@ def start_v4_row(body: dict) -> dict:
     if same:
         return same[0]
     STAND_INS.append(body.get("session_id"))
+    print(f"start stand_in session={body.get('session_id')}", file=sys.stderr, flush=True)  # 단독 실행 기록(fake.log)
     return {**rows[0], "stand_in": True}
 
 
@@ -295,8 +297,6 @@ def engine_answer(body: dict) -> dict:
 
 # 단독 실행: python fake_deploy.py <port> — 기본 = engine_answer(DATABASE_URL 필요), /_plan으로 동작 넣기
 if __name__ == "__main__":
-    import sys
-
     fake = FakeDeploy(port=int(sys.argv[1]))
     fake.default = engine_answer
     print(f"fake deploy {fake.url}", flush=True)

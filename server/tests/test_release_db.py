@@ -153,27 +153,6 @@ def test_vc25_release_failure_keeps_approval_and_next_try_catches_up(api, db, mo
     assert {h1, h2} <= {d.record_id for d in deps.index().docs}
 
 
-def test_vc12_one_search_per_session(api, db, monkeypatch, inproc_path):
-    """검색은 세션 시작 때 한 번(D-237 (2)) — 결과 입력 · 정정 등에서 다시 검색하지 않음."""
-    from c1a15.retrieval import search
-
-    calls = []
-    real = search.similar_records
-    monkeypatch.setattr(search, "similar_records", lambda *a, **k: calls.append(1) or real(*a, **k))
-    reset_ops(db)
-    tech, s = start(api, db)
-    sid = s["session_id"]
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
-    sec = s["instruction"]["section"]
-    tech.post(
-        f"/api/tech/sessions/{sid}/events",
-        json={"seq": s["last_seq"] + 1, "type": "result", "section": sec, "value": "정상", "memo": "이상 없음"},
-    )
-    tech.get(f"/api/tech/sessions/{sid}")
-    assert len(calls) == 1
-
-
 def test_alarm_candidates_reason_check(db):
     """EV-001 ES-04(가): '사람 판단 필요' 기록 표 — 사유는 low_confidence · rnf · model_failure만, 경계 길 알람의 ml 칸은 null."""
     import sqlalchemy

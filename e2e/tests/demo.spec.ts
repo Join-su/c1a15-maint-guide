@@ -1,6 +1,6 @@
-// P-17(S-06) 시연 10건 완주 E2E(AC-16): 깨끗한 compose 스택(verify-e2e — 무작위 비밀값 · fixture 모드 · OpenAI 키 없음)에서
+// P-17(S-06) 시연 10건 완주 E2E(AC-16): 깨끗한 시험 스택(verify-e2e host 실행 — 무작위 비밀값 · fixture 모드 · OpenAI 키 없음 · 가짜 배포 서버)에서
 // 시연 각본 10건을 packet demo_input_table(사용자 결정 020 ②)대로 보고서 확정(감시 · 인계 마감 포함)까지 간다.
-// 정비자 입력 · 파트장 답 · 보고서 확정은 모두 두 앱 화면 조작이다(시험 DB 시뮬레이션 없음). 한 건(DEMO-07)은 중간에 api를 재시작한다.
+// 정비자 입력 · 파트장 답 · 보고서 확정은 모두 두 앱 화면 조작이다(시험 DB 시뮬레이션 없음). 한 건(DEMO-07)은 중간에 앱 서버를 다시 띄운다.
 // 입력표 밖 단계가 나오면 시험이 멈춘다(실패). 외부 요청 0 · 콘솔 오류 0.
 
 import { expect, test, type Browser, type Page } from "@playwright/test";
@@ -130,8 +130,13 @@ async function openAnswer(page: Page): Promise<void> {
   await page.waitForURL(/\/session\/\d+/);
 }
 
+// EV-001 ES-16 S3-Q11: Pack 리트리버 값(D-314)으로 점검 순서가 바뀐 다섯 — 새 입력표(옛 → 새 표)를 사용자가 승인하기 전까지 멈춤.
+// 표 = 기록 폴더 execution/ES-16/evidence/demo-discovery/demo-input-table-old-new.md(조사 도구 discovery.spec.ts로 다시 셀 수 있음)
+const PENDING_S3Q11 = new Set(["DEMO-02", "DEMO-03", "DEMO-06", "DEMO-07", "DEMO-09"]);
+
 for (const d of DEMO) {
   test(`AC-16 시연 ${d.id} — ${d.ending}: 보고서 확정까지(입력표 · 화면 조작)`, async ({ page, browser }, info) => {
+    test.fixme(PENDING_S3Q11.has(d.id), "S3-Q11 새 시연 입력표 사용자 승인 대기(ES-16)");
     test.setTimeout(150_000);
     // DEMO-07은 api를 일부러 재시작한다 — 그동안 주기 조회가 nginx 502를 받는 것만 허용(재시작 재개 확인)
     const g = guard(page, d.steps.some((x) => "restartApi" in x) ? [/status of 502/] : []);
@@ -214,6 +219,7 @@ for (const d of DEMO) {
 }
 
 test("AC-16-C1 · C2: 시연 10건 모두 승인 대기 보고서, 끝 모양 섞임, 외부 LLM 호출 0(fixture)", async ({ page }, info) => {
+  test.fixme(PENDING_S3Q11.size > 0, "S3-Q11 — 10건이 모두 돌아야 셈(ES-16)");
   const g = guard(page);
   expect(psql("select count(*) from ops.reports where status = 'awaiting_approval'")).toBe("10");
   expect(psql("select count(distinct scenario_id) from ops.alarms where scenario_id like 'DEMO-%'")).toBe("10");

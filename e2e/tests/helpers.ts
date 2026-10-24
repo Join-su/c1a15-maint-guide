@@ -1,4 +1,5 @@
-// E2E 도우미: compose 스택 조작(알람 발생기 · 시험 DB · api 재시작)과 외부 요청 차단 · 콘솔 오류 수집.
+// E2E 도우미: host 실행 조작(알람 발생기 · 시험 DB · 앱 서버 다시 띄우기)과 외부 요청 차단 · 콘솔 오류 수집.
+// EV-001 ES-16(CH-36): 앱 서버 · 도구는 host(scripts/verify-e2e가 환경을 넘김), 시험 DB만 compose `db`.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -8,6 +9,16 @@ import { expect, type Page, type TestInfo } from "@playwright/test";
 const ROOT = path.resolve(__dirname, "..", "..");
 const compose = (...args: string[]) =>
   execFileSync("docker", ["compose", ...args], { cwd: ROOT, encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
+const SERVER = path.join(ROOT, "server");
+/** host 앱 쪽 python(앱 서버와 같은 환경 — verify-e2e가 넘긴 DATABASE_URL · DATA_DIR · C1A15_* · 토큰). */
+const hostPy = (args: string[], input?: Buffer) =>
+  execFileSync(path.join(SERVER, ".venv", "bin", "python"), args, {
+    cwd: SERVER,
+    encoding: "utf-8",
+    input,
+    env: { ...process.env, PYTHONPATH: "src" },
+    stdio: ["pipe", "pipe", "pipe"],
+  });
 
 export const TECH_PW = process.env.C1A15_TECH_PASSWORD ?? "";
 export const LEAD_PW = process.env.C1A15_LEAD_PASSWORD ?? "";
@@ -18,7 +29,7 @@ export function psql(sql: string): string {
 
 /** 시연 알람 발생기(P-07)로 각본 한 건을 등록하고 알람 ID를 돌려준다. */
 export function alarm(scenario: string): number {
-  const out = compose("exec", "-T", "api", "python", "-m", "c1a15.alarms", scenario);
+  const out = hostPy(["-m", "c1a15.alarms", scenario]);
   const m = /알람 (\d+) 등록/.exec(out);
   if (!m) throw new Error(`알람 등록 실패: ${out}`);
   return Number(m[1]);
@@ -35,18 +46,12 @@ export function resetOps(): void {
 }
 
 export function simLlmFailure(sessionId: number, mode: "last" | "all"): void {
-  execFileSync("docker", ["compose", "exec", "-T", "api", "python", "-", String(sessionId), mode], {
-    cwd: ROOT,
-    input: readFileSync(path.join(ROOT, "e2e", "sim_llm_failure.py")),
-  });
+  hostPy(["-", String(sessionId), mode], readFileSync(path.join(ROOT, "e2e", "sim_llm_failure.py")));
 }
 
 /** 파트장 답 기록을 시험 DB에 넣는다(S-03, 파트장 답 API는 S-04 P-11) — e2e/sim_lead_answer.py. */
 export function simLeadAnswer(sessionId: number, answer: "approved" | "daytime" | "direct" | "assign"): void {
-  execFileSync("docker", ["compose", "exec", "-T", "api", "python", "-", String(sessionId), answer], {
-    cwd: ROOT,
-    input: readFileSync(path.join(ROOT, "e2e", "sim_lead_answer.py")),
-  });
+  hostPy(["-", String(sessionId), answer], readFileSync(path.join(ROOT, "e2e", "sim_lead_answer.py")));
 }
 
 /** 점검 결과 정정(다시 판정)을 정정 API로 만든다(S-05 P-14 — 화면 정정은 tech-s05 E2E). */
@@ -79,7 +84,7 @@ export function simR5Example(sessionId: number): void {
 }
 
 export async function restartApi(page: Page): Promise<void> {
-  compose("restart", "api");
+  execFileSync(path.join(ROOT, "scripts", "e2e-host-api"), ["restart"], { cwd: ROOT, stdio: ["pipe", "pipe", "pipe"] });
   for (let i = 0; i < 60; i++) {
     const ok = await page.request.get("/api/health").then((r) => r.ok()).catch(() => false);
     if (ok) return;
@@ -115,7 +120,10 @@ export async function login(page: Page, user = "tech.kim", pw = TECH_PW): Promis
   await page.goto("/");
   await page.getByLabel("ID").fill(user);
   await page.getByLabel("비밀번호").fill(pw);
+  // 로그인 응답(세션 commit)까지 기다림 — 바로 뒤 알람 발생기(R9 배정 = 로그인한 정비자)와 겨루지 않게(ES-16 host 실행에서 드러남)
+  const done = page.waitForResponse((r) => r.url().endsWith("/api/login") && r.request().method() === "POST");
   await page.getByText("로그인", { exact: true }).click();
+  await done;
 }
 
 export async function shot(page: Page, info: TestInfo, name: string): Promise<void> {

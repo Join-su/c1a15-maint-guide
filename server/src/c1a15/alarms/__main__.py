@@ -6,7 +6,8 @@
 - ML 길 알람 없음 · ML 유형 · 후보(응답 alarm_id 없음)는 실패가 아님
   — 한 줄 찍고 다음 행, 끝에 요약 한 줄(EV-001 CH-26).
 실행: python -m c1a15.alarms DEMO-01 [DEMO-02 ...] | --all | --list
-     python -m c1a15.alarms --stdin [--eval]  — 표준 입력 JSON 줄마다 알람 하나(equipment_id · sensor_snapshot · trend),
+     python -m c1a15.alarms --stdin [--eval]  — 표준 입력 JSON 줄마다 알람 하나(equipment_id · sensor_snapshot · trend
+     · data_lineage · product_type),
      --eval이면 평가 모드 알람(P-16 평가 실행기, 이력 추가 끔). 결과는 줄마다 JSON. 이 CLI는 파일을 읽지 않는다.
 """
 
@@ -86,7 +87,14 @@ def from_stdin(*, eval_mode: bool) -> int:
         if not line.strip():
             continue
         item = json.loads(line)
-        body = {k: item[k] for k in ("equipment_id", "sensor_snapshot", "trend") if k in item}
+        keys = (
+            "equipment_id",
+            "sensor_snapshot",
+            "trend",
+            "data_lineage",
+            "product_type",
+        )  # 출처 · 제품 유형 = deploy 길(CH-37)
+        body = {k: item[k] for k in keys if k in item}
         body["eval_mode"] = eval_mode
         try:
             r = send(base, token, body)

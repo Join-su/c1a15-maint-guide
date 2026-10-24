@@ -15,46 +15,40 @@ def data_dir_module() -> Path:
     return REPO / "data"
 
 
-@pytest.fixture(scope="session", autouse=True)
-def deploy_path_everywhere():
-    """C1A15_TEST_DEPLOY=1이면 모든 시험을 deploy 길(가짜 배포 서버 + 앱 engine 계산)로 — EV-001 VC-34 두 길 대조."""
+_FAKE = {}
+
+
+def pytest_configure(config):
+    """모든 시험 = deploy 길(가짜 배포 서버 + 앱 engine 계산) — 기본이자 하나뿐인 길(EV-001 ES-16 CH-30).
+
+    앱 모듈(api.main)이 import 때 배포 서버 주소를 확인하므로 수집 전에 가짜 서버를 띄우고 주소를 환경에 둔다.
+    시험마다 `deploy` fixture(test_deploy_path)가 자기 가짜 서버로 바꿔 쓸 수 있다.
+    """
     import os
 
-    if os.environ.get("C1A15_TEST_DEPLOY") != "1":
-        yield None
-        return
-    from c1a15.deploy import runs
     from fake_deploy import FakeDeploy, engine_answer
 
-    with FakeDeploy() as fake:
-        fake.default = engine_answer
-        os.environ["C1A15_JUDGE"], os.environ["C1A15_DEPLOY_URL"] = "deploy", fake.url
-        runs.settings.cache_clear()
-        runs.client.cache_clear()
-        yield fake
-        evidence = os.environ.get("C1A15_DEPLOY_EVIDENCE")  # 받은 본문 · 돌려준 응답 → VC-35 schema 검사
-        if evidence:
-            import json
-            from pathlib import Path
-
-            with Path(evidence).open("a", encoding="utf-8") as f:
-                for r in fake.posts():
-                    f.write(json.dumps({"request": r["body"]}, ensure_ascii=False) + "\n")
-                for rec in fake.keys.values():
-                    if rec["status"] in (200, 201):
-                        f.write(json.dumps({"response": rec["payload"]["result"]["output"]}, ensure_ascii=False) + "\n")
+    fake = FakeDeploy().__enter__()
+    fake.default = engine_answer
+    os.environ["C1A15_JUDGE"], os.environ["C1A15_DEPLOY_URL"] = "deploy", fake.url
+    _FAKE["fake"] = fake
 
 
-@pytest.fixture
-def inproc_path(monkeypatch):
-    """앱 임시 리트리버를 부르는 기본 길(inproc) 전용 시험 — deploy 길 묶음에서도 inproc로(EV-001 ES-15).
+def pytest_unconfigure(config):
+    import os
 
-    deploy 길은 상위 10을 Pack 리트리버가 고르므로 앱 리트리버를 부르지 않음.
-    ES-16에서 inproc가 빠질 때 이 시험들을 고침.
-    """
-    from c1a15.deploy import runs
+    fake = _FAKE.pop("fake", None)
+    if fake is None:
+        return
+    evidence = os.environ.get("C1A15_DEPLOY_EVIDENCE")  # 받은 본문 · 돌려준 응답 → VC-35 schema 검사
+    if evidence:
+        import json
+        from pathlib import Path
 
-    monkeypatch.setenv("C1A15_JUDGE", "inproc")
-    runs.settings.cache_clear()
-    yield
-    runs.settings.cache_clear()
+        with Path(evidence).open("a", encoding="utf-8") as f:
+            for r in fake.posts():
+                f.write(json.dumps({"request": r["body"]}, ensure_ascii=False) + "\n")
+            for rec in fake.keys.values():
+                if rec["status"] in (200, 201):
+                    f.write(json.dumps({"response": rec["payload"]["result"]["output"]}, ensure_ascii=False) + "\n")
+    fake.__exit__(None, None, None)

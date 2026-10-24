@@ -1,6 +1,6 @@
 """E2E 시험 도구(제품 코드 아님): 'LLM 실패 시뮬레이션 세션'(Verification Matrix AC-31 L3)을 만든다.
 
-api 컨테이너 안에서 실행한다: docker compose exec -T api python - <session_id> <last|all> < e2e/sim_llm_failure.py
+host 앱 쪽 python으로 실행한다(앱 서버와 같은 환경, EV-001 ES-16): server/.venv/bin/python - <session_id> <last|all> < e2e/sim_llm_failure.py
 업무 기록의 지시문 기록(instruction_shown)을 서버 함수와 같은 '원문 대체' 값으로 바꾼다(provider 실패와 같은 결과).
 all이면 미리보기 문장 · 메모 해석 기록도 실패로 표시해 같은 세션 3회 연속 실패(숙련자 인계 권함)를 만든다.
 """

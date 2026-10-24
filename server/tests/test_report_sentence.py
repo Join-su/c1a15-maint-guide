@@ -16,9 +16,9 @@ pytestmark = pytest.mark.db
 SENT = ("cause", "action")
 
 
-@pytest.fixture(params=["inproc", "deploy"])
+@pytest.fixture
 def path(request, api, monkeypatch):
-    """두 길: inproc = 앱 adapter(쓴 수를 셈), deploy = 가짜 배포 서버(받은 report 본문을 셈)."""
+    """deploy 길(가짜 배포 서버) — 받은 report 본문을 셈. 앱 adapter 쓴 수(inproc 길)는 3단계에서 빠짐(EV-001 ES-16)."""
     from c1a15.deploy import runs
     from c1a15.llm.fixture import FixtureAdapter
 
@@ -31,13 +31,6 @@ def path(request, api, monkeypatch):
         return real(self, facts)
 
     monkeypatch.setattr(FixtureAdapter, "write", counting)
-    if request.param == "inproc":
-        monkeypatch.setenv("C1A15_JUDGE", "inproc")
-        runs.settings.cache_clear()
-        runs.client.cache_clear()
-        yield {"name": "inproc", "writes": lambda: len(calls) // 2, "fake": None}
-        runs.settings.cache_clear()
-        return
     with FakeDeploy() as fake:
         fake.default = engine_answer
         monkeypatch.setenv("C1A15_JUDGE", "deploy")

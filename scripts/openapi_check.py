@@ -15,7 +15,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SNAPSHOT = ROOT / "server" / "openapi.json"
 DUMP = "import json; from c1a15.api.main import app; print(json.dumps(app.openapi(), ensure_ascii=False, indent=1, sort_keys=True))"
 
-out = subprocess.run(["uv", "run", "--frozen", "python", "-c", DUMP], cwd=ROOT / "server", env={**__import__("os").environ, "PYTHONPATH": "src"},
+# 앱은 import 때 배포 서버 주소를 확인함(EV-001 CH-30 — deploy만) — 스키마만 뽑으므로 주소는 확인용 자리 값(부르지 않음)
+ENV = {"C1A15_DEPLOY_URL": "http://127.0.0.1:8796", **__import__("os").environ, "PYTHONPATH": "src"}
+out = subprocess.run(["uv", "run", "--frozen", "python", "-c", DUMP], cwd=ROOT / "server", env=ENV,
                      check=True, capture_output=True, text=True).stdout
 if "--write" in sys.argv:
     SNAPSHOT.write_text(out, encoding="utf-8")

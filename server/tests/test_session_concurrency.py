@@ -45,24 +45,6 @@ def assert_one_session(db, alarm_id, a, b):
     assert count(db, "select count(*) from ops.audit_log where action = 'session_start'") == 1
 
 
-def test_concurrent_start_default_path_returns_existing_session(api, db, monkeypatch, inproc_path):
-    from c1a15.api import sessions
-
-    reset_ops(db)
-    tech, _ = login(api, "tech", "tech.kim", TECH_PW)
-    alarm_id = register(api, "M-01").json()["alarm_id"]
-    inside, real = threading.Event(), sessions.search.similar_records
-
-    def slow(*a, **kw):  # 앞 요청이 세션을 만드는 도중에 머물게
-        inside.set()
-        time.sleep(1.0)
-        return real(*a, **kw)
-
-    monkeypatch.setattr(sessions.search, "similar_records", slow)
-    a, b = start_twice(api, tech, alarm_id, inside.is_set)
-    assert_one_session(db, alarm_id, a, b)
-
-
 def test_concurrent_start_deploy_path_returns_existing_session_and_one_start_run(api, db, deploy):
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)

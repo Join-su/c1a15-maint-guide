@@ -66,15 +66,34 @@ def test_vc54_start_stores_approved_row(api, db, deploy, case):
 
 
 def test_vc53_judge_uses_stored_similar_and_one_start(api, db, deploy):
-    """VC-53 · PR-23: 세션당 start 1 · 뒤 judge 본문 similar = 저장 값."""
+    """VC-53 · PR-23: 세션당 start 1(잠금 · 결과 · 메모 · 정정 · 다시 읽기 뒤에도) · 뒤 judge 본문 similar = 저장 값.
+
+    ES-16 B-1: 지운 test_vc12_one_search_per_session(결과 · 정정 뒤 상위 10 계산 1회)의 몫을 start Run 수로 옮김.
+    """
     reset_ops(db)
     row = fake_deploy.start_v4_rows()[0]
     tech, s, body, stored = start_case(api, db, deploy, row)
     sj = s.json()
-    r = tech.post(f"/api/tech/sessions/{sj['session_id']}/events", json={"seq": sj["last_seq"] + 1, "type": "lock"})
-    assert r.status_code == 200
-    judge = [p["body"] for p in deploy.posts() if p["body"]["kind"] == "judge"][-1]
-    assert judge["similar"] == stored.similar
+    sid = sj["session_id"]
+    url = f"/api/tech/sessions/{sid}/events"
+    for ev in ({"type": "lock"}, {"type": "precheck_done"}):
+        r = tech.post(url, json={"seq": sj["last_seq"] + 1, **ev})
+        assert r.status_code == 200, r.text
+        sj = r.json()
+    sec = sj["step"]["section"]
+    r = tech.post(
+        url, json={"seq": sj["last_seq"] + 1, "type": "result", "section": sec, "value": "정상", "memo": "깨끗함"}
+    )
+    assert r.status_code == 200, r.text
+    target = next(x["seq"] for x in r.json()["results"] if x["section"] == sec)
+    r = tech.post(
+        f"/api/tech/sessions/{sid}/corrections",
+        json={"target_seq": target, "value": "이상", "reason": "뒷면", "confirmed": True},
+    )
+    assert r.status_code == 200, r.text
+    assert tech.get(f"/api/tech/sessions/{sid}").status_code == 200
+    judges = [p["body"] for p in deploy.posts() if p["body"]["kind"] == "judge"]
+    assert len(judges) >= 3 and all(j["similar"] == stored.similar for j in judges)
     assert len([p for p in deploy.posts() if p["body"]["kind"] == "start"]) == 1
 
 

@@ -17,7 +17,6 @@ from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import checkpoint, graph, rules, session
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
-from c1a15.retrieval import search
 
 SERVER_FIELDS = {
     "seq",
@@ -268,50 +267,19 @@ def _check_known_records(c: Connection, alarm: m.Alarm, similar: list[dict], run
         raise PackUnavailable("unknown_record", run_id)
 
 
-def _app_similar(alarm: m.Alarm, c: Connection) -> list[dict]:
-    idx = deps.fresh_index(c)
-    pool = [d for d in idx.docs if d.symptom_group == alarm.symptom_group]
-    qtext = search.query_text(GROUP_NAME.get(alarm.symptom_group, ""), alarm.alarm.get("direction", ""), [])
-    if qtext in idx.queries:  # 이력 release에 미리 계산한 질의 벡터(EV-001 Q-2)
-        qv = [float(x) for x in idx.queries[qtext].strip("[]").split(",")]
-    else:
-        from c1a15.loader.embedding import fake_embedding  # fixture 모드 질의 임베딩(live 임베딩은 승인 뒤 LLM Adapter)
-
-        qv = fake_embedding(qtext)
-    vector = search.cosine_rank(qv, pool)
-    top = search.similar_records(
-        {"symptom_group": alarm.symptom_group},
-        qtext,
-        alarm.sensor_snapshot,
-        idx.docs,
-        idx.bm25,
-        vector,
-        deps.stats(),
-        idx.cfg,
-    )
-    return [{"record_id": s.record_id, "cause": s.cause, "score": s.score} for s in top]
-
-
 def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     # 같은 알람의 동시 시작은 알람 줄 잠금으로 줄 세움 — 뒤 요청은 앞 요청 commit 뒤 기존 세션을 받음(GAP-18)
     c.execute(select(m.Alarm.alarm_id).where(m.Alarm.alarm_id == alarm.alarm_id).with_for_update())
     existing = c.execute(select(m.DiagSession.session_id).where(m.DiagSession.alarm_id == alarm.alarm_id)).scalar()
     if existing:
         return existing
-    deploy_cols, decided = {}, None
-    if runs.deploy_on():  # 첫 Run = start — 상위 10은 Pack 리트리버(약속 v4, EV-001 CH-29) · 실패면 세션을 만들지 않음
-        g, minutes = deps.grades(c)
-        res = runs.start(alarm, g, minutes)
-        similar = res.output["similar"]
-        _check_known_records(c, alarm, similar, res.run_id)
-        deploy_cols = {
-            "retrieval": res.output["retrieval"],
-            "start_run_id": res.run_id,
-            "deployment_id": res.deployment_id,
-        }
-        decided = (res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id})
-    else:  # 기본 길(inproc): 앱 임시 리트리버(D-245) — ES-16에서 걷음
-        similar = _app_similar(alarm, c)
+    # 첫 Run = start — 상위 10은 Pack 리트리버(약속 v4, EV-001 CH-29 · CH-31) · 실패면 세션을 만들지 않음
+    g, minutes = deps.grades(c)
+    res = runs.start(alarm, g, minutes)
+    similar = res.output["similar"]
+    _check_known_records(c, alarm, similar, res.run_id)
+    deploy_cols = {"retrieval": res.output["retrieval"], "start_run_id": res.run_id, "deployment_id": res.deployment_id}
+    decided = (res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id})
     sid = c.execute(
         m.DiagSession.__table__.insert()
         .values(

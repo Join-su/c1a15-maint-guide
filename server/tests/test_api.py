@@ -23,6 +23,11 @@ SENSOR = {
 }
 
 
+# 출력 이탈(PW) 알람 — 원값 5칸과 계산 칸이 맞게(배포 서버가 원값에서 다시 셈)
+# 57.3 Nm × 1500 rpm = 9,001 W · 온도 차 9.5 K
+PW_SENSOR = {**SENSOR, "process_temperature_k": 312.0, "torque_nm": 57.3, "temp_diff_k": 9.5, "power_w": 9001}
+
+
 @pytest.fixture(scope="module")
 def db():
     if not URL:
@@ -186,10 +191,9 @@ def test_alarm_registration_eval_mode(api, db):
     reset_ops(db)
     c = TestClient(api)
     h = {"X-Internal-Token": "test-internal-token"}
-    a = c.post(
-        "/api/internal/alarms", json={"equipment_id": "M-01", "sensor_snapshot": SENSOR, "eval_mode": True}, headers=h
-    )
-    b = c.post("/api/internal/alarms", json={"equipment_id": "M-01", "sensor_snapshot": SENSOR}, headers=h)
+    base = {"equipment_id": "M-01", "sensor_snapshot": SENSOR, "data_lineage": TEST_LINEAGE}  # deploy 길 = 출처 칸 필요
+    a = c.post("/api/internal/alarms", json={**base, "eval_mode": True}, headers=h)
+    b = c.post("/api/internal/alarms", json=base, headers=h)
     assert a.status_code == 200 and b.status_code == 200
     with db.connect() as conn:
         flags = dict(conn.execute(text("select alarm_id, eval_mode from ops.alarms")).all())
@@ -267,7 +271,8 @@ def test_lock_precedes_instruction_and_results(api, db):
                 {"s": sid},
             )
         ]
-    assert via[0] == "rebuild" and set(via[1:]) == {"resume"}  # 재시작 뒤에도 PostgreSQL checkpoint에서 재개
+    # 재시작 뒤에도 같은 단계 · 다음 단계 = 업무 기록에서 다시 판정한 Run(L3 약속 바뀜 — ES-16, checkpoint 안 씀)
+    assert set(via) == {"deploy"}
 
 
 def test_b_checklist_and_open_step_survives_grade_change(api, db):
@@ -448,7 +453,7 @@ def test_alarm_generator_cli_registers_scenarios(api, db, monkeypatch, capsys):
         a["alarm"]["trend_title"].endswith("최근 12회 측정") for a in home["alarms"]
     )
     assert register(api, "M-99").status_code == 422  # 담당표에 없는 설비
-    quiet = {**SENSOR, "temp_diff_k": 9.5}
+    quiet = {**SENSOR, "process_temperature_k": 312.0, "temp_diff_k": 9.5}  # 원값과 맞는 계산 칸(배포 서버가 다시 셈)
     assert register(api, "M-01", quiet).status_code == 422  # 경계를 넘지 않으면 알람 아님
     out = capsys.readouterr().out
     assert out.count("등록 · 배정 tech.kim") == 10
@@ -459,14 +464,24 @@ def test_fixture_full_flow_makes_no_external_call(api, db, monkeypatch):
 
     로그인 → 알람 → 진단(검색 · 문장) → 잠금 → 결과 → 원문 · 기록 · 종 목록.
 
-    Python 소켓 연결을 모두 막고 센다. DB 연결은 libpq(C)라 세지 않는다(시험 DB 127.0.0.1만).
+    Python 소켓 연결은 배포 서버(127.0.0.1 한 곳) 말고 모두 막고 센다.
+    DB 연결은 libpq(C)라 세지 않는다(시험 DB 127.0.0.1만).
     """
     import socket
 
     reset_ops(db)
     calls = []
 
-    def blocked(sock, address):
+    from urllib.parse import urlsplit
+
+    from c1a15.deploy import runs
+
+    deploy = urlsplit(runs.settings()["deploy_url"])
+    real = socket.socket.connect
+
+    def blocked(sock, address):  # 배포 서버(127.0.0.1 한 곳, PR-08)만 지나감 — 그 밖은 막고 셈
+        if isinstance(address, tuple) and address[:2] == (deploy.hostname, deploy.port):
+            return real(sock, address)
         calls.append(address)
         raise OSError("network blocked in test")
 
@@ -507,31 +522,6 @@ def test_server_only_fields_rejected(api, db):
         headers={"X-Internal-Token": "test-internal-token"},
     )
     assert forged.status_code == 422
-
-
-def test_checkpoint_mismatch_rebuilds_from_business_record(api, db):
-    """EP-C1-HITL-001: checkpoint는 재개 장치, 정본은 업무 기록.
-
-    thread가 지워지거나 어긋나면 업무 기록으로 다시 세운다.
-    """
-    reset_ops(db)
-    tech, s = start(api, db)
-    sid = s["session_id"]
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    with db.begin() as c:
-        for t in ("checkpoints", "checkpoint_blobs", "checkpoint_writes"):
-            c.execute(text(f"delete from {t} where thread_id = :t"), {"t": f"session-{sid}"})
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
-    assert s["locked"] and s["step"]["kind"] == "instruct" and s["step"]["section"] == "4.3"  # 잠금 · 사전 확인 반영
-    with db.connect() as c:
-        last = c.execute(
-            text(
-                "select payload->>'via' from ops.session_events where session_id = :s and type = 'step_opened' "
-                "order by seq desc limit 1"
-            ),
-            {"s": sid},
-        ).scalar()
-    assert last == "rebuild"
 
 
 def test_manual_only_for_instructed_sections_and_new_alarm_notification(api, db):
@@ -609,36 +599,6 @@ def test_event_required_fields_are_422(api, db):
     sid = s["session_id"]
     for body in ({"type": "confirm_answer"}, {"type": "out_of_scope_choice"}, {"type": "result", "value": "정상"}):
         assert tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, **body}).status_code == 422
-
-
-def test_checkpoint_ahead_of_business_record_rebuilds(api, db):
-    """checkpoint만 앞선 경우(API 트랜잭션 rollback 흉내): 다음 입력에서 업무 기록으로 다시 세운다."""
-
-    from c1a15.api import deps
-    from c1a15.engine import checkpoint, graph
-
-    reset_ops(db)
-    tech, s = start(api, db)
-    sid = s["session_id"]
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    with checkpoint.saver() as saver:  # 업무 기록에 없는 입력이 checkpoint에만 반영됨
-        app = graph.build(deps.manual(), lambda: {}, lambda: {}, checkpointer=saver)
-        app.update_state(
-            checkpoint.thread(sid),
-            {"events": [*app.get_state(checkpoint.thread(sid)).values["events"], {"type": "lock", "key": "ghost"}]},
-            as_node="wait",
-        )
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
-    assert s["step"]["kind"] == "instruct" and s["step"]["section"] == "4.3"
-    with db.connect() as c:
-        last = c.execute(
-            text(
-                "select payload->>'via' from ops.session_events where session_id = :s and type = 'step_opened' "
-                "order by seq desc limit 1"
-            ),
-            {"s": sid},
-        ).scalar()
-    assert last == "rebuild"
 
 
 def test_p18_first_call_preview_values(api, db, monkeypatch):
@@ -799,7 +759,7 @@ def test_p19_pw_alarm_sensor_table(api, db):
     """PBC4-A8 실행 해석 ①(API): PW 알람 센서 표 = 알람 센서 + 4개(온도 차 빠짐)."""
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
-    alarm_id = register(api, "M-01", {**SENSOR, "temp_diff_k": 9.5, "power_w": 9000}).json()["alarm_id"]
+    alarm_id = register(api, "M-01", PW_SENSOR).json()["alarm_id"]
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
     a = s["alarm"]
     assert a["symptom_group"] == "PW" and a["system"] == "구동·전원 계통"
@@ -920,7 +880,7 @@ def test_ac05_yes_on_screen_check_changes_ranking(api, db):
     """AC-05-C2(L2, 선별형): '네, 맞습니다' 뒤에만 순위가 해석대로 바뀐다 — 선별형 점검 '이상' = 그 원인만 남음."""
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
-    alarm_id = register(api, "M-01", {**SENSOR, "temp_diff_k": 9.5, "power_w": 9000}).json()["alarm_id"]
+    alarm_id = register(api, "M-01", PW_SENSOR).json()["alarm_id"]
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
     url = f"/api/tech/sessions/{s['session_id']}/events"
     for etype in ("lock", "precheck_done"):
