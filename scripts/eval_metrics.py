@@ -66,7 +66,9 @@ def _met(key: str, value) -> bool | None:
 
 
 def compute(records: list[dict], manual: Manual) -> dict:
-    """카드 기록 → 지표 6개 + 목표 + 분모 · 분자. 실행에 실패한 카드는 분모에 넣되 맞지 않은 것으로 센다(FLOW-12)."""
+    """카드 기록 → 지표 6개 + 목표 + 분모 · 분자. 실행에 실패한 카드는 분모에 넣되 맞지 않은 것으로 센다(FLOW-12).
+    알람이 되지 않은 카드(ML 길 registered: false)는 계산 전에 걸러 낸다 — cards만 전체(EV-001 CH-27)."""
+    every, records = records, [r for r in records if r.get("registered", True)]
     graded = [r for r in records if r["hidden"]["type"] == "manual_cause"]
     m1 = sum(1 for r in graded if not r.get("failed") and r["hidden"]["code"] in r["similar_top3_causes"])
     m2 = sum(1 for r in graded if not r.get("failed") and r["hidden"]["code"] in top3(r["initial_probabilities"]))
@@ -115,7 +117,9 @@ def compute(records: list[dict], manual: Manual) -> dict:
     ]
     return {
         "metrics": metrics,
-        "cards": len(records),
+        "cards": len(every),
+        "registered": len(records),
+        "not_registered": len(every) - len(records),
         "graded_cards": len(graded),
         "ungraded_cards": {t: sum(1 for r in records if r["hidden"]["type"] == t) for t in ("none", "out_of_graph")},
         "failed_cards": sum(1 for r in records if r.get("failed")),

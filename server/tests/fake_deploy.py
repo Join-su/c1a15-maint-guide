@@ -14,6 +14,11 @@ import json
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+
+# ML 길 alarm 출력 = c1a15-pack이 뜬 실제 Pack 출력(D-304 (3) · 보고 012-11, 사용자 모델)
+# — 시험 기대값도 여기서 셈(EV-001 CH-28)
+ML_ALARM_DATA = Path(__file__).parent / "fixtures" / "ml_alarm_outputs.jsonl"
 
 REQUIRED = {
     "alarm": {"event_card"},
@@ -196,6 +201,12 @@ class FakeDeploy:
         return [r for r in self.requests if r["method"] == "POST"]
 
 
+def ml_alarm_outputs(path: Path | None = None) -> dict[str, dict]:
+    """시험 자료 읽기 한 곳(Q-22): jsonl 한 줄 = 한 행, 열쇠 row_id(= 각본 udi) → output.alarm(약속 v3 alarm 객체)."""
+    lines = (path or ML_ALARM_DATA).read_text(encoding="utf-8").splitlines()
+    return {str(r["row_id"]): r["output"]["alarm"] for r in (json.loads(x) for x in lines if x.strip())}
+
+
 def engine_answer(body: dict) -> dict:
     """가짜가 판정을 계산하는 법: 앱 engine(fold → decide) 그대로.
 
@@ -206,6 +217,10 @@ def engine_answer(body: dict) -> dict:
     from c1a15.api import deps
     from c1a15.engine import alarm_rules, rules, session
 
+    if body["kind"] == "alarm" and body["event_card"]["source_mode"] == "ml_predicted":
+        card = body["event_card"]
+        out = ml_alarm_outputs()[str(card["data_lineage"]["row_id"])]  # 앱은 row_id를 int로 보냄 — 형 맞춤
+        return {"output": {"alarm": {**out, "event_id": card["event_id"]}}}
     if body["kind"] == "alarm":  # 경계 길: 앱 경계 규칙 그대로(계산 칸은 Pack과 같은 식)
         import math
 

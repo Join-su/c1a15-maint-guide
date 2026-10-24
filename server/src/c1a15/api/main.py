@@ -108,7 +108,7 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
     if runs.deploy_on():  # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2))
         hit, snapshot, pack_cols = _alarm_via_pack(c, body)
         if hit is None:
-            return pack_cols  # 알람 없이 '사람 판단 필요' 후보로 기록함
+            return pack_cols  # 알람 없음: '사람 판단 필요' 후보 기록 · ML 길 알람 없음 · ML 유형(CH-24 · CH-25)
     else:
         try:
             hit = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table())
@@ -149,7 +149,8 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
 
 def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, dict]:
     """Pack alarm Run(정본 = c1a15-pack 약속 v2): 알람이면 (경계 판정 모양 hit, 센서 7칸, 저장 칸),
-    후보(낮은 확신 · RNF · 예측 실패 D-275)면 alarm_candidates에 기록하고 (None, {}, 응답)을 돌려준다."""
+    후보(낮은 확신 · RNF · 예측 실패 D-275)면 alarm_candidates에 기록하고 (None, {}, 응답)을 돌려준다.
+    ML 길 알람 없음 · ML 유형(경계 표시 없음)도 (None, {}, 응답) — 저장 0 · ML 유형은 감사만(CH-24 · CH-25)."""
     sc = deps.scenarios().get(body.scenario_id or "", {})
     lineage = body.data_lineage
     if lineage is None and sc.get("udi"):
@@ -187,20 +188,34 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
     if out.get("candidate"):
         return None, {}, _store_candidate(c, body, req, {**out["candidate"], "run_id": res.run_id})
     if not out["alarm"]:
+        if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
+            return None, {}, _no_alarm("below_threshold", out)
         raise HTTPException(status_code=422, detail="no_boundary_crossed")  # 지금 기본 길과 같은 응답 · 저장 0
     if out["alarm_block"] is None:  # ML 유형으로 정한 알람(경계 표시 없음) — 화면 · 세션이 알람 행의 경계 표시를 씀
-        sessions.audit_rejection(  # 화면 판(정할 것)까지 알람으로 등록하지 않음 — 감사는 따로 남김
+        sessions.audit(  # CH-25: 화면은 UI 작업 때(D-304 (1))까지 알람으로 등록하지 않음 — 감사만
+            c,
             "system",
             "alarm_rejected",
             f"event:{event_id}",
             {"reason": "ml_type_alarm_unsupported", **refs},
             body.equipment_id,
         )
-        raise HTTPException(status_code=422, detail="ml_type_alarm_unsupported")
+        return None, {}, _no_alarm("ml_type_no_block", out)
     snapshot = {**req["event_card"]["sensor_snapshot"], **out["sensor_derived"]}  # 화면 · 리트리버 센서 7칸
     if out.get("ml") is not None:  # 없으면 칸을 빼 SQL NULL(JSON null로 저장하지 않음)
         refs["ml"] = out["ml"]
     return {"group": out["group"], "alarm": out["alarm_block"]}, snapshot, refs
+
+
+def _no_alarm(reason: str, out: dict) -> dict:
+    """ML 길에서 알람을 만들지 않은 정상 결과(EV-001 CH-24 · CH-25) — 발생기 · 평가 실행기가 읽고 계속한다."""
+    ml = out.get("ml") or {}
+    return {
+        "alarm_id": None,
+        "candidate_id": None,
+        "reason": reason,
+        "ml": {k: ml.get(k) for k in ("model_release", "risk", "threshold")},
+    }
 
 
 def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict) -> dict:

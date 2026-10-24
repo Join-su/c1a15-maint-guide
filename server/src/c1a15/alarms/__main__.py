@@ -3,6 +3,8 @@
 - 각본: data/demo/scenarios.json(R11). 시각은 서버가 등록 때 현재 시각으로 정한다(AC-34-C1).
 - API로만 등록한다(DB 직접 쓰기 없음). 주소는 같은 호스트 · compose 내부만(외부 호출 0), 토큰은 환경 변수.
 - 등록이 실패하면 오류를 보이고 종료 코드 1(FLOW-01: 다시 실행).
+- ML 길 알람 없음 · ML 유형 · 후보(응답 alarm_id 없음)는 실패가 아님
+  — 한 줄 찍고 다음 행, 끝에 요약 한 줄(EV-001 CH-26).
 실행: python -m c1a15.alarms DEMO-01 [DEMO-02 ...] | --all | --list
      python -m c1a15.alarms --stdin [--eval]  — 표준 입력 JSON 줄마다 알람 하나(equipment_id · sensor_snapshot · trend),
      --eval이면 평가 모드 알람(P-16 평가 실행기, 이력 추가 끔). 결과는 줄마다 JSON. 이 CLI는 파일을 읽지 않는다.
@@ -39,6 +41,20 @@ def payload(s: dict) -> dict:
         "sensor_snapshot": s["sensor_snapshot"],
         "trend": s["trend"],
     }
+
+
+NO_ALARM_TEXT = {"below_threshold": "위험도 낮음", "ml_type_no_block": "ML 유형 · 경계 표시 없음"}
+
+
+def _num(v) -> str:
+    return "-" if v is None else f"{v:.2f}"
+
+
+def ml_text(reason: str, ml: dict | None) -> str:
+    """알람 없음 줄의 ML 값: '위험도 0.12 < 문턱 0.50 · <model_release>'(ML 유형은 알람 위험도라 '≥')."""
+    ml = ml or {}
+    sign = "≥" if reason == "ml_type_no_block" else "<"
+    return f"위험도 {_num(ml.get('risk'))} {sign} 문턱 {_num(ml.get('threshold'))} · {ml.get('model_release') or '-'}"
 
 
 def check_url(base: str) -> str:
@@ -111,6 +127,8 @@ def main(argv: list[str] | None = None) -> int:
     if not token:
         print("환경 변수 C1A15_INTERNAL_TOKEN 이 필요합니다", file=sys.stderr)
         return 2
+    n = {"alarm": 0, "none": 0, "candidate": 0}
+    ml = None  # 요약의 model · 문턱 = 받은 ML 값(알람 응답에는 없음 — 하나도 없으면 '-')
     for s in chosen:
         try:
             r = send(base, token, payload(s))
@@ -118,12 +136,26 @@ def main(argv: list[str] | None = None) -> int:
             detail = e.read().decode() if isinstance(e, urllib.error.HTTPError) else str(e)
             print(f"{s['scenario_id']} 등록 실패: {detail} — 다시 실행하세요", file=sys.stderr)
             return 1
-        if r.get("alarm_id") is None:  # deploy 길: Pack이 알람 없이 '사람 판단 필요' 후보로 기록(EV-001 ES-08)
+        if r.get("alarm_id") is None and r.get("candidate_id") is not None:  # Pack 후보 '사람 판단 필요'(ES-08)
+            n["candidate"] += 1
             print(f"{s['scenario_id']} 알람 없음 · 후보 {r['candidate_id']} 기록({r['reason']})")
             continue
+        if r.get("alarm_id") is None:  # ML 길 알람 없음 · ML 유형(EV-001 CH-26) — 멈추지 않고 다음 행
+            n["none"] += 1
+            ml = r.get("ml") or ml
+            print(
+                f"{s['scenario_id']} 알람 없음 · {NO_ALARM_TEXT.get(r['reason'], r['reason'])}"
+                f" · {ml_text(r['reason'], r.get('ml'))}"
+            )
+            continue
+        n["alarm"] += 1
         print(
             f"{s['scenario_id']} 알람 {r['alarm_id']} 등록 · 배정 {r['assigned_to'] or '미배정'} · {r['occurred_at']}"
         )
+    print(
+        f"요약: 알람 {n['alarm']} / 각본 {len(chosen)} · 알람 없음 {n['none']} · 후보 {n['candidate']}"
+        f" · model {(ml or {}).get('model_release') or '-'} · 문턱 {_num((ml or {}).get('threshold'))}"
+    )
     return 0
 
 

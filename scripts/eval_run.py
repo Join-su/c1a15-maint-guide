@@ -243,6 +243,19 @@ def main(argv=None) -> int:
     for card, inp in zip(cards, inputs, strict=True):
         assert card["card_id"] == inp["card_id"]
         reg = register([inp])[inp["card_id"]]  # 카드마다 하나씩(앞 카드 세션이 끝난 뒤 배정)
+        if "error" not in reg and reg.get("alarm_id") is None:  # ML 길 알람 없음 · 후보 — 세션 0(EV-001 CH-27)
+            records.append(
+                {
+                    "card_id": card["card_id"],
+                    "group": inp["symptom_group"]["code"],
+                    "hidden": card["hidden_cause"],
+                    "registered": False,
+                    "reason": reg.get("reason"),
+                    **({"ml": reg["ml"]} if reg.get("ml") else {}),
+                }
+            )
+            print(f"{card['card_id']} 등록 안 됨 {reg.get('reason')}", flush=True)
+            continue
         try:
             rec = run.card(card, inp, reg, manual)
         except (ApiError, KeyError, StopIteration) as e:

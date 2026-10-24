@@ -212,3 +212,70 @@ def test_adv09_file_watch_catches_defect_copy(api, db, tmp_path, monkeypatch):
     finally:
         WATCH["on"] = False
     assert HITS and all("eval/cards/cards.jsonl" in p for p in HITS)
+
+
+def test_ch27_not_registered_cards_are_filtered_before_metrics():
+    """EV-001 CH-27(GAP-20): ML 길에서 알람이 안 된 카드는 계산 전에 걸러 냄 — 지표 · 요약 수는 등록 카드만, cards는 전체.
+
+    실행 실패(failed)는 지금 규칙(FLOW-12) 그대로 분모에 남는다(A14-N5: registered = cards − not_registered).
+    """
+    base = [rec(), rec(similar_top3_causes=["CL-2"] * 3), rec(failed="ApiError x", similar_top3_causes=[])]
+    skip = {
+        "card_id": "Y",
+        "group": "CL",
+        "hidden": {"type": "manual_cause", "code": "CL-1"},
+        "registered": False,
+        "reason": "below_threshold",
+    }
+    plain = eval_metrics.compute(base, MANUAL)
+    s = eval_metrics.compute(base[:1] + [skip] + base[1:], MANUAL)
+    assert s["metrics"] == plain["metrics"]  # 걸러 낸 카드는 어느 지표에도 들어가지 않음(KeyError 0)
+    assert (s["cards"], s["registered"], s["not_registered"]) == (4, 3, 1)
+    assert s["graded_cards"] == plain["graded_cards"] == 3 and s["failed_cards"] == 1
+    assert (plain["cards"], plain["registered"], plain["not_registered"]) == (3, 3, 0)  # 경계 길: 칸 둘만 더해짐
+
+
+def test_ch27_eval_run_records_not_registered_without_session(tmp_path, monkeypatch):
+    """EV-001 CH-27: 등록 응답에 alarm_id가 없으면(오류 아님) 세션을 열지 않고 registered false로 남김 — ML 길 평가 실행은 NX(S3-Q4)라 단위 시험만."""
+    import eval_run
+
+    cards = [
+        {"card_id": "C1", "hidden_cause": {"type": "manual_cause", "code": "CL-1"}},
+        {"card_id": "C2", "hidden_cause": {"type": "manual_cause", "code": "CL-2"}},
+    ]
+    inputs = [{"card_id": "C1", "symptom_group": {"code": "CL"}}, {"card_id": "C2", "symptom_group": {"code": "CL"}}]
+    (tmp_path / "cards.jsonl").write_text("".join(json.dumps(c) + "\n" for c in cards), encoding="utf-8")
+    (tmp_path / "inputs.json").write_text(json.dumps(inputs), encoding="utf-8")
+    monkeypatch.setattr(eval_run, "CARDS", tmp_path / "cards.jsonl")
+    monkeypatch.setattr(eval_run, "INPUTS", tmp_path / "inputs.json")
+    ml = {"model_release": "mr-x", "risk": 0.1, "threshold": 0.5}
+    regs = {
+        "C1": {"ref": "C1", "alarm_id": None, "candidate_id": None, "reason": "below_threshold", "ml": ml},
+        "C2": {"ref": "C2", "alarm_id": 7, "assigned_to": "tech.kim", "symptom_group": "CL"},
+    }
+    monkeypatch.setattr(eval_run, "register", lambda inp: {inp[0]["card_id"]: regs[inp[0]["card_id"]]})
+    opened = []
+
+    class FakeRun:
+        def __init__(self, *_):
+            pass
+
+        def card(self, card, inp, reg, manual):
+            opened.append(card["card_id"])
+            return rec(card_id=card["card_id"], hidden=card["hidden_cause"], outcome="원인 확정")
+
+    monkeypatch.setattr(eval_run, "Run", FakeRun)
+    out = tmp_path / "report.json"
+    assert eval_run.main(["--out", str(out)]) == 0
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert opened == ["C2"]  # 알람 안 된 카드는 세션 0
+    c1 = next(r for r in report["records"] if r["card_id"] == "C1")
+    assert c1 == {
+        "card_id": "C1",
+        "group": "CL",
+        "hidden": cards[0]["hidden_cause"],
+        "registered": False,
+        "reason": "below_threshold",
+        "ml": ml,
+    }
+    assert (report["cards"], report["registered"], report["not_registered"], report["graded_cards"]) == (2, 1, 1, 1)

@@ -426,7 +426,7 @@ def test_ml_path_body_and_ml_stored(api, db, deploy, monkeypatch):
 
 
 def test_ml_type_alarm_without_boundary_block_is_not_registered(api, db, deploy, monkeypatch):
-    """review R-2: ML 유형으로 정한 알람(alarm_block null)은 화면이 쓰는 경계 표시가 없어 — 결정 전까지 알람으로 등록하지 않음 · 감사."""
+    """review R-2 · ES-13 CH-25: ML 유형으로 정한 알람(alarm_block null)은 화면이 쓰는 경계 표시가 없어 — 알람으로 등록하지 않음 · 감사 · 200 정상 결과."""
     from c1a15.deploy import runs
 
     reset_ops(db)
@@ -434,5 +434,5 @@ def test_ml_type_alarm_without_boundary_block_is_not_registered(api, db, deploy,
     runs.settings.cache_clear()
     deploy.plan = [ml_alarm_output("x", "ml_type", None)]
     r = register_sc(api, scenarios()[0])
-    assert r.status_code == 422 and r.json()["detail"] == "ml_type_alarm_unsupported" and alarm_rows(db) == []
+    assert r.status_code == 200 and r.json()["reason"] == "ml_type_no_block" and alarm_rows(db) == []
     assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") == 1
