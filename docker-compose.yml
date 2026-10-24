@@ -1,4 +1,4 @@
-# 실행 순서: db(healthcheck) → init(migration · 적재 · LangGraph checkpoint 표, 한 번) → api → web(EP-C1-RUN-001).
+# 실행 순서: db(healthcheck) → init(빈 DB면 migration · 적재 · checkpoint 표, 있으면 판 대조만 — CH-39) → api → web(EP-C1-RUN-001).
 # 포트는 127.0.0.1에만 연다. api 포트는 밖에 열지 않는다. 값은 .env(Git 제외)에서 받는다.
 services:
   db:
@@ -17,7 +17,8 @@ services:
 
   init:
     build: ./server
-    command: sh -c "alembic upgrade head && python -m c1a15.loader && python -m c1a15.engine.checkpoint"
+    # EV-001 CH-39: 빈 DB(첫 설치)만 migration · 적재. 이미 있는 DB는 판 대조만 — 다르면 멈춤(사람 migration: 아래 migrate)
+    command: python -m c1a15.dbinit
     environment:
       DATABASE_URL: postgresql+psycopg://c1a15:${POSTGRES_PASSWORD}@db:5432/c1a15
       DATA_DIR: /data
@@ -25,6 +26,18 @@ services:
       C1A15_LEAD_PASSWORD: ${C1A15_LEAD_PASSWORD:?.env에 C1A15_LEAD_PASSWORD 필요}
     volumes:
       - ./data:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # 사람 migration(일회용): docker compose --profile migrate run --rm migrate — 0009는 C1A15_ALLOW_0009=yes(백업 뒤, CH-40)
+  migrate:
+    build: ./server
+    profiles: ["migrate"]
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+psycopg://c1a15:${POSTGRES_PASSWORD}@db:5432/c1a15
+      C1A15_ALLOW_0009: ${C1A15_ALLOW_0009:-}
     depends_on:
       db:
         condition: service_healthy

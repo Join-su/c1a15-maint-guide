@@ -5,10 +5,14 @@
 - pgvector 확장은 그대로(0001이 만들고 base downgrade가 지움)
 - downgrade = 네 표를 빈 채로 다시 만든다(자료는 되살리지 않음 — 되돌림은 앞 commit의 적재기를 다시 돌림, S3-Q5)
 - 맥 시험 · 시연 DB만. VPS 운영 DB 적용은 사용자 따로 승인.
+- 운영 문(EV-001 ES-21 CH-40): 네 표에 행이 있으면 C1A15_ALLOW_0009=yes 없이는 멈춤
+  — 빈 표(시험 · 첫 설치)는 그대로 지나감.
 
 Revision ID: 0009
 Revises: 0008
 """
+
+import os
 
 import sqlalchemy as sa
 from alembic import op
@@ -21,7 +25,15 @@ branch_labels = None
 depends_on = None
 
 
+TABLES = ("history_embeddings", "data_releases", "release_chunks", "active_releases")
+
+
 def upgrade() -> None:
+    # 운영 문(EV-001 CH-40, S3-Q5): 지울 표에 자료가 있으면 사람이 정한 때만 — 백업 뒤 C1A15_ALLOW_0009=yes
+    rows = {t: op.get_bind().execute(sa.text(f"select count(*) from knowledge.{t}")).scalar() for t in TABLES}
+    if sum(rows.values()) and os.environ.get("C1A15_ALLOW_0009") != "yes":
+        counts = " ".join(f"{t}={n}" for t, n in rows.items())
+        raise RuntimeError(f"0009: 지울 표에 행이 있음({counts}) — 백업 뒤 C1A15_ALLOW_0009=yes 로 다시")
     op.drop_table("active_releases", schema="knowledge")
     op.drop_table("release_chunks", schema="knowledge")
     op.drop_table("data_releases", schema="knowledge")

@@ -1,3 +1,4 @@
+# ruff: noqa: E501 — SQL 문 · 시험 설명 문장은 길이 제한 밖
 """실제 PostgreSQL 통합 시험(marker db, DATABASE_URL 필요). 시험 DB 컨테이너는 매번 새로 만든다."""
 
 import os
@@ -14,8 +15,13 @@ SERVER = Path(__file__).resolve().parents[1]
 URL = os.environ.get("DATABASE_URL", "")
 
 
-def alembic(*args):
-    subprocess.run(["alembic", *args], cwd=SERVER, check=True)
+def alembic(*args, env=None):
+    subprocess.run(["alembic", *args], cwd=SERVER, check=True, env=env)
+
+
+def dbinit():
+    env = {**os.environ, "DATA_DIR": str(SERVER.parent / "data"), "PYTHONPATH": str(SERVER / "src")}
+    return subprocess.run(["python", "-m", "c1a15.dbinit"], cwd=SERVER, env=env, capture_output=True, text=True)
 
 
 @pytest.fixture(scope="module")
@@ -81,6 +87,61 @@ def test_vc56_0009_drops_four_tables_and_downgrade_recreates_empty(db):
         assert [reg(c, t) for t in FOUR] == [None] * 4
         assert c.execute(text("select version_num from alembic_version")).scalar() == "0009"
         assert c.execute(text("select count(*) from knowledge.history_records")).scalar() == 300
+
+
+def test_vc62_dbinit_first_install_then_noop_then_mismatch(db):
+    """VC-62 · PR-35(EV-001 CH-39): 빈 DB = head + 적재 · 이미 설치 = migration · 적재 0(운영 자료 그대로) · 판 다름 = 멈춤(1)."""
+    alembic("downgrade", "base")  # alembic_version 행 없음 = 첫 설치
+    r = dbinit()
+    assert r.returncode == 0 and "빈 DB" in r.stdout and "loaded sections=43 history=300" in r.stdout, (
+        r.stdout + r.stderr
+    )
+    with db.begin() as c:  # 운영 자료 흉내: 승인 이력 한 건 · 등급 바꿈
+        c.execute(
+            text(
+                "insert into knowledge.history_records select 'R-9999', equipment_id, symptom_group, occurred_at, narrative, "
+                "sensor_snapshot, record, 'approved_report', 'approved_report:9999' from knowledge.history_records limit 1"
+            )
+        )
+        c.execute(text("update ops.grade_table set grade = 'C' where section_id = '4.3'"))
+    r = dbinit()
+    assert r.returncode == 0 and "이미 설치됨(0009)" in r.stdout and "loaded" not in r.stdout, r.stdout + r.stderr
+    with db.connect() as c:
+        assert (
+            c.execute(text("select count(*) from knowledge.history_records where record_id = 'R-9999'")).scalar() == 1
+        )
+        assert c.execute(text("select grade from ops.grade_table where section_id = '4.3'")).scalar() == "C"
+    with db.begin() as c:
+        c.execute(text("update alembic_version set version_num = '0008'"))
+    r = dbinit()
+    assert r.returncode == 1 and "DB 판 0008 ≠ 이미지 0009" in r.stdout and "--profile migrate" in r.stdout, r.stdout
+    with db.begin() as c:
+        c.execute(text("update alembic_version set version_num = '0009'"))
+        c.execute(text("delete from knowledge.history_records where record_id = 'R-9999'"))
+    alembic("downgrade", "base")
+    assert dbinit().returncode == 0  # 다음 시험을 위해 처음 상태(적재 · 등급 원래 값)
+
+
+def test_vc63_0009_gate_needs_allow_when_rows(db):
+    """VC-63 · PR-36(EV-001 CH-40): 지울 표에 행이 있으면 C1A15_ALLOW_0009=yes 없이는 0009를 적용하지 않음 · 행 그대로."""
+    alembic("downgrade", "0008")
+    with db.begin() as c:
+        c.execute(
+            text(
+                "insert into knowledge.data_releases (release_id, kind, recipe, recipe_sha256, embedding_model, embedding_dim, "
+                "source, release_sha256) values ('rel-test', 'history', '{}', 'x', 'm', 1, '{}', 'y')"
+            )
+        )
+    no_allow = {k: v for k, v in os.environ.items() if k != "C1A15_ALLOW_0009"}
+    with pytest.raises(subprocess.CalledProcessError):
+        alembic("upgrade", "head", env=no_allow)
+    with db.connect() as c:
+        assert c.execute(text("select version_num from alembic_version")).scalar() == "0008"
+        assert c.execute(text("select count(*) from knowledge.data_releases")).scalar() == 1
+    alembic("upgrade", "head", env={**no_allow, "C1A15_ALLOW_0009": "yes"})
+    with db.connect() as c:
+        assert c.execute(text("select version_num from alembic_version")).scalar() == "0009"
+        assert c.execute(text("select to_regclass('knowledge.data_releases')")).scalar() is None
 
 
 def test_adv03_plaintext_store_is_caught(db):
