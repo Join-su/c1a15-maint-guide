@@ -466,3 +466,25 @@ def test_report_run_malformed_201_falls_back(api, db, deploy_fast):
     assert {k: (v["fallback"], v["reason"]) for k, v in w["fields"].items()} == {
         k: (True, "pack_unavailable") for k in SENT
     }
+
+
+def test_pack_body_has_no_lead_answer_note(api, db, path):
+    """D-294 · PR-16 · VC-35: Pack report 본문 미확인 칸에서 파트장 답 메모만 뺌 — 화면 · 확정 보고서는 그대로(메모 포함)."""
+    reset_ops(db)
+    tech, _ = login(api, "tech", "tech.kim", TECH_PW)
+    alarm_id = register(api, "M-01").json()["alarm_id"]
+    s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
+    s = to_instruct(tech, s)
+    s = ok(tech, s, type="result", section="4.3", value="이상", memo="기름때")
+    s = ok(tech, s, type="action_done", section="4.3.2")
+    lc, _ = login(api, "lead", "lead.park", LEAD_PW)
+    s = correction_to_daytime_report(api, db, tech, s, lc)  # 답 메모 '주간 확인'
+    screen_unresolved = {f["key"]: f["text"] for f in s["report"]["fields"]}["unresolved"]
+    note = " · 주간 확인"  # 파트장 답 메모(호출 답 note)
+    assert screen_unresolved.endswith("주간 처리 요청" + note)
+    if path["name"] == "deploy":
+        body = [p["body"] for p in path["fake"].posts() if p["body"]["kind"] == "report"][-1]
+        assert body["session_id"] == f"S-A{alarm_id}"
+        assert (
+            body["report_draft"]["unresolved"] == screen_unresolved[: -len(note)]
+        )  # 메모만 빠지고 답 표시 · 정정 내용 그대로

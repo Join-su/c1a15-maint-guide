@@ -396,10 +396,12 @@ def downtime_minutes(alarm: m.Alarm, events: list[dict], confirmed_at: datetime 
     return max(0, round((end - alarm.occurred_at).total_seconds() / 60))
 
 
-def unresolved(state: session.SessionState, k: ManualKnowledge, events: list[dict], grades: dict) -> str:
+def unresolved(
+    state: session.SessionState, k: ManualKnowledge, events: list[dict], grades: dict, notes: bool = True
+) -> str:
     """결정 015 ④: 후보로 남은 원인(확정 원인 제외)의 C · D 점검 가운데 하지 못한 것.
 
-    여기에 주간 처리 요청 + 호출 처리 결과를 더한다.
+    여기에 주간 처리 요청 + 호출 처리 결과를 더한다. notes = False면 파트장 답 메모를 뺀다(Pack 본문 — D-294).
     """
     items = []
     for cause in state.candidates:
@@ -411,7 +413,7 @@ def unresolved(state: session.SessionState, k: ManualKnowledge, events: list[dic
     for e in events:
         if e["type"] == "call_answer" and not e.get("void") and e.get("corrected"):  # 결정 019 ①: 정정 내용 · 답 · 메모
             cor = correction_of([x for x in events if x["seq"] < e["seq"]], {}) or {}
-            note = f" · {e['note']}" if e.get("note") else ""
+            note = f" · {e['note']}" if e.get("note") and notes else ""
             items.append(
                 f"정정 확인 · {cor.get('section')} {cor.get('title')}({cor.get('before')} → {cor.get('after')}) · "
                 f"{ANSWER_LABEL.get(e['answer'], e['answer'])}{note}"
@@ -420,7 +422,7 @@ def unresolved(state: session.SessionState, k: ManualKnowledge, events: list[dic
         if e["type"] == "call_answer" and not e.get("void"):  # 호출 처리 결과(결정 015 ④ · 018 ③ ④)
             sec = e.get("section")
             what = f"{k.sections[sec]['title']}({sec}) " if sec in k.sections else "숙련자 인계 답 · "
-            note = f" · {e['note']}" if e.get("note") else ""
+            note = f" · {e['note']}" if e.get("note") and notes else ""
             items.append(f"{what}{ANSWER_LABEL.get(e['answer'], e['answer'])}{note}")
         if e["type"] == "call_sent" and e.get("kind") == "handover" and not e.get("void"):
             items.append("숙련자 인계")
@@ -436,10 +438,11 @@ def report_draft(
     events: list[dict],
     confirmed_at: datetime | None,
     grades: dict | None = None,
+    for_pack: bool = False,
 ) -> dict[str, str]:
     """R10 8항목 초안(코드 사실). 원인 · 조치는 문장 생성 전 원문(실패면 이 글로 대체).
 
-    grades = {}면 등급 글 없이(초안 열쇠용).
+    grades = {}면 등급 글 없이(초안 열쇠용). for_pack = Pack report 본문용 — 미확인 칸에서 파트장 답 메모를 뺀다(D-294).
     """
     k = deps.manual()
     g = deps.grades(c)[0] if grades is None else grades
@@ -508,7 +511,7 @@ def report_draft(
         "evidence_records": " · ".join(s["record_id"] for s in row.similar[:3]),  # R3 상위 최대 3개
         "action": action,
         "downtime": f"{downtime_minutes(alarm, events, confirmed_at)}분",
-        "unresolved": unresolved(state, k, events, g),
+        "unresolved": unresolved(state, k, events, g, notes=not for_pack),
     }
     return facts
 
@@ -559,8 +562,10 @@ def report_written_payload(
     gr = _report_grounding(row, events, draft)
     if not runs.deploy_on():
         return {"draft_key": key, "fields": {k: _sentence(k, draft, gr) for k in REPORT_SENTENCES}, "via": "inproc"}
+    body = report_draft(c, row, alarm, state, step, events, None, for_pack=True)  # PR-16: 파트장 답 메모 0(D-294)
+    sections = sorted(_report_grounding(row, events, body).allowed_sections)
     try:  # CH-19: Pack report Run(약속 v3)
-        res = runs.report(alarm.alarm_id, row.symptom_group, row.similar, draft, sorted(gr.allowed_sections), seq)
+        res = runs.report(alarm.alarm_id, row.symptom_group, row.similar, body, sections, seq)
     except PackUnavailable as e:  # CH-22: 재시도 뒤 끝내 실패 — 503 대신 두 칸 원문(확정 가능 · 다시 부르지 않음)
         reason = "provider_failure" if e.code == "run_failed" and e.where in REPORT_RUN_WHERE else "pack_unavailable"
         fields = {k: {"text": draft[k], "fallback": True, "attempts": None, "reason": reason} for k in REPORT_SENTENCES}
