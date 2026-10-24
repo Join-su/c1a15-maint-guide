@@ -13,10 +13,12 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import Connection, select, text
 
+from c1a15 import config
 from c1a15.api import deps, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
+from c1a15.deploy import inbox
 from c1a15.engine import session as session_engine
 from c1a15.llm import grounding
 from c1a15.llm.base import Draft
@@ -376,6 +378,26 @@ def _add_history(c: Connection, rec: dict, symptom_group: str, eval_mode: bool) 
     return True
 
 
+def _to_inbox(c: Connection, rec: dict, approved_at: str, eval_mode: bool) -> None:
+    """R12 받은 편지(EV-001 CH-23): 설정 폴더가 있으면 승인 commit 뒤 파일 하나 — 실패해도 승인 · 이력 그대로(감사)."""
+    folder = config.r12_inbox()
+    if folder is None:
+        return
+    target = f"report:{rec['source']['report_id']}"
+
+    def deliver() -> None:
+        try:
+            doc = None if eval_mode else inbox.document(rec, approved_at)
+            done = "eval_mode" if eval_mode else "missing_sensor" if doc is None else inbox.write(folder, doc)
+        except Exception as e:  # noqa: BLE001 — 받은 편지 실패는 승인과 따로(PR-21)
+            sessions.audit_rejection("system", "r12_inbox_failed", target, {"error": type(e).__name__})
+            return
+        if done != "written":
+            sessions.audit_rejection("system", "r12_inbox_skipped", target, {"reason": done})
+
+    c.info["after_commit"].append(deliver)
+
+
 def _new_history_release(report_id) -> str | None:
     from c1a15.ingest import store as release_store
 
@@ -450,6 +472,7 @@ def report_decision(
     approval = {"mode": decision, "by": user.user_id, "at": now.isoformat(), "edits": changes, "memo": memo or None}
     rec = history_record(c, r, fields, approval)
     added = _add_history(c, rec, r.symptom_group, r.eval_mode)
+    _to_inbox(c, rec, approval["at"], r.eval_mode)
     approval["history_record_id"] = rec["record_id"] if added else None
     c.execute(
         m.Report.__table__.update()

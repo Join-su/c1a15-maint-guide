@@ -18,6 +18,16 @@ def database_url() -> str:
     return require_env("DATABASE_URL")
 
 
+def r12_inbox(env=os.environ) -> str | None:
+    """R12 받은 편지 폴더(EV-001 CH-23): C1A15_R12_INBOX — 없으면 None(쓰지 않음 = 지금 동작). 절대 경로만."""
+    folder = env.get("C1A15_R12_INBOX", "")
+    if not folder:
+        return None
+    if not os.path.isabs(folder):
+        raise ConfigError(f"C1A15_R12_INBOX 는 절대 경로: {folder!r}")
+    return folder
+
+
 def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
     """Pack을 부르는 길(EV-001 CH-15): 판정 C1A15_JUDGE = inproc(기본) | deploy, 알람 C1A15_ALARM = boundary(기본) | ml.
 
