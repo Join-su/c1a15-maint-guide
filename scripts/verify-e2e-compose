@@ -145,5 +145,5 @@ curl -fsS http://127.0.0.1:8081/api/health >/dev/null || fail "판 되돌린 뒤
 [ "$(snap)" = "$SNAP0" ] || fail "판 다름 시험 뒤 운영 자료가 바뀜"
 echo "verify-e2e-compose(판 다름 → init 멈춤 · api 안 뜸, VC-62): pass"
 SKIPPED=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["stats"]["skipped"])' "${E2E_REPORT:-e2e/test-results/report.json}")
-echo "verify-e2e-compose(P-08 … 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}$([ "$SKIPPED" = 0 ] || echo " — 멈춤 ${SKIPPED}건(시연 입력표 S3-Q11 승인 대기), 전체 통과 아님")"
+echo "verify-e2e-compose(P-08 … 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}$([ "$SKIPPED" = 0 ] || echo " — 멈춤 ${SKIPPED}건, 전체 통과 아님")"
 echo "verify-e2e-compose(S-01 smoke): pass"

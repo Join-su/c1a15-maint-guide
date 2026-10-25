@@ -1,5 +1,5 @@
 // P-17(S-06) 시연 10건 완주 E2E(AC-16): 깨끗한 시험 스택(verify-e2e host 실행 — 무작위 비밀값 · fixture 모드 · OpenAI 키 없음 · 가짜 배포 서버)에서
-// 시연 각본 10건을 packet demo_input_table(사용자 결정 020 ②)대로 보고서 확정(감시 · 인계 마감 포함)까지 간다.
+// 시연 각본 10건을 packet demo_input_table(사용자 결정 020 ②) — EV-001 ES-16 S3-Q11 옛 → 새 시험용 표(D-363, Pack 리트리버 순서 D-314)대로 보고서 확정(감시 · 인계 마감 포함)까지 간다.
 // 정비자 입력 · 파트장 답 · 보고서 확정은 모두 두 앱 화면 조작이다(시험 DB 시뮬레이션 없음). 한 건(DEMO-07)은 중간에 앱 서버를 다시 띄운다.
 // 입력표 밖 단계가 나오면 시험이 멈춘다(실패). 외부 요청 0 · 콘솔 오류 0.
 
@@ -29,7 +29,7 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     cause: "냉각 팬 열화",
     steps: [
       { check: "정상", section: "4.3" },
-      { check: "정상", section: "4.6" },
+      { check: "정상", section: "4.5" },
       { call: "승인 후 진행" },
       { check: "이상", section: "4.4" },
       { call: "승인 후 진행" },
@@ -42,7 +42,7 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     ending: "주간 처리",
     cause: "원인 미상",
     unresolved: /주간 처리 요청 · 주간 조 냉각 팬 점검/, // 파트장 답 · 처리 메모가 미확인 · 요청 행에(최종 통합 검토 비차단 ②)
-    steps: [{ check: "정상", section: "4.3" }, { check: "정상", section: "4.6" }, { call: "주간 처리", memo: "주간 조 냉각 팬 점검" }],
+    steps: [{ check: "정상", section: "4.3" }, { check: "정상", section: "4.5" }, { call: "주간 처리", memo: "주간 조 냉각 팬 점검" }],
   },
   {
     id: "DEMO-04",
@@ -60,13 +60,13 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     id: "DEMO-06",
     ending: "이상 없음 · 감시 마감",
     cause: "이상 없음 · 감시",
-    steps: [{ check: "정상", section: "3.4" }, { check: "정상", section: "3.3" }, { check: "정상", section: "3.5" }, { restart: "경계 이내" }, { monitor: true }],
+    steps: [{ check: "정상", section: "3.3" }, { check: "정상", section: "3.4" }, { check: "정상", section: "3.5" }, { restart: "경계 이내" }, { monitor: true }],
   },
   {
     id: "DEMO-07",
     ending: "원인 확정(중간에 api 재시작)",
     cause: "엔코더 신호 이상",
-    steps: [{ restartApi: true }, { check: "이상", memo: "커넥터 핀 한쪽이 들떠 있음", section: "3.4" }, { act: true }, { restart: "경계 이내" }],
+    steps: [{ restartApi: true }, { check: "정상", section: "3.3" }, { check: "이상", memo: "커넥터 핀 한쪽이 들떠 있음", section: "3.4" }, { act: true }, { restart: "경계 이내" }],
   },
   {
     id: "DEMO-08",
@@ -74,7 +74,19 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     cause: "이상 없음 · 감시",
     steps: [{ check: "정상", section: "5.3" }, { check: "정상", section: "5.4" }, { check: "정상", section: "5.5" }, { restart: "경계 이내" }, { monitor: true }],
   },
-  { id: "DEMO-09", ending: "원인 확정", cause: "공구 날 손상", steps: [{ check: "이상", memo: "날 끝에 이가 빠짐", section: "2.4" }, { act: true }, { restart: "경계 이내" }] },
+  {
+    id: "DEMO-09",
+    ending: "원인 확정",
+    cause: "공구 날 손상",
+    steps: [
+      { check: "정상", section: "2.3" },
+      { check: "정상", section: "2.5" },
+      { check: "정상", section: "2.6" },
+      { check: "이상", memo: "날 끝에 이가 빠짐", section: "2.4" },
+      { act: true },
+      { restart: "경계 이내" },
+    ],
+  },
   { id: "DEMO-10", ending: "숙련자 인계 마감(확인 불가 반복)", cause: "원인 미상", steps: [{ unableUntilHandover: true }, { handover: true }] },
 ];
 
@@ -130,13 +142,8 @@ async function openAnswer(page: Page): Promise<void> {
   await page.waitForURL(/\/session\/\d+/);
 }
 
-// EV-001 ES-16 S3-Q11: Pack 리트리버 값(D-314)으로 점검 순서가 바뀐 다섯 — 새 입력표(옛 → 새 표)를 사용자가 승인하기 전까지 멈춤.
-// 표 = 기록 폴더 execution/ES-16/evidence/demo-discovery/demo-input-table-old-new.md(조사 도구 discovery.spec.ts로 다시 셀 수 있음)
-const PENDING_S3Q11 = new Set(["DEMO-02", "DEMO-03", "DEMO-06", "DEMO-07", "DEMO-09"]);
-
 for (const d of DEMO) {
   test(`AC-16 시연 ${d.id} — ${d.ending}: 보고서 확정까지(입력표 · 화면 조작)`, async ({ page, browser }, info) => {
-    test.fixme(PENDING_S3Q11.has(d.id), "S3-Q11 새 시연 입력표 사용자 승인 대기(ES-16)");
     test.setTimeout(150_000);
     // DEMO-07은 api를 일부러 재시작한다 — 그동안 주기 조회가 nginx 502를 받는 것만 허용(재시작 재개 확인)
     const g = guard(page, d.steps.some((x) => "restartApi" in x) ? [/status of 502/] : []);
@@ -219,7 +226,6 @@ for (const d of DEMO) {
 }
 
 test("AC-16-C1 · C2: 시연 10건 모두 승인 대기 보고서, 끝 모양 섞임, 외부 LLM 호출 0(fixture)", async ({ page }, info) => {
-  test.fixme(PENDING_S3Q11.size > 0, "S3-Q11 — 10건이 모두 돌아야 셈(ES-16)");
   const g = guard(page);
   expect(psql("select count(*) from ops.reports where status = 'awaiting_approval'")).toBe("10");
   expect(psql("select count(distinct scenario_id) from ops.alarms where scenario_id like 'DEMO-%'")).toBe("10");

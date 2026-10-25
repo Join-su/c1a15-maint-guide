@@ -104,5 +104,5 @@ echo "verify-e2e(재시작 재개 L3 — 업무 기록에서 다시 판정): pas
 STAND=$(grep -c "start stand_in" "$E2E_RUN_DIR/fake.log" || true)
 [ "$STAND" = 0 ] || fail "가짜 배포 서버 start 대역 ${STAND}건 — 시연 알람은 모두 승인 행과 같아야 함(ES-15 NB-1)"
 SKIPPED=$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["stats"]["skipped"])' "${E2E_REPORT:-e2e/test-results/report.json}")
-echo "verify-e2e(P-08 · P-10 · P-13 · P-15 · P-17 정비자 앱 journey · 두 앱 교차 · 지난 화면 · 정정 · 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}$([ "$SKIPPED" = 0 ] || echo " — 멈춤 ${SKIPPED}건(시연 입력표 S3-Q11 승인 대기), 전체 통과 아님")"
+echo "verify-e2e(P-08 · P-10 · P-13 · P-15 · P-17 정비자 앱 journey · 두 앱 교차 · 지난 화면 · 정정 · 시연 10건 완주 L3): pass${E2E_PW_ARGS:+ — 일부만(E2E_PW_ARGS=$E2E_PW_ARGS), 전체 통과 아님}$([ "$SKIPPED" = 0 ] || echo " — 멈춤 ${SKIPPED}건, 전체 통과 아님")"
 echo "verify-e2e(S-01 smoke): pass"
