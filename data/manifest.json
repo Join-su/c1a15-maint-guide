@@ -61,8 +61,8 @@
   "causes": 14
  },
  "files": {
-  "data/manuals/MG-MM.md": "75beb69acf3ee1249c5f4f3765d195ef489a5e0396971c2f9b66c1ba98489b0b",
-  "data/manuals/manual_sections.json": "e8faefdf491cc74f7789d769e0759b43b13bf89d5ccbaa40fae431b10ff5f925",
+  "data/manuals/MG-MM.md": "ce43932897bdf1375cb70b272d1043696e6af69163c592e402e8ad6076d49982",
+  "data/manuals/manual_sections.json": "f88279a4f06383d46f46a00352e122f5f413f7f150befc69d797a21b21b07c94",
   "data/history/maintenance_history.jsonl": "48a5b999498e46b9f8d8abfea6884b5e4fb0d4682940510776125b530048c506",
   "data/alarm_rules.json": "9bebb5d54f5a97d4a3609afdd10008dafa84c70c0bb29f9fa762bf08128815ea"
  }
