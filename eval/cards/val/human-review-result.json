@@ -1,0 +1,149 @@
+{
+ "reviewer": "auto-consistency",
+ "saved_at": "2026-10-25T21:47:09+09:00",
+ "sample_sha256": "0950cb39b4f806ac4c59640653fafb72a68994268ee0945dc4eb626297a51599",
+ "gold_sha256": "de755bd321a8417fd4f72b73a803b56ba9e9902a188ee5f7c2cf58141a2db8ca",
+ "check_tool_sha256": "4b922cc120ce50da7da07acb53eec6e51863d28b2327f34a69cbbe5a21ce0489",
+ "cards": {
+  "EC-V02": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V04": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V06": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V07": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V09": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V11": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V12": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V15": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V16": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V17": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V18": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V19": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V20": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V21": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V22": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V23": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V24": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V26": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V28": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  },
+  "EC-V30": {
+   "reviewed": true,
+   "rule_ok": true,
+   "remove": [],
+   "add": [],
+   "memo": ""
+  }
+ }
+}

@@ -25,5 +25,24 @@
  "cards_without_history": [],
  "contract": "약속 F(records/contract-locked-2026-10-24.md) · change-contract-v3 CC-01 · CC-02",
  "note": "줄 원소의 store · rule은 F 채점 주인(llmops 리드) 확인 중 — 바뀔 수 있음(답장 001-03 3). locator 모양은 약속 F 그대로",
- "created_at": "2026-10-25T21:46:15+09:00"
+ "created_at": "2026-10-25T21:46:15+09:00",
+ "human": {
+  "contract": "change-contract-v5 CC-04",
+  "tool_sha256": "6554e82c598a80e0fdd831f23ca256700298ca3617ecca3239c2d789a9c27299",
+  "result_sha256": "c1ea5643d2e7a87c6284c85caa2ee062aba0e18bf8c4bd1f0879205994a85247",
+  "sample_sha256": "0950cb39b4f806ac4c59640653fafb72a68994268ee0945dc4eb626297a51599",
+  "gold_human_sha256": "d375b8401c3e41ab08bcdeadd1c9a01273408c59436b1ea7f7fbe5977fb181cc",
+  "cards": 20,
+  "rule_ok": {
+   "true": 20,
+   "false": 0
+  },
+  "removed": 0,
+  "added": 0,
+  "cards_without_evidence": [],
+  "memos": {},
+  "reviewer": "auto-consistency",
+  "saved_at": "2026-10-25T21:47:09+09:00",
+  "applied_at": "2026-10-25T21:47:09+09:00"
+ }
 }
