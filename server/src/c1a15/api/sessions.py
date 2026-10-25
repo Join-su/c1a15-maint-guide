@@ -385,7 +385,8 @@ def _checked_reason(row: m.DiagSession, d: dict, facts: Facts) -> dict:
 def _memo_signal(k, section: str, memo: str, value: str | None) -> tuple[dict | None, bool]:
     """R7 메모 해석. provider 오류는 신호 없음으로 진행을 막지 않고 실패로 센다(AC-31-C1 · C2)."""
     try:
-        sig = adapter_for_mode().memo_signal(section, k.sections[section].get("text", ""), memo, value)
+        criteria = screen.criterion(k, section) or ""  # R7 = 그 절의 판정 기준 줄(절 글 전체가 아님 — EV-004)
+        sig = adapter_for_mode().memo_signal(section, criteria, memo, value)
     except AdapterError:
         return None, True
     return (sig.as_event_signal() if sig else None), False
