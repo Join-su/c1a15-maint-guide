@@ -12,9 +12,11 @@
 - test는 숨김(약속 F): 화면에는 줄 수 · sha256만 낸다.
 
 - 사람 표본(CC-03, val만): sample → eval/cards/val/human-sample.json · review-html → 확인 화면 한 장(저장소 밖 경로에 씀).
+- 사람 결과 반영(CC-04, val만): apply-human → eval/cards/val/gold-human.jsonl(표본 20장, source human) · gold-meta.json에 human 칸. auto는 그대로.
 
 실행: python3 eval/make_gold.py build --set val|test   ·   python3 eval/make_gold.py check --set val|test
       python3 eval/make_gold.py sample --set val   ·   python3 eval/make_gold.py review-html --set val --out <파일.html>
+      python3 eval/make_gold.py apply-human --set val [--result <human-review-result.json>]
 """
 import argparse
 import hashlib
@@ -392,18 +394,152 @@ def cmd_review_html(root: Path, sname: str, out: Path) -> int:
     return 0
 
 
+def evidence_order(inp: Inputs, ev: list[dict]) -> list[dict]:
+    """CC-01 차례: 이력(record_id 오름차순) → 매뉴얼(문서 차례, 같은 시작이면 짧은 쪽 먼저)."""
+    return sorted(ev, key=lambda e: (0, e["locator"]["record_id"], 0) if e["store"] == "history" else (1, inp.manual.doc_pos(e["locator"]), e["locator"]["char_end"]))
+
+
+def human_rows(inp: Inputs, auto: dict[str, dict], sample: dict, result: dict) -> tuple[list[dict], dict]:
+    """CC-04: 표본 카드마다 auto에서 시작 → rule_ok false면 이력 auto 모두 뺌 → × 빼기 → + 더하기(rule HUMAN). 어긋나면 GoldError."""
+    got, want = set(result.get("cards") or {}), set(sample["cards"])
+    if got - want:
+        raise GoldError(f"표본 밖 카드: {sorted(got - want)}")
+    if want - got:
+        raise GoldError(f"결과에 없는 표본 카드: {sorted(want - got)}")
+    hist = {r["record_id"]: r for r in inp.history}
+    rows, stat = [], {"rule_ok": {"true": 0, "false": 0}, "removed": 0, "added": 0, "memos": {}}
+    for cid in sample["cards"]:
+        r, group = result["cards"][cid], inp.groups[cid]
+        if not isinstance(r.get("rule_ok"), bool) or r.get("reviewed") is False:
+            raise GoldError(f"확인이 끝나지 않은 카드: {cid}")
+        stat["rule_ok"][str(r["rule_ok"]).lower()] += 1
+        ev = [e for e in auto[cid]["evidence"] if r["rule_ok"] or e["store"] != "history"]
+        stat["removed"] += len(auto[cid]["evidence"]) - len(ev)
+        for x in r.get("remove") or []:
+            if x.get("store") == "history":
+                hit = [e for e in auto[cid]["evidence"] if e["store"] == "history" and e["locator"]["record_id"] == x.get("record_id")]
+            elif x.get("store") == "manual":
+                hit = [e for e in auto[cid]["evidence"] if e["store"] == "manual" and (e["locator"]["section"], e["locator"]["char_start"]) == (x.get("section"), x.get("char_start"))]
+            else:
+                hit = []
+            if len(hit) != 1:
+                raise GoldError(f"{cid}: 빼려는 위치가 auto 정답에 없음 — {x}")
+            if hit[0] in ev:
+                ev.remove(hit[0])
+                stat["removed"] += 1
+        for x in r.get("add") or []:
+            if x.get("store") == "history":
+                rid = x.get("record_id")
+                if rid not in hist or hist[rid]["symptom_group"]["code"] != group:
+                    raise GoldError(f"{cid}: 더하려는 이력이 없거나 증상군이 다름 — {rid}")
+                loc = {"record_id": rid}
+            elif x.get("store") == "manual" and x.get("section") in inp.manual.span:
+                a, b = inp.manual.span[x["section"]]
+                loc = {"doc": MANUAL_DOC, "section": x["section"], "char_start": 0, "char_end": b - a}
+            else:
+                raise GoldError(f"{cid}: 더하려는 위치를 알 수 없음 — {x}")
+            if all(e["locator"] != loc for e in ev):
+                ev.append({"store": x["store"], "locator": loc, "rule": "HUMAN"})
+                stat["added"] += 1
+        if (r.get("memo") or "").strip():
+            stat["memos"][cid] = r["memo"].strip()
+        rows.append({"card_id": cid, "set": inp.sname, "evidence": evidence_order(inp, ev), "source": "human"})
+    return rows, stat
+
+
+def verify_human(inp: Inputs, auto: dict[str, dict], rows: list[dict]) -> list[str]:
+    """VC-G1(HUMAN): auto 원소는 그 카드 auto 정답에 그대로 있고, HUMAN 원소는 CC-03 기준(이력 = 같은 증상군 · 매뉴얼 = 절 전체)."""
+    errors, hist = [], {r["record_id"]: r for r in inp.history}
+    for row in rows:
+        cid, ev = row["card_id"], row["evidence"]
+        if set(row) != {"card_id", "set", "evidence", "source"} or row["source"] != "human" or row["set"] != "val":
+            errors.append(f"{cid}: 칸 · source가 CC-04와 다름")
+        keys = [json.dumps(e["locator"], sort_keys=True) for e in ev]
+        if len(keys) != len(set(keys)) or ev != evidence_order(inp, ev):
+            errors.append(f"{cid}: 원소 중복 · 순서가 CC-01과 다름")
+        for e in ev:
+            loc = e["locator"]
+            if e["rule"] != "HUMAN":
+                ok = e in auto[cid]["evidence"]
+            elif e["store"] == "history":
+                ok = set(loc) == {"record_id"} and loc["record_id"] in hist and hist[loc["record_id"]]["symptom_group"]["code"] == inp.groups[cid]
+            else:
+                a, b = inp.manual.span.get(loc.get("section"), (0, -1))
+                ok = e["store"] == "manual" and loc == {"doc": MANUAL_DOC, "section": loc["section"], "char_start": 0, "char_end": b - a}
+            if not ok:
+                errors.append(f"{cid}: 원소가 auto · HUMAN 기준에 맞지 않음 — {loc}")
+    return errors
+
+
+def cmd_apply_human(root: Path, sname: str, result_path: Path | None = None) -> int:
+    """CC-04: 사람 결과 → gold-human.jsonl(표본 20장) · gold-meta.json에 human 칸 덧붙임. auto gold.jsonl은 바꾸지 않는다."""
+    if sname != "val":
+        raise GoldError("사람 정답은 val에서만(약속 F)")
+    inp = Inputs(root, sname)
+    gold, sample_path = inp.dir / "gold.jsonl", inp.dir / "human-sample.json"
+    result_path = result_path or inp.dir / "human-review-result.json"
+    if not result_path.is_file():
+        raise GoldError(f"사람 결과 파일 없음({result_path}) — 사람 확인 전이면 이 단계는 하지 않음(CC-04)")
+    before = sha256(gold.read_bytes())
+    sample = json.loads(sample_path.read_text(encoding="utf-8"))
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    if sample.get("gold_sha256") != before:
+        raise GoldError("human-sample.json이 지금 gold.jsonl과 짝이 아님")
+    if result.get("sample_sha256") != sha256(sample_path.read_bytes()):
+        raise GoldError("결과의 sample_sha256이 지금 human-sample.json과 다름 — 다른 확인 화면의 결과")
+    if result.get("gold_sha256") not in (None, before):
+        raise GoldError("결과의 gold_sha256이 지금 gold.jsonl과 다름")
+    auto_rows = [json.loads(line) for line in gold.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if verify(inp, auto_rows):
+        raise GoldError("gold.jsonl 검사 실패 — 먼저 check")
+    auto = {r["card_id"]: r for r in auto_rows}
+    rows, stat = human_rows(inp, auto, sample, result)
+    errors = verify_human(inp, auto, rows)
+    if errors:
+        raise GoldError("검사 실패 — 파일을 쓰지 않음: " + " / ".join(errors))
+    data = canonical_lines(rows)
+    write_atomic(inp.dir / "gold-human.jsonl", data)
+    meta_path = inp.dir / "gold-meta.json"
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    meta["human"] = {
+        "contract": "change-contract-v5 CC-04",
+        "tool_sha256": sha256(Path(__file__).read_bytes()),
+        "result_sha256": sha256(result_path.read_bytes()),
+        "sample_sha256": result["sample_sha256"],
+        "gold_human_sha256": sha256(data),
+        "cards": len(rows),
+        "rule_ok": stat["rule_ok"],
+        "removed": stat["removed"],
+        "added": stat["added"],
+        "cards_without_evidence": [r["card_id"] for r in rows if not r["evidence"]],
+        "memos": stat["memos"],
+        "reviewer": result.get("reviewer"),
+        "saved_at": result.get("saved_at"),
+        "applied_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    }
+    write_atomic(meta_path, (json.dumps(meta, ensure_ascii=False, indent=1) + "\n").encode("utf-8"))
+    if sha256(gold.read_bytes()) != before:
+        raise GoldError("auto gold.jsonl이 바뀜 — 멈춤")
+    h = meta["human"]
+    print(f"[val] 사람 정답 {h['cards']}장 · rule_ok {h['rule_ok']} · 빼기 {h['removed']} · 더하기 {h['added']} · 정답 0건 {len(h['cards_without_evidence'])}장 · sha256 {h['gold_human_sha256']} · auto 그대로 {before}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("command", choices=("build", "check", "sample", "review-html"))
+    ap.add_argument("command", choices=("build", "check", "sample", "review-html", "apply-human"))
     ap.add_argument("--set", required=True, choices=("val", "test"))
     ap.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1], help="저장소 뿌리(시험용 사본)")
     ap.add_argument("--out", type=Path, help="review-html이 쓸 파일")
+    ap.add_argument("--result", type=Path, help="apply-human이 읽을 사람 결과(기본 eval/cards/val/human-review-result.json)")
     args = ap.parse_args()
     try:
         if args.command == "review-html":
             if args.out is None:
                 raise GoldError("--out 필요")
             return cmd_review_html(args.root, args.set, args.out)
+        if args.command == "apply-human":
+            return cmd_apply_human(args.root, args.set, args.result)
         return {"build": cmd_build, "check": cmd_check, "sample": cmd_sample}[args.command](args.root, args.set)
     except GoldError as e:
         print(f"[{args.set}] 오류: {e if args.set == 'val' else '규칙 · 입력 어긋남(test는 내용 숨김)'}", file=sys.stderr)

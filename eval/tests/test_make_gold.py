@@ -251,6 +251,88 @@ class GoldTest(unittest.TestCase):
         self.assertNotIn("/*__DATA__*/null", html)
         self.assertEqual(html.count('"card_id"'), 20)
 
+    def fake_result(self):
+        """확인 화면이 내려주는 모양(CC-03)의 가상 결과 — 모두 맞음으로 시작."""
+        mg.cmd_build(self.tmp, "val")
+        mg.cmd_sample(self.tmp, "val")
+        sample = json.loads((self.dir / "human-sample.json").read_text(encoding="utf-8"))
+        cards = {c: {"reviewed": True, "rule_ok": True, "remove": [], "add": [], "memo": ""} for c in sample["cards"]}
+        return {"reviewer": "user", "saved_at": "2026-10-25T09:00:00Z", "sample_sha256": mg.sha256((self.dir / "human-sample.json").read_bytes()),
+                "gold_sha256": sample["gold_sha256"], "cards": cards}
+
+    def apply(self, result):
+        path = self.tmp / "result.json"
+        path.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
+        return mg.cmd_apply_human(self.tmp, "val", path)
+
+    def test_apply_human(self):  # VC-G8: × 빠짐 · + 더해짐 · rule_ok false 이력 auto 빠짐 · 모두 뺀 카드 [] · auto sha 그대로
+        res = self.fake_result()
+        auto_before = (self.dir / "gold.jsonl").read_bytes()
+        auto = {r["card_id"]: r for r in self.rows()}
+        inp = mg.Inputs(self.tmp, "val")
+        a, b, c = list(res["cards"])[:3]
+        ga = inp.groups[a]
+        man_a = [e["locator"] for e in auto[a]["evidence"] if e["store"] == "manual"]
+        other = next(r["record_id"] for r in inp.history if r["symptom_group"]["code"] == ga and all(e["locator"] != {"record_id": r["record_id"]} for e in auto[a]["evidence"]))
+        res["cards"][a].update(rule_ok=False, remove=[{"store": "manual", "section": man_a[0]["section"], "char_start": man_a[0]["char_start"]}],
+                               add=[{"store": "history", "record_id": other}, {"store": "manual", "section": "6.1"}, {"store": "manual", "section": "6.1"}], memo=" 규칙 의심 ")
+        res["cards"][b]["remove"] = [{"store": e["store"], **({"record_id": e["locator"]["record_id"]} if e["store"] == "history" else {"section": e["locator"]["section"], "char_start": e["locator"]["char_start"]})}
+                                     for e in auto[b]["evidence"]]
+        self.assertEqual(self.apply(res), 0)
+        self.assertEqual((self.dir / "gold.jsonl").read_bytes(), auto_before)
+        rows = {r["card_id"]: r for r in map(json.loads, (self.dir / "gold-human.jsonl").read_text(encoding="utf-8").splitlines())}
+        self.assertEqual(list(rows), list(res["cards"]))
+        self.assertTrue(all(r["source"] == "human" and r["set"] == "val" for r in rows.values()))
+        ev_a = rows[a]["evidence"]
+        self.assertEqual([e["locator"] for e in ev_a if e["store"] == "history"], [{"record_id": other}])   # auto 이력 모두 빠지고 더한 것만
+        self.assertNotIn(man_a[0], [e["locator"] for e in ev_a])
+        sec = next(e for e in ev_a if e["locator"].get("section") == "6.1")
+        self.assertEqual((sec["rule"], sec["locator"]["char_start"], sec["locator"]["char_end"]), ("HUMAN", 0, inp.manual.span["6.1"][1] - inp.manual.span["6.1"][0]))
+        self.assertEqual(sum(e["locator"].get("section") == "6.1" for e in ev_a), 1)                     # 같은 절 두 번 더해도 한 번
+        self.assertEqual(rows[b]["evidence"], [])
+        self.assertEqual(rows[c]["evidence"], auto[c]["evidence"])
+        meta = json.loads((self.dir / "gold-meta.json").read_text(encoding="utf-8"))
+        self.assertEqual(meta["gold_sha256"], mg.sha256(auto_before))
+        h = meta["human"]
+        n_hist_a = sum(e["store"] == "history" for e in auto[a]["evidence"])
+        self.assertEqual((h["rule_ok"], h["removed"], h["added"], h["cards_without_evidence"], h["memos"]),
+                         ({"true": 19, "false": 1}, n_hist_a + 1 + len(auto[b]["evidence"]), 2, [b], {a: "규칙 의심"}))
+        first = (self.dir / "gold-human.jsonl").read_bytes()
+        self.apply(res)
+        self.assertEqual(first, (self.dir / "gold-human.jsonl").read_bytes())                              # 같은 결과 두 번 → 같은 바이트
+        self.assertEqual(mg.cmd_check(self.tmp, "val"), 0)
+
+    def test_apply_human_refuses(self):  # VC-G8: 표본 밖 · 빠진 카드 · sample sha 다름 · 없는 위치 · 다른 증상군 · 모르는 절 · 확인 안 끝남 · test
+        base = self.fake_result()
+        inp = mg.Inputs(self.tmp, "val")
+        auto = {r["card_id"]: r for r in self.rows()}
+        first = list(base["cards"])[0]
+        outside = next(c for c in auto if c not in base["cards"])
+        foreign = next(r["record_id"] for r in inp.history if r["symptom_group"]["code"] != inp.groups[first])
+        bad = []
+        for change in (
+            lambda r: r.update(sample_sha256="0" * 64),
+            lambda r: r.update(gold_sha256="0" * 64),
+            lambda r: r["cards"].update({outside: dict(r["cards"][first])}),
+            lambda r: r["cards"].pop(first),
+            lambda r: r["cards"][first].update(remove=[{"store": "history", "record_id": "H-9999"}]),
+            lambda r: r["cards"][first].update(remove=[{"store": "manual", "section": "6.1", "char_start": 3}]),
+            lambda r: r["cards"][first].update(add=[{"store": "history", "record_id": foreign}]),
+            lambda r: r["cards"][first].update(add=[{"store": "manual", "section": "9.9"}]),
+            lambda r: r["cards"][first].update(rule_ok=None),
+            lambda r: r["cards"][first].update(reviewed=False),
+        ):
+            r = json.loads(json.dumps(base))
+            change(r)
+            bad.append(r)
+        for r in bad:
+            with self.assertRaises(mg.GoldError):
+                self.apply(r)
+            self.assertFalse((self.dir / "gold-human.jsonl").exists())
+            self.assertNotIn("human", json.loads((self.dir / "gold-meta.json").read_text(encoding="utf-8")))
+        with self.assertRaises(mg.GoldError):
+            mg.cmd_apply_human(self.tmp, "test")
+
     def test_tool_reads_no_answer_sources(self):  # VC-G4
         src = (ROOT / "eval/make_gold.py").read_text(encoding="utf-8")
         for word in ("generation", "card_udi_map", "ai4i2020"):
