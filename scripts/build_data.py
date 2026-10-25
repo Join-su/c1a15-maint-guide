@@ -618,6 +618,11 @@ def render_section(s, th):
             lines += [f"{i}. {step}" for i, step in enumerate(a["steps"], 1)] + [""]
         elif s.get("action_ref"):
             lines += [f"**조치** 원인이 확정되면 {s['action_ref']} 절을 따른다.", ""]
+        if s["id"] in M.FIELDS:  # v2: 끝 블록 — 빈 줄 없이 붙여 지시 · 조치 블록 끝이 v1과 같게(screen._block은 다음 '\n####'에서 자름)
+            while lines and lines[-1] == "":
+                lines.pop()
+            f = M.FIELDS[s["id"]]
+            lines += ["#### 준비 · 측정 · 기록", ""] + [f"- {label}: {f[key]}" for key, label in M.FIELD_LABELS] + [""]
     return lines
 
 
@@ -665,7 +670,16 @@ def render_appendices(th):
         for side in rule["sides"]:
             out.append(f"| {g['name']} | {rule['sensor']} | {'하위 2.5% 미만' if side == 'low' else '상위 2.5% 초과'} | "
                        f"{fmt(rule['key'], th[(rule['group'], side)])} {rule['unit']} |")
-    out += ["", "## 부록 D. 개정 이력", "", "| 개정 | 날짜 | 내용 |", "|---|---|---|", f"| 1.0 | {M.DOC['issued']} | 제정 |", ""]
+    out += ["", "## 부록 D. 개정 이력", "", "| 개정 | 날짜 | 내용 |", "|---|---|---|"] + [f"| {r} | {d} | {t} |" for r, d, t in M.REVISIONS] + [""]
+    for letter, title, note, blocks in M.APPENDICES:  # v2: 부록 E ~ J — 절이 아님, '#' 머리 없이 굵은 글 소제목(Pack corpus '### ' 절 나눔 그대로)
+        out += [f"## 부록 {letter}. {title}", "", f"> {note}", ""]
+        for sub, body in blocks:
+            out += [f"**{sub}**", ""]
+            if isinstance(body, dict):
+                head, rows = body["table"]
+                out += ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)] + ["| " + " | ".join(r) + " |" for r in rows] + [""]
+            else:
+                out += [f"- {x}" for x in body] + [""]
     return out
 
 
