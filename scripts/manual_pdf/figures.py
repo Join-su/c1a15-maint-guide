@@ -182,6 +182,13 @@ def fan(cx, cy, r):
     return _g(*p)
 
 
+def padlock(x, y, s=1.0):
+    """자물쇠(잠금 단계 표시) — 글자 0."""
+    return _g(f'<path transform="translate({x},{y}) scale({s})" d="M3 10 V6 a6 6 0 0 1 12 0 V10"/>',
+              f'<rect transform="translate({x},{y}) scale({s})" x="0" y="10" width="18" height="14" rx="2"/>',
+              f'<circle transform="translate({x},{y}) scale({s})" cx="9" cy="17" r="1.8" fill="{INK}"/>')
+
+
 def glove(x, y, s=1.0, color="#1f5aa6"):
     return (f'<path transform="translate({x},{y}) scale({s})" d="M0 26 V12 q0-3 3-3 V3 q0-3 3-3 q3 0 3 3 V2 q0-3 3-3 q3 0 3 3 v1 q0-3 3-3 q3 0 3 3 v18 '
             f'q0 7-7 7 h-6 q-6 0-6-6 z" fill="none" stroke="{color}" stroke-width="1.4" stroke-linejoin="round"/>')
@@ -240,7 +247,7 @@ def f_1_3():
     f = Fig("1-3", 170, 460)
     pos = [(10, 20), (160, 20), (310, 20), (310, 100), (160, 100), (10, 100)]
     for i, (x, y) in enumerate(pos):
-        f.draw(_g(rect(x, y, 140, 46, 5, stroke=HIL if i == 2 else INK, stroke_width=1.8 if i == 2 else 1.4)))
+        f.draw(_g(rect(x, y, 140, 46, 5)))
         f.text_in(i, x + 70, y + 27, weight=700)
     f.draw(arrow(150, 43, 158, 43), arrow(300, 43, 308, 43), arrow(380, 66, 380, 98), arrow(310, 123, 302, 123), arrow(160, 123, 152, 123))
     return f.svg()
@@ -307,11 +314,11 @@ def f_2_4():
 
 
 def f_2_5():
-    f = Fig("2-5", 220)
+    f = Fig("2-5", 236)
     f.draw(_g(rect(150, 120, 80, 50, 3), hatch(150, 120, 80, 50)), _g(path("M 260 60 h 70 v 28 h -70 z"), rect(330, 66, 36, 16, 2), line(260, 88, 260, 120), line(250, 120, 270, 120)),
-           _g(rect(270, 150, 70, 34, 2), *[line(276 + i * 10, 152, 276 + i * 10, 182, stroke_width=0.5) for i in range(7)]), _g(line(230, 145, 270, 165, stroke=HIL, stroke_width=1.8)))
-    f.callout(0, 170, 140, "l", 140).callout(1, 230, 130, "l", 100).callout(2, 230, 160, "l", 180).callout(3, 305, 184, "r", 200, x=356).callout(4, 300, 60, "r", 40, x=356)
-    return f.balloons((150, 104, 160, 120), (240, 60, 260, 70), (190, 196, 190, 170)).svg()
+           _g(rect(270, 150, 70, 34, 2), *[line(276 + i * 10, 152, 276 + i * 10, 182, stroke_width=0.5) for i in range(7)]), _g(line(230, 145, 270, 165, stroke=SOFT, stroke_dasharray="4 3")), padlock(250, 196, 0.9))
+    f.callout(0, 170, 140, "l", 140).callout(1, 230, 130, "l", 100).callout(2, 230, 160, "l", 200).callout(3, 305, 184, "r", 200, x=356).callout(4, 300, 60, "r", 40, x=356)
+    return f.balloons((136, 172, 152, 164), (240, 60, 260, 70), (226, 220, 250, 210)).svg()
 
 
 def f_2_6():
@@ -413,15 +420,15 @@ def f_5_5():
     f = Fig("5-5", 220)
     f.draw(_g(rect(160, 30, 110, 90, 6), circ(215, 75, 20)), spindle_tool(215, 120 - 40, 40),
            _g(rect(300, 60, 50, 70, 4), rect(306, 68, 38, 22, 2, stroke_width=0.8), path("M 300 100 C 290 100 285 90 272 90")),
-           _g(circ(270, 90, 6, stroke=HIL, stroke_width=2)), _g(path("M 190 172 a 26 8 0 1 0 50 0", stroke=SOFT), arrow(238, 174, 242, 168, SOFT, 1)))
+           _g(circ(270, 90, 6, stroke=HIL, stroke_width=2)), _g(path("M 190 172 a 26 8 0 1 0 50 0", stroke=SOFT), arrow(238, 174, 242, 168, SOFT, 1)), padlock(126, 120, 0.9))
     f.callout(0, 325, 60, "r", 40, x=366).callout(1, 270, 90, "r", 150, x=366).callout(2, 215, 180, "l", 190)
-    return f.balloons((290, 22, 300, 60), (170, 162, 190, 172), (140, 60, 160, 64)).svg()
+    return f.balloons((290, 22, 300, 60), (170, 162, 190, 172), (110, 100, 128, 124)).svg()
 
 
 def f_5_6():
     f = Fig("5-6", 200)
     f.draw(_g(rect(150, 40, 120, 110, 6), circ(185, 95, 22), circ(235, 95, 22), circ(185, 95, 10, stroke_width=0.8), circ(235, 95, 10, stroke_width=0.8)),
-           _g(rect(300, 52, 140, 34, 4, stroke=HIL, stroke_width=1.8)), _g(rect(300, 112, 140, 34, 4)), arrow(370, 88, 370, 110))
+           _g(rect(300, 52, 140, 34, 4, stroke_width=1.8)), _g(rect(300, 112, 140, 34, 4)), arrow(370, 88, 370, 110))
     f.text_in(0, 370, 73, weight=700).text_in(1, 370, 133, weight=700)
     f.callout(2, 185, 95, "l", 120)
     return f.svg()
@@ -434,7 +441,9 @@ def f_6_1():
         f.draw(_g(rect(x, 30, 80, 40, 5)))
         f.text_in(i, x + 40, 54, size=9)
     f.draw(*[arrow(x + 80, 50, x + 98, 50) for x in xs[:-1]])
-    return f.balloons((50, 100, 50, 70), (140, 100, 140, 70), (275, 110, 275, 70)).svg()
+    # 원본 6.1 단계 묶음: 1 = 체크리스트 · 잠금을 푼다(609) · 2 = 무부하(610) · 3 = 경계 이내 · 기록한다(611)
+    f.draw(_g(path("M 14 80 v 8 h 162 v -8"), path("M 194 80 v 8 h 72 v -8"), path("M 284 80 v 8 h 162 v -8"), sw=1.1))
+    return f.balloons((95, 112, 95, 88), (230, 112, 230, 88), (365, 112, 365, 88)).svg()
 
 
 FIGS = {"1-1": f_1_1, "1-2": f_1_2, "1-3": f_1_3, "2-0": f_2_0, "3-0": f_3_0, "4-0": f_4_0, "5-0": f_5_0,
