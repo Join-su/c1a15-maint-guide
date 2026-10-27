@@ -226,7 +226,7 @@ test("AC-46-C2 · AC-45-C5 · AC-48: 뒤 기록 '정정으로 무효' → 보고
   await lead.getByLabel("메모").fill("4.3 기록 다시 확인");
   await lead.locator(".btn", { hasText: "결정 저장" }).click();
   await page.goto(`/session/${sid}`); // AC-48-C3: 반려로 다시 열린 세션은 다시 정정
-  await step(page, 3).click();
+  await page.getByRole("button", { name: "점검 지난 화면" }).click(); // 세션을 받은 뒤에만 눌림 — 자리표시 진행 표시 클릭 경쟁(001-t)
   await pastBtn(page, "이전").click();
   await expect(page.locator(".btn", { hasText: "이 기록 정정" })).toBeVisible();
   g.check(info);
