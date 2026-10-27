@@ -40,6 +40,7 @@ class EventBody(_Strict):
 
     seq: int
     type: Literal[
+        "alarm_ack",
         "lock",
         "equipment_change",
         "precheck_done",

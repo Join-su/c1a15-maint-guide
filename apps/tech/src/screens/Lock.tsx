@@ -114,7 +114,12 @@ export function PrecheckScreen({
             <b className="rt">사전 확인</b>
             <span className="sm">기록할 값</span>
             <textarea className="memo" aria-label="기록할 값" value={values} onChange={(e) => onValues(e.target.value)} />
-            <span className={`btn lg full${busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={onDone}>
+            <span
+              className={`btn lg full${busy || !values.trim() ? " dis" : ""}`}
+              role="button"
+              tabIndex={0}
+              onClick={busy || !values.trim() ? undefined : onDone} // D-422: 값 없이 다음으로 가지 않음(서버도 거절)
+            >
               사전 확인 완료 <Icon name="check" />
             </span>
             <span className="note">{nextNote(s)}</span>

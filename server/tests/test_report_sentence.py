@@ -169,7 +169,7 @@ def test_correction_without_rejudge_keeps_sentence(api, db, path):
     sid = s["session_id"]
     shown = sentences(s)
     path0 = {f["key"]: f["text"] for f in s["report"]["fields"]}["check_path"]
-    r = fix(tech, s, target_seq=seq_of(db, sid, "precheck_done"), values="하우징 52 °C", reason="값 빠뜨림")
+    r = fix(tech, s, target_seq=seq_of(db, sid, "precheck_done"), values="하우징 53 °C", reason="값 잘못 읽음")
     assert r.status_code == 200 and r.json()["step"]["kind"] == "report"
     assert sentences(r.json()) == shown and len(written(db, sid)) == 1 and path["writes"]() == 1
     path1 = {f["key"]: f["text"] for f in r.json()["report"]["fields"]}["check_path"]

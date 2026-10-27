@@ -1,0 +1,102 @@
+// EV-007(D-422 · D-423) 화면 쪽 막기: 빠른 여러 번 누름으로 알람 · 사전 확인을 건너뛰지 않음.
+// 서버 거절(test_safety_click.py)이 먼저이고, 여기는 화면이 같은 요청을 겹쳐 보내지 않는지 · 새 화면 직후 누름을 받지 않는지를 본다.
+
+import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vitest";
+import { setFreshScreenMs, useFreshScreenGuard, type Api, type SessionView } from "@c1a15/ui";
+import { Session } from "../screens/Session";
+import { useState } from "react";
+
+const fx = import.meta.glob("./fixtures/*.json", { eager: true, import: "default" }) as Record<string, unknown>;
+const load = <T,>(n: string) => structuredClone(fx[`./fixtures/${n}.json`]) as T;
+const ok = (data: unknown) => Promise.resolve({ data, error: undefined, response: { status: 200 } });
+
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+  setFreshScreenMs(0);
+  vi.restoreAllMocks();
+});
+
+const session = (api: Api, view: SessionView) =>
+  render(
+    <Session api={api} sid={view.session_id} initial={view as never} onSession={() => {}} onExpired={() => {}} onRecord={() => {}} onManual={() => {}} onHome={() => {}} />,
+  );
+
+it("새 화면 직후 0.4초 누름 무시 — 지나면 받음, 화면이 바뀌면 다시 0.4초", () => {
+  setFreshScreenMs(400);
+  let now = 1000;
+  vi.spyOn(performance, "now").mockImplementation(() => now);
+  const hits: string[] = [];
+  function Two() {
+    const [k, setK] = useState("a");
+    useFreshScreenGuard(k);
+    return (
+      <span role="button" tabIndex={0} onClick={() => (hits.push(k), setK(k === "a" ? "b" : "a"))}>
+        다음
+      </span>
+    );
+  }
+  const { getByRole } = render(<Two />);
+  fireEvent.click(getByRole("button")); // 그린 직후
+  expect(hits).toEqual([]);
+  now += 401;
+  fireEvent.click(getByRole("button"));
+  expect(hits).toEqual(["a"]); // 받음 → 화면 b
+  fireEvent.click(getByRole("button")); // b가 뜬 직후(같은 자리)
+  expect(hits).toEqual(["a"]);
+  now += 401;
+  fireEvent.click(getByRole("button"));
+  expect(hits).toEqual(["a", "b"]);
+});
+
+it("알람 확인 전 세션은 기기에 남은 단계가 잠금이어도 알람 화면부터", () => {
+  const view = load<SessionView>("session-before-lock");
+  expect(view.alarm_ack_at ?? null).toBeNull();
+  localStorage.setItem(`c1a15.tech.stage.${view.session_id}`, JSON.stringify("lock"));
+  const api = { GET: vi.fn(() => ok(view)), POST: vi.fn() } as unknown as Api;
+  const { container } = session(api, view);
+  expect(container.querySelector(".cta .btn")?.textContent).toContain("진단 보기");
+  expect(container.textContent).not.toContain("잠금 완료");
+});
+
+it("'진단 보기' 세 번 빠르게 → 알람 확인 요청 한 번 · 응답 뒤에만 진단 화면(잠금 화면까지 가지 않음)", async () => {
+  const view = load<SessionView>("session-before-lock");
+  let release: (v: unknown) => void = () => {};
+  const acked = { ...view, last_seq: view.last_seq + 1, alarm_ack_at: "2026-10-27T08:00:00+00:00" };
+  const POST = vi.fn(() => new Promise((r) => (release = () => r({ data: acked, error: undefined, response: { status: 200 } }))));
+  const api = { GET: vi.fn(() => ok(view)), POST } as unknown as Api;
+  const { container } = session(api, view);
+  const btn = () => container.querySelector(".cta .btn") as Element;
+  fireEvent.click(btn());
+  fireEvent.click(btn());
+  fireEvent.click(btn());
+  expect(POST).toHaveBeenCalledTimes(1);
+  expect(POST).toHaveBeenCalledWith("/api/tech/sessions/{sid}/events", {
+    params: { path: { sid: view.session_id } },
+    body: { seq: view.last_seq + 1, type: "alarm_ack" },
+  });
+  expect(btn().className).toContain("dis"); // 보내는 동안 잠김
+  await act(async () => release(null));
+  await waitFor(() => expect(container.textContent).toContain("점검 시작")); // 진단 화면
+  expect(container.textContent).not.toContain("잠금 완료");
+});
+
+it("사전 확인: 값이 비면 '사전 확인 완료'가 잠겨 보내지 않고, 값을 적으면 값과 함께 보냄", async () => {
+  const view = { ...load<SessionView>("event-precheck"), preview: { kind: "instruct", section: null, grade: null, cause: null } } as SessionView;
+  expect(view.step.kind).toBe("precheck");
+  const POST = vi.fn(() => ok(view));
+  const api = { GET: vi.fn(() => ok(view)), POST } as unknown as Api;
+  const { container, getByLabelText } = session(api, view);
+  const done = () => [...container.querySelectorAll(".btn")].find((b) => b.textContent?.includes("사전 확인 완료")) as Element;
+  expect(done().className).toContain("dis");
+  fireEvent.click(done());
+  expect(POST).not.toHaveBeenCalled();
+  fireEvent.change(getByLabelText("기록할 값"), { target: { value: "하우징 52 °C" } });
+  expect(done().className).not.toContain("dis");
+  await act(async () => fireEvent.click(done()));
+  expect(POST).toHaveBeenCalledWith("/api/tech/sessions/{sid}/events", {
+    params: { path: { sid: view.session_id } },
+    body: { seq: view.last_seq + 1, type: "precheck_done", values: "하우징 52 °C" },
+  });
+});

@@ -74,6 +74,22 @@ describe("L02 승인 대기 · L03 검토", () => {
     expect(container.querySelector(".empty")?.textContent).toBe("승인 대기 보고서가 없습니다");
   });
 
+  it("EV-007: '결정 저장'을 빠르게 세 번 → 결정 요청 한 번(응답 전 두 번째 누름 무시)", async () => {
+    const report = load<Schemas["LeadReport"]>("report-review");
+    let release: () => void = () => {};
+    const POST = vi.fn(
+      () => new Promise((r) => (release = () => r({ data: { status: "approved", history_record_id: "R-0001" }, error: undefined, response: { status: 200 } }))),
+    );
+    const onDone = vi.fn();
+    const { container } = render(<Review api={{ POST } as unknown as Api} report={report} onDone={onDone} />);
+    fireEvent.click(btn(container, "결정 저장"));
+    fireEvent.click(btn(container, "결정 저장"));
+    fireEvent.click(btn(container, "결정 저장"));
+    expect(POST).toHaveBeenCalledTimes(1);
+    await act(async () => release());
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
   it("검토: 보고서 다섯 행 · 결정 3개(하나만) · 그대로 승인 저장", async () => {
     const report = load<Schemas["LeadReport"]>("report-review");
     const api = { POST: vi.fn(() => ok({ status: "approved", history_record_id: "R-0001" })) } as unknown as Api;

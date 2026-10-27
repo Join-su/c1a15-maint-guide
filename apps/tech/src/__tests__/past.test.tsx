@@ -242,7 +242,8 @@ describe("진행 표시 · 세션 연결(AC-41 · 생성자 해석 ①)", () => 
   });
 
   it("잠금 전 세션(T04 진단 · T05 잠금 전): 완료 단계도 pick — 누르면 그 단계 지난 화면(AC-41-C1, S-06 전 화면 대조에서 발견)", async () => {
-    const view = load<SessionView>("session-before-lock");
+    // EV-007: 진단 화면에 온 세션은 알람 확인 기록이 있음(fixture는 그 전 응답 — 칸만 덧붙임)
+    const view = { ...load<SessionView>("session-before-lock"), alarm_ack_at: "2026-10-27T08:00:00+00:00" };
     const h = load<PastData>("s05-history-open");
     const GET = vi.fn((path: string) => ok(path.endsWith("/history") ? h : view));
     const api = { GET, POST: vi.fn() } as unknown as Api;

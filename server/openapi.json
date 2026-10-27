@@ -1575,6 +1575,7 @@
      },
      "type": {
       "enum": [
+       "alarm_ack",
        "lock",
        "equipment_change",
        "precheck_done",
@@ -4781,6 +4782,17 @@
      "alarm": {
       "$ref": "#/components/schemas/AlarmBlock"
      },
+     "alarm_ack_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alarm Ack At"
+     },
      "alarm_id": {
       "title": "Alarm Id",
       "type": "integer"
@@ -4985,6 +4997,17 @@
      },
      "alarm": {
       "$ref": "#/components/schemas/AlarmBlock"
+     },
+     "alarm_ack_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alarm Ack At"
      },
      "alarm_id": {
       "title": "Alarm Id",

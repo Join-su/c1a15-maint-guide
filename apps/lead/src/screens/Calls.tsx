@@ -1,7 +1,7 @@
 // L04 처리할 호출: 목록(유형 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · 답하기) · 상세(정비자 요약 · 답 선택지 · 처리 메모 · 답 저장).
 // 선택지는 서버가 준다(D등급 호출에는 '승인 후 진행'이 없음 — AC-23-C3). 보낸 뒤 정비자 정정 상자(L04 / call_corrected, S-05 P-15).
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { errorDetail, hhmm, Icon, type Api, type Schemas } from "@c1a15/ui";
 import { Btn, Options } from "./Frame";
 
@@ -71,14 +71,17 @@ export function CallDetail({ api, call, onDone }: { api: Api; call: Call; onDone
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const saving = useRef(false); // EV-007: 같은 순간 두 번 누름도 한 번만 보냄
   const save = async () => {
-    if (!answer) return;
+    if (!answer || saving.current) return;
+    saving.current = true;
     setBusy(true);
     const { data, error: err } = await api.POST("/api/lead/calls/{call_id}/answer", {
       params: { path: { call_id: call.call_id } },
       body: { answer: answer as "approved" | "daytime" | "direct" | "assign", note: note.trim() || null },
     });
     setBusy(false);
+    saving.current = false;
     if (data) onDone();
     else setError(errorDetail(err) ?? "save_failed");
   };

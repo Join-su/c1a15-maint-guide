@@ -222,6 +222,7 @@ def test_lock_precedes_instruction_and_results(api, db):
     assert s["step"]["kind"] == "lock" and "instruction" not in s  # AC-01-C1
     assert s["preview"]["kind"] in {"instruct", "instruct_after_checklist", "call"} and "text" not in s["preview"]
     assert tech.get(f"/api/tech/sessions/{sid}/manual/4.3").status_code == 409  # 잠금 전 원문 금지
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
     assert (
         s["locked"] and s["lock_at"] and s["step"]["kind"] == "precheck" and s["instruction"]["section"] == "4.2"
@@ -278,8 +279,12 @@ def test_b_checklist_and_open_step_survives_grade_change(api, db):
         c.execute(text("update ops.grade_table set grade = 'B' where section_id in ('4.3', '4.5', '4.6')"))
     tech, s = start(api, db)
     sid = s["session_id"]
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
+    s = tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    ).json()
     step = s["step"]
     assert (
         step["kind"] == "instruct_after_checklist" and s["instruction"]["checklist"]
@@ -337,9 +342,13 @@ def test_records_manual_and_notifications(api, db):
         "downtime_min",
         "narrative",
     } <= set(rec)
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
     assert tech.get(f"/api/tech/sessions/{sid}/manual/4.3").status_code == 409  # 아직 지시 전(사전 확인 4.2 차례)
-    tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"})
+    tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    )
     man = tech.get(f"/api/tech/sessions/{sid}/manual/4.3").json()
     assert man["section"] == "4.3" and "판정 기준" in man["text"] and man["grade"] == "A" and man["minutes"] == 3
     items = tech.get("/api/tech/notifications").json()["items"]
@@ -363,8 +372,12 @@ def test_adv07_rejections_and_broken_decide_is_caught(api, db, monkeypatch):
         json={"seq": s["last_seq"] + 1, "type": "result", "section": "4.3", "value": "정상"},
     )
     assert r.status_code == 409 and r.json()["detail"] == "not_locked"
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
+    s = tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    ).json()
     r = tech.post(
         f"/api/tech/sessions/{sid}/events",
         json={"seq": s["last_seq"] + 1, "type": "result", "section": "4.4", "value": "정상"},
@@ -386,9 +399,14 @@ def locked_session(api, user, equipment):
     tech, _ = login(api, "tech", user, TECH_PW)
     alarm_id = register(api, equipment).json()["alarm_id"]
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
-    for etype in ("lock", "precheck_done"):
+    for etype in ("alarm_ack", "lock", "precheck_done"):
         s = tech.post(
-            f"/api/tech/sessions/{s['session_id']}/events", json={"seq": s["last_seq"] + 1, "type": etype}
+            f"/api/tech/sessions/{s['session_id']}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
         ).json()
     return tech, s
 
@@ -485,8 +503,12 @@ def test_fixture_full_flow_makes_no_external_call(api, db, monkeypatch):
     tech, s = start(api, db)
     sid = s["session_id"]
     assert s["preview"]["kind"] == "instruct" and s["preview"]["reason"]  # fixture 문장
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
+    s = tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    ).json()
     sec = s["step"]["section"]
     s = tech.post(
         f"/api/tech/sessions/{sid}/events",
@@ -530,8 +552,15 @@ def test_manual_only_for_instructed_sections_and_new_alarm_notification(api, db)
     assert any(i.items() >= new.items() for i in items)  # 시작 전 = 새 알람(P-19 필드가 더해져도 같은 항목)
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
     sid = s["session_id"]
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            f"/api/tech/sessions/{sid}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
     assert s["step"]["section"] == "4.3"
     assert tech.get(f"/api/tech/sessions/{sid}/manual/4.3").status_code == 200
     assert tech.get(f"/api/tech/sessions/{sid}/manual/4.2").status_code == 200  # 이전에 지시된 사전 확인
@@ -572,8 +601,15 @@ def test_reason_grounding_and_llm_failure_continue(api, db, monkeypatch):
     p = tech.get(f"/api/tech/sessions/{sid}").json()["preview"]
     assert p["reason_fallback"] and p["reason_label"] == "원문으로 대체됨" and "4.8" not in p["reason"]
     # 실패 수(P-19부터 지시문 포함): 사전 확인 지시문 1 → 첫 점검 지시문 2 → 메모 해석 3
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            f"/api/tech/sessions/{sid}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
         assert not s["recommend_handover"]  # 아직 3회 연속이 아님
     assert s["instruction"]["fallback"]  # 실패한 지시문 자리 = 절 원문 + '원문으로 대체됨'(AC-31-C1)
     body = {
@@ -647,8 +683,15 @@ def test_p18_input_validation_and_replay(api, db):
     reset_ops(db)
     tech, s = start(api, db)
     sid = s["session_id"]
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            f"/api/tech/sessions/{sid}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
     sec, nxt = s["step"]["section"], s["last_seq"] + 1
     url = f"/api/tech/sessions/{sid}/events"
     assert tech.post(url, json={"seq": nxt, "type": "result", "section": sec}).status_code == 422
@@ -712,11 +755,15 @@ def test_p19_screen_values_from_api(api, db, monkeypatch):
     li = s["lock_instruction"]
     assert li["section"] == "1.2" and len(li["steps"]) == 4 and "instruction" not in s
     assert tech.get(f"/api/tech/sessions/{sid}/manual/4.3").status_code == 409
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
     assert "lock_instruction" not in s and s["instruction"]["section"] == "4.2"
     assert len(s["instruction"]["steps"]) == 2 and s["instruction"]["check_no"] == 0
     assert (s["instruction"]["grade"], s["instruction"]["minutes"]) == ("A", 3)  # 사전 확인 4.2도 등급 · 분
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
+    s = tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    ).json()
     ins = s["instruction"]  # T06: 점검 n / 최대 m · 근거(결정 014 ② · ③)
     assert ins["section"] == "4.3" and (ins["grade"], ins["minutes"]) == ("A", 3) and len(ins["steps"]) == 4
     assert ins["criterion"].startswith("기름때") and (ins["check_no"], ins["check_max"]) == (1, 3)
@@ -771,8 +818,12 @@ def test_p19_instruction_guide_grounding_and_repeat(api, db, monkeypatch):
     reset_ops(db)
     tech, s = start(api, db)
     sid = s["session_id"]
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"}).json()
-    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "precheck_done"}).json()
+    s = tech.post(
+        f"/api/tech/sessions/{sid}/events",
+        json={"seq": s["last_seq"] + 1, "type": "precheck_done", "values": "하우징 52 °C"},
+    ).json()
     ins = s["instruction"]  # fixture 지시문 = 절 원문 절차(근거 검사 통과)
     assert ins["fallback"] is False and ins["original"] is None and len(ins["steps"]) == 4
     calls = []
@@ -818,8 +869,15 @@ def test_p19_low_evidence_cards_and_common_checklist(api, db):
         c.execute(text("update ops.grade_table set grade = 'B' where section_id = '4.3'"))
     s = tech.get(f"/api/tech/sessions/{sid}").json()
     assert s["low_evidence"] and [x["record_id"] for x in s["similar_cards"]] == [x["record_id"] for x in low[:2]]
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            f"/api/tech/sessions/{sid}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
     ins = s["instruction"]
     assert s["step"]["kind"] == "instruct_after_checklist" and ins["section"] == "4.3"
     assert ins["checklist_common"] is True and ins["checklist"] and not ins["checklist_done"]
@@ -833,8 +891,15 @@ def test_ac05_confirm_question_no_keeps_rank_yes_applies(api, db):
     reset_ops(db)
     tech, s = start(api, db)
     sid = s["session_id"]
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            f"/api/tech/sessions/{sid}/events",
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
     sec, before = s["instruction"]["section"], s["probabilities"]
     url = f"/api/tech/sessions/{sid}/events"
 
@@ -879,8 +944,15 @@ def test_ac05_yes_on_screen_check_changes_ranking(api, db):
     alarm_id = register(api, "M-01", PW_SENSOR).json()["alarm_id"]
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
     url = f"/api/tech/sessions/{s['session_id']}/events"
-    for etype in ("lock", "precheck_done"):
-        s = tech.post(url, json={"seq": s["last_seq"] + 1, "type": etype}).json()
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = tech.post(
+            url,
+            json={
+                "seq": s["last_seq"] + 1,
+                "type": etype,
+                **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}),
+            },
+        ).json()
     for _ in range(
         6
     ):  # 선별형 3.5(인버터 경고 이력, PW-2)가 지시될 때까지: 3.3 정상(PW-1 제외), 3.4 확인 불가 2회(그 점검만 제외)
@@ -922,8 +994,8 @@ def ok(tech, s, **body):
 
 
 def to_instruct(tech, s):
-    for etype in ("lock", "precheck_done"):
-        s = ok(tech, s, type=etype)
+    for etype in ("alarm_ack", "lock", "precheck_done"):
+        s = ok(tech, s, type=etype, **({"values": "하우징 52 °C"} if etype == "precheck_done" else {}))
     return s
 
 
@@ -1328,7 +1400,7 @@ def test_s03_business_rejections_are_audited(api, db):
     """G6-S03 비차단 의견: 업무 규칙 거부(확정 뒤 입력 · B 체크리스트 · 잠금 전 · 확인할 것 없음)도 감사 행이 남는다."""
     reset_ops(db)
     tech, s = start(api, db)
-    assert ev(tech, s, type="precheck_done").status_code == 409  # not_locked
+    assert ev(tech, s, type="precheck_done", values="하우징 52 °C").status_code == 409  # not_locked
     s = to_instruct(tech, s)
     assert ev(tech, s, type="confirm_answer", yes=True).status_code == 409  # nothing_pending
     assert ev(tech, s, type="b_checklist_done", section="4.3", checked=[]).status_code == 409

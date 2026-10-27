@@ -187,7 +187,7 @@ def test_correction_rejects_reason_closed_and_non_correctable(api, db):
     )
     s = tech.get(f"/api/tech/sessions/{sid}").json()  # AC-48-C3: 반려로 다시 열린 세션은 다시 정정 · 덧붙이기
     assert note(tech, s, target_seq=seqs["lock"], memo="잠금 표지 2번 패널에 추가로 걺").status_code == 200
-    r = fix(tech, s, target_seq=seqs["precheck_done"], values="하우징 52 °C", reason="값 빠뜨림")
+    r = fix(tech, s, target_seq=seqs["precheck_done"], values="하우징 53 °C", reason="값 잘못 읽음")
     assert r.status_code == 200 and r.json()["step"]["kind"] == "report"  # 측정값만 → 다음 단계 그대로
     reasons = {
         x for (x,) in db.connect().execute(text("select detail->>'reason' from ops.audit_log where action = 'reject'"))
@@ -530,6 +530,7 @@ def test_history_steps_records_and_read_only(api, db):
     reset_ops(db)
     tech, s = start(api, db)
     sid = s["session_id"]
+    s = ok(tech, s, type="alarm_ack")
     s = ok(tech, s, type="lock")
     s = ok(tech, s, type="precheck_done", values="하우징 표면 52 °C · 공기 302.7 K")
     s = ok(tech, s, type="result", section="4.3", value="정상", memo="필터 깨끗함")

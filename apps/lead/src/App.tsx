@@ -2,7 +2,7 @@
 // 화면은 API 값만 보인다(P-11). 주소(/review/{id} · /calls/{id} 등)를 기억해 새로고침에도 같은 자리.
 
 import { useCallback, useMemo, useState } from "react";
-import { createApi, type Schemas } from "@c1a15/ui";
+import { createApi, useFreshScreenGuard, type Schemas } from "@c1a15/ui";
 import { device, type Me } from "./device";
 import { usePoll } from "./hooks";
 import { ApprovalList, Review } from "./screens/Approvals";
@@ -46,6 +46,7 @@ export function App() {
   const api = useMemo(() => createApi(), []);
   const [me, setMeState] = useState<Me | null>(() => device.me());
   const [view, setView] = useState<View>(viewFromPath);
+  useFreshScreenGuard(JSON.stringify(view)); // EV-007: 목록 → 검토 · 답하기 화면이 바뀐 직후 누름 무시
   const [overview, setOverview] = useState<Schemas["LeadOverview"] | null>(null);
   const [report, setReport] = useState<Schemas["LeadReport"] | null>(null);
   const [calls, setCalls] = useState<Schemas["LeadCalls"] | null>(null);

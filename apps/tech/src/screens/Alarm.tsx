@@ -30,7 +30,17 @@ export function Trend({ a }: { a: Block }) {
 }
 
 /** past = T15 / alarm(지난 화면): 같은 화면, 조작은 잠김. */
-export function AlarmScreen({ s, onNext, past }: { s: Pick<SessionView, "alarm">; onNext: () => void; past?: boolean }) {
+export function AlarmScreen({
+  s,
+  onNext,
+  past,
+  busy,
+}: {
+  s: Pick<SessionView, "alarm">;
+  onNext: () => void;
+  past?: boolean;
+  busy?: boolean; // EV-007: 알람 확인을 보내는 동안 잠김
+}) {
   const a = s.alarm;
   return (
     <div className={past ? "ap-body past" : "ap-body"}>
@@ -92,7 +102,7 @@ export function AlarmScreen({ s, onNext, past }: { s: Pick<SessionView, "alarm">
             </div>
           </div>
           <div className="cta">
-            <span className={past ? "btn lg dis" : "btn lg"} role="button" tabIndex={0} onClick={past ? undefined : onNext}>
+            <span className={past || busy ? "btn lg dis" : "btn lg"} role="button" tabIndex={0} onClick={past || busy ? undefined : onNext}>
               진단 보기 <Icon name="arrow-right" />
             </span>
             <span className="note">알람 확인 시각이 기록됩니다</span>

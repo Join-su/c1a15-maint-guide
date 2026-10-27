@@ -9,6 +9,7 @@ export const SURFACES: Record<SurfaceId, { port: number; sessionCookie: string }
 };
 
 export * from "./api";
+export * from "./clickGuard";
 export * from "./components";
 export * from "./format";
 export { Icon } from "./icons";

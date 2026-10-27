@@ -550,8 +550,9 @@ def test_tech_cannot_send_lead_records_and_rejections_audited(api, db):
     tech2, s2 = start(api, db, equipment="M-03")
     with db.begin() as c:
         c.execute(text("update ops.grade_table set grade = 'B' where section_id = '4.3'"))
+    s2 = ok(tech2, s2, type="alarm_ack")
     s2 = ok(tech2, s2, type="lock")
-    s2 = ok(tech2, s2, type="precheck_done")
+    s2 = ok(tech2, s2, type="precheck_done", values="하우징 52 °C")
     assert s2["step"]["kind"] == "instruct_after_checklist"
     assert ev(tech2, s2, type="b_checklist_done", section="4.3", checked=["x"]).status_code == 409
     with db.connect() as c:
@@ -699,10 +700,11 @@ def test_lead_sessions_demo02_path_stage_and_hold(api, db):
         row["equipment_id"] == "M-03" and row["group_code"] == "CL" and row["technician_name"] and row["check_no"] == 0
     )
     assert not {"text", "instruction", "lock_instruction"} & set(row)
+    s = ok(tech, s, type="alarm_ack")
     s = ok(tech, s, type="lock")
     row = _row(lc, sid)
     assert (row["stage"], row["step_kind"], row["hold"]) == ("check", "precheck", None)
-    s = ok(tech, s, type="precheck_done")
+    s = ok(tech, s, type="precheck_done", values="하우징 52 °C")
     s = run_until(tech, s, {"call"}, lambda sec: "정상")
     first = s["step"]["section"]
     row = _row(lc, sid)

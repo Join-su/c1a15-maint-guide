@@ -253,6 +253,7 @@ test("AC-02 L3(P-10): 첫 판정 호출 — T04 / first_call → 잠금 → 사�
   await expect(page.locator(".nx h3")).toHaveText("파트장 호출 필요");
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C"); // D-422: 사전 확인 값 필수
   await page.getByText("사전 확인 완료").click();
   await expect(page.locator(".warn-h .sm")).toHaveText("다음 점검은 혼자 진행할 수 없습니다");
   await expect(page.locator(".dn2 span")).toHaveText(["점검 전"]);

@@ -121,6 +121,7 @@ def test_start_and_judge_runs_bodies_and_storage(api, db, deploy):
         and first["run_id"] == start_run
         and first["decision"]["kind"] == s["step"]["kind"] == "lock"
     )
+    s = ok(tech, s, type="alarm_ack")
     s = ok(tech, s, type="lock")
     judge = deploy.posts()[-1]["body"]
     assert (
@@ -155,6 +156,7 @@ def test_judge_failure_rolls_back_and_same_seq_resend_uses_attempt_key(api, db, 
     alarm_id = register(api, "M-01").json()["alarm_id"]
     s = tech.post(f"/api/tech/alarms/{alarm_id}/session").json()
     sid = s["session_id"]
+    s = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "alarm_ack"}).json()
     before = count(db, "select count(*) from ops.session_events where session_id = :s", s=sid)
     deploy.plan = [{"status": 503, "code": "trace_unavailable", "retryable": True}] * 2
     r = tech.post(f"/api/tech/sessions/{sid}/events", json={"seq": s["last_seq"] + 1, "type": "lock"})

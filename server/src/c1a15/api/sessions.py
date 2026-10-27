@@ -29,6 +29,7 @@ SERVER_FIELDS = {
     "_client_type",
 }  # 서버만 쓰는 event 필드(재전송 비교에서 뺌)
 CLIENT_TYPES = {
+    "alarm_ack",  # EV-007(D-422): 알람 화면 '진단 보기' — 잠금 앞 차례(판정 Run 부르지 않음)
     "lock",
     "equipment_change",
     "precheck_done",
@@ -38,7 +39,7 @@ CLIENT_TYPES = {
     "out_of_scope_choice",
 } | flow.CLIENT_TYPES
 INPUT_TYPES = (
-    CLIENT_TYPES - flow.CLIENT_TYPES
+    CLIENT_TYPES - flow.CLIENT_TYPES - {"alarm_ack"}  # 알람 확인은 판정 입력이 아님(EV-007)
     | {  # 판정 엔진이 접는 업무 기록(S-03 · 파트장 답 포함)
         "lock",
         "equipment_change",
@@ -446,6 +447,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
         "alarm_id": row.alarm_id,
         "status": row.status,
         "locked": state.locked,
+        "alarm_ack_at": next((e["at"] for e in events if e["type"] == "alarm_ack"), None),
         "lock_at": next((e["at"] for e in reversed(events) if e["type"] == "lock"), None) if state.locked else None,
         "probabilities": probs,
         "evidence": rules.evidence_counts(state.candidates, state.similar),
@@ -552,6 +554,14 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         raise HTTPException(status_code=409, detail="stale_seq")
     if seq is not None and seq != last + 1:
         raise HTTPException(status_code=409, detail="stale_seq")
+    if etype == "alarm_ack":  # EV-007(D-422): 알람 확인 시각만 남김 — 되풀이는 기록 0 · 판정(배포 서버 Run) 안 부름
+        if any(e["type"] == "alarm_ack" for e in events):
+            return view(c, row)
+        from datetime import UTC, datetime
+
+        _store(c, row.session_id, last + 1, etype, {"at": datetime.now(UTC).isoformat()}, actor)
+        audit(c, actor, etype, f"session:{row.session_id}", {"seq": last + 1})
+        return view(c, row)
     k = deps.manual()
     state = session.fold(k, row.symptom_group, similar_of(row), [e for e in events if e["type"] in INPUT_TYPES])
     step = current_step(events) or {}
@@ -580,8 +590,16 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         )
         if sorted(payload.get("checked", [])) != sorted(expected):
             deny("checklist_incomplete")
+    elif etype == "lock" and not any(e["type"] == "alarm_ack" for e in events):
+        deny("alarm_not_acked")  # EV-007: 알람 화면을 거친 뒤에만 잠금(빠른 여러 번 누름으로 건너뛰지 못함)
+    elif etype == "lock" and state.locked:
+        deny("already_locked")
     elif etype in {"precheck_done"} and not state.locked:
         deny("not_locked")
+    elif etype == "precheck_done" and state.precheck_done:
+        deny("not_precheck_step")
+    elif etype == "precheck_done" and not str(payload.get("values") or "").strip():
+        deny("precheck_values_required")  # D-422: 사전 확인 값 없이 다음으로 가지 않음
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
     elif etype in flow.CLIENT_TYPES:  # S-03: 조치 · 재가동 · 마감 · 호출 · 보고서(P-09)

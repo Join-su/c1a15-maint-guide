@@ -124,7 +124,15 @@ export function guard(page: Page, allow: RegExp[] = []) {
   };
 }
 
-export async function login(page: Page, user = "tech.kim", pw = TECH_PW): Promise<void> {
+/** EV-007: 새 화면 직후 0.4초 누름 무시를 끔 — 시험은 화면이 뜨자마자 누르므로. 막기 자체는 safety.spec이 켠 채로 봄. */
+export async function freshGuardOff(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    (window as unknown as { __C1A15_FRESH_MS__: number }).__C1A15_FRESH_MS__ = 0;
+  });
+}
+
+export async function login(page: Page, user = "tech.kim", pw = TECH_PW, guardOff = true): Promise<void> {
+  if (guardOff) await freshGuardOff(page);
   await page.goto("/");
   await page.getByLabel("ID").fill(user);
   await page.getByLabel("비밀번호").fill(pw);
@@ -162,6 +170,7 @@ export async function toFirstCheck(
   if (onDiagnosis) await onDiagnosis();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C"); // D-422: 사전 확인 값 필수
   await page.getByText("사전 확인 완료").click();
   await expect(page.locator(".rbtns")).toBeVisible();
   return sid;
@@ -191,6 +200,7 @@ export async function restartWithin(page: Page): Promise<void> {
 export const LEAD_URL = process.env.LEAD_URL ?? "http://127.0.0.1:8082";
 
 export async function loginLead(page: Page, user = "lead.park", pw = LEAD_PW): Promise<void> {
+  await freshGuardOff(page);
   await page.goto(LEAD_URL + "/");
   await page.getByLabel("ID").fill(user);
   await page.getByLabel("비밀번호").fill(pw);

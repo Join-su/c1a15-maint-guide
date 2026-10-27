@@ -954,7 +954,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request";
+            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request";
             /** Value */
             value?: ("정상" | "이상" | "확인 불가") | null;
             /** Values */
@@ -1830,6 +1830,8 @@ export interface components {
         SessionView: {
             action?: components["schemas"]["ActionBlock"] | null;
             alarm: components["schemas"]["AlarmBlock"];
+            /** Alarm Ack At */
+            alarm_ack_at?: string | null;
             /** Alarm Id */
             alarm_id: number;
             call?: components["schemas"]["CallBlock"] | null;
@@ -1884,6 +1886,8 @@ export interface components {
         SessionWithPreview: {
             action?: components["schemas"]["ActionBlock"] | null;
             alarm: components["schemas"]["AlarmBlock"];
+            /** Alarm Ack At */
+            alarm_ack_at?: string | null;
             /** Alarm Id */
             alarm_id: number;
             call?: components["schemas"]["CallBlock"] | null;

@@ -1,7 +1,7 @@
 // L05 권한 등급: 절별 등급 표(결정 018 ② — 등급표 전부, 'n절 중 n절 표시') · 등급 고르기(A ~ D) · 낮춤 / 올림 경고(EV-062, 모든 변경)
 // · 취소 / 변경 저장(경고를 확인해야 저장 — AC-25-C3) · 변경 기록(누가 · 언제 · 전 · 후 — AC-25-C2). 경고 문구는 서버가 준다.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { dateTime, GradeBadge, GRADE_LABEL, Icon, type Api, type Schemas } from "@c1a15/ui";
 import { Btn } from "./Frame";
 
@@ -24,14 +24,17 @@ export function GradesScreen({ api, data, onChanged }: { api: Api; data: Grades;
     });
     if (w) setPending({ section, grade, warning: w });
   };
+  const saving = useRef(false); // EV-007: 같은 순간 두 번 누름도 한 번만 보냄
   const save = async () => {
-    if (!pending) return;
+    if (!pending || saving.current) return;
+    saving.current = true;
     setBusy(true);
     const { data: r } = await api.POST("/api/lead/grades/{section}", {
       params: { path: { section: pending.section } },
       body: { grade: pending.grade as "A" | "B" | "C" | "D", confirmed: true },
     });
     setBusy(false);
+    saving.current = false;
     if (r) {
       setPending(null);
       setOpen(null);

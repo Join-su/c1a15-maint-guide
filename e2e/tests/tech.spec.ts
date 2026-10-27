@@ -111,6 +111,7 @@ test("AC-14: 앱을 닫았다 다시 열어도 '이어서 하기'로 같은 단�
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C"); // D-422: 사전 확인 값 필수
   await page.getByText("사전 확인 완료").click();
   await page.locator(".rbtn", { hasText: "확인 불가" }).click();
   await page.getByText("결과 보내기").click();
@@ -163,6 +164,7 @@ test("AC-31: LLM 실패 시뮬레이션 세션 — T06 / fallback(원문 대체)
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C"); // D-422: 사전 확인 값 필수
   await page.getByText("사전 확인 완료").click();
   await expect(page.locator(".rbtns")).toBeVisible();
   const sid = Number(/\/session\/(\d+)/.exec(page.url())?.[1]);

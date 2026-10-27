@@ -1,7 +1,7 @@
 // L02 승인 대기(요약 타일 3개 · 표 · 빈 목록) · L03 보고서 검토(그대로 승인 · 수정 후 승인 · 반려).
 // 값은 /api/lead/overview · /api/lead/reports/{id}(P-11). 수정 문장 근거 검사(R8)는 서버가 한다(/check).
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { errorDetail, hhmm, Icon, type Api, type Schemas } from "@c1a15/ui";
 import { Btn, Options } from "./Frame";
 
@@ -114,7 +114,10 @@ export function Review({ api, report, onDone }: { api: Api; report: Report; onDo
     needReason ||
     (decision === "edit" && (!Object.keys(changed).length || !check || !check.ok));
 
+  const saving = useRef(false); // EV-007: 같은 순간 두 번 누름도 한 번만 보냄
   const save = async () => {
+    if (saving.current) return;
+    saving.current = true;
     setBusy(true);
     setError(null);
     const { data, error: err } = await api.POST("/api/lead/reports/{report_id}/decision", {
@@ -122,6 +125,7 @@ export function Review({ api, report, onDone }: { api: Api; report: Report; onDo
       body: { decision, edits: decision === "edit" ? changed : {}, memo: memo.trim() || null },
     });
     setBusy(false);
+    saving.current = false;
     if (data) onDone();
     else setError(errorDetail(err) ?? "save_failed");
   };

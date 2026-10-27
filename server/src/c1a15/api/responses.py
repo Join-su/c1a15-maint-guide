@@ -389,6 +389,7 @@ class SessionView(_Out):
     status: str
     locked: bool
     lock_at: str | None
+    alarm_ack_at: str | None = None  # EV-007: 알람 화면 확인 시각(없으면 잠금 거절)
     probabilities: dict[str, int]
     evidence: dict[str, int]
     low_evidence: bool

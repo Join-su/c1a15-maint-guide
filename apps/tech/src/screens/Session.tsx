@@ -3,7 +3,7 @@
 // 입력은 업무 key(세션 + seq)로 보내고, 보내지 않은 입력은 기기에 둔다(홈으로 갔다 와도 그대로).
 
 import { useEffect, useRef, useState } from "react";
-import { errorDetail, StepBar, type Api, type Instruction, type SessionView, type SessionWithPreview } from "@c1a15/ui";
+import { errorDetail, StepBar, useFreshScreenGuard, type Api, type Instruction, type SessionView, type SessionWithPreview } from "@c1a15/ui";
 import { device, emptyDraft, type Draft } from "../device";
 import { PackNotice, trackPack, type PackState } from "../PackNotice";
 import { usePoll } from "../hooks";
@@ -49,6 +49,7 @@ export function Session(p: SessionProps) {
   const [stage, setStageState] = useState<Stage>(() => device.stage(sid) ?? "alarm");
   const [draft, setDraftState] = useState<Draft>(() => device.draft(sid));
   const [busy, setBusy] = useState(false);
+  const sending = useRef(false); // EV-007: 같은 순간 두 번 누름도 한 번만 보냄(상태 busy는 다음 그리기에야 보임)
   const [pack, setPack] = useState<PackState>(null); // CH-17: 판정 지연 · 실패(배포 서버 길)
   const packRetry = useRef<(() => void) | null>(null); // 다시 보내기(같은 seq) — ref라 두 번 눌러도 한 번만
   const [, bump] = useState(0); // 기기 표시(seen)를 바꾼 뒤 다시 그리기
@@ -96,7 +97,8 @@ export function Session(p: SessionProps) {
   }, [ins?.section, ins?.check_no]);
 
   const send = async (body: Omit<Body, "seq">): Promise<boolean> => {
-    if (!s || busy) return false;
+    if (!s || busy || sending.current) return false;
+    sending.current = true;
     setBusy(true);
     const { data, error, response } = await trackPack(
       () =>
@@ -107,6 +109,7 @@ export function Session(p: SessionProps) {
       setPack,
     );
     setBusy(false);
+    sending.current = false;
     packRetry.current = null;
     if (response.status === 503 && errorDetail(error) === "pack_unavailable") {
       // 판정 서버 연결 실패: '다시 보내기'를 누를 때까지 이 요청을 끝내지 않는다 — 같은 seq · 같은 본문으로 다시 보내고,
@@ -127,6 +130,11 @@ export function Session(p: SessionProps) {
     return false;
   };
 
+  // EV-007: 알람 확인(서버 기록) 전에는 기기에 남은 단계와 상관없이 알람 화면부터
+  const shown: Stage = s && !s.locked && !s.alarm_ack_at ? "alarm" : stage;
+  useFreshScreenGuard(
+    [shown, s?.locked, s?.step?.kind, s?.step?.section, s?.instruction?.check_no, past?.no, past?.idx].join("|"),
+  );
   if (!s) return <StepBar current={1} />;
 
   const loadHistory = async () => {
@@ -170,8 +178,15 @@ export function Session(p: SessionProps) {
 
   let body;
   if (!s.locked) {
-    if (stage === "alarm") body = <AlarmScreen s={s} onNext={() => setStage("diagnosis")} />;
-    else if (stage === "diagnosis") body = <DiagnosisScreen s={s} onRecord={p.onRecord} onStart={() => setStage("lock")} />;
+    if (shown === "alarm")
+      body = (
+        <AlarmScreen
+          s={s}
+          busy={busy}
+          onNext={() => void send({ type: "alarm_ack" }).then((ok) => ok && setStage("diagnosis"))}
+        />
+      );
+    else if (shown === "diagnosis") body = <DiagnosisScreen s={s} onRecord={p.onRecord} onStart={() => setStage("lock")} />;
     else body = <LockScreen s={s} busy={busy} onLock={() => void send({ type: "lock" })} />;
   } else if (s.step.kind === "precheck") {
     body = (
@@ -267,7 +282,7 @@ export function Session(p: SessionProps) {
   } else {
     body = <NextStageScreen s={s} />;
   }
-  const current = stepNumber(s, stage, reportOpen);
+  const current = stepNumber(s, shown, reportOpen);
   if (past && hist) {
     const unsentIns = ins && draft.section === ins.section && (draft.value || draft.memo.trim()) ? ins : null;
     body = (

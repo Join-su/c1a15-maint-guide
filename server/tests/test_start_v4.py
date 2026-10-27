@@ -76,7 +76,7 @@ def test_vc53_judge_uses_stored_similar_and_one_start(api, db, deploy):
     sj = s.json()
     sid = sj["session_id"]
     url = f"/api/tech/sessions/{sid}/events"
-    for ev in ({"type": "lock"}, {"type": "precheck_done"}):
+    for ev in ({"type": "alarm_ack"}, {"type": "lock"}, {"type": "precheck_done", "values": "하우징 52 °C"}):
         r = tech.post(url, json={"seq": sj["last_seq"] + 1, **ev})
         assert r.status_code == 200, r.text
         sj = r.json()

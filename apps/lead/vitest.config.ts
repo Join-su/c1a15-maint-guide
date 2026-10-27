@@ -5,5 +5,5 @@ import react from "@vitejs/plugin-react";
 // fixture = dev 스택의 실제 API 응답(src/__tests__/fixtures, scripts 없이 손으로 만들지 않음).
 export default defineConfig({
   plugins: [react()],
-  test: { environment: "jsdom", include: ["src/**/*.test.tsx"], css: false },
+  test: { environment: "jsdom", include: ["src/**/*.test.tsx"], css: false, setupFiles: ["src/__tests__/setup.ts"] },
 });

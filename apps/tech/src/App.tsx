@@ -7,6 +7,7 @@ import {
   hhmm,
   RecordModal,
   TopBar,
+  useFreshScreenGuard,
   type HistoryRecord,
   type Home as HomeData,
   type Notifications,
@@ -32,6 +33,7 @@ export function App() {
   const clock = useClock();
   const [me, setMeState] = useState<Me | null>(() => device.me());
   const [view, setView] = useState<View>(viewFromPath);
+  useFreshScreenGuard(view.name === "home" ? "home" : `session:${view.sid}`); // EV-007: 홈 → 세션 바뀐 직후 누름 무시
   const [home, setHome] = useState<HomeData | null>(null);
   const [notes, setNotes] = useState<Notifications | null>(null);
   const [panel, setPanel] = useState(false);
@@ -75,11 +77,16 @@ export function App() {
 
   const [pack, setPack] = useState<PackState>(null); // CH-17: 점검 시작(첫 Run)이 늦거나 실패할 때
   const [packAlarm, setPackAlarm] = useState<number | null>(null);
+  const starting = useRef(false); // EV-007: '점검 시작'을 여러 번 눌러도 세션 시작 요청은 한 번(응답 뒤 풀림)
   const startAlarm = async (alarmId: number) => {
+    if (starting.current) return;
+    starting.current = true;
     const { data, response } = await trackPack(
       () => api.POST("/api/tech/alarms/{alarm_id}/session", { params: { path: { alarm_id: alarmId } } }),
       setPack,
-    );
+    ).finally(() => {
+      starting.current = false;
+    });
     setPackAlarm(response.status === 503 ? alarmId : null);
     if (response.status === 401) return expired();
     if (data) {
