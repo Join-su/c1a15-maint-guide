@@ -138,6 +138,7 @@ export async function login(page: Page, user = "tech.kim", pw = TECH_PW, guardOf
   await page.getByLabel("비밀번호").fill(pw);
   // 로그인 응답(세션 commit)까지 기다림 — 바로 뒤 알람 발생기(R9 배정 = 로그인한 정비자)와 겨루지 않게(ES-16 host 실행에서 드러남)
   const done = page.waitForResponse((r) => r.url().endsWith("/api/login") && r.request().method() === "POST");
+  if (!guardOff) await page.waitForTimeout(500); // 막기를 켠 시험: 첫 화면 뒤 0.4초 안 누름은 무시되므로 사람처럼 잠깐 뒤
   await page.getByText("로그인", { exact: true }).click();
   await done;
 }
