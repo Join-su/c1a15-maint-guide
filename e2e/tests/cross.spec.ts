@@ -237,7 +237,8 @@ test("AC-37: 종 목록 4종류(새 알람 · 진행 중 · 답이 온 호출 ·
   // 근거 적음 세션(S-02 · S-03과 같은 score 시뮬레이션) — 보고서 확정 전에 넣어야 확정한 보고서에 근거 적음이 남는다
   // AC-29: 진단(T04 / low_evidence) 배너 · 칩 → 다음 지시 그대로 나옴 → 보고서 근거 사례 줄 칩(파생 T09 / low_evidence) → 파트장 목록 행
   const lowEvidence = (sid: number) => {
-    psql(`update ops.diag_sessions set "similar" = (select jsonb_agg(jsonb_set(e, '{score}', to_jsonb(case when i <= 2 then 0.9 else 0.3 end))) from jsonb_array_elements("similar") with ordinality as t(e, i)) where session_id = ${sid}`);
+    // 냉각 필터 막힘(CL-1) 기록 2건만 높게 — 시험 자료(Pack 후보)가 바뀌어도 첫 지시 4.3 · 근거 적음이 같게(D-429 p13에서 앞 2건이 CL-3라 4.5로 갔음)
+    psql(`update ops.diag_sessions set "similar" = (select jsonb_agg(jsonb_set(e, '{score}', to_jsonb(case when k <= 2 then 0.9 else 0.3 end)) order by i) from (select e, i, row_number() over (order by (e->>'cause' = 'CL-1') desc, i) as k from jsonb_array_elements("similar") with ordinality as t(e, i)) x) where session_id = ${sid}`);
   };
   const sidR = await toFirstCheck(page, "DEMO-02", lowEvidence, async () => {
     await expect(page.locator(".banner.warn b")).toHaveText("근거 적음"); // AC-29-C1
