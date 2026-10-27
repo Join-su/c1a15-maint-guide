@@ -149,6 +149,7 @@ class Run:
         results, asked, actions, confirmed, sent, counted = card["check_results"], set(), [], False, {}, set()
         self.current = rec
         perf = rec["performed_sections"]
+        s = ev(s, type="alarm_ack")  # EV-007: 알람 화면 확인 → 잠금
         s = ev(s, type="lock")
         perf.append("1.2")
         for _ in range(MAX_STEPS):

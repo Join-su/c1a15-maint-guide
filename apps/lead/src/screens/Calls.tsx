@@ -79,9 +79,10 @@ export function CallDetail({ api, call, onDone }: { api: Api; call: Call; onDone
     const { data, error: err } = await api.POST("/api/lead/calls/{call_id}/answer", {
       params: { path: { call_id: call.call_id } },
       body: { answer: answer as "approved" | "daytime" | "direct" | "assign", note: note.trim() || null },
+    }).finally(() => {
+      saving.current = false; // 예외로 끝나도 풀림(EV-007 review)
     });
     setBusy(false);
-    saving.current = false;
     if (data) onDone();
     else setError(errorDetail(err) ?? "save_failed");
   };

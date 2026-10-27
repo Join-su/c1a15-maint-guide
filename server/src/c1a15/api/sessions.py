@@ -707,6 +707,8 @@ def post_correction(c: Connection, row: m.DiagSession, actor: str, body: dict) -
     else:
         deny("not_correctable", target_type=target["type"])  # AC-48-C1
     after = {k2: (v.strip() if isinstance(v, str) else v) for k2, v in after.items()}
+    if target["type"] == "precheck_done" and not after["values"]:
+        deny("precheck_values_required")  # EV-007 review: 정정으로 사전 확인 값을 비우지 못함
     if after == before:
         deny("no_change")
     changed = target["type"] == "result" and after["value"] != before["value"]

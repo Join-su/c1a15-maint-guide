@@ -123,9 +123,10 @@ export function Review({ api, report, onDone }: { api: Api; report: Report; onDo
     const { data, error: err } = await api.POST("/api/lead/reports/{report_id}/decision", {
       params: { path: { report_id: report.report_id } },
       body: { decision, edits: decision === "edit" ? changed : {}, memo: memo.trim() || null },
+    }).finally(() => {
+      saving.current = false; // 예외로 끝나도 풀림(EV-007 review)
     });
     setBusy(false);
-    saving.current = false;
     if (data) onDone();
     else setError(errorDetail(err) ?? "save_failed");
   };

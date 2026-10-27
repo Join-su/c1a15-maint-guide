@@ -107,9 +107,10 @@ export function Session(p: SessionProps) {
           body: { seq: s.last_seq + 1, ...body } as never,
         }),
       setPack,
-    );
+    ).finally(() => {
+      sending.current = false; // 연결이 끊겨 예외로 끝나도 풀림(EV-007 review)
+    });
     setBusy(false);
-    sending.current = false;
     packRetry.current = null;
     if (response.status === 503 && errorDetail(error) === "pack_unavailable") {
       // 판정 서버 연결 실패: '다시 보내기'를 누를 때까지 이 요청을 끝내지 않는다 — 같은 seq · 같은 본문으로 다시 보내고,

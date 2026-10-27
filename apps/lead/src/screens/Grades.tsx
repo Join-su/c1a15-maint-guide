@@ -32,9 +32,10 @@ export function GradesScreen({ api, data, onChanged }: { api: Api; data: Grades;
     const { data: r } = await api.POST("/api/lead/grades/{section}", {
       params: { path: { section: pending.section } },
       body: { grade: pending.grade as "A" | "B" | "C" | "D", confirmed: true },
+    }).finally(() => {
+      saving.current = false; // 예외로 끝나도 풀림(EV-007 review)
     });
     setBusy(false);
-    saving.current = false;
     if (r) {
       setPending(null);
       setOpen(null);

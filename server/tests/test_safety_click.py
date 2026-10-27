@@ -103,3 +103,14 @@ def test_session_start_twice_one_session_one_run(api, db, deploy):
     b = tech.post(f"/api/tech/alarms/{aid}/session").json()
     assert a["session_id"] == b["session_id"]
     assert len(runs_of(deploy)) == before + 1
+
+
+def test_precheck_correction_cannot_empty_values(api, db, deploy):
+    """review: '이 기록 정정'으로 사전 확인 값을 비워 값 필수를 뒤에서 피하지 못함."""
+    from test_correction import fix, seq_of
+
+    tech, _, s = start(api, db)
+    for t, body in (("alarm_ack", {}), ("lock", {}), ("precheck_done", {"values": "하우징 52 °C"})):
+        s = ok(tech, s, type=t, **body)
+    r = fix(tech, s, target_seq=seq_of(db, s["session_id"], "precheck_done"), values="  ", reason="지움")
+    assert r.status_code == 409 and r.json()["detail"] == "precheck_values_required"

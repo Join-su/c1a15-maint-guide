@@ -916,6 +916,8 @@ def audit_label(a, k, names: dict[str, str] | None = None) -> str:
         return f"등급 변경 · {sec} {title} {d.get('before')} → {d.get('after')}".replace("  ", " ")
     if act == "session_start":
         return "점검 시작"
+    if act == "alarm_ack":
+        return "알람 확인"  # EV-007
     if act == "alarm":
         who = (names or {}).get(d.get("assigned_to") or "", d.get("assigned_to") or "없음")
         return f"알람 등록 · 배정 {who}"

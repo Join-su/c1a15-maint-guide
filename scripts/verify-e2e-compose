@@ -99,13 +99,15 @@ SID=$(echo "$S" | jget 'd["session_id"]'); SEQ=$(echo "$S" | jget 'd["last_seq"]
 START=$(docker compose exec -T db psql -U c1a15 -d c1a15 -tAc "select coalesce(deployment_id, '') || ' ' || coalesce(start_run_id, '') from ops.diag_sessions where session_id = $SID")
 [[ "$START" == "c1a15@v1-local run_"* ]] || fail "세션 시작이 컨테이너 → fake-deploy start Run이 아님($START)"
 echo "verify-e2e-compose(컨테이너 앱 → fake-deploy start Run): pass"
+S=$(curl -fsS -b $J/t -H 'Content-Type: application/json' -d "{\"seq\": $((SEQ+1)), \"type\": \"alarm_ack\"}" http://127.0.0.1:8081/api/tech/sessions/$SID/events)  # EV-007
+SEQ=$(echo "$S" | jget 'd["last_seq"]')
 S=$(curl -fsS -b $J/t -H 'Content-Type: application/json' -d "{\"seq\": $((SEQ+1)), \"type\": \"lock\"}" http://127.0.0.1:8081/api/tech/sessions/$SID/events)
 BEFORE_STEP=$(echo "$S" | jget '(d["step"], d["probabilities"], d["lock_at"])'); SEQ=$(echo "$S" | jget 'd["last_seq"]')
 docker compose restart api >/dev/null 2>&1
 for _ in $(seq 1 30); do curl -fsS http://127.0.0.1:8081/api/health >/dev/null 2>&1 && break; sleep 1; done
 AFTER_STEP=$(curl -fsS -b $J/t http://127.0.0.1:8081/api/tech/sessions/$SID | jget '(d["step"], d["probabilities"], d["lock_at"])')
 [ "$BEFORE_STEP" = "$AFTER_STEP" ] || fail "api 재시작 뒤 단계 · 순위 · 잠금 시각이 다름"
-curl -fsS -b $J/t -H 'Content-Type: application/json' -d "{\"seq\": $((SEQ+1)), \"type\": \"precheck_done\"}" http://127.0.0.1:8081/api/tech/sessions/$SID/events >/dev/null || fail "재시작 뒤 입력"
+curl -fsS -b $J/t -H 'Content-Type: application/json' -d "{\"seq\": $((SEQ+1)), \"type\": \"precheck_done\", \"values\": \"하우징 표면 52 °C\"}" http://127.0.0.1:8081/api/tech/sessions/$SID/events >/dev/null || fail "재시작 뒤 입력"
 VIA=$(docker compose exec -T db psql -U c1a15 -d c1a15 -tAc "select coalesce(string_agg(payload->>'via', ','), '') from ops.session_events where session_id = $SID and type = 'step_opened' and seq > $SEQ")
 [ "$VIA" = "deploy" ] || fail "재시작 뒤 열린 다음 단계가 deploy Run 하나가 아님($VIA)"
 echo "verify-e2e-compose(재시작 재개 L3 — via = deploy 1건): pass"
