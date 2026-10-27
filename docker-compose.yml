@@ -58,6 +58,7 @@ services:
       C1A15_DEPLOY_HOST: ${C1A15_DEPLOY_HOST:-}
       C1A15_ALARM: ${C1A15_ALARM:-boundary}
       C1A15_R12_INBOX: ${C1A15_R12_INBOX:-}
+      C1A15_CHECKS: ${C1A15_CHECKS:-off}  # EV-006 사람 체크 기록 보내기: off(기본) | deploy
     # 경계 판정 표 · 시연 각본(읽기만). 알람 발생: docker compose exec api python -m c1a15.alarms DEMO-01
     volumes:
       - ./data:/data:ro

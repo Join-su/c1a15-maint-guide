@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 export COMPOSE_PROJECT_NAME=c1a15-e2ec DB_HOST_PORT="${DB_HOST_PORT:-55435}" COMPOSE_FILE=docker-compose.yml:docker-compose.e2e.yml
 gen() { python3 -c 'import secrets; print(secrets.token_urlsafe(16))'; }
 export POSTGRES_PASSWORD="$(gen)" C1A15_TECH_PASSWORD="$(gen)" C1A15_LEAD_PASSWORD="$(gen)" C1A15_INTERNAL_TOKEN="$(gen)" APP_MODE=fixture
-export C1A15_ALARM=boundary C1A15_R12_INBOX=  # 저장소 .env 값이 시험 api로 새지 않게(ES-20 review N3)
+export C1A15_ALARM=boundary C1A15_R12_INBOX= C1A15_CHECKS=off  # 저장소 .env 값이 시험 api로 새지 않게(ES-20 review N3)
 O=${E2E_EVIDENCE_DIR:-}  # 있으면 build 캐시 기록(RUN 번호 · CACHED 줄)을 남김 — 절대 경로 · 있는 폴더
 J=$(mktemp -d)
 trap 'rm -rf "${J:?}"; docker compose down -v --remove-orphans >/dev/null 2>&1 || true' EXIT
