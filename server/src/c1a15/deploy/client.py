@@ -217,6 +217,13 @@ class Client:
         except Exception:  # 응답 상태 줄이 깨짐 등 — 같은 키 갈래로 다시(urllib가 감싸지 않는 예외)
             return Reply(None, None, transport="unreachable")
 
+    def feedback(self, run_id: str, body: dict, key: str, timeout: float) -> Reply:
+        """사람 체크 기록 한 장(EV-006 CH-4 · deploy 202): `POST /runs/{run_id}/feedback` 한 번 — 다시 보내지 않음.
+
+        같은 키 = record_key(같은 본문이면 배포 서버가 같은 응답). 실패는 부르는 쪽이 감사만 남긴다(승인 그대로).
+        """
+        return self._http("POST", f"/runs/{run_id}/feedback", timeout, key, body)
+
     def _poll(self, run_id: str, timeout: float) -> Reply | None:
         """409 뒤: 앞 요청이 만든 실행이 끝날 때까지 2초마다 읽음(최대 120초 — GET에 걸린 시간도 셈).
 

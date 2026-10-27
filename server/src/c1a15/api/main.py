@@ -23,6 +23,7 @@ from c1a15.engine import alarm_rules, rules
 
 PACK = config.pack_settings()  # Pack을 부르는 길 · 배포 서버 주소 — 어긋나면 서버 시작 거절(EV-001 CH-15)
 config.r12_inbox()  # R12 받은 편지 폴더 — 절대 경로가 아니면 시작 거절(EV-001 CH-23)
+config.checks()  # 사람 체크 기록 보내기 — off · deploy 밖이면 시작 거절(EV-006 CH-5)
 app = FastAPI(title="정비 길잡이 API", version="0.2.0")
 app.include_router(lead.router)  # 파트장 API(P-11)
 

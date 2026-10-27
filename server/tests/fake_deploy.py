@@ -59,6 +59,9 @@ class FakeDeploy:
         self.requests: list[dict] = []
         self.executions = 0
         self.lock = threading.Lock()
+        self.feedback: list[dict] = []  # 받은 사람 체크 기록(EV-006)
+        self.feedback_keys: dict[str, dict] = {}
+        self.feedback_fail: int | None = None
         self.done = threading.Event()  # 실행 하나가 끝나 키에 저장될 때마다 set
         fake = self
 
@@ -110,6 +113,8 @@ class FakeDeploy:
                 fake.requests.append({"method": "POST", "path": self.path, "headers": dict(self.headers), "body": body})
                 if not key:
                     return self._send(400, {"error": {"code": "idempotency_key_missing", "run_id": None}})
+                if self.path.endswith("/feedback"):  # 사람 체크 기록 한 장(EV-006 · deploy 202 꼴)
+                    return self._send(*fake.take_feedback(self.path.split("/")[2], key, body))
                 kind = body.get("kind")
                 if kind not in REQUIRED or REQUIRED[kind] - body.keys() or FORBIDDEN[kind] & body.keys():
                     return self._send(422, {"error": {"code": "invalid_input", "where": "$", "run_id": None}})
@@ -201,6 +206,28 @@ class FakeDeploy:
             rec["status"], rec["payload"] = 500, {"error": err}
             if rid:
                 self.runs[rid] = {"run_id": rid, "status": "failed", "result": None, "error": err}
+
+    def take_feedback(self, run_id: str, key: str, body: dict) -> tuple[int, dict]:
+        """`POST /runs/{run_id}/feedback` — kind check_record만 · 같은 키 같은 본문 = 같은 응답 · 다른 본문 = 422.
+
+        시험이 `feedback_fail`(상태 코드)를 넣으면 그 응답을 돌려줌(보내기 실패해도 승인 그대로 시험).
+        """
+        if self.feedback_fail:
+            return self.feedback_fail, {"error": {"code": "internal_error", "run_id": run_id}}
+        if body.get("kind") != "check_record" or not isinstance(body.get("record"), dict):
+            return 422, {"error": {"code": "invalid_input", "where": "$.kind", "run_id": run_id}}
+        if self.runs.get(run_id, {}).get("status") != "succeeded":
+            return 404, {"error": {"code": "run_not_found", "run_id": run_id}}
+        with self.lock:
+            old = self.feedback_keys.get(key)
+            if old is not None:
+                if old["sha"] != _sha(body):
+                    return 422, {"error": {"code": "idempotency_key_reused", "run_id": run_id}}
+                return 201, old["reply"]
+            reply = {"feedback_id": f"fb_{len(self.feedback) + 1:04d}", "run_id": run_id, "at": "2026-10-27T00:00:00Z"}
+            self.feedback.append({"run_id": run_id, "key": key, "body": body})
+            self.feedback_keys[key] = {"sha": _sha(body), "reply": reply}
+            return 201, reply
 
     def gets(self) -> list[dict]:
         return [r for r in self.requests if r["method"] == "GET"]

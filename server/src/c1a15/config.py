@@ -28,6 +28,15 @@ def r12_inbox(env=os.environ) -> str | None:
     return folder
 
 
+def checks(env=os.environ) -> str:
+    """사람 체크 기록 보내기(EV-006 CH-5): C1A15_CHECKS = off(기본 — 지금 동작)
+    | deploy(파트장 마지막 결정 뒤 배포 서버로)."""
+    value = env.get("C1A15_CHECKS", "") or "off"
+    if value not in {"off", "deploy"}:
+        raise ConfigError(f"C1A15_CHECKS 는 off 또는 deploy: {value!r}")
+    return value
+
+
 def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
     """Pack을 부르는 길(EV-001 CH-15 · CH-30): 판정 C1A15_JUDGE = deploy(기본이자 하나뿐),
     알람 C1A15_ALARM = boundary(기본) | ml.

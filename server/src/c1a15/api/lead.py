@@ -13,7 +13,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import Connection, select, text
 
-from c1a15 import config
+from c1a15 import checkrecord, config
 from c1a15.api import deps, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
@@ -452,6 +452,7 @@ def report_decision(
         .where(m.Report.report_id == report_id)
         .values(status="approved", fields=fields, approval=approval, updated_at=now, change_seq=deps.next_change_seq(c))
     )
+    checkrecord.queue_after_decision(c, report_id)  # EV-006: 사람 체크 기록 한 장(C1A15_CHECKS=deploy만 · commit 뒤)
     sessions.audit(
         c,
         user.user_id,
