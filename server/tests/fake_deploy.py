@@ -21,7 +21,11 @@ from pathlib import Path
 # — 시험 기대값도 여기서 셈(EV-001 CH-28)
 ML_ALARM_DATA = Path(__file__).parent / "fixtures" / "ml_alarm_outputs.jsonl"
 # start = 사람이 승인한 40행(D-314)의 Pack v4 출력(EV-001 CH-35) — 첫 판정은 아래 앱 engine 계산(받은 similar로)
+# — 값 = 장면 ③ 후보 pool20-hybrid-s0.5 40행(D-418, 실제 이력 벡터 DB ir-history-16d297d8 · rerank.pool 20)
 START_V4_DATA = Path(__file__).parent / "fixtures" / "start_v4_outputs.jsonl"
+# 대역(40행 밖 시험 알람) = 옛 시험값 40행(ES-15 · D-363 ir-history-412ea43e)
+# — 다른 시험의 기대(첫 지시 등)가 이 값으로 짜여 있음(D-396 시험 1에서 찾음)
+STANDIN_DATA = Path(__file__).parent / "fixtures" / "start_standin_outputs.jsonl"
 STAND_INS: list[str] = []  # 대역을 쓴 start 요청의 session_id(시험 기록 — CH-35 'stand_in: true'를 시험에만)
 
 REQUIRED = {
@@ -217,7 +221,7 @@ def start_v4_rows(path: Path | None = None) -> list[dict]:
 def start_v4_row(body: dict) -> dict:
     """요청 (group · direction · 센서 5칸)과 같은 행.
 
-    없으면 같은 group · direction의 첫 행(대역, 40행 밖 시험 알람만 — CH-35).
+    없으면 대역 자료(STANDIN_DATA)에서 같은 group · direction의 첫 행(대역, 40행 밖 시험 알람만 — CH-35).
     """
     q = body["query"]
     rows = [r for r in start_v4_rows() if (r["group"], r["direction"]) == (body["group"], q["direction"])]
@@ -228,7 +232,8 @@ def start_v4_row(body: dict) -> dict:
         return same[0]
     STAND_INS.append(body.get("session_id"))
     print(f"start stand_in session={body.get('session_id')}", file=sys.stderr, flush=True)  # 단독 실행 기록(fake.log)
-    return {**rows[0], "stand_in": True}
+    stand = [r for r in start_v4_rows(STANDIN_DATA) if (r["group"], r["direction"]) == (body["group"], q["direction"])]
+    return {**stand[0], "stand_in": True}
 
 
 def ml_alarm_outputs(path: Path | None = None) -> dict[str, dict]:

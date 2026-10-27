@@ -1,5 +1,5 @@
 // P-17(S-06) 시연 10건 완주 E2E(AC-16): 깨끗한 시험 스택(verify-e2e host 실행 — 무작위 비밀값 · fixture 모드 · OpenAI 키 없음 · 가짜 배포 서버)에서
-// 시연 각본 10건을 packet demo_input_table(사용자 결정 020 ②) — EV-001 ES-16 S3-Q11 옛 → 새 시험용 표(D-363, Pack 리트리버 순서 D-314)대로 보고서 확정(감시 · 인계 마감 포함)까지 간다.
+// 시연 각본 10건을 packet demo_input_table(사용자 결정 020 ②) — 장면 ③ 후보 pool20-hybrid-s0.5 표(D-418 rebuild, Pack 리트리버 순서)대로 보고서 확정(감시 · 인계 마감 포함)까지 간다.
 // 정비자 입력 · 파트장 답 · 보고서 확정은 모두 두 앱 화면 조작이다(시험 DB 시뮬레이션 없음). 한 건(DEMO-07)은 중간에 앱 서버를 다시 띄운다.
 // 입력표 밖 단계가 나오면 시험이 멈춘다(실패). 외부 요청 0 · 콘솔 오류 0.
 
@@ -48,7 +48,7 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     id: "DEMO-04",
     ending: "원인 확정(확인 질문)",
     cause: "냉각 필터 막힘",
-    steps: [{ check: "정상", memo: MEMO, section: "4.3" }, { confirm: true }, { act: true }, { restart: "경계 이내" }],
+    steps: [{ check: "정상", section: "4.5" }, { check: "정상", memo: MEMO, section: "4.3" }, { confirm: true }, { act: true }, { restart: "경계 이내" }],
   },
   {
     id: "DEMO-05",
@@ -60,13 +60,20 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     id: "DEMO-06",
     ending: "이상 없음 · 감시 마감",
     cause: "이상 없음 · 감시",
-    steps: [{ check: "정상", section: "3.3" }, { check: "정상", section: "3.4" }, { check: "정상", section: "3.5" }, { restart: "경계 이내" }, { monitor: true }],
+    steps: [{ check: "정상", section: "3.3" }, { check: "정상", section: "3.5" }, { check: "정상", section: "3.4" }, { restart: "경계 이내" }, { monitor: true }],
   },
   {
     id: "DEMO-07",
     ending: "원인 확정(중간에 api 재시작)",
     cause: "엔코더 신호 이상",
-    steps: [{ restartApi: true }, { check: "정상", section: "3.3" }, { check: "이상", memo: "커넥터 핀 한쪽이 들떠 있음", section: "3.4" }, { act: true }, { restart: "경계 이내" }],
+    steps: [
+      { restartApi: true },
+      { check: "정상", section: "3.3" },
+      { check: "정상", section: "3.5" },
+      { check: "이상", memo: "커넥터 핀 한쪽이 들떠 있음", section: "3.4" },
+      { act: true },
+      { restart: "경계 이내" },
+    ],
   },
   {
     id: "DEMO-08",
@@ -78,14 +85,7 @@ const DEMO: { id: string; ending: string; cause: string; unresolved?: RegExp; st
     id: "DEMO-09",
     ending: "원인 확정",
     cause: "공구 날 손상",
-    steps: [
-      { check: "정상", section: "2.3" },
-      { check: "정상", section: "2.5" },
-      { check: "정상", section: "2.6" },
-      { check: "이상", memo: "날 끝에 이가 빠짐", section: "2.4" },
-      { act: true },
-      { restart: "경계 이내" },
-    ],
+    steps: [{ check: "이상", memo: "날 끝에 이가 빠짐", section: "2.4" }, { act: true }, { restart: "경계 이내" }],
   },
   { id: "DEMO-10", ending: "숙련자 인계 마감(확인 불가 반복)", cause: "원인 미상", steps: [{ unableUntilHandover: true }, { handover: true }] },
 ];
