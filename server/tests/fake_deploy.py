@@ -21,7 +21,7 @@ from pathlib import Path
 # — 시험 기대값도 여기서 셈(EV-001 CH-28)
 ML_ALARM_DATA = Path(__file__).parent / "fixtures" / "ml_alarm_outputs.jsonl"
 # start = 사람이 승인한 40행(D-314)의 Pack v4 출력(EV-001 CH-35) — 첫 판정은 아래 앱 engine 계산(받은 similar로)
-# — 값 = 장면 ③ 후보 pool20-hybrid-s0.5 40행(D-418, 실제 이력 벡터 DB ir-history-16d297d8 · rerank.pool 20)
+# — 값 = 장면 ③ 후보 p13-all-s0.5 40행(D-429, 실제 이력 벡터 DB ir-history-16d297d8 · c1a15-pack SL-6)
 START_V4_DATA = Path(__file__).parent / "fixtures" / "start_v4_outputs.jsonl"
 # 대역(40행 밖 시험 알람) = 옛 시험값 40행(ES-15 · D-363 ir-history-412ea43e)
 # — 다른 시험의 기대(첫 지시 등)가 이 값으로 짜여 있음(D-396 시험 1에서 찾음)
