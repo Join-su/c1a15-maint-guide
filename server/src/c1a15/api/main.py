@@ -173,12 +173,19 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
             e.code == "run_failed" and e.where == "run.predict_failure"
         ):  # D-275: 예측 실패 = Run 실패 → 후보 model_failure
             cand = {"reason": "model_failure", "risk": None, "top_k": [], "model_release": None, "run_id": e.run_id}
-            return None, {}, _store_candidate(c, body, req, cand)
+            given = {
+                k: body.sensor_snapshot[k] for k in DERIVED if k in body.sensor_snapshot
+            }  # 발생기가 준 값만(앱 계산 0)
+            return None, {}, _store_candidate(c, body, req, cand, given if len(given) == len(DERIVED) else None)
         raise
     out = res.output["alarm"]
     refs = {"event_id": event_id, "run_id": res.run_id, "deployment_id": res.deployment_id}
     if out.get("candidate"):
-        return None, {}, _store_candidate(c, body, req, {**out["candidate"], "run_id": res.run_id})
+        return (
+            None,
+            {},
+            _store_candidate(c, body, req, {**out["candidate"], "run_id": res.run_id}, out.get("sensor_derived")),
+        )
     if not out["alarm"]:
         if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
             return None, {}, _no_alarm("below_threshold", out)
@@ -210,8 +217,13 @@ def _no_alarm(reason: str, out: dict) -> dict:
     }
 
 
-def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict) -> dict:
-    """알람을 만들지 않은 '사람 판단 필요' 기록(ES-04 표) — 화면 0."""
+DERIVED = ("power_w", "temp_diff_k")  # Pack이 계산하는 칸(출력 · 온도 차)
+
+
+def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict, derived: dict | None = None) -> dict:
+    """알람을 만들지 않은 '사람 판단 필요' 기록(ES-04 표) — 파트장 '사람 판단'(EV-009)이 읽음.
+
+    derived = Pack 계산 칸 — event에 같이 남겨 올릴 때 앱이 다시 계산하지 않게(없으면 그 후보는 올리지 못함)."""
     card = req["event_card"]
     try:
         crossed = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table()) is not None  # 기록용(판정 아님)
@@ -227,7 +239,7 @@ def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict) -> d
             boundary_crossed=bool(cand.get("boundary_crossed", crossed)),
             model_release=cand.get("model_release"),
             sensor_snapshot=card["sensor_snapshot"],
-            event=card,
+            event={**card, "sensor_derived": derived} if derived else card,
             eval_mode=body.eval_mode,
             event_id=card["event_id"],
             run_id=cand.get("run_id"),

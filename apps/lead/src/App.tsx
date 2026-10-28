@@ -8,6 +8,7 @@ import { usePoll } from "./hooks";
 import { ApprovalList, Review } from "./screens/Approvals";
 import { AuditScreen, type AuditFilter } from "./screens/Audit";
 import { CallDetail, CallList } from "./screens/Calls";
+import { JudgeList } from "./screens/Judge";
 import { Frame, type Menu } from "./screens/Frame";
 import { GradesScreen } from "./screens/Grades";
 import { Login } from "./screens/Login";
@@ -16,11 +17,18 @@ type View =
   | { name: "approvals" }
   | { name: "review"; id: number }
   | { name: "calls" }
+  | { name: "judge" }
   | { name: "call"; id: number }
   | { name: "grades" }
   | { name: "audit" };
 
-const TITLE: Record<Menu, string> = { approvals: "승인 대기", calls: "처리할 호출", grades: "권한 등급", audit: "감사 기록" };
+const TITLE: Record<Menu, string> = {
+  approvals: "승인 대기",
+  calls: "처리할 호출",
+  judge: "사람 판단",
+  grades: "권한 등급",
+  audit: "감사 기록",
+};
 
 function viewFromPath(): View {
   const p = window.location.pathname;
@@ -29,6 +37,7 @@ function viewFromPath(): View {
   m = /^\/calls\/(\d+)/.exec(p);
   if (m) return { name: "call", id: Number(m[1]) };
   if (p.startsWith("/calls")) return { name: "calls" };
+  if (p.startsWith("/judge")) return { name: "judge" };
   if (p.startsWith("/grades")) return { name: "grades" };
   if (p.startsWith("/audit")) return { name: "audit" };
   return { name: "approvals" };
@@ -50,6 +59,7 @@ export function App() {
   const [overview, setOverview] = useState<Schemas["LeadOverview"] | null>(null);
   const [report, setReport] = useState<Schemas["LeadReport"] | null>(null);
   const [calls, setCalls] = useState<Schemas["LeadCalls"] | null>(null);
+  const [judge, setJudge] = useState<Schemas["LeadCandidates"] | null>(null);
   const [call, setCall] = useState<Schemas["LeadCall"] | null>(null);
   const [grades, setGrades] = useState<Schemas["LeadGrades"] | null>(null);
   const [audit, setAudit] = useState<Schemas["LeadAudit"] | null>(null);
@@ -84,6 +94,10 @@ export function App() {
       const r = await api.GET("/api/lead/calls/{call_id}", { params: { path: { call_id: view.id } } });
       check(r.response.status);
       if (r.data) setCall((prev) => (prev?.call_id === r.data.call_id ? prev : r.data));
+    } else if (view.name === "judge") {
+      const r = await api.GET("/api/lead/candidates");
+      check(r.response.status);
+      if (r.data) setJudge(r.data);
     } else if (view.name === "grades") {
       const r = await api.GET("/api/lead/grades");
       check(r.response.status);
@@ -114,6 +128,7 @@ export function App() {
   else if (view.name === "calls" && calls) body = <CallList data={calls} onOpen={(id) => go({ name: "call", id })} />;
   else if (view.name === "call" && call?.call_id === view.id)
     body = <CallDetail key={call.call_id} api={api} call={call} onDone={() => go({ name: "calls" })} />;
+  else if (view.name === "judge" && judge) body = <JudgeList api={api} data={judge} onChanged={() => void load()} />;
   else if (view.name === "grades" && grades) body = <GradesScreen api={api} data={grades} onChanged={() => void load()} />;
   else if (view.name === "audit" && audit) body = <AuditScreen data={audit} onFilter={setFilter} />;
   return (

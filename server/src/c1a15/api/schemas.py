@@ -101,6 +101,13 @@ class EditsBody(_Strict):
     edits: dict[str, str]
 
 
+class CandidateDecisionBody(_Strict):
+    """EV-009 '사람 판단': 알람으로 올림(경계 안이면 증상군 — 없으면 ML 1위 제안) · 문제없음."""
+
+    decision: Literal["promote", "dismiss"]
+    group: Literal["TW", "PW", "CL", "LD"] | None = None
+
+
 class DecisionBody(_Strict):
     """L03 결정 저장: 그대로 승인 · 수정 후 승인(고친 문장) · 반려(memo = 사유, 필수)."""
 

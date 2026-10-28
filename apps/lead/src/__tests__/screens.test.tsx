@@ -9,6 +9,7 @@ import { AuditScreen } from "../screens/Audit";
 import { CallDetail, CallList } from "../screens/Calls";
 import { Frame } from "../screens/Frame";
 import { GradesScreen } from "../screens/Grades";
+import { JudgeList } from "../screens/Judge";
 import { Login } from "../screens/Login";
 
 const fx = import.meta.glob("./fixtures/*.json", { eager: true, import: "default" }) as Record<string, unknown>;
@@ -36,17 +37,17 @@ describe("L01 로그인 · 틀", () => {
     expect(container.querySelector('[aria-label="ID"]')?.className).toBe("inp err");
   });
 
-  it("왼쪽 메뉴 4개 · 현재 메뉴 강조 · 메뉴 이동", () => {
+  it("왼쪽 메뉴 5개(EV-009 사람 판단) · 현재 메뉴 강조 · 메뉴 이동", () => {
     const onMenu = vi.fn();
     const { container } = render(
       <Frame menu="calls" me={{ display_name: "박 파트장" }} title="처리할 호출" now="2026-10-01T08:12:00+09:00" onMenu={onMenu}>
         <div />
       </Frame>,
     );
-    expect(texts(container, ".wn")).toEqual(["승인 대기", "호출", "권한 등급", "감사 기록"]);
+    expect(texts(container, ".wn")).toEqual(["승인 대기", "호출", "사람 판단", "권한 등급", "감사 기록"]);
     expect(container.querySelector(".wn.on")?.textContent).toBe("호출");
     expect(container.querySelector(".wb-top .sm")?.textContent).toBe("2026-10-01 (목) 08:12");
-    fireEvent.click(container.querySelectorAll(".wn")[2]);
+    fireEvent.click(container.querySelectorAll(".wn")[3]); // 권한 등급(사람 판단이 앞에 더해짐)
     expect(onMenu).toHaveBeenCalledWith("grades");
   });
 });
@@ -288,5 +289,61 @@ describe("L06 감사 기록", () => {
     expect(container.querySelectorAll(".flt > .sel2")[0].textContent).toMatch(/^설비 · M-01/);
     expect(container.querySelectorAll(".flt > .sel2")[1].textContent).toMatch(/^사용자 · /);
     expect(new Set(texts(container, ".wt td:nth-child(2)")).size).toBe(1);
+  });
+});
+
+describe("EV-009 사람 판단(D-444 #18)", () => {
+  type Data = Schemas["LeadCandidates"];
+  const post = () => vi.fn(() => ok({ status: "promoted", alarm_id: 9 }));
+
+  it("목록: 이유 칩 · 설비 · 센서 값 · ML · 버튼 둘, 빈 목록 안내", () => {
+    const d = load<Data>("candidates");
+    const { container } = render(<JudgeList api={{ POST: post() } as unknown as Api} data={d} onChanged={() => {}} />);
+    expect(texts(container, ".wt th")).toEqual(["이유", "설비 · 시각", "센서 값", "ML", ""]);
+    expect(texts(container, "tr[data-candidate] .ch")).toEqual(d.rows.map((r) => ({ low_confidence: "확신 낮음", rnf: "RNF", model_failure: "모델 실패" })[r.reason]));
+    const low = container.querySelector(`tr[data-candidate="${d.rows.find((r) => r.reason === "low_confidence")!.candidate_id}"]`)!;
+    expect(low.textContent).toContain("위험도 62% · HDF 41%");
+    expect(texts(low, ".btn")).toEqual(["알람으로 올림", "문제없음"]);
+    const empty = render(<JudgeList api={{} as Api} data={load<Data>("candidates-empty")} onChanged={() => {}} />);
+    expect(empty.container.querySelector(".empty")?.textContent).toBe("사람 판단이 필요한 기록이 없습니다");
+  });
+
+  it("올림: 경계 넘은 줄은 바로 · 확신 낮음은 ML 제안 미리 고른 증상군 → 올림 저장 · RNF는 고르기 전 잠김", async () => {
+    const d = load<Data>("candidates");
+    const POST = post();
+    const onChanged = vi.fn();
+    const { container } = render(<JudgeList api={{ POST } as unknown as Api} data={d} onChanged={onChanged} />);
+    const row = (reason: string) => container.querySelector(`tr[data-candidate="${d.rows.find((r) => r.reason === reason)!.candidate_id}"]`)!;
+    const fixed = d.rows.find((r) => r.group_fixed)!;
+    await act(async () => fireEvent.click(btn(row("model_failure"), "알람으로 올림")));
+    expect(POST).toHaveBeenLastCalledWith("/api/lead/candidates/{candidate_id}/decision", {
+      params: { path: { candidate_id: fixed.candidate_id } },
+      body: { decision: "promote" },
+    });
+    expect(onChanged).toHaveBeenCalledTimes(1);
+    const lowRow = d.rows.find((r) => r.reason === "low_confidence")!;
+    fireEvent.click(btn(row("low_confidence"), "알람으로 올림"));
+    expect(container.querySelector(".pick .dopt.sel b")?.textContent).toBe(d.groups.find((g) => g.value === lowRow.group_suggestion)!.label);
+    await act(async () => fireEvent.click(btn(container.querySelector(".pick")!, "올림 저장")));
+    expect(POST).toHaveBeenLastCalledWith("/api/lead/candidates/{candidate_id}/decision", {
+      params: { path: { candidate_id: lowRow.candidate_id } },
+      body: { decision: "promote", group: lowRow.group_suggestion },
+    });
+    fireEvent.click(btn(row("rnf"), "알람으로 올림"));
+    expect(container.querySelector(".pick .dopt.sel")).toBeNull();
+    expect(btn(container.querySelector(".pick")!, "올림 저장").className).toContain("dis");
+  });
+
+  it("문제없음 세 번 빠르게 → 요청 한 번", async () => {
+    const d = load<Data>("candidates");
+    let release: () => void = () => {};
+    const POST = vi.fn(() => new Promise((r) => (release = () => r({ data: { status: "dismissed" }, error: undefined, response: { status: 200 } }))));
+    const { container } = render(<JudgeList api={{ POST } as unknown as Api} data={d} onChanged={() => {}} />);
+    const b = btn(container.querySelector("tr[data-candidate]")!, "문제없음");
+    fireEvent.click(b);
+    fireEvent.click(b);
+    fireEvent.click(b);
+    expect(POST).toHaveBeenCalledTimes(1);
+    await act(async () => release());
   });
 });

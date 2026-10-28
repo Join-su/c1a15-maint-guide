@@ -251,15 +251,20 @@ def start_v4_row(body: dict) -> dict:
     없으면 대역 자료(STANDIN_DATA)에서 같은 group · direction의 첫 행(대역, 40행 밖 시험 알람만 — CH-35).
     """
     q = body["query"]
-    rows = [r for r in start_v4_rows() if (r["group"], r["direction"]) == (body["group"], q["direction"])]
+    # 방향 null(약속 정본 enum, EV-009 파트장이 올린 경계 안 알람)은 증상군만
+    same_way = lambda r: r["group"] == body["group"] and q["direction"] in (None, r["direction"])  # noqa: E731
+    rows = [r for r in start_v4_rows() if same_way(r)]
     if not rows:
         raise KeyError(f"start 자료에 {body['group']} · {q['direction']} 행이 없음")
     same = [r for r in rows if r["sensor5"] == q["sensor_snapshot"]]
     if same:
         return same[0]
     STAND_INS.append(body.get("session_id"))
-    print(f"start stand_in session={body.get('session_id')}", file=sys.stderr, flush=True)  # 단독 실행 기록(fake.log)
-    stand = [r for r in start_v4_rows(STANDIN_DATA) if (r["group"], r["direction"]) == (body["group"], q["direction"])]
+    # 단독 실행 기록(fake.log) — 방향 null(EV-009 파트장이 올린 경계 안 알람)은 승인 행이 원래 없어
+    # 따로 적음(e2e 대역 0 검사 밖)
+    mark = "no_direction" if q["direction"] is None else "stand_in"
+    print(f"start {mark} session={body.get('session_id')}", file=sys.stderr, flush=True)
+    stand = [r for r in start_v4_rows(STANDIN_DATA) if same_way(r)]
     return {**stand[0], "stand_in": True}
 
 

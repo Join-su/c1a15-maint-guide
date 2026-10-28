@@ -16,9 +16,10 @@ from sqlalchemy import Connection, select, text
 from c1a15 import checkrecord, config
 from c1a15.api import deps, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
-from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
+from c1a15.api.schemas import AnswerBody, CandidateDecisionBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
 from c1a15.deploy import inbox
+from c1a15.engine import alarm_rules, rules
 from c1a15.engine import session as session_engine
 from c1a15.llm import grounding
 from c1a15.llm.base import Draft
@@ -916,6 +917,10 @@ def audit_label(a, k, names: dict[str, str] | None = None) -> str:
         return f"등급 변경 · {sec} {title} {d.get('before')} → {d.get('after')}".replace("  ", " ")
     if act == "session_start":
         return "점검 시작"
+    if act == "candidate_promote":
+        return "사람 판단 · 알람으로 올림"  # EV-009
+    if act == "candidate_dismiss":
+        return "사람 판단 · 문제없음"
     if act == "alarm_ack":
         return "알람 확인"  # EV-007
     if act == "alarm":
@@ -1021,3 +1026,149 @@ def audit(
         },
         "rows": rows,
     }
+
+
+# ---------------------------------------------------------------- 사람 판단(EV-009 · D-444 #18 · D-446 ⑤)
+# ML 길에서 알람 없이 남은 후보(확신 낮음 · RNF · 예측 실패, alarms/ml.py)
+# — 파트장이 알람으로 올리거나 문제없음으로 닫는다. 경계 안 후보는 경계 칸을 짓지 않는다:
+# 그 증상군 규칙의 센서 · 실제 값 · 경계 + origin lead · crossed false(001-58 (가)).
+GROUP_ORDER = ("TW", "PW", "CL", "LD")
+
+
+def _candidate_snapshot(r) -> dict | None:
+    """센서 7칸 = 후보 5칸 + Pack 계산 칸(후보 기록 때 남김). 없으면 None(앱이 계산하지 않음)."""
+    d = (r.event or {}).get("sensor_derived")
+    return {**r.sensor_snapshot, **d} if d else None
+
+
+def _suggested_group(r, snap: dict | None) -> tuple[str | None, bool]:
+    """(증상군, 고정 여부): 경계를 넘었으면 경계 판정(고정), 확신 낮음이면 ML 1위 유형의 증상군, 그 밖 None."""
+    hit = alarm_rules.detect(snap, deps.alarm_table()) if snap else None
+    if hit:
+        return hit["group"], True
+    if r.reason == "low_confidence" and r.top_k:
+        return r.top_k[0].get("group_suggestion"), False
+    return None, False
+
+
+def _lead_block(table: dict, group: str, snap: dict) -> dict:
+    """경계 안 후보의 알람 칸: 그 증상군 규칙의 센서 · 실제 값 · 가까운 쪽 경계(뒤 단계 계산 방향) + origin lead."""
+    rule = screen._rule_for(table, group)
+    v = snap[alarm_rules.SNAPSHOT_KEY[rule["key"]]]
+    side, boundary = min(rule["boundaries"].items(), key=lambda kv: abs(v - kv[1]))
+    return {
+        "sensor": rule["sensor"],
+        "value": v,
+        "unit": rule["unit"],
+        "boundary": boundary,
+        "direction": "경계 아래" if side == "low" else "경계 위",
+        "trend_title": f"{rule['sensor']} 추이 · 최근 {alarm_rules.TREND_N}회 측정",
+        "origin": "lead",
+        "crossed": False,
+    }
+
+
+@router.get("/candidates", response_model=responses.LeadCandidates)
+def candidates(user: User = Depends(lead_user), c: Connection = Depends(conn, scope="function")) -> dict:
+    """사람 판단 목록: 판단 전 · 평가 아님 · 새것 위."""
+    t = m.AlarmCandidate
+    rows = c.execute(
+        select(t.__table__)
+        .where(t.status == "needs_human", t.eval_mode.is_(False))
+        .order_by(t.created_at.desc(), t.candidate_id.desc())
+    ).all()
+    out = []
+    for r in rows:
+        snap = _candidate_snapshot(r)
+        group, fixed = _suggested_group(r, snap)
+        s = snap or r.sensor_snapshot
+        top = (r.top_k or [None])[0]
+        out.append(
+            {
+                "candidate_id": r.candidate_id,
+                "reason": r.reason,
+                "equipment_id": r.equipment_id,
+                "created_at": r.created_at.isoformat(),
+                "sensors_text": " · ".join(
+                    f"{screen.SENSORS[k][0]} {screen.fmt(k, s[k])} {screen.SENSORS[k][1]}"
+                    for k in screen.TABLE_ORDER
+                    if k in s
+                ),
+                "risk": r.risk,
+                "top": {"type": top["type"], "probability": top["probability"]} if top else None,
+                "boundary_crossed": bool(fixed or r.boundary_crossed),
+                "group_suggestion": group,
+                "group_fixed": fixed,
+            }
+        )
+    names = deps.group_names()
+    return {"rows": out, "groups": [{"value": g, "label": names[g]} for g in GROUP_ORDER]}
+
+
+@router.post(
+    "/candidates/{candidate_id}/decision", response_model=responses.CandidateResult, response_model_exclude_unset=True
+)
+def candidate_decision(
+    candidate_id: int,
+    body: CandidateDecisionBody,
+    user: User = Depends(lead_user),
+    c: Connection = Depends(conn, scope="function"),
+) -> dict:
+    """알람으로 올림 = 지금 알람 발생기와 같은 배정(R9) · 같은 알람 행(새 Run 0) / 문제없음. 판단 끝이면 409."""
+    t = m.AlarmCandidate
+    target = f"candidate:{candidate_id}"
+    r = c.execute(select(t.__table__).where(t.candidate_id == candidate_id).with_for_update()).one_or_none()
+    if r is None or r.eval_mode:
+        raise HTTPException(status_code=404, detail="candidate_not_found")
+    if r.status != "needs_human":
+        _deny(user, "already_decided", target)
+    if body.decision == "dismiss":
+        c.execute(t.__table__.update().where(t.candidate_id == candidate_id).values(status="dismissed"))
+        sessions.audit(c, user.user_id, "candidate_dismiss", target, {"reason": r.reason}, r.equipment_id)
+        return {"status": "dismissed"}
+    snap = _candidate_snapshot(r)
+    if snap is None:
+        _deny(user, "no_derived_sensors", target)
+    table = deps.alarm_table()
+    hit = alarm_rules.detect(snap, table)
+    if hit:
+        group, block = hit["group"], hit["alarm"]
+    else:
+        group = body.group or _suggested_group(r, snap)[0]
+        if group is None:
+            raise HTTPException(status_code=422, detail="group_required")
+        block = _lead_block(table, group, snap)
+    assignments = dict(c.execute(select(m.EquipmentAssignment.equipment_id, m.EquipmentAssignment.user_id)).all())
+    if r.equipment_id not in assignments:
+        raise HTTPException(status_code=422, detail="unknown_equipment")
+    to = rules.assign(r.equipment_id, assignments, sessions.open_alarm_counts(c))
+    alarm_id = c.execute(
+        m.Alarm.__table__.insert()
+        .values(
+            equipment_id=r.equipment_id,
+            symptom_group=group,
+            alarm=block,
+            sensor_snapshot=snap,
+            event_id=r.event_id,
+            run_id=r.run_id,
+            trend=[],
+            eval_mode=False,
+            occurred_at=datetime.now(UTC),
+            assigned_to=to,
+            change_seq=deps.next_change_seq(c),
+        )
+        .returning(m.Alarm.alarm_id)
+    ).scalar_one()
+    c.execute(t.__table__.update().where(t.candidate_id == candidate_id).values(status="promoted"))
+    sessions.audit(
+        c,
+        user.user_id,
+        "candidate_promote",
+        target,
+        {"alarm_id": alarm_id, "group": group, "reason": r.reason},
+        r.equipment_id,
+    )
+    sessions.audit(
+        c, "system", "alarm", f"alarm:{alarm_id}", {"assigned_to": to, "candidate_id": candidate_id}, r.equipment_id
+    )
+    return {"status": "promoted", "alarm_id": alarm_id}

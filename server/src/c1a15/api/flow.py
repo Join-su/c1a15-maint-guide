@@ -457,6 +457,8 @@ def report_draft(
     side = "아래" if al["direction"] == "경계 아래" else "위"
     key = first["key"]
     sensor = f"{first['name']} {first['value_text']} (경계 {screen.fmt(key, al['boundary'])} {al['unit']} {side})"
+    if al.get("origin") == "lead":  # EV-009: 경계 안 · 파트장이 올림
+        sensor = f"{first['name']} {first['value_text']} ({screen.LEAD_PROMOTED})"
     sensor += "".join(f" · {r['value_text']}" for r in others[:1]) + f" → {system} 쪽"
     parts = ["잠금 확인(1.2)"]
     for p in path(events, k, {}, alarm):

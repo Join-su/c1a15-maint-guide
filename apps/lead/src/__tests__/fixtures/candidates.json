@@ -1,0 +1,64 @@
+{
+ "rows": [
+  {
+   "candidate_id": 3,
+   "reason": "model_failure",
+   "equipment_id": "M-01",
+   "created_at": "2026-10-28T01:58:18.648038+00:00",
+   "sensors_text": "회전 속도 1,409 rpm · 회전력 53.3 Nm · 공구 마모 52 분 · 공기 온도 302.6 K · 온도 차 7.8 K",
+   "risk": null,
+   "top": null,
+   "boundary_crossed": true,
+   "group_suggestion": "CL",
+   "group_fixed": true
+  },
+  {
+   "candidate_id": 2,
+   "reason": "rnf",
+   "equipment_id": "M-01",
+   "created_at": "2026-10-28T01:58:18.642353+00:00",
+   "sensors_text": "회전 속도 1,500 rpm · 회전력 40.0 Nm · 공구 마모 100 분 · 공기 온도 300.0 K · 온도 차 10.0 K",
+   "risk": 0.62,
+   "top": {
+    "type": "RNF",
+    "probability": 0.55
+   },
+   "boundary_crossed": false,
+   "group_suggestion": null,
+   "group_fixed": false
+  },
+  {
+   "candidate_id": 1,
+   "reason": "low_confidence",
+   "equipment_id": "M-01",
+   "created_at": "2026-10-28T01:58:18.618256+00:00",
+   "sensors_text": "회전 속도 1,500 rpm · 회전력 40.0 Nm · 공구 마모 100 분 · 공기 온도 300.0 K · 온도 차 10.0 K",
+   "risk": 0.62,
+   "top": {
+    "type": "HDF",
+    "probability": 0.41
+   },
+   "boundary_crossed": false,
+   "group_suggestion": "CL",
+   "group_fixed": false
+  }
+ ],
+ "groups": [
+  {
+   "value": "TW",
+   "label": "공구 마모 경고"
+  },
+  {
+   "value": "PW",
+   "label": "출력 이탈"
+  },
+  {
+   "value": "CL",
+   "label": "온도 차 저하"
+  },
+  {
+   "value": "LD",
+   "label": "토크 과부하"
+  }
+ ]
+}

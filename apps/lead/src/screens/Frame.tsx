@@ -1,13 +1,14 @@
-// 파트장 앱 틀(R-NAV): 왼쪽 고정 메뉴 4개 + 아래 사용자, 본문 머리(제목 · 시각). 메뉴 이동은 본문만 바꾼다.
+// 파트장 앱 틀(R-NAV): 왼쪽 고정 메뉴 5개(사람 판단 — EV-009) + 아래 사용자, 본문 머리(제목 · 시각). 메뉴 이동은 본문만 바꾼다.
 
 import type { ReactNode } from "react";
 import { dateDay, Icon } from "@c1a15/ui";
 
-export type Menu = "approvals" | "calls" | "grades" | "audit";
+export type Menu = "approvals" | "calls" | "judge" | "grades" | "audit";
 
 const MENUS: { id: Menu; label: string; icon: string }[] = [
   { id: "approvals", label: "승인 대기", icon: "file-check-2" },
   { id: "calls", label: "호출", icon: "phone-call" },
+  { id: "judge", label: "사람 판단", icon: "circle-help" }, // EV-009(D-444 #18)
   { id: "grades", label: "권한 등급", icon: "settings" },
   { id: "audit", label: "감사 기록", icon: "history" },
 ];

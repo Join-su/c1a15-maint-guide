@@ -107,12 +107,17 @@ def out_of_range_count(snapshot: dict, table: dict) -> int:
     return sum(1 for key in keys if _status(key, snapshot[key], table) != "정상")
 
 
+LEAD_PROMOTED = "경계 안 · 파트장이 올림"  # EV-009 이름표(설명 문장 0)
+
+
 def ai_reading(alarm: dict, key: str, group_name: str, system: str) -> dict:
     """T03 'AI 해석': 코드 사실(알람 센서 · 값 · 경계 · 방향 · 계통)로 한두 문장.
 
     판정이 아니고 R8 근거 검사를 거친다(실패 → 코드 템플릿 + '원문으로 대체됨').
     """
     value_text = f"{fmt(key, alarm['value'])} {alarm['unit']}"
+    if alarm.get("origin") == "lead":  # EV-009: 경계를 넘지 않은 후보를 파트장이 올림 — 경계 문장을 짓지 않고 이름표만
+        return {"text": f"{alarm['sensor']} {value_text} · {LEAD_PROMOTED}", "fallback": False, "label": None}
     boundary_text = f"{fmt(key, alarm['boundary'])} {alarm['unit']}"
     facts = Facts(
         "ai_reading",

@@ -444,9 +444,31 @@
       ],
       "title": "Boundary"
      },
+     "crossed": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Crossed"
+     },
      "direction": {
       "title": "Direction",
       "type": "string"
+     },
+     "origin": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Origin"
      },
      "sensor": {
       "title": "Sensor",
@@ -1163,6 +1185,86 @@
     "title": "Candidate",
     "type": "object"
    },
+   "CandidateDecisionBody": {
+    "additionalProperties": false,
+    "description": "EV-009 '사람 판단': 알람으로 올림(경계 안이면 증상군 — 없으면 ML 1위 제안) · 문제없음.",
+    "properties": {
+     "decision": {
+      "enum": [
+       "promote",
+       "dismiss"
+      ],
+      "title": "Decision",
+      "type": "string"
+     },
+     "group": {
+      "anyOf": [
+       {
+        "enum": [
+         "TW",
+         "PW",
+         "CL",
+         "LD"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Group"
+     }
+    },
+    "required": [
+     "decision"
+    ],
+    "title": "CandidateDecisionBody",
+    "type": "object"
+   },
+   "CandidateResult": {
+    "additionalProperties": false,
+    "properties": {
+     "alarm_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alarm Id"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     }
+    },
+    "required": [
+     "status"
+    ],
+    "title": "CandidateResult",
+    "type": "object"
+   },
+   "CandidateTop": {
+    "additionalProperties": false,
+    "properties": {
+     "probability": {
+      "title": "Probability",
+      "type": "number"
+     },
+     "type": {
+      "title": "Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "type",
+     "probability"
+    ],
+    "title": "CandidateTop",
+    "type": "object"
+   },
    "CheckDone": {
     "additionalProperties": false,
     "properties": {
@@ -1797,6 +1899,25 @@
     "title": "GradeWarning",
     "type": "object"
    },
+   "GroupOption": {
+    "additionalProperties": false,
+    "properties": {
+     "label": {
+      "title": "Label",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "type": "string"
+     }
+    },
+    "required": [
+     "value",
+     "label"
+    ],
+    "title": "GroupOption",
+    "type": "object"
+   },
    "HTTPValidationError": {
     "properties": {
      "detail": {
@@ -2239,6 +2360,111 @@
      "rows"
     ],
     "title": "LeadCalls",
+    "type": "object"
+   },
+   "LeadCandidateRow": {
+    "additionalProperties": false,
+    "description": "EV-009 '사람 판단' 한 줄: ML 길에서 알람 없이 남은 후보(D-444 #18).",
+    "properties": {
+     "boundary_crossed": {
+      "title": "Boundary Crossed",
+      "type": "boolean"
+     },
+     "candidate_id": {
+      "title": "Candidate Id",
+      "type": "integer"
+     },
+     "created_at": {
+      "title": "Created At",
+      "type": "string"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "group_fixed": {
+      "title": "Group Fixed",
+      "type": "boolean"
+     },
+     "group_suggestion": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Group Suggestion"
+     },
+     "reason": {
+      "title": "Reason",
+      "type": "string"
+     },
+     "risk": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Risk"
+     },
+     "sensors_text": {
+      "title": "Sensors Text",
+      "type": "string"
+     },
+     "top": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CandidateTop"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "candidate_id",
+     "reason",
+     "equipment_id",
+     "created_at",
+     "sensors_text",
+     "risk",
+     "top",
+     "boundary_crossed",
+     "group_suggestion",
+     "group_fixed"
+    ],
+    "title": "LeadCandidateRow",
+    "type": "object"
+   },
+   "LeadCandidates": {
+    "additionalProperties": false,
+    "properties": {
+     "groups": {
+      "items": {
+       "$ref": "#/components/schemas/GroupOption"
+      },
+      "title": "Groups",
+      "type": "array"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/LeadCandidateRow"
+      },
+      "title": "Rows",
+      "type": "array"
+     }
+    },
+    "required": [
+     "rows",
+     "groups"
+    ],
+    "title": "LeadCandidates",
     "type": "object"
    },
    "LeadField": {
@@ -5743,6 +5969,75 @@
      }
     },
     "summary": "Call Answer"
+   }
+  },
+  "/api/lead/candidates": {
+   "get": {
+    "description": "사람 판단 목록: 판단 전 · 평가 아님 · 새것 위.",
+    "operationId": "candidates_api_lead_candidates_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LeadCandidates"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Candidates"
+   }
+  },
+  "/api/lead/candidates/{candidate_id}/decision": {
+   "post": {
+    "description": "알람으로 올림 = 지금 알람 발생기와 같은 배정(R9) · 같은 알람 행(새 Run 0) / 문제없음. 판단 끝이면 409.",
+    "operationId": "candidate_decision_api_lead_candidates__candidate_id__decision_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "candidate_id",
+      "required": true,
+      "schema": {
+       "title": "Candidate Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CandidateDecisionBody"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CandidateResult"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Candidate Decision"
    }
   },
   "/api/lead/grades": {

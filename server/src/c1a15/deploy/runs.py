@@ -112,7 +112,9 @@ def start_body(alarm, grades: dict, minutes: dict) -> dict:
         "event_id": start_event_id(alarm),
         "group": alarm.symptom_group,
         "query": {
-            "direction": alarm.alarm.get("direction"),
+            "direction": None
+            if alarm.alarm.get("origin") == "lead"
+            else alarm.alarm.get("direction"),  # EV-009: 넘지 않은 경계
             "sensor_snapshot": sensors5(alarm.sensor_snapshot),
         },  # 없으면 null(정본 enum)
         "events": [],

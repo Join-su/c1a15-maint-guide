@@ -1,0 +1,21 @@
+{
+ "rows": [],
+ "groups": [
+  {
+   "value": "TW",
+   "label": "공구 마모 경고"
+  },
+  {
+   "value": "PW",
+   "label": "출력 이탈"
+  },
+  {
+   "value": "CL",
+   "label": "온도 차 저하"
+  },
+  {
+   "value": "LD",
+   "label": "토크 과부하"
+  }
+ ]
+}
