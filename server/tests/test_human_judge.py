@@ -118,6 +118,8 @@ def test_candidate_keeps_pack_derived_sensors(api, db, ml, monkeypatch):
     cid = candidate_via_ml(api, monkeypatch)
     row = one(db, "select event, status from ops.alarm_candidates where candidate_id = :c", c=cid)
     assert row["event"]["sensor_derived"] == derived(NORMAL) and row["status"] == "needs_human"
+    sc = next(s for s in scenarios() if s["scenario_id"] == "DEMO-01")
+    assert row["event"]["trend"] == sc["trend"] and len(sc["trend"]) == 12  # 발생기 추이(같은 설비 지난 12회)도 남김
 
 
 def test_list_only_open_non_eval(api, db, ml, monkeypatch):
@@ -154,12 +156,14 @@ def test_promote_not_crossed_no_made_up_boundary(api, db, ml, monkeypatch):
     assert len(runs_of(ml)) == before  # 올림은 새 Run을 부르지 않음
     a = one(
         db,
-        "select symptom_group, alarm, assigned_to, sensor_snapshot, event_id from ops.alarms where alarm_id = :a",
+        "select symptom_group, alarm, assigned_to, sensor_snapshot, event_id, trend from ops.alarms where alarm_id = :a",
         a=aid,
     )
     assert a["symptom_group"] == "CL" and a["assigned_to"] == "tech.kim" and a["event_id"]
     assert a["alarm"]["origin"] == "lead" and a["alarm"]["crossed"] is False and a["alarm"]["value"] == 10.0
     assert a["sensor_snapshot"]["temp_diff_k"] == 10.0  # Pack 계산 칸
+    sc = next(s for s in scenarios() if s["scenario_id"] == "DEMO-01")
+    assert len(a["trend"]) == 12 and a["trend"] == sc["trend"]  # 후보가 남긴 추이를 알람 행으로(그래프 값 선)
     st = one(db, "select status from ops.alarm_candidates where candidate_id = :c", c=cid)["status"]
     assert st == "promoted"
     assert one(db, "select count(*) n from ops.audit_log where action = 'candidate_promote'")["n"] == 1

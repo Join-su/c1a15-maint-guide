@@ -1,16 +1,20 @@
 // EV-009(D-444 #18 · D-446 ⑤): 파트장 '사람 판단' — ML 길 후보(시험 DB에 넣음) → 알람으로 올림 → 정비자 홈 · 알람 화면 / 문제없음 → 목록에서 빠짐.
 // 후보는 ML 길(C1A15_ALARM=ml)에서만 생겨 시험 스택(경계 길)에는 없음 — 서버 시험(test_human_judge)이 만드는 꼴 그대로 넣는다.
 
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Browser, type Page, type TestInfo } from "@playwright/test";
 import { login, loginLead, psql, resetOps, shot } from "./helpers";
 
 const NORMAL = { air_temperature_k: 300.0, process_temperature_k: 310.0, rotational_speed_rpm: 1500.0, torque_nm: 40.0, tool_wear_min: 100.0 };
 const DERIVED = { power_w: 6283, temp_diff_k: 10.0 }; // Pack 계산 칸(가짜 Pack과 같은 식)
+// 발생기 추이(같은 설비 지난 12회) — 후보 기록 때 event에 남는 꼴. 시각은 DEMO-01 각본, 값은 위 정상 센서(온도 차 10.0 K) 둘레
+const TREND = (JSON.parse(readFileSync(path.join(__dirname, "../../data/demo/scenarios.json"), "utf-8")) as { scenarios: { scenario_id: string; trend: { at: string }[] }[] }).scenarios
+  .find((s) => s.scenario_id === "DEMO-01")!
+  .trend.map((p, i) => ({ at: p.at, value: Math.round((9.6 + (i % 4) * 0.2) * 10) / 10 }));
 
 function candidate(reason: string, topK: unknown[]): number {
-  const event = JSON.stringify({ event_id: `evt-e2e-${reason}`, sensor_snapshot: NORMAL, sensor_derived: DERIVED });
+  const event = JSON.stringify({ event_id: `evt-e2e-${reason}`, sensor_snapshot: NORMAL, sensor_derived: DERIVED, trend: TREND });
   const out = psql(
     "insert into ops.alarm_candidates (equipment_id, reason, risk, top_k, boundary_crossed, model_release, sensor_snapshot, event, event_id) " +
       `values ('M-01', '${reason}', 0.62, '${JSON.stringify(topK)}'::jsonb, false, 'c1a15-ml@e2e', '${JSON.stringify(NORMAL)}'::jsonb, '${event}'::jsonb, 'evt-e2e-${reason}') returning candidate_id`,
@@ -64,6 +68,7 @@ test("사람 판단: 목록 → 확신 낮음 올림(ML 제안 증상군) → �
   await card.click();
   await page.waitForURL(/\/session\/\d+/);
   await expect(page.locator(".ai")).toContainText("경계 안 · 파트장이 올림");
+  await expect(page.locator(".spk path")).toHaveCount(1); // 추이 값 선(후보가 남긴 발생기 추이)
   await snap(page, info, "T03-lead-promoted");
 
   await lead.locator(`tr[data-candidate="${rnf}"] .btn`, { hasText: "문제없음" }).click();

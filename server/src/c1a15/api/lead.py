@@ -1151,7 +1151,7 @@ def candidate_decision(
             sensor_snapshot=snap,
             event_id=r.event_id,
             run_id=r.run_id,
-            trend=[],
+            trend=(r.event or {}).get("trend") or [],  # 후보 기록 때 남긴 발생기 추이(옛 후보는 빈 추이)
             eval_mode=False,
             occurred_at=datetime.now(UTC),
             assigned_to=to,

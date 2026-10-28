@@ -239,7 +239,12 @@ def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict, deri
             boundary_crossed=bool(cand.get("boundary_crossed", crossed)),
             model_release=cand.get("model_release"),
             sensor_snapshot=card["sensor_snapshot"],
-            event={**card, "sensor_derived": derived} if derived else card,
+            # 올릴 때 알람 행으로 옮길 것(EV-009): Pack 계산 칸 · 발생기 추이(같은 설비 지난 12회)
+            event={
+                **card,
+                **({"sensor_derived": derived} if derived else {}),
+                "trend": [p.model_dump() for p in body.trend],
+            },
             eval_mode=body.eval_mode,
             event_id=card["event_id"],
             run_id=cand.get("run_id"),
