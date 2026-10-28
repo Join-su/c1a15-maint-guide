@@ -29,8 +29,12 @@ class FixtureAdapter:
         v = facts.values
         if facts.kind == "reason":  # R5-6 '이 점검을 고른 이유'
             alts = ", ".join(f"{a['section']}({a['grade']})" for a in v.get("alternatives", [])) or "없음"
+            rank = v.get("rank", 1)
             text = (
                 f"{v['cause_name']} 가능성이 {v['probability']}%로 가장 높고, "
+                f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 다른 점검: {alts}."
+                if rank == 1
+                else f"{rank}위 {v['cause_name']} {v['probability']}%: "  # D-450: 1위가 아니면 1위라고 말하지 않음
                 f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 다른 점검: {alts}."
             )
             return Draft(text, sections=(facts.section,))

@@ -320,10 +320,13 @@ def preview(row: m.DiagSession, c: Connection) -> dict:
     out = {"kind": d["kind"], "section": d.get("section"), "grade": d.get("grade"), "cause": d.get("cause")}
     if d["kind"] in {"instruct", "instruct_after_checklist"}:
         sec = k.sections[d["section"]]
+        probs = d["probabilities"]  # 순위 = 진단 화면 원인 순위와 같은 정렬(확률 내림차순 · 같으면 앞 순서)
+        rank = sorted(probs, key=lambda c: -probs[c]).index(d["cause"]) + 1 if d["cause"] in probs else 1
         facts = Facts(
             "reason",
             d["section"],
             {
+                "rank": rank,
                 "cause_name": k.cause(d["cause"]).name,
                 "probability": d["reason_facts"]["probability"],
                 "minutes": d["reason_facts"]["minutes"],
@@ -375,7 +378,7 @@ def _checked_reason(row: m.DiagSession, d: dict, facts: Facts) -> dict:
     alts = v["alternatives"]
     g = grounding.Grounding(
         allowed_sections=frozenset([d["section"], *(a["section"] for a in alts)]),
-        source_numbers=frozenset(str(x) for x in (v["probability"], v["minutes"])),
+        source_numbers=frozenset(str(x) for x in (v["probability"], v["minutes"], v.get("rank", 1))),  # 'n위'의 n
         top_record_ids=frozenset(s["record_id"] for s in row.similar),
     )
     template = f"{v['cause_name']} {v['probability']}% · {d['section']}절 · 약 {v['minutes']}분 · {v['grade']}등급"
