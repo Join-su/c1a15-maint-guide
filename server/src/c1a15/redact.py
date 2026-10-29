@@ -18,13 +18,16 @@ SURNAMES = (  # 흔한 한 글자 성
     "원천방공현함변염여추도소석선설마길연위표명기반왕금옥육인맹제모탁국어은편용예봉경"
 )
 TITLES = ("파트장", "팀장", "반장", "조장", "과장", "대리", "주임", "기사", "선임", "책임", "정비", "님", "씨")
+# 성명 뒤 직함 — '이상을 정비' 꼴을 잡지 않게 정비 · 파트장 · 기사는 뺌
+FULL_TITLES = ("팀장", "반장", "조장", "과장", "대리", "주임", "선임", "책임", "님", "씨")
+_JOSA = "을를은는이가면에의도로와과"  # 성명 끝 글자가 조사면 일반 글('차례면 파트장')
 _HAN = "[가-힣]"
 _ACCOUNTS = [*TECH_ACCOUNTS, *LEAD_ACCOUNTS]
 _RULES = (
     re.compile("|".join(re.escape(name) for _, name in _ACCOUNTS)),
     re.compile(r"\b(?:tech|lead)\.[a-z]+\b|" + "|".join(re.escape(uid) for uid, _ in _ACCOUNTS)),
     re.compile(r"(?<!\d)01[016789]-?\d{3,4}-?\d{4}(?!\d)"),
-    re.compile(f"(?<!{_HAN})[{SURNAMES}]{_HAN}{{2}}\\s?(?:{'|'.join(TITLES)})"),
+    re.compile(f"(?<!{_HAN})[{SURNAMES}]{_HAN}{_HAN}(?<![{_JOSA}])\\s?(?:{'|'.join(FULL_TITLES)})"),
     re.compile(f"(?<!{_HAN})[{SURNAMES}]\\s?(?:{'|'.join(TITLES)})"),
     re.compile(f"(?<!{_HAN}){_HAN}{{2,4}}\\s?(?:씨|님)(?=$|[^가-힣]|[이가은는을를의께에도와과랑만])"),
 )
