@@ -4,6 +4,7 @@
 import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { setFreshScreenMs, useFreshScreenGuard, type Api, type SessionView } from "@c1a15/ui";
+import { ActionScreen } from "../screens/Flow";
 import { Session } from "../screens/Session";
 import { useState } from "react";
 
@@ -48,6 +49,29 @@ it("새 화면 직후 0.4초 누름 무시 — 지나면 받음, 화면이 바�
   now += 401;
   fireEvent.click(getByRole("button"));
   expect(hits).toEqual(["a", "b"]);
+});
+
+it("새 화면 직후 막기는 진행 단추에만 — 재가동 체크(체크 칸)는 화면이 막 바뀌어도 바로 받음(D-470)", () => {
+  setFreshScreenMs(400);
+  let now = 1000;
+  vi.spyOn(performance, "now").mockImplementation(() => now);
+  const s = load<SessionView>("s03-restart-check");
+  const items = s.restart!.checklist;
+  const onCheck = vi.fn();
+  const send = vi.fn();
+  function Restart() {
+    useFreshScreenGuard("restart_check");
+    return <ActionScreen s={s} busy={false} checked={items} onCheck={onCheck} send={send} />;
+  }
+  const { container } = render(<Restart />);
+  fireEvent.click(container.querySelector(".act .ck") as Element); // 화면이 뜬 직후 첫 체크
+  expect(onCheck).toHaveBeenCalledTimes(1);
+  const restart = [...container.querySelectorAll(".btn")].find((b) => b.textContent?.trim() === "재가동") as Element;
+  fireEvent.click(restart); // 진행 단추는 그대로 0.4초 막음
+  expect(send).not.toHaveBeenCalled();
+  now += 401;
+  fireEvent.click(restart);
+  expect(send).toHaveBeenCalledWith({ type: "restart", checked: items });
 });
 
 it("알람 확인 전 세션은 기기에 남은 단계가 잠금이어도 알람 화면부터", () => {
