@@ -10,6 +10,8 @@ import json
 import os
 from pathlib import Path
 
+from c1a15 import redact
+
 SENSORS7 = (  # 원값 5칸 + 알람 Run sensor_derived 2칸(012-04) — 리트리버 재정렬 칸
     "air_temperature_k",
     "process_temperature_k",
@@ -44,7 +46,7 @@ def document(rec: dict, approved_at: str) -> dict | None:
         "document": {
             "doc": rec["record_id"],
             "record_id": rec["record_id"],
-            "text": rec["narrative"],
+            "text": redact.redact(rec["narrative"])[0],  # 소견 줄 속 이름(001-63) — 이력 DB · 임베딩으로 나감
             "metadata": metadata,
         },
     }

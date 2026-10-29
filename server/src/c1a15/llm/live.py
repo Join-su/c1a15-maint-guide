@@ -6,6 +6,7 @@ timeout과 transient 오류의 bounded 재시도만 둔다(EP-OPS-001). 비밀�
 
 import os
 
+from c1a15 import redact
 from c1a15.llm.base import AdapterError, Draft, Facts, MemoSignal
 
 DEFAULT_TIMEOUT_S = 20
@@ -30,7 +31,7 @@ class LiveAdapter:
     def write(self, facts: Facts) -> Draft:
         prompt = (
             "다음 사실만으로 한두 문장을 쓰세요. 절 번호와 수치는 사실에 있는 것만 씁니다.\n"
-            f"{facts.kind} {facts.section} {facts.values}"
+            f"{facts.kind} {facts.section} {redact.redact_obj(facts.values)[0]}"  # 사실 속 메모 이름(001-63)
         )
         try:
             resp = self.client.responses.create(model=self.model, input=prompt)

@@ -9,7 +9,7 @@
 import secrets
 from functools import lru_cache
 
-from c1a15 import config
+from c1a15 import config, redact
 from c1a15.deploy.client import Client, RunResult
 from c1a15.deploy.ledger import DbLedger
 
@@ -46,13 +46,17 @@ def similar_body(similar: list[dict]) -> list[dict]:
     return [{"record_id": s["record_id"], "cause": s.get("cause"), "score": s["score"]} for s in similar]
 
 
+def _signal_fields(sig: dict) -> dict:
+    return {k: sig[k] for k in SIGNAL_KEYS if k in sig}
+
+
 def judge_events(inputs: list[dict]) -> list[dict]:
     """정정 · 무효가 반영된 논리 기록(INPUT_TYPES만)에서 판정이 쓰는 칸만."""
     out = []
     for e in inputs:
         ev = {k: e[k] for k in EVENT_KEYS if k in e}
         if isinstance(e.get("signal"), dict):
-            ev["signal"] = {k: e["signal"][k] for k in SIGNAL_KEYS if k in e["signal"]}
+            ev["signal"] = redact.redact_obj(_signal_fields(e["signal"]))[0]  # 메모 인용 속 이름(001-63)
         if e["type"] == "handover_request" and e.get("reason") in HANDOVER_REASONS:
             ev["reason"] = e["reason"]
         out.append(ev)
@@ -139,9 +143,26 @@ def start(alarm, grades: dict, minutes: dict) -> RunResult:
     return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, grades, minutes))
 
 
+def audit_names(where: str, target: str, n: int) -> None:
+    """거른 이름 수만 감사(원문 · 거른 낱말 0, 001-63) — 요청 트랜잭션과 따로 커밋."""
+    if not n:
+        return
+    from c1a15.api import deps
+    from c1a15.db import models as m
+
+    with deps.engine().begin() as c:
+        c.execute(
+            m.AuditEntry.__table__.insert().values(
+                actor="system", action="names_redacted", target=target, detail={"where": where, "count": n}
+            )
+        )
+
+
 def judge(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> RunResult:
     body = judge_body(alarm_id, group, similar, inputs, grades, minutes)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
+    signals = [_signal_fields(e["signal"]) for e in inputs if isinstance(e.get("signal"), dict)]
+    audit_names("judge", session_ident(alarm_id), redact.redact_obj(signals)[1])
     return client().run("judge", session_ident(alarm_id), seq, body)
 
 
@@ -152,11 +173,12 @@ def report_body(alarm_id: int, group: str, similar: list[dict], draft: dict, sec
         "session_id": session_ident(alarm_id),
         "group": group,
         "similar": similar_body(similar),
-        "report_draft": dict(draft),
+        "report_draft": redact.redact_obj(dict(draft))[0],  # 소견 줄 속 이름(001-63) — 기록 ID · 절 · 수치는 그대로
         "allowed_sections": sorted(sections),
     }
 
 
 def report(alarm_id: int, group: str, similar: list[dict], draft: dict, sections: list[str], seq: int) -> RunResult:
     """seq = 보고서 단계를 연 기록 — 초안이 바뀌면 본문 hash가 달라 기본 키도 달라짐(CH-20 초안 열쇠)."""
+    audit_names("report", session_ident(alarm_id), redact.redact_obj(dict(draft))[1])
     return client().run("report", session_ident(alarm_id), seq, report_body(alarm_id, group, similar, draft, sections))

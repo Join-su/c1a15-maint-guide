@@ -13,12 +13,12 @@ from datetime import UTC, datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import Connection, select, text
 
-from c1a15 import checkrecord, config
+from c1a15 import checkrecord, config, redact
 from c1a15.api import deps, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, CandidateDecisionBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
-from c1a15.deploy import inbox
+from c1a15.deploy import inbox, runs
 from c1a15.engine import alarm_rules, rules
 from c1a15.engine import session as session_engine
 from c1a15.llm import grounding
@@ -381,6 +381,8 @@ def _to_inbox(c: Connection, rec: dict, approved_at: str, eval_mode: bool) -> No
             return
         if done != "written":
             sessions.audit_rejection("system", "r12_inbox_skipped", target, {"reason": done})
+        else:
+            runs.audit_names("inbox", target, redact.redact(rec["narrative"])[1])  # 거른 수만(001-63)
 
     c.info["after_commit"].append(deliver)
 
