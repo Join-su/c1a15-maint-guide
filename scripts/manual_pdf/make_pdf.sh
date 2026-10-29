@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # MG-MM 2.0 PDF 만들기(EV-005): HTML → PDF → 차례 쪽 번호 채워 다시 → 표지 + 본문 합침 → data/manuals/MG-MM-2.0.pdf
-# 사용: scripts/manual_pdf/make_pdf.sh <작업 폴더(절대 경로)> — 설치 0 · 밖 요청 0. Playwright는 main 작업 트리 것을 읽기만(PW_NODE_MODULES).
+# 사용: scripts/manual_pdf/make_pdf.sh <작업 폴더(절대 경로)> — 설치 0 · 밖 요청 0. Playwright는 저장소 node_modules 것을 읽기만(다른 곳이면 PW_NODE_MODULES).
 set -euo pipefail
 H=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$H/../.." && pwd)
 W=${1:?작업 폴더}
-NM=${PW_NODE_MODULES:-/Users/insujo/Documents/repo/c1a15-maint-guide/node_modules}
+NM=${PW_NODE_MODULES:-$ROOT/node_modules}
 mkdir -p "$W/html"
 python3 -I "$H/build.py" "$ROOT" "$W/html"
 NODE_PATH="$NM" node "$H/print.cjs" "$W/html" "$W"
