@@ -183,8 +183,18 @@ class Client:
         self.timeouts = {**TIMEOUT, **(timeouts or {})}
         self.poll_every, self.poll_limit = poll_every, poll_limit
 
-    def _http(self, method: str, path: str, timeout: float, key: str | None = None, body: dict | None = None) -> Reply:
+    def _http(
+        self,
+        method: str,
+        path: str,
+        timeout: float,
+        key: str | None = None,
+        body: dict | None = None,
+        purpose: str | None = None,
+    ) -> Reply:
         headers = {"Content-Type": "application/json"} | ({"Idempotency-Key": key} if key else {})
+        if purpose:  # D-476 덧 12: 배포 서버가 trace Run 메타 purpose로 남김 → LLMOps 다시 돌리기 · 증거 세기에서 뺌
+            headers["X-Run-Purpose"] = purpose
         data = json.dumps(body, ensure_ascii=False).encode() if body is not None else None
         req = urllib.request.Request(f"{self.url}{path}", data=data, headers=headers, method=method)
         try:
@@ -247,8 +257,9 @@ class Client:
             if r.status == 404:
                 return Reply(404, {"error": {**_error(r.payload), "code": "run_not_found", "run_id": run_id}})
 
-    def run(self, kind: str, ident: str, seq: int, body: dict) -> RunResult:
-        base = base_key(kind, ident, seq, body)
+    def run(self, kind: str, ident: str, seq: int, body: dict, purpose: str | None = None) -> RunResult:
+        """purpose(예 trial) = 머리글 X-Run-Purpose · 키도 따로(c1a15-judge-trial-…) — 같은 본문의 실제 Run과 나눔."""
+        base = base_key(f"{kind}-{purpose}" if purpose else kind, ident, seq, body)
         n = self.ledger.retryable_stored(base)
         key, timeout = attempt_key(base, n), self.timeouts[kind]
         same_key_tries, new_key_used = 0, False
@@ -269,7 +280,7 @@ class Client:
             )
 
         while True:
-            r = self._http("POST", "/runs", timeout, key, body)
+            r = self._http("POST", "/runs", timeout, key, body, **({"purpose": purpose} if purpose else {}))
             err = _error(r.payload)
             if r.status == 409 and err.get("code") == "idempotency_in_progress" and err.get("run_id"):
                 polled = self._poll(err["run_id"], timeout)

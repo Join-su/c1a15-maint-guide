@@ -706,6 +706,18 @@ def _step_label(k, d: dict) -> dict:
     return {"kind": d.get("kind"), "section": sec, "title": k.sections[sec]["title"] if sec in k.sections else None}
 
 
+def _trial_decision(c: Connection, row: m.DiagSession, events: list[dict]) -> dict:
+    """정정 확인 창 '다음'(EV-011 CH-06): 정정을 넣은 기록으로 부른 Pack judge 시험 판정(X-Run-Purpose: trial).
+
+    배포 실패면 PackUnavailable(503) — 기록은 저장 전이라 그대로. 취소해도 이 Run은 trace에 남고 LLMOps가 뺌.
+    """
+    g, minutes = deps.grades(c)
+    inputs = [e for e in events if e["type"] in INPUT_TYPES]
+    ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)
+    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, ms, purpose="trial")
+    return res.output["decision"]
+
+
 def post_correction(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dict:
     """'이 기록 정정'(AC-45 ~ AC-48): 정비자가 입력해 제출한 결과 · 메모 · 사전 확인 측정값만, 사유 필수, 덧붙임 기록.
 
@@ -763,18 +775,14 @@ def post_correction(c: Connection, row: m.DiagSession, actor: str, body: dict) -
     }
     if plan.get("call_id"):
         payload["call_id"] = plan["call_id"]
-    if plan["mode"] == "rejudge":
-        cur = current_step(events) or {}
+    cur = current_step(events) or {}
+    if plan["mode"] == "rejudge" and cur.get("kind") in INSTRUCTION_KINDS and not body.get("confirmed"):
+        # EV-011 CH-06: '다음' = Pack judge 시험 판정(열린 지시가 있고 확인 전일 때만 — 확인 뒤 저장은 실제 Run)
         trial = logical([*raw_events_of(c, row.session_id), {"seq": seq, "type": etype, "_at": at, **payload}])
-        g, minutes = deps.grades(c)
-        state = session.fold(k, row.symptom_group, similar_of(row), [e for e in trial if e["type"] in INPUT_TYPES])
-        nxt = session.decide(state, k, g, minutes)
-        changes_open = cur.get("kind") in INSTRUCTION_KINDS and (nxt.get("kind"), nxt.get("section")) != (
+        nxt = _trial_decision(c, row, trial)
+        if (nxt.get("kind"), nxt.get("section")) != (
             cur.get("kind"),
             cur.get("section"),
-        )
-        if changes_open and not body.get(
-            "confirmed"
         ):  # AC-46-C3: 확인해야 저장(거부가 아니라 확인 요청 — 감사하지 않음)
             raise HTTPException(
                 status_code=409,

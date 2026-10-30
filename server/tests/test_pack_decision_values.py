@@ -279,3 +279,88 @@ def test_v15_preview_from_pack_and_manual_support_bridge(api, db, deploy):
     assert (
         count(db, "select count(*) from ops.session_events where type = 'preview_shown' and payload ? 'decision'") == 1
     )
+
+
+# ---------------------------------------------------------------- V-18 · V-19 정정 확인 = Pack 시험 판정(D-476 덧 12 머리글)
+
+
+def head(post, name):
+    return {k.lower(): v for k, v in post["headers"].items()}.get(name.lower())
+
+
+def test_trial_purpose_header_and_separate_key():
+    """시험 판정 = 머리글 X-Run-Purpose: trial · 키 c1a15-judge-trial-… · 본문 같음 / 실제 Run = 머리글 없음 · 기본 키."""
+    from fake_deploy import FakeDeploy
+    from test_deploy_client import BODY, OUT, client
+
+    with FakeDeploy() as f:
+        f.plan = [{"output": OUT}, {"output": OUT}]
+        c = client(f)
+        c.run("judge", "S-A57", 12, BODY, purpose="trial")
+        c.run("judge", "S-A57", 12, BODY)
+    trial, real = f.posts()
+    assert head(trial, "X-Run-Purpose") == "trial" and head(real, "X-Run-Purpose") is None
+    assert head(trial, "Idempotency-Key").startswith("c1a15-judge-trial-S-A57-12-")
+    assert head(real, "Idempotency-Key").startswith("c1a15-judge-S-A57-12-") and trial["body"] == real["body"]
+    assert f.executions == 2  # 같은 본문이어도 키가 달라 재생 아님
+
+
+def judges(deploy, trial=None):
+    posts = [p for p in deploy.posts() if p["body"]["kind"] == "judge"]
+    if trial is not None:
+        posts = [p for p in posts if (head(p, "X-Run-Purpose") == "trial") is trial]
+    return [p["body"] for p in posts]
+
+
+def opened_correction(api, db):
+    from test_correction import fix, seq_of
+
+    tech, _ = login(api, "tech", "tech.kim", TECH_PW)
+    s = to_instruct(tech, tech.post(f"/api/tech/alarms/{alarm(api, 'DEMO-01')}/session").json())
+    first = s["instruction"]["section"]
+    s = ok(tech, s, type="result", section=first, value="정상")
+    target = seq_of(db, s["session_id"], "result", first)
+    return tech, s, fix, target
+
+
+@pytest.mark.db
+def test_v18_confirm_dialog_next_is_pack_trial_and_save_is_real_run(api, db, deploy):
+    reset_ops(db)
+    tech, s, fix, target = opened_correction(api, db)
+    before, real_before = len(judges(deploy, trial=True)), len(judges(deploy, trial=False))
+    r = fix(tech, s, target_seq=target, value="이상", reason="다시 봄")
+    assert r.status_code == 409 and r.json()["detail"]["reason"] == "confirm_required"
+    trial = judges(deploy, trial=True)[before:]
+    assert len(trial) == 1 and len(judges(deploy, trial=False)) == real_before  # 시험 판정 하나 · 실제 Run 0
+    want = deploy.default(trial[0])["output"]["decision"]
+    assert r.json()["detail"]["next"]["section"] == want.get("section")  # 확인 창 '다음' = Pack 시험 판정
+    r2 = fix(tech, s, target_seq=target, value="이상", reason="다시 봄", confirmed=True)
+    assert r2.status_code == 200
+    assert len(judges(deploy, trial=False)) == real_before + 1  # 확인 뒤 저장 = 표시 없는 실제 Run 하나
+    assert len(judges(deploy, trial=True)) == before + 1
+    assert r2.json()["step"]["section"] == want.get("section")
+
+
+@pytest.mark.db
+def test_v19_cancel_then_other_correction_and_failure(api, db, deploy):
+    reset_ops(db)
+    tech, s, fix, target = opened_correction(api, db)
+    sid = s["session_id"]
+    assert (
+        fix(tech, s, target_seq=target, value="이상", reason="다시 봄").status_code == 409
+    )  # 시험 A → 취소(보내지 않음)
+    n = count(db, "select count(*) from ops.session_events where session_id = :s", s=sid)
+    deploy.plan = [
+        {"status": 503, "code": "trace_unavailable", "retryable": True}
+    ] * 2  # VC-36 꼴(저장된 retryable 2번 → 503)
+    assert fix(tech, s, target_seq=target, value="확인 불가", reason="다시 봄").status_code == 503  # 시험 판정 실패
+    assert count(db, "select count(*) from ops.session_events where session_id = :s", s=sid) == n  # 저장 0
+    r = fix(tech, s, target_seq=target, value="확인 불가", reason="다시 봄")
+    if r.status_code == 409:
+        r = fix(tech, s, target_seq=target, value="확인 불가", reason="다시 봄", confirmed=True)
+    assert r.status_code == 200, r.text  # 다른 정정 B 저장 성공(키 재사용 충돌 0)
+    assert all(rec["status"] != 422 for rec in deploy.keys.values())
+    assert (
+        count(db, "select count(*) from ops.session_events where session_id = :s and type = 'correction'", s=sid) == 1
+    )
+    assert r.json()["step"]["section"] == last_decision(db, sid).get("section")

@@ -179,12 +179,14 @@ def judge(
     grades: dict,
     minutes: dict,
     manual_support: dict | None = None,
+    purpose: str | None = None,
 ) -> RunResult:
+    """purpose = 'trial'이면 정정 확인 창의 시험 판정(EV-011 CH-06) — 머리글 X-Run-Purpose · 키 따로(본문 같음)."""
     body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
     signals = [_signal_fields(e["signal"]) for e in inputs if isinstance(e.get("signal"), dict)]
     audit_names("judge", session_ident(alarm_id), redact.redact_obj(signals)[1])
-    return client().run("judge", session_ident(alarm_id), seq, body)
+    return client().run("judge", session_ident(alarm_id), seq, body, purpose)
 
 
 def report_body(alarm_id: int, group: str, similar: list[dict], draft: dict, sections: list[str]) -> dict:
