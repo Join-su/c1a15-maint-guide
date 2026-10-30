@@ -253,8 +253,10 @@ def _done_text(done: list[dict]) -> str:
     return ", ".join(f"{' · '.join(titles)} {value}" for value, titles in groups.items())
 
 
-def _candidates(state: session.SessionState, k: ManualKnowledge) -> list[dict]:
-    probs = session.probabilities(state)
+def _candidates(state: session.SessionState, k: ManualKnowledge, step: dict | None = None) -> list[dict]:
+    order = [c.code for c in rules.ordered_causes(k, state.group)]
+    nums = screen.decided_numbers(step, order)  # EV-011 CH-05: 호출 요약 원인 % = Pack 판정 출력(칸 없으면 앱 셈)
+    probs = nums[0] if nums else session.probabilities(state)
     names = screen.cause_names(k, state.group)
     return [{"code": c, "name": names.get(c, c), "pct": p} for c, p in sorted(probs.items(), key=lambda x: -x[1])]
 
@@ -272,7 +274,7 @@ def call_summary(
     """
     group = deps.group_names()[alarm.symptom_group]
     done = checks_done(events, k)
-    cands = _candidates(state, k)
+    cands = _candidates(state, k, step)
     head = f"{alarm.equipment_id} {group}({screen.hhmm_kst(alarm.occurred_at)})."
     if step.get("corrected"):  # T10 / summary_corrected: 조치 뒤 정정 → 다시 판정 대신 확인 요청(AC-47-C1)
         cor = correction_of(events, step) or {}
@@ -973,7 +975,7 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
             summary = summary or {k2: gen[k2] for k2 in ("text", "fallback", "label")}
             checks, cands = gen["checks_done"], gen["candidates"]
         else:
-            checks, cands = checks_done(events, k), _candidates(state, k)
+            checks, cands = checks_done(events, k), _candidates(state, k, step)
         status = "answered" if ans_e else "sent" if call_e else "waiting" if wait_e else "none"
         out["call"] = {
             "kind": "handover" if kind == "handover" or (call_e or {}).get("kind") == "handover" else "approval",

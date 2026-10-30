@@ -10,6 +10,7 @@ CALL_THRESHOLD = 50  # R5 call_threshold(서버 설정 값)
 LOW_EVIDENCE_SCORE = 0.5  # R6
 LOW_EVIDENCE_COUNT = 3  # R6 [기본안]
 INSTRUCTABLE = {"A", "B"}
+SCORE_RULES = ("sum", "rank_weighted", "near_only")  # R4 셈 꼴(D-476 Pack 옵션 score_rule)
 
 
 @dataclass(frozen=True)
@@ -21,12 +22,36 @@ class Similar:
     score: float
 
 
-def cause_scores(candidates: Iterable[str], similar: Iterable[Similar], alpha: float = ALPHA) -> dict[str, float]:
-    """R4: 점수(c) = α + Σ 유사도(r), r = 상위 10건 중 확정 원인이 c인 기록."""
+def cause_scores(
+    candidates: Iterable[str],
+    similar: Iterable[Similar],
+    alpha: float = ALPHA,
+    rule: str = "sum",
+    near_min: float = 0.8,
+    manual: Mapping[str, float] | None = None,
+    manual_weight: float = 0.0,
+) -> dict[str, float]:
+    """R4: 점수(c) = α + Σ w(r) (+ manual_weight × manual[c]), r = 상위 10건 중 확정 원인이 c인 기록.
+
+    sum: w = score(지금) · rank_weighted: w = 1 / 순위(similar 들어온 순서, 1부터)
+    near_only: w = score, score ≥ near_min만.
+    manual: {원인 코드: 매뉴얼 몫} 또는 None(지금). 매개변수 = Pack 옵션(D-476) — 앱은 늘 기본값.
+    """
+    if rule not in SCORE_RULES:
+        raise ValueError(f"모르는 셈 꼴: {rule}")
     scores = {c: alpha for c in candidates}
-    for r in similar:
-        if r.cause in scores:
+    for rank, r in enumerate(similar, start=1):
+        if r.cause not in scores:
+            continue
+        if rule == "sum":
             scores[r.cause] += r.score
+        elif rule == "rank_weighted":
+            scores[r.cause] += 1 / rank
+        elif r.score >= near_min:
+            scores[r.cause] += r.score
+    for c, v in (manual or {}).items():
+        if c in scores:
+            scores[c] += manual_weight * v
     return scores
 
 

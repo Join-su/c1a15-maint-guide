@@ -50,8 +50,22 @@ def start(k: ManualKnowledge, group: str, similar: Iterable[rules.Similar]) -> S
     return SessionState(group=group, similar=list(similar), candidates=[c.code for c in rules.ordered_causes(k, group)])
 
 
-def probabilities(state: SessionState) -> dict[str, int]:
-    return rules.round_to_100(rules.cause_scores(state.candidates, state.similar))
+@dataclass(frozen=True)
+class Scoring:
+    """R4 셈 매개변수(D-476 Pack 옵션) — 기본 = 지금 셈. 안전 규칙 · 근거 적음은 여기 없음."""
+
+    alpha: float = rules.ALPHA
+    rule: str = "sum"
+    near_min: float = 0.8
+    manual: Mapping[str, float] | None = None
+    manual_weight: float = 0.0
+
+
+def probabilities(state: SessionState, scoring: Scoring | None = None) -> dict[str, int]:
+    s = scoring or Scoring()
+    return rules.round_to_100(
+        rules.cause_scores(state.candidates, state.similar, s.alpha, s.rule, s.near_min, s.manual, s.manual_weight)
+    )
 
 
 def _apply_result(state: SessionState, k: ManualKnowledge, section_id: str, value: str) -> None:
@@ -170,9 +184,10 @@ def decide(
     grades: Mapping[str, str],
     minutes: Mapping[str, int],
     threshold: int = rules.CALL_THRESHOLD,
+    scoring: Scoring | None = None,
 ) -> dict:
     """다음 단계. R5 판정 뒤에 S-03 단계(조치 완료 → 재가동 → 재가동 후 값 → 마감 · 인계 · 보고서)를 잇는다."""
-    d = _decide_r5(state, k, grades, minutes, threshold)
+    d = _decide_r5(state, k, grades, minutes, threshold, scoring)
     base = {key: d[key] for key in ("probabilities", "evidence", "low_evidence")}
     if d["kind"] in {"lock", "confirm_question", "out_of_scope"}:
         return d
@@ -238,9 +253,10 @@ def _decide_r5(
     grades: Mapping[str, str],
     minutes: Mapping[str, int],
     threshold: int = rules.CALL_THRESHOLD,
+    scoring: Scoring | None = None,
 ) -> dict:
     """R5 다음 단계. 등급은 판정 시점의 등급표(R13). 지시 내용은 잠금 뒤에만(R1)."""
-    probs = probabilities(state)
+    probs = probabilities(state, scoring)
     base = {
         "probabilities": probs,
         "evidence": rules.evidence_counts(state.candidates, state.similar),

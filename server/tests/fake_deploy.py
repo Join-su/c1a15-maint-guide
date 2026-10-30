@@ -9,6 +9,7 @@
 kind별 필수 · 금지 칸만 본다 — 정본 v2 전체 schema 검사는 받은 본문 증거를 c1a15-pack .venv로(VC-35).
 """
 
+import dataclasses
 import hashlib
 import json
 import sys
@@ -282,7 +283,7 @@ def engine_answer(body: dict) -> dict:
     실제 Pack과 같은 결과는 ES-09(1건) · VC-43(미리보기 = Pack) · 3단계 대조 몫.
     """
     from c1a15.api import deps
-    from c1a15.engine import alarm_rules, rules, session
+    from c1a15.engine import alarm_rules
 
     if body["kind"] == "alarm" and body["event_card"]["source_mode"] == "ml_predicted":
         card = body["event_card"]
@@ -321,15 +322,54 @@ def engine_answer(body: dict) -> dict:
                 }
             }
         }
+    return {"output": _judge_output(body)}
+
+
+def _judge_output(body: dict, opts: dict | None = None) -> dict:
+    """start · judge 판정 출력. opts = Pack 옵션 흉내(EV-011): scoring · threshold · preview · manual_support · strip.
+
+    opts가 없으면 지금 그대로(약속 v4 — preview · manual_support 칸 없음).
+    """
+    from c1a15.api import deps
+    from c1a15.engine import rules, session
+
+    opts = opts or {}
     k = deps.manual()
     row = start_v4_row(body) if body["kind"] == "start" else None  # start = Pack 리트리버 자리(약속 v4) — 승인 자료에서
     given = row["similar"] if row else body.get("similar", [])
     similar = [rules.Similar(s["record_id"], s.get("cause"), s["score"]) for s in given]
-    state = session.fold(k, body["group"], similar, body["events"])
-    out = {"decision": session.decide(state, k, body["grades"], body["minutes"])}
+    ms = opts.get("manual_support") if row else body.get("manual_support")
+    kw = {}
+    if opts.get("threshold") is not None:
+        kw["threshold"] = opts["threshold"]
+    if opts.get("scoring") is not None:  # 켠 매뉴얼 몫 = start는 옵션 값, judge는 요청에 다시 담겨 온 값(약속 v5)
+        sc = opts["scoring"]
+        kw["scoring"] = dataclasses.replace(sc, manual=ms) if opts.get("use_manual") else sc
+
+    def decide(events):
+        state = session.fold(k, body["group"], similar, events)
+        d = session.decide(state, k, body["grades"], body["minutes"], **kw)
+        return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
+
+    out = {"decision": decide(body["events"])}
     if row:
         out["similar"], out["retrieval"] = row["similar"], row["retrieval"]
-    return {"output": out}
+        if opts.get("preview"):  # 약속 v5 덧칸: 잠금 · 사전 확인을 했다고 놓은 판정(start에만)
+            out["preview"] = decide([*body["events"], {"type": "lock"}, {"type": "precheck_done"}])
+        if ms is not None:
+            out["manual_support"] = ms
+    return out
+
+
+def pack_answer(**opts):
+    """옵션을 바꾼 Pack 흉내(EV-011 V-11 · V-14 ~ V-17): FakeDeploy.default에 넣음 · alarm · report는 engine_answer."""
+
+    def answer(body: dict) -> dict:
+        if body["kind"] in ("start", "judge"):
+            return {"output": _judge_output(body, opts)}
+        return engine_answer(body)
+
+    return answer
 
 
 # 단독 실행: python fake_deploy.py <port> [bind] — 기본 = engine_answer(DATABASE_URL 필요), /_plan으로 동작 넣기

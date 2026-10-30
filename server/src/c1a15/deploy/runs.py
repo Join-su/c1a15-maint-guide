@@ -127,8 +127,16 @@ def start_body(alarm, grades: dict, minutes: dict) -> dict:
     }
 
 
-def judge_body(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> dict:
-    return {
+def judge_body(
+    alarm_id: int,
+    group: str,
+    similar: list[dict],
+    inputs: list[dict],
+    grades: dict,
+    minutes: dict,
+    manual_support: dict | None = None,
+) -> dict:
+    body = {
         "kind": "judge",
         "session_id": session_ident(alarm_id),
         "group": group,
@@ -137,6 +145,11 @@ def judge_body(alarm_id: int, group: str, similar: list[dict], inputs: list[dict
         "grades": grades,
         "minutes": minutes,
     }
+    if (
+        manual_support is not None
+    ):  # 약속 v5(EV-011 CH-07): start가 준 매뉴얼 몫을 그대로 다시 담음 — 없으면 지금 바이트
+        body["manual_support"] = manual_support
+    return body
 
 
 def start(alarm, grades: dict, minutes: dict) -> RunResult:
@@ -158,8 +171,16 @@ def audit_names(where: str, target: str, n: int) -> None:
         )
 
 
-def judge(alarm_id: int, group: str, similar: list[dict], inputs: list[dict], grades: dict, minutes: dict) -> RunResult:
-    body = judge_body(alarm_id, group, similar, inputs, grades, minutes)
+def judge(
+    alarm_id: int,
+    group: str,
+    similar: list[dict],
+    inputs: list[dict],
+    grades: dict,
+    minutes: dict,
+    manual_support: dict | None = None,
+) -> RunResult:
+    body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
     signals = [_signal_fields(e["signal"]) for e in inputs if isinstance(e.get("signal"), dict)]
     audit_names("judge", session_ident(alarm_id), redact.redact_obj(signals)[1])

@@ -141,10 +141,12 @@ def _store(c: Connection, sid: int, seq: int, etype: str, payload: dict, actor: 
     )
 
 
-def _deploy_decision(c: Connection, row: m.DiagSession, inputs: list[dict]) -> tuple[dict, dict]:
+def _deploy_decision(
+    c: Connection, row: m.DiagSession, inputs: list[dict], manual_support: dict | None = None
+) -> tuple[dict, dict]:
     """다음 단계 = 배포 서버 judge Run(EV-001 ES-07, C1A15_JUDGE=deploy). 판정 하나 = Run 하나 — checkpoint 안 씀."""
     g, minutes = deps.grades(c)
-    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes)
+    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, manual_support)
     return res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
 
 
@@ -157,7 +159,8 @@ def _open_step(
     decided = 세션 시작 start Run이 낸 첫 단계.
     """
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
-    decision, ref = decided if decided is not None else _deploy_decision(c, row, inputs)
+    ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)  # start가 준 매뉴얼 몫
+    decision, ref = decided if decided is not None else _deploy_decision(c, row, inputs, ms)
     seq = (events[-1]["seq"] if events else 0) + 1
     _store(c, sid, seq, "step_opened", {"decision": decision, **ref}, actor)
     if decision["kind"] in {
@@ -248,7 +251,11 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     similar = res.output["similar"]
     _check_known_records(c, alarm, similar, res.run_id)
     deploy_cols = {"retrieval": res.output["retrieval"], "start_run_id": res.run_id, "deployment_id": res.deployment_id}
-    decided = (res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id})
+    ref = {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
+    if res.output.get("manual_support") is not None:  # 약속 v5(EV-011 CH-07) — judge 요청마다 다시 담음
+        ref["manual_support"] = res.output["manual_support"]
+    decided = (res.output["decision"], ref)
+    pack_preview = res.output.get("preview")  # 약속 v5 덧칸(EV-011 CH-03) — 없으면 앱 decide
     sid = c.execute(
         m.DiagSession.__table__.insert()
         .values(
@@ -263,14 +270,22 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     )
     row = _row(c, sid)
     _open_step(c, sid, row, [], user_id, decided)
-    pv = preview(row, c)  # 처음 보이는 진단 미리보기 문장의 대체 여부를 세션 실패 수에 남긴다(S02-G6-4)
-    state = session.fold(deps.manual(), row.symptom_group, similar_of(row), [])
+    pv = preview(row, c, pack_preview)  # 처음 보이는 진단 미리보기 문장의 대체 여부를 세션 실패 수에 남긴다(S02-G6-4)
+    k = deps.manual()
+    state = session.fold(k, row.symptom_group, similar_of(row), [])
+    order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
+    probs, evidence = screen.decided_numbers(decided[0], order) or (  # EV-011 CH-04: 그때 순위 = Pack start 값
+        session.probabilities(state),
+        rules.evidence_counts(state.candidates, state.similar),
+    )
     snap = {  # T15 / diagnosis '그때의 원인 순위 · 첫 지시'(S-05 P-14)
         "kind": pv["kind"],
         "preview": pv,
-        "probabilities": session.probabilities(state),
-        "evidence": rules.evidence_counts(state.candidates, state.similar),
+        "probabilities": probs,
+        "evidence": evidence,
     }
+    if pack_preview is not None:
+        snap["decision"] = pack_preview
     if "reason_fallback" in pv:
         snap["llm_fallback"] = pv["reason_fallback"]
     _store(c, sid, events_of(c, sid)[-1]["seq"] + 1, "preview_shown", snap, user_id)
@@ -308,19 +323,29 @@ def session_for(c: Connection, sid: int, user_id: str) -> m.DiagSession:
     return row
 
 
-def preview(row: m.DiagSession, c: Connection) -> dict:
+def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> dict:
     """진단 화면(T04)의 '다음 점검' 미리보기: 잠금 · 사전 확인을 했다고 놓고 판정한 다음 단계.
 
+    판정 = Pack start 결과 preview(EV-011 CH-03 · 세션 시작 때 preview_shown에 저장), 없으면 앱 decide.
     절차 · 판정 기준은 넣지 않는다(R1).
     """
     k = deps.manual()
     g, minutes = deps.grades(c)
-    state = session.fold(k, row.symptom_group, similar_of(row), [{"type": "lock"}, {"type": "precheck_done"}])
-    d = session.decide(state, k, g, minutes)
+    if decided is None:
+        shown = (e for e in events_of(c, row.session_id) if e["type"] == "preview_shown" and "decision" in e)
+        decided = next(shown, {}).get("decision")
+    if decided is not None:
+        d = decided
+    else:
+        state = session.fold(k, row.symptom_group, similar_of(row), [{"type": "lock"}, {"type": "precheck_done"}])
+        d = session.decide(state, k, g, minutes)
     out = {"kind": d["kind"], "section": d.get("section"), "grade": d.get("grade"), "cause": d.get("cause")}
     if d["kind"] in {"instruct", "instruct_after_checklist"}:
         sec = k.sections[d["section"]]
-        probs = d["probabilities"]  # 순위 = 진단 화면 원인 순위와 같은 정렬(확률 내림차순 · 같으면 앞 순서)
+        order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
+        probs = screen.in_order(
+            d["probabilities"], order
+        )  # 순위 = 진단 화면 원인 순위와 같은 정렬(확률 내림차순 · 같으면 앞 순서)
         rank = sorted(probs, key=lambda c: -probs[c]).index(d["cause"]) + 1 if d["cause"] in probs else 1
         facts = Facts(
             "reason",
@@ -444,7 +469,11 @@ def view(c: Connection, row: m.DiagSession) -> dict:
     g, minutes = deps.grades(c)
     state = session.fold(k, row.symptom_group, similar_of(row), [e for e in events if e["type"] in INPUT_TYPES])
     step = current_step(events) or {}
-    probs = session.probabilities(state)
+    order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
+    probs, evidence = screen.decided_numbers(step, order) or (  # EV-011 CH-02: 화면 숫자 = Pack 판정 출력
+        session.probabilities(state),
+        rules.evidence_counts(state.candidates, state.similar),
+    )
     out = {
         "session_id": row.session_id,
         "alarm_id": row.alarm_id,
@@ -453,7 +482,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
         "alarm_ack_at": next((e["at"] for e in events if e["type"] == "alarm_ack"), None),
         "lock_at": next((e["at"] for e in reversed(events) if e["type"] == "lock"), None) if state.locked else None,
         "probabilities": probs,
-        "evidence": rules.evidence_counts(state.candidates, state.similar),
+        "evidence": evidence,
         "low_evidence": rules.low_evidence(state.similar),
         "top_records": [s["record_id"] for s in row.similar[:3]],
         "similar_basis": "상위 10건",

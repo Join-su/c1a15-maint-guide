@@ -197,6 +197,18 @@ def _record_card(rec: dict, score: float) -> dict:
     }
 
 
+def in_order(values: dict, order: list[str]) -> dict:
+    """원인 칸을 매뉴얼 개요 순으로(저장 JSONB의 키 순서와 무관 — 같은 % 정렬 · 응답 바이트가 앱 셈과 같게)."""
+    return {c: values[c] for c in sorted(values, key=lambda c: order.index(c) if c in order else len(order))}
+
+
+def decided_numbers(step: dict | None, order: list[str]) -> tuple[dict, dict] | None:
+    """화면 원인 % · 근거 n = Pack 판정 출력(EV-011 CH-02 · 05). 두 칸이 없으면 None(옛 Pack · 옛 세션 → 앱 셈)."""
+    if not step or not isinstance(step.get("probabilities"), dict) or not isinstance(step.get("evidence"), dict):
+        return None
+    return in_order(step["probabilities"], order), in_order(step["evidence"], order)
+
+
 def similar_cards(c: Connection, similar: list[dict]) -> list[dict]:
     """T04 기록 카드 = R3 상위 3건 가운데 근거가 되는 기록(R6 score ≥ 0.5).
 
