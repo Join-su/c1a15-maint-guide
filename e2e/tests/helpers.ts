@@ -88,6 +88,12 @@ export function simR5Example(sessionId: number): void {
   ]);
   psql(`update ops.diag_sessions set "similar" = '${similar}'::jsonb where session_id = ${sessionId}`);
   // 다음 판정 = 배포 서버 judge Run이 저장된 similar를 그대로 받음(LangGraph checkpoint 지울 것 없음 — EV-001 ES-23)
+  // 진단 화면 숫자 = Pack start 판정 출력(EV-011 CH-02 · 04) — 이 similar로 Pack(기본 옵션)이 낼 start 판정 값을 같이 넣음
+  const nums = `'{"probabilities": {"CL-1": 50, "CL-2": 28, "CL-3": 11, "CL-4": 11}, "evidence": {"CL-1": 2, "CL-2": 1, "CL-3": 0, "CL-4": 0}}'::jsonb`;
+  psql(
+    `update ops.session_events set payload = jsonb_set(payload, '{decision}', payload->'decision' || ${nums}) where session_id = ${sessionId} and type = 'step_opened'`,
+  );
+  psql(`update ops.session_events set payload = payload || ${nums} where session_id = ${sessionId} and type = 'preview_shown'`);
 }
 
 export async function restartApi(page: Page): Promise<void> {
