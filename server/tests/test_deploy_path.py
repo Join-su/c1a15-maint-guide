@@ -330,7 +330,8 @@ def test_alarm_no_alarm_and_pack_candidate(api, db, deploy):
     }
     r = register_sc(api, {**sc, "sensor_snapshot": normal})
     assert r.status_code == 422 and r.json()["detail"] == "no_boundary_crossed" and alarm_rows(db) == []
-    top = [{"type": "TWF", "probability": 0.45, "group_suggestion": "TW"}]  # 정본 v2 모양(약속 예시 alarm-ml-candidate)
+    # 정본 v2 모양(약속 예시 alarm-ml-candidate · TWF는 NONE에 더해져 나오지 않음)
+    top = [{"type": "HDF", "probability": 0.45, "group_suggestion": "CL"}]
     cand = {"reason": "low_confidence", "risk": 0.7, "top_k": top, "boundary_crossed": False, "model_release": "mr-x"}
     deploy.plan = [
         {
