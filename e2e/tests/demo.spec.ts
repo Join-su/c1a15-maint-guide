@@ -183,7 +183,7 @@ for (const d of DEMO) {
         await expect(page.locator(".modal")).toHaveCount(0);
       } else if ("act" in st) {
         await doAction(page);
-        await expect(page.locator(".act .ch.green").first()).toHaveText(/^완료 \d\d:\d\d$/);
+        await expect(page.locator(".act .ch.green").first()).toHaveText("완료"); // 답장 001-zzx 가(가이드 15쪽)
       } else if ("restart" in st) {
         await restartWithin(page);
         await page.locator(".choice2 .btn", { hasText: st.restart }).click();

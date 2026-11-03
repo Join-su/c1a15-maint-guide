@@ -16,10 +16,10 @@ test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 조치 완료
   await expect(page.locator(".ap-step .sp.on")).toContainText("조치");
   await shot(page, info, "T08-action_a");
   await page.locator(".act .btn", { hasText: "조치 완료" }).click();
-  await expect(page.locator(".act .ch.green")).toHaveText(/^완료 \d\d:\d\d$/);
+  await expect(page.locator(".act .ch.green")).toHaveText("완료"); // 답장 001-zzx 가(가이드 15쪽)
   await shot(page, info, "T08-restart_checklist");
   await restartWithin(page);
-  await expect(page.locator(".rv-sub")).toHaveText("경계 8.2 K 이상이면 경계 이내");
+  await expect(page.locator(".rvrow > span").last()).toHaveText("경계 8.2 K"); // 재가동 카드 안 값 줄(가이드 16쪽)
   await shot(page, info, "T08-restart_check");
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator(".rf")).toHaveCount(8);
