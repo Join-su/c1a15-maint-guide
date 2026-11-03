@@ -286,28 +286,6 @@ def test_alarm_missing_lineage_and_product_type_are_422(api, db, deploy, monkeyp
     assert alarm_rows(db) == []
 
 
-def test_d275_predict_failure_becomes_model_failure_candidate(api, db, deploy):
-    reset_ops(db)
-    deploy.plan = [
-        {"status": 500, "code": "run_failed", "where": "run.predict_failure", "node_code": "feature_not_number"}
-    ]
-    r = register_sc(api, scenarios()[0])
-    assert r.status_code == 200 and r.json()["alarm_id"] is None and r.json()["reason"] == "model_failure"
-    assert alarm_rows(db) == []
-    with db.connect() as c:
-        cand = c.execute(text("select reason, event_id, run_id, boundary_crossed from ops.alarm_candidates")).one()
-    assert (
-        cand.reason == "model_failure"
-        and cand.event_id.startswith("C1A-E")
-        and cand.run_id == "run_0001"
-        and cand.boundary_crossed is True
-    )
-    assert count(db, "select count(*) from ops.audit_log where action = 'alarm_candidate'") == 1
-    assert (
-        count(db, "select count(*) from ops.audit_log where action = 'pack_call_failed'") == 1
-    )  # 클라이언트 감사(where · node_code)
-
-
 def test_alarm_other_failure_is_503_and_no_alarm(api, db, deploy):
     reset_ops(db)
     deploy.plan = [{"status": 503, "code": "trace_unavailable", "retryable": True}] * 2
@@ -317,7 +295,7 @@ def test_alarm_other_failure_is_503_and_no_alarm(api, db, deploy):
     assert count(db, "select count(*) from ops.audit_log where action = 'alarm'") == 0
 
 
-def test_alarm_no_alarm_and_pack_candidate(api, db, deploy):
+def test_alarm_boundary_path_no_alarm_is_422(api, db, deploy):
     reset_ops(db)
     sc = scenarios()[0]
     normal = {
@@ -330,30 +308,49 @@ def test_alarm_no_alarm_and_pack_candidate(api, db, deploy):
     }
     r = register_sc(api, {**sc, "sensor_snapshot": normal})
     assert r.status_code == 422 and r.json()["detail"] == "no_boundary_crossed" and alarm_rows(db) == []
-    # 정본 v2 모양(약속 예시 alarm-ml-candidate · TWF는 NONE에 더해져 나오지 않음)
-    top = [{"type": "HDF", "probability": 0.45, "group_suggestion": "CL"}]
-    cand = {"reason": "low_confidence", "risk": 0.7, "top_k": top, "boundary_crossed": False, "model_release": "mr-x"}
-    deploy.plan = [
-        {
-            "output": {
-                "alarm": {
-                    "event_id": "x",
-                    "alarm": False,
-                    "group": None,
-                    "group_source": None,
-                    "alarm_block": None,
-                    "sensor_derived": {"power_w": 1, "temp_diff_k": 1.0},
-                    "ml": None,
-                    "candidate": cand,
-                }
-            }
-        }
-    ]
-    r = register_sc(api, sc)
-    assert r.status_code == 200 and r.json()["reason"] == "low_confidence" and alarm_rows(db) == []
+
+
+def pack_candidate_plan(reason):
+    """Pack이 후보를 돌려주는 꼴 = Pack alarm_route 원본(alarms/ml.py route)이 실제로 내는 값 — 예측 실패는 Run 실패(D-275)."""
+    from c1a15.alarms import ml as alarm_route
+
+    if reason == "model_failure":
+        return [
+            {"status": 500, "code": "run_failed", "where": "run.predict_failure", "node_code": "feature_not_number"}
+        ]
+    first = "RNF" if reason == "rnf" else "HDF"  # 1위 RNF → rnf · 1위 확률 < 문턱 → low_confidence
+    pred = {"model_release": "mr-x", "probabilities": {"NONE": 0.3, first: 0.45, "PWF": 0.25}}
+    routed = alarm_route.route(pred, None, 0.5)
+    assert routed["candidate"]["reason"] == reason  # 원본이 정말 그 사유의 후보를 냄
+    out = {"event_id": "x", "alarm_block": None, "sensor_derived": {"power_w": 1, "temp_diff_k": 1.0}, **routed}
+    return [{"output": {"alarm": out}}]
+
+
+@pytest.mark.parametrize("reason", ["low_confidence", "rnf", "model_failure"])
+def test_d529_pack_candidate_is_no_alarm_and_one_audit(api, db, deploy, reason):
+    """D-529: 파트장 '사람 판단'을 지움 — Pack 후보(확신 낮음 · RNF · 예측 실패)는 알람 없음(200) + 감사 alarm_rejected 한 줄.
+
+    후보 표(alarm_candidates)에는 새 행 0 · 응답에 candidate_id 칸 없음(알람 없음 응답과 같은 꼴)."""
+    reset_ops(db)
+    cands = count(db, "select count(*) from ops.alarm_candidates")
+    deploy.plan = pack_candidate_plan(reason)
+    r = register_sc(api, scenarios()[0])
+    assert r.status_code == 200
+    body = r.json()
+    assert body["alarm_id"] is None and body["reason"] == reason and "candidate_id" not in body
+    assert set(body) == {"alarm_id", "reason", "ml"}
+    assert alarm_rows(db) == []
+    assert count(db, "select count(*) from ops.alarm_candidates") == cands
+    assert count(db, "select count(*) from ops.audit_log where action = 'alarm_candidate'") == 0
     with db.connect() as c:
-        row = c.execute(text("select reason, risk, model_release, boundary_crossed from ops.alarm_candidates")).one()
-    assert (row.reason, row.risk, row.model_release, row.boundary_crossed) == ("low_confidence", 0.7, "mr-x", False)
+        rows = c.execute(
+            text("select actor, target, detail, equipment_id, at from ops.audit_log where action = 'alarm_rejected'")
+        ).all()
+    assert len(rows) == 1
+    a = rows[0]
+    assert a.actor == "system" and a.equipment_id == scenarios()[0]["equipment_id"] and a.at is not None
+    assert a.detail["reason"] == reason and a.target == f"event:{a.detail['event_id']}"
+    assert a.detail["event_id"].startswith("C1A-E") and a.detail["run_id"] == "run_0001"
 
 
 def test_start_event_id_falls_back_to_c1a_a_for_alarm_registered_on_default_path(api, db, deploy):

@@ -26,8 +26,8 @@ def kinds(path=None):
     """자료 행(udi) → 앱 결과 갈래(preview v14 O 표)."""
     out = {}
     for udi, a in fake_deploy.ml_alarm_outputs(path).items():
-        if a.get("candidate"):
-            out[udi] = "candidate"
+        if a.get("candidate"):  # D-529: Pack 후보도 알람 없음(사유 그대로) + 감사 한 줄
+            out[udi] = a["candidate"]["reason"]
         elif not a["alarm"]:
             out[udi] = "below_threshold"
         elif a["alarm_block"] is None:
@@ -75,26 +75,23 @@ def check_against_data(api, db, monkeypatch, capsys, path=None):
     assert code == 0 and cap.err == ""
     registered = {by_sc[r["scenario_id"]] for r in alarm_rows(db)}
     assert registered == {u for u, k in want.items() if k == "alarm"}  # 등록 알람 집합 = 자료 기대 알람
-    assert count(db, "select count(*) from ops.alarm_candidates") == sum(k == "candidate" for k in want.values())
+    assert count(db, "select count(*) from ops.alarm_candidates") == 0  # D-529: 후보 표 쓰기 0
     assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") - audit_before == sum(
-        k == "ml_type_no_block" for k in want.values()
-    )  # PR-29: 알람 없음 저장 0 · ML 유형은 감사만
+        k not in ("alarm", "below_threshold") for k in want.values()
+    )  # PR-29: 알람 없음 저장 0 · ML 유형 · Pack 후보는 감사만
     lines = {ln.split(" ", 1)[0]: ln for ln in cap.out.splitlines() if ln.startswith("DEMO-")}
     assert set(lines) == set(by_sc)  # 발생기가 멈추지 않고 모든 행을 보냄(GAP-19)
     for sc, udi in by_sc.items():
         k = want[udi]
         if k == "alarm":
             assert " 등록 · 배정 " in lines[sc]
-        elif k == "candidate":
-            assert " 알람 없음 · 후보 " in lines[sc]
         else:
             text_ = cli.NO_ALARM_TEXT[k]
             assert f" 알람 없음 · {text_} · 위험도 " in lines[sc] and lines[sc].endswith(f" · {model}")
-    n_none = sum(k in ("below_threshold", "ml_type_no_block") for k in want.values())
+    n_none = sum(k != "alarm" for k in want.values())
     n_alarm = sum(k == "alarm" for k in want.values())
-    n_cand = sum(k == "candidate" for k in want.values())
     summary = cap.out.splitlines()[-1]
-    assert summary.startswith(f"요약: 알람 {n_alarm} / 각본 {len(by_sc)} · 알람 없음 {n_none} · 후보 {n_cand} · model ")
+    assert summary.startswith(f"요약: 알람 {n_alarm} / 각본 {len(by_sc)} · 알람 없음 {n_none} · model ")
     if n_none:
         assert summary.endswith(f" · model {model} · 문턱 {th:.2f}")
     return want
@@ -144,7 +141,7 @@ def test_pr30_model_swap_needs_no_test_change(api, db, ml, monkeypatch, capsys, 
 
 
 def test_vc49_ml_type_no_block_is_200_with_audit(api, db, ml, monkeypatch):
-    """VC-49 · CH-25: ML 유형(alarm_block 없음) = 200 ml_type_no_block · 알람 0 · 후보 0 · 감사 alarm_rejected 1."""
+    """VC-49 · CH-25: ML 유형(alarm_block 없음) = 200 ml_type_no_block · 알람 0 · 감사 alarm_rejected 1."""
     reset_ops(db)
     rows = fake_deploy.ml_alarm_outputs()
     sc = scenarios()[0]
@@ -159,7 +156,6 @@ def test_vc49_ml_type_no_block_is_200_with_audit(api, db, ml, monkeypatch):
     body = r.json()
     assert body == {
         "alarm_id": None,
-        "candidate_id": None,
         "reason": "ml_type_no_block",
         "ml": {k: out["ml"][k] for k in ("model_release", "risk", "threshold")},
     }
@@ -208,7 +204,6 @@ def test_vc49_below_threshold_response_body(api, db, ml):
     assert r.status_code == 200
     assert r.json() == {
         "alarm_id": None,
-        "candidate_id": None,
         "reason": "below_threshold",
         "ml": {k: a["ml"][k] for k in ("model_release", "risk", "threshold")},
     }

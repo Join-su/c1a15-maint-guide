@@ -251,7 +251,7 @@ def test_ch27_eval_run_records_not_registered_without_session(tmp_path, monkeypa
     monkeypatch.setattr(eval_run, "INPUTS", tmp_path / "inputs.json")
     ml = {"model_release": "mr-x", "risk": 0.1, "threshold": 0.5}
     regs = {
-        "C1": {"ref": "C1", "alarm_id": None, "candidate_id": None, "reason": "below_threshold", "ml": ml},
+        "C1": {"ref": "C1", "alarm_id": None, "reason": "below_threshold", "ml": ml},
         "C2": {"ref": "C2", "alarm_id": 7, "assigned_to": "tech.kim", "symptom_group": "CL"},
     }
     monkeypatch.setattr(eval_run, "register", lambda inp: {inp[0]["card_id"]: regs[inp[0]["card_id"]]})
