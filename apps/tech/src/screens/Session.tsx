@@ -320,10 +320,10 @@ export function Session(p: SessionProps) {
     <>
       <StepBar
         current={current}
-        view={past?.no ?? null}
+        view={past?.no ?? null} // 지시 d530-p33(가이드 23쪽): 보는 단계가 지금 꼴(파랑) · 그 뒤는 회색(누름은 그대로)
         onPick={(n) => void openPast(n)} // 잠금 전(진단 · 잠금 · 기록 창)에도 완료 단계는 그때 화면(AC-41-C1 · Prototype T04 · T05 · T13)
         currentPickable={s.locked && current >= 3} // 생성자 해석 ①: 지금 단계도 보낸 기록이 있으면 기록 보기
-        done={current === 5 && !!s.report && s.report.status !== "draft"} // 답장 001-zzx 라(가이드 19쪽): 확정한 보고서는 '보고서'도 끝남
+        done={!past && current === 5 && !!s.report && s.report.status !== "draft"} // 답장 001-zzx 라(가이드 19쪽): 확정한 보고서는 '보고서'도 끝남
       />
       <PackNotice
         state={pack}

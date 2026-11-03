@@ -157,6 +157,7 @@ export function App() {
       <TodayPanel
         home={home}
         current={view.name === "session" ? view.sid : null}
+        currentAlarm={view.name === "session" && session?.session_id === view.sid ? session.alarm_id : null}
         onOpen={(a) =>
           a.status === "new" ? void startAlarm(a.alarm_id) : a.session_id ? go({ name: "session", sid: a.session_id }) : undefined
         }

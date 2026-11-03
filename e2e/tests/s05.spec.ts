@@ -46,7 +46,7 @@ test("AC-41 · AC-44: 지난 화면(알람 · 진단 · 점검 기록 목록) �
   await expect(page.locator(".pastbar > b")).toHaveText("지난 화면 · 알람");
   await expect(page.locator(".ap-body.past .alh h3")).toBeVisible();
   await expect(page.locator(".ap-body.past .btn", { hasText: "진단 보기" })).toHaveClass(/dis/);
-  await expect(step(page, 1)).toHaveClass(/view/);
+  await expect(step(page, 1)).toHaveClass(/\bon\b/); // 보는 단계가 지금 꼴(지시 d530-p33 · 가이드 23쪽)
   await shot(page, info, "T15-alarm");
   await step(page, 2).click();
   await expect(page.locator(".pastbar .tt")).toHaveText(/그때의 원인 순위 · 첫 지시$/);

@@ -210,6 +210,9 @@ describe("T11 숙련자 인계 · 감시 마감", () => {
     expect(texts(left, ".cki .t")).toEqual(s.path!.map((p) => (p.detail ? `${p.title} · ${p.detail}` : p.title)));
     expect(texts(left, ".cki.bad .t")).toContain("흡기 필터 육안 점검 · 확인 불가 2회 · 제외");
     expect(container.querySelector(".g64 > .cd:last-child .pv")).not.toBeNull();
+    // 지시 d530-p33(가이드 28쪽): 머리 사람 아이콘 · 버튼 아이콘은 이름 앞(사람)
+    expect(left.querySelector(".warn-h > svg")?.getAttribute("class")).toContain("lucide-user");
+    expect((btn(container, "숙련자 인계 보내기").firstChild as Element | null)?.getAttribute?.("class")).toContain("lucide-user");
     fireEvent.click(btn(container, "숙련자 인계 보내기"));
     expect(send).toHaveBeenCalledWith({ type: "call_send" });
   });
@@ -459,6 +462,13 @@ describe("S-04 정비자 쪽: 반려 · 숙련자 인계 답 · 직접 확인(�
     expect(container.querySelector(".banner.bad div")?.textContent).toContain(rej.reject_reason!);
     fireEvent.click(container.querySelector(".banner.bad .btn.ghost.full")!); // 답장 001-zzx 다(가이드 33쪽): 사유 상자 안 · 알람 행의 '이어서 하기'와 다른 버튼
     expect(onResume).toHaveBeenCalledWith(rej.session_id);
+    // 지시 d530-p33(가이드 33쪽): 반려된 보고서의 내 알람 카드 = 빨간 점 · '반려 · 보고서 고치기' · 「이어서 하기」 파란 주 버튼
+    const card = container.querySelector(`.al[data-alarm="${home.alarms.find((a) => a.report_status === "rejected")!.alarm_id}"]`)!;
+    expect(card.querySelector(".dot")?.className).toBe("dot red");
+    expect(card.querySelector(".al-m > span")?.textContent).toMatch(/^\d\d:\d\d · 반려 · 보고서 고치기$/);
+    expect(card.querySelector(".btn")?.className).toBe("btn ");
+    const other = container.querySelector('.al[data-alarm="42"]')!; // 반려 아닌 진행 중은 그대로
+    expect(other.querySelector(".al-m > span")?.textContent).toMatch(/점검 2 \/ 최대 3 진행 중$/);
   });
 
   it("T12: '반려된 보고서' 묶음 · '보고서 보기' → 그 세션(AC-37-C1 · C2)", () => {

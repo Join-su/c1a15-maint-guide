@@ -21,6 +21,8 @@ function rowState(a: Row): { dot: string; text: string; button: string; ghost: b
     const label = REPORT[a.report_status ?? ""]?.label ?? "";
     return { dot: "green", text: `${hhmm(a.occurred_at)} · 보고서 확정 · ${label}`, button: "보기", ghost: true };
   }
+  if (a.report_status === "rejected") // 지시 d530-p33(가이드 33쪽): 반려된 보고서 = 빨간 점 · 「이어서 하기」 주 버튼
+    return { dot: "red", text: `${hhmm(a.occurred_at)} · 반려 · 보고서 고치기`, button: "이어서 하기", ghost: false };
   const p = a.progress;
   const n = p && p.check_no > 0 ? `점검 ${p.check_no} / 최대 ${p.check_max} 진행 중` : "진행 중";
   return { dot: "amber", text: `${hhmm(a.occurred_at)} · ${n}`, button: "이어서 하기", ghost: true };

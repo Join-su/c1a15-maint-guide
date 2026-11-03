@@ -84,20 +84,21 @@ export function StepBar({
   done?: boolean;
 }) {
   const out: ReactNode[] = [];
+  // 지난 단계를 보는 동안(view): 보는 단계가 지금 꼴(파랑) · 그 앞은 끝남 · 그 뒤는 회색(가이드 정비자 23쪽) — 누름은 그대로
+  const top = view ?? current;
   STEPS.forEach((label, i) => {
     const n = i + 1;
-    const pick = onPick && n < current ? " pick" : "";
-    const cls =
-      n < current ? `sp done${pick}${view === n ? " view" : ""}` : n === current ? (done ? "sp done" : "sp on") : "sp ";
-    const clickable = onPick && (n < current || (n === current && currentPickable));
-    if (i > 0) out.push(<span key={`l${n}`} className={`spl ${n <= current ? "done" : ""}`} />);
+    const clickable = onPick && n !== view && (n < current || (n === current && currentPickable));
+    const pick = clickable ? " pick" : "";
+    const cls = n < top ? `sp done${pick}` : n === top ? (done && view == null ? "sp done" : "sp on") : `sp ${pick.trim()}`;
+    if (i > 0) out.push(<span key={`l${n}`} className={`spl ${n <= top ? "done" : ""}`} />);
     out.push(
       <div
         key={n}
         className={cls}
         {...(clickable ? { role: "button", tabIndex: 0, onClick: () => onPick(n), "aria-label": `${label} 지난 화면` } : {})}
       >
-        <span className="spn">{n < current || (done && n === current) ? <Icon name="check" /> : n}</span>
+        <span className="spn">{n < top || (done && view == null && n === current) ? <Icon name="check" /> : n}</span>
         {label}
       </div>,
     );

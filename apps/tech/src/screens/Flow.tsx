@@ -71,9 +71,28 @@ function Checks({ items, on, onToggle }: { items: string[]; on: (x: string) => b
   );
 }
 
-function Btn({ label, icon, cls = "lg full", off, onClick }: { label: string; icon?: string; cls?: string; off?: boolean; onClick: () => void }) {
+function Btn({
+  label,
+  icon,
+  lead,
+  cls = "lg full",
+  off,
+  onClick,
+}: {
+  label: string;
+  icon?: string;
+  lead?: string; // 이름 앞 아이콘(가이드 24 · 25 · 28쪽 호출 · 인계)
+  cls?: string;
+  off?: boolean;
+  onClick: () => void;
+}) {
   return (
     <span className={`btn ${cls}${off ? " dis" : ""}`} role="button" tabIndex={0} aria-disabled={off} onClick={() => !off && onClick()}>
+      {lead ? (
+        <>
+          <Icon name={lead} />{" "}
+        </>
+      ) : null}
       {label}
       {icon ? (
         <>
@@ -299,7 +318,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
     if (text !== null && text.trim() && text.trim() !== call.summary.text) body.summary = text.trim();
     void send(body);
   };
-  const callBtn = <Btn cls="lg full warnb" label="파트장 호출" icon="phone-call" off={busy} onClick={sendCall} />;
+  const callBtn = <Btn cls="lg full warnb" label="파트장 호출" lead="phone-call" off={busy} onClick={sendCall} />;
   const summary = (
     <Summary call={call} label="파트장에게 보낼 요약" editable={editable} text={text} onText={setText} />
   );
@@ -518,7 +537,7 @@ export function HandoverScreen({
     action = (
       <>
         <Summary call={call} label={label} editable text={text} onText={setText} />
-        <Btn cls="lg full warnb" label="숙련자 인계 보내기" icon="phone-call" off={busy} onClick={sendIt} />
+        <Btn cls="lg full warnb" label="숙련자 인계 보내기" lead="user" off={busy} onClick={sendIt} />
       </>
     );
   }
@@ -528,7 +547,7 @@ export function HandoverScreen({
         {/* 답장 001-zzx 바(가이드 28쪽): 왼쪽 = 한 카드(빨강 머리 · 재가동 뒤 값 줄 + '지금까지 점검 · 조치' 체크 목록), 오른쪽 = 인계 요약 + 보내기 */}
         <div className="cd">
           <div className="warn-h bad">
-            <Icon name="hand" />
+            <Icon name="user" />
             <div>
               <span className="sm">{head}</span>
               <h3>{call.head}</h3>

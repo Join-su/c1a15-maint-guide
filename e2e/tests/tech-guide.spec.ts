@@ -179,6 +179,9 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(page.locator(".banner.bad div")).toContainText("4.3 메모를 더 자세히 적어 다시 확정");
   await expect(page.locator(".banner.bad div")).not.toContainText('"이어서 하기"로'); // 설명 문장 0
   await expect(page.locator(".banner.bad .btn")).toHaveText("이어서 하기"); // 답장 001-zzx 다(가이드 33쪽): 버튼은 사유 상자 안
+  // 지시 d530-p33(가이드 33쪽): 반려된 알람 카드 = '반려 · 보고서 고치기' · 「이어서 하기」 파란 주 버튼
+  await expect(page.locator(".al .al-m > span").first()).toHaveText(/ · 반려 · 보고서 고치기$/);
+  await expect(page.locator(".al .btn").first()).not.toHaveClass(/ghost/);
   await snap(page, info, "T33-home-rejected");
   await pause(page);
   await page.locator(".btn.full", { hasText: "이어서 하기" }).click();

@@ -221,7 +221,8 @@ describe("진행 표시 · 세션 연결(AC-41 · 생성자 해석 ①)", () => 
   it("StepBar: 완료 단계 pick(누르면 그 단계), 보는 단계 view, 지금 단계는 'on' 그대로(기록이 있으면 누름)", () => {
     const onPick = vi.fn();
     const { container } = render(<StepBar current={3} view={2} onPick={onPick} currentPickable />);
-    expect([...container.querySelectorAll(".sp")].map((e) => e.className)).toEqual(["sp done pick", "sp done pick view", "sp on", "sp ", "sp "]);
+    // 지시 d530-p33(가이드 23쪽): 보는 단계(2)가 지금 꼴 · 그 뒤 지금 단계(3)는 회색이되 누름(기록이 있으면)
+    expect([...container.querySelectorAll(".sp")].map((e) => e.className)).toEqual(["sp done pick", "sp on", "sp pick", "sp ", "sp "]);
     fireEvent.click(container.querySelectorAll(".sp")[0]);
     fireEvent.click(container.querySelectorAll(".sp")[2]);
     fireEvent.click(container.querySelectorAll(".sp")[3]);
@@ -241,7 +242,8 @@ describe("진행 표시 · 세션 연결(AC-41 · 생성자 해석 ①)", () => 
     expect([...container.querySelectorAll(".sp")].map((e) => e.className).slice(0, 2)).toEqual(["sp done pick", "sp on"]);
     await act(async () => fireEvent.click(container.querySelectorAll(".sp")[0]));
     await waitFor(() => expect(container.querySelector(".pastbar b")?.textContent).toBe("지난 화면 · 알람"));
-    expect(container.querySelectorAll(".sp")[1].className).toBe("sp on"); // 잠금 전 지금 단계는 누르지 않음(보낸 기록 없음)
+    expect(container.querySelectorAll(".sp")[0].className).toBe("sp on"); // 보는 단계(알람)가 지금 꼴(가이드 23쪽)
+    expect(container.querySelectorAll(".sp")[1].className).toBe("sp "); // 잠금 전 지금 단계는 누르지 않음(보낸 기록 없음)
   });
 
   it("세션: 지나온 단계를 누르면 /history로 그 단계 마지막 기록, '지금 단계로'면 지금 지시와 보내지 않은 입력 그대로(AC-41-C3)", async () => {
@@ -256,7 +258,8 @@ describe("진행 표시 · 세션 연결(AC-41 · 생성자 해석 ①)", () => 
     await waitFor(() => expect(container.querySelector(".ins-h h3")?.textContent).toBe(view.instruction!.title));
     await act(async () => fireEvent.click(container.querySelectorAll(".sp")[1]));
     await waitFor(() => expect(container.querySelector(".pastbar b")?.textContent).toBe("지난 화면 · 진단"));
-    expect(container.querySelectorAll(".sp")[1].className).toBe("sp done pick view");
+    // 지시 d530-p33(가이드 23쪽): 지난 단계를 보는 동안 단계 띠는 그 단계가 지금(파랑) · 뒤 단계는 회색
+    expect([...container.querySelectorAll(".sp")].map((e) => e.className)).toEqual(["sp done pick", "sp on", "sp pick", "sp ", "sp "]);
     await act(async () => fireEvent.click(container.querySelectorAll(".sp")[2])); // 지금 단계도 보낸 기록이 있으면 기록 보기(①)
     await waitFor(() => expect(container.querySelector(".pdet")).not.toBeNull());
     expect(container.querySelector(".pdet .unsent")?.textContent).toBe(`지금 ${view.instruction!.section} 입력(보내지 않음)은 그대로`);
@@ -279,6 +282,7 @@ describe("T10 / summary_corrected — 조치 뒤 정정 호출(AC-47-C1 · 결�
     expect(texts(container, ".dn2 span")).toEqual(["흡기 필터 육안 점검 · 정상(정정 1회, 원래 이상)"]);
     expect(container.querySelector(".hint")).toBeNull();
     expect(container.querySelector(".pv p")?.textContent).toContain("결과를 이상 → 정상으로 정정");
+    expect((btn(container, "파트장 호출").firstChild as Element | null)?.getAttribute?.("class")).toContain("lucide-phone-call"); // 아이콘은 이름 앞(가이드 24 · 25쪽)
     fireEvent.click(btn(container, "파트장 호출"));
     expect(send).toHaveBeenCalledWith({ type: "call_send" });
   });

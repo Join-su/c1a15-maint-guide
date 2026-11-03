@@ -48,6 +48,14 @@ describe("왼쪽 「오늘 밤 알람」 칸", () => {
     expect(container.querySelectorAll("button.n-li").length).toBe(1);
   });
 
+  it("알람 화면(세션이 막 열려 홈 줄에 세션 번호가 아직 없을 때)도 그 알람 줄을 고른 꼴로 — 지시 d530-p33(가이드 5쪽)", () => {
+    const h = load<Home>("home-d528");
+    const a = h.alarms.find((x) => x.status === "new")!;
+    const { container } = render(<TodayPanel home={h} current={9999} currentAlarm={a.alarm_id} onOpen={() => {}} />);
+    expect(container.querySelectorAll("button.n-li.on").length).toBe(1);
+    expect(container.querySelector("button.n-li.on b")?.textContent).toBe(`${a.equipment_id} · ${a.group_name}`);
+  });
+
   it("빈 상태: 진행 중인 알람 없음(개수 칸 없음)", () => {
     const h = { ...load<Home>("home-d528"), alarms: [] };
     const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);

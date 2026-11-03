@@ -19,7 +19,17 @@ function stage(a: Row): { e: string; text: string } {
   return { e: "🔧", text: p && p.check_no > 0 ? `진행 중 · 점검 ${p.check_no}/${p.check_max}` : "진행 중" };
 }
 
-export function TodayPanel({ home, current, onOpen }: { home: HomeData | null; current: number | null; onOpen: (a: Row) => void }) {
+export function TodayPanel({
+  home,
+  current,
+  currentAlarm = null,
+  onOpen,
+}: {
+  home: HomeData | null;
+  current: number | null;
+  currentAlarm?: number | null; // 세션이 막 열려 홈 줄에 세션 번호가 아직 없을 때도 그 알람 줄을 고름(가이드 5쪽)
+  onOpen: (a: Row) => void;
+}) {
   const [tab, setTab] = useState<"live" | "done">("live");
   const live = (home?.alarms ?? []).filter((a) => a.status === "new" || a.status === "in_progress");
   const done = home?.recent_reports ?? [];
@@ -45,7 +55,7 @@ export function TodayPanel({ home, current, onOpen }: { home: HomeData | null; c
               <button
                 type="button"
                 key={a.alarm_id}
-                className={`n-li${a.session_id != null && a.session_id === current ? " on" : ""}`}
+                className={`n-li${(a.session_id != null && a.session_id === current) || (currentAlarm != null && a.alarm_id === currentAlarm) ? " on" : ""}`}
                 data-alarm={a.alarm_id}
                 onClick={() => onOpen(a)}
               >
