@@ -187,6 +187,7 @@ for (const d of DEMO) {
       } else if ("restart" in st) {
         await restartWithin(page);
         await page.locator(".choice2 .btn", { hasText: st.restart }).click();
+        if (st.restart === "여전히 밖") await page.locator('.modal[aria-label="숙련자 인계 확인"] .btn', { hasText: "숙련자 인계" }).click(); // 확인 창(답장 001-zzt 6)
       } else if ("monitor" in st) {
         await expect(page.locator(".done-h .sm")).toHaveText("이상 없음 · 감시");
         await page.getByText("보고서 작성").click();

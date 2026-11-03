@@ -90,6 +90,7 @@ export interface ActionProps {
 
 /** T08: 원인 확정 → 조치(A 바로 · B 체크리스트 뒤) → 재가동 체크리스트, 재가동 뒤 값 확인(경계 이내 · 여전히 밖). */
 export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
+  const [askOutside, setAskOutside] = useState(false); // D-530 답장 001-zzt 6(가이드 27쪽): 「여전히 밖」 → 숙련자 인계 확인 창
   const a = s.action;
   const r = s.restart;
   const kind = s.step.kind;
@@ -113,7 +114,7 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
             <span className="rv-sub">{v.rule_text}</span>
             <div className="choice2">
               <Btn cls="" label="경계 이내" off={busy} onClick={() => send({ type: "restart_result", outcome: "within" })} />
-              <Btn cls="ghost" label="여전히 밖" off={busy} onClick={() => send({ type: "restart_result", outcome: "outside" })} />
+              <Btn cls="ghost" label="여전히 밖" off={busy} onClick={() => setAskOutside(true)} />
             </div>
             <span className="note">
               {a
@@ -123,6 +124,34 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
           </div>
           <PathCard path={s.path} />
         </div>
+        {askOutside ? (
+          <>
+            <div className="dim" />
+            <div className="modal" role="dialog" aria-label="숙련자 인계 확인">
+              <div className="mh">
+                <Icon name="triangle-alert" />
+                <b>재가동 뒤에도 경계 밖입니다. 숙련자에게 인계합니까?</b>
+              </div>
+              <div className="mb">
+                <span className="btn ghost" role="button" tabIndex={0} onClick={() => setAskOutside(false)}>
+                  취소
+                </span>
+                <span
+                  className={`btn warnb${busy ? " dis" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    if (busy) return;
+                    setAskOutside(false);
+                    send({ type: "restart_result", outcome: "outside" });
+                  }}
+                >
+                  숙련자 인계
+                </span>
+              </div>
+            </div>
+          </>
+        ) : null}
       </div>
     );
   }
@@ -484,7 +513,7 @@ export function HandoverScreen({
     if (text !== null && text.trim() && text.trim() !== call.summary.text) body.summary = text.trim();
     void send(body);
   };
-  const label = "숙련자 인계 요약 (자동 작성 · 고칠 수 있음)";
+  const label = "숙련자 인계 요약"; // D-530 답장 001-zzt 7: 괄호 이름표 뺌(가이드 28쪽)
   let action;
   if (ans) {
     // 결정 018 ④: 파트장 답(주간 숙련자 배정 · 직접 확인)과 처리 메모 → 보고서
@@ -515,32 +544,34 @@ export function HandoverScreen({
           </div>
         </div>
         <Summary call={call} label={label} editable={false} text={null} onText={() => {}} />
-        <span className="note">답이 오면 보고서를 작성합니다. 보고서 확정 원인은 "원인 미상"입니다.</span>
       </>
     );
   } else {
     action = (
       <>
         <Summary call={call} label={label} editable text={text} onText={setText} />
-        <Btn cls="lg full warnb" label="숙련자 인계" icon="phone-call" off={busy} onClick={sendIt} />
-        <span className="note">파트장 앱 "처리할 호출"에 유형 "숙련자 인계"로 올라갑니다. 보고서 확정 원인은 "원인 미상"입니다.</span>
+        <Btn cls="lg full warnb" label="숙련자 인계 보내기" icon="phone-call" off={busy} onClick={sendIt} />
       </>
     );
   }
   return (
     <div className="ap-body">
       <div className="g64">
-        <div className="cd">
-          <div className="warn-h">
-            <Icon name="triangle-alert" />
-            <div>
-              <span className="sm">{head}</span>
-              <h3>{call.head}</h3>
+        <div>
+          {/* 가이드 28쪽: 왼쪽 = 머리 + 지금까지 점검 · 조치, 오른쪽 = 인계 요약 + 보내기(칸 · 기능 그대로) */}
+          <div className="cd">
+            <div className="warn-h">
+              <Icon name="triangle-alert" />
+              <div>
+                <span className="sm">{head}</span>
+                <h3>{call.head}</h3>
+              </div>
             </div>
           </div>
-          {action}
+          <div className="mt-gap" />
+          <PathCard path={s.path} />
         </div>
-        <PathCard path={s.path} />
+        <div className="cd">{action}</div>
       </div>
     </div>
   );

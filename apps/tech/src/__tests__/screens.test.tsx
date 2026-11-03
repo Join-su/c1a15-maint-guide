@@ -280,7 +280,8 @@ describe("T07 확인 질문 · 맞지 않는 소견", () => {
     const onConfirm = vi.fn();
     const { container } = render(<PendingModal s={s} ins={ins} busy={false} onConfirm={onConfirm} onChoice={() => {}} />);
     expect(container.querySelector(".dim")).not.toBeNull();
-    expect(container.querySelector(".bub.me .sm")?.textContent).toBe("내 메모 · 결과 버튼 없음");
+    expect(container.querySelector(".bub.me .sm")).toBeNull(); // D-530 답장 001-zzt 2: 말칸 위 '내 메모 · …' 이름표 뺌(가이드 13쪽)
+    expect(container.querySelector(".bub.me")?.textContent).toBe([...s.results].reverse()[0]?.memo ?? "");
     expect(container.querySelector(".bub.ai b")?.textContent).toBe(`"${s.step.interpretation}"`);
     expect(texts(container, ".mb .btn")).toEqual(["아니요, 다시 입력", "네, 맞습니다"]);
     fireEvent.click(container.querySelectorAll(".mb .btn")[0]);

@@ -84,7 +84,18 @@ describe("T08 조치 · 재가동", () => {
     expect(container.querySelector(".rv-big")?.textContent).toBe(s.restart!.value!.value_text);
     expect(container.querySelector(".rv-sub")?.textContent).toBe("경계 8.3 K 이상이면 경계 이내");
     expect(texts(container, ".choice2 .btn")).toEqual(["경계 이내", "여전히 밖"]);
+    // D-530 답장 001-zzt 6(가이드 27쪽): 「여전히 밖」 → 확인 창(숙련자 인계 · 취소) — 취소는 창만 닫음
     fireEvent.click(btn(container, "여전히 밖"));
+    expect(send).not.toHaveBeenCalled();
+    const dlg = container.querySelector('.modal[aria-label="숙련자 인계 확인"]')!;
+    expect(dlg.querySelector(".mh b")?.textContent).toBe("재가동 뒤에도 경계 밖입니다. 숙련자에게 인계합니까?");
+    expect(texts(dlg, ".mb .btn")).toEqual(["취소", "숙련자 인계"]);
+    fireEvent.click(btn(dlg, "취소"));
+    expect(container.querySelector(".modal")).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+    fireEvent.click(btn(container, "여전히 밖"));
+    fireEvent.click(btn(container.querySelector(".modal")!, "숙련자 인계"));
+    expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith({ type: "restart_result", outcome: "outside" });
   });
 });
@@ -167,9 +178,14 @@ describe("T11 숙련자 인계 · 감시 마감", () => {
     const { container } = render(<HandoverScreen s={s} busy={false} send={send} />);
     expect(container.querySelector(".warn-h .sm")?.textContent).toBe("확인 불가가 반복됨");
     expect(container.querySelector(".warn-h h3")?.textContent).toBe(s.call!.head);
-    expect(container.querySelector(".pv .sm")?.textContent).toBe("숙련자 인계 요약 (자동 작성 · 고칠 수 있음)");
+    // D-530 답장 001-zzt 7(가이드 28쪽): 괄호 이름표 · 안내 문장 뺌, 왼쪽 = 머리 + 지금까지 점검 · 조치(점검 경로), 오른쪽 = 요약 + 보내기
+    expect(container.querySelector(".pv .sm")?.textContent).toBe("숙련자 인계 요약");
     expect(container.querySelector(".pv p")?.textContent).toContain("확인 불가 2회");
-    fireEvent.click(btn(container, "숙련자 인계"));
+    expect(container.querySelector(".note")).toBeNull();
+    expect(container.querySelector(".g64 > div:first-child .warn-h")).not.toBeNull();
+    expect(container.querySelector(".g64 > div:first-child .tli")).not.toBeNull();
+    expect(container.querySelector(".g64 > .cd:last-child .pv")).not.toBeNull();
+    fireEvent.click(btn(container, "숙련자 인계 보내기"));
     expect(send).toHaveBeenCalledWith({ type: "call_send" });
     expect(texts(container, ".tli .ch.vd")).toEqual([]);
     expect(texts(container, ".tli span:not(.tt):not(.td)")).toContain("확인 불가 2회 · 제외");

@@ -182,3 +182,42 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   g.check(info);
   lg.check(info);
 });
+
+test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴얼 원문 창은 가운데 · 단계 띠 밝게(가이드 10 · 12쪽, D-530 답장 001-zzt 1 · 3)", async ({ page }, info) => {
+  const g = guard(page);
+  await login(page, undefined, undefined, false);
+  alarm("DEMO-02");
+  const left = page.locator('aside.n-lp[aria-label="오늘 밤 알람"]');
+  await pause(page);
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await pause(page);
+  await page.getByText("진단 보기").click();
+  await pause(page);
+  await page.locator(".nx .btn").click();
+  await pause(page);
+  await page.locator(".lockm").getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
+  await pause(page);
+  await page.getByText("사전 확인 완료").click();
+  await expect(page.locator(".rbtns")).toBeVisible();
+  // 매뉴얼 원문 창: 가운데 · 640px 안팎 · 단계 띠는 창 뒤 어둠 위(밝게)
+  await pause(page);
+  await page.locator(".refs .lk", { hasText: "매뉴얼 원문" }).click();
+  const box = (await page.locator('.modal.wide[aria-label^="매뉴얼 원문"]').boundingBox())!;
+  expect(box.width).toBeLessThanOrEqual(660);
+  expect(Math.abs(box.x + box.width / 2 - 640)).toBeLessThanOrEqual(20);
+  const step = (await page.locator(".ap-step").boundingBox())!;
+  const top = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest(".ap-step") !== null, [step.x + 40, step.y + step.height / 2]);
+  expect(top).toBe(true);
+  await snap(page, info, "T10-manual");
+  await pause(page);
+  await page.locator(".modal.wide .btn", { hasText: "닫기" }).click();
+  // 첫 점검 정상 → 두 번째 점검: 왼쪽 칸 단계도 바로(홈 5초 주기를 기다리지 않음)
+  await pause(page);
+  await result(page, "정상");
+  await expect(page.locator(".ins-h .sm")).toHaveText(/^점검 2 \/ 최대 \d$/);
+  await expect(left.locator(".n-ls")).toHaveText(/진행 중 · 점검 2\/\d$/, { timeout: 2000 });
+  await snap(page, info, "T12-second-check");
+  g.check(info);
+});

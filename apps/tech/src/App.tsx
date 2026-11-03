@@ -83,7 +83,7 @@ export function App() {
   useEffect(() => {
     if (session) void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.session_id, session?.locked, session?.step?.kind, session?.report?.status]);
+  }, [session?.session_id, session?.locked, session?.step?.kind, session?.instruction?.check_no, session?.report?.status]); // 점검 번호(답장 001-zzt 3)
 
   const [pack, setPack] = useState<PackState>(null); // CH-17: 점검 시작(첫 Run)이 늦거나 실패할 때
   const [packAlarm, setPackAlarm] = useState<number | null>(null);

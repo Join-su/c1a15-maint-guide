@@ -485,7 +485,7 @@ export function PastScreen(p: PastProps) {
             </>
           )}
           <div className="fld2">
-            <span className="sm">정정 사유 (꼭 적습니다)</span>
+            <span className="sm">정정 사유</span>
             <textarea className="memo req" aria-label="정정 사유" value={m.reason} onChange={(e) => setModal({ ...m, reason: e.target.value })} />
           </div>
           <div className="mb">

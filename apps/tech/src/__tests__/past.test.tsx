@@ -98,7 +98,7 @@ describe("정정(AC-45 · AC-46)", () => {
     fireEvent.click(btn(container, "이 기록 정정"));
     const modal = container.querySelector(".modal.wide")!;
     expect(modal.querySelector(".mh b")?.textContent).toBe("이 기록 정정 · 4.3 흡기 필터 육안 점검");
-    expect(texts(modal, ".fld2 .sm")).toEqual(["원래 값", "정정할 결과", "정정할 메모", "정정 사유 (꼭 적습니다)"]);
+    expect(texts(modal, ".fld2 .sm")).toEqual(["원래 값", "정정할 결과", "정정할 메모", "정정 사유"]);
     expect(modal.querySelector(".fld2 b")?.textContent).toBe("정상 · 메모 '필터 깨끗함'");
     expect(btn(modal, "정정 저장").className).toContain("dis"); // AC-45-C2
     fireEvent.click([...modal.querySelectorAll(".rbtn")].find((b) => b.textContent === "이상")!);
@@ -142,7 +142,7 @@ describe("정정(AC-45 · AC-46)", () => {
     fireEvent.click(btn(container, "이 기록 정정"));
     const modal = container.querySelector(".modal.wide")!;
     expect(modal.querySelector(".mh b")?.textContent).toBe("이 기록 정정 · 4.2 사전 확인 측정값");
-    expect(texts(modal, ".fld2 .sm")).toEqual(["원래 값", "정정할 값", "정정 사유 (꼭 적습니다)"]);
+    expect(texts(modal, ".fld2 .sm")).toEqual(["원래 값", "정정할 값", "정정 사유"]);
     expect(modal.querySelector(".rbtns")).toBeNull();
     fireEvent.change(modal.querySelector('[aria-label="정정할 값"]')!, { target: { value: "하우징 표면 55 °C" } });
     fireEvent.change(modal.querySelector('[aria-label="정정 사유"]')!, { target: { value: "다시 잼" } });

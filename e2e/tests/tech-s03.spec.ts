@@ -176,6 +176,7 @@ test("AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소�
   await page.getByText("교체 완료").click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "여전히 밖" }).click();
+  await page.locator('.modal[aria-label="숙련자 인계 확인"] .btn', { hasText: "숙련자 인계" }).click(); // D-530 답장 001-zzt 6: 확인 창
   await expect(page.locator(".warn-h h3")).toHaveText("재가동 뒤에도 값이 경계 밖");
   g.check(info);
 });

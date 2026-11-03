@@ -192,10 +192,7 @@ export function PendingModal({
 }) {
   const last = [...s.results].reverse()[0];
   const me = (
-    <div className="bub me">
-      <span className="sm">내 메모 · {last?.value ?? "결과 버튼 없음"}</span>
-      {last?.memo}
-    </div>
+    <div className="bub me">{last?.memo}</div> // D-530 답장 001-zzt 2: '내 메모 · …' 이름표 뺌(가이드 13쪽)
   );
   const dis = busy ? " dis" : "";
   if (s.step.kind === "out_of_scope") {

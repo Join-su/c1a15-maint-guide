@@ -55,3 +55,7 @@
 .fbar .sp { flex: 1; }
 .rl .rl-r { display: inline-flex; align-items: center; gap: 10px; }
 .rl .lk2 { color: var(--pri); font-weight: 700; font-size: 14px; cursor: pointer; }
+/* D-530 답장 001-zzt 1(가이드 10쪽): 매뉴얼 원문 창 = 가운데 · 조금 작게 · 단계 띠는 어둠 위(밝게) */
+.ap .modal.wide[aria-label^="매뉴얼 원문"] { left: 320px; top: 134px; width: 640px; max-height: 540px; }
+.ap:has(.modal.wide[aria-label^="매뉴얼 원문"]) .ap-step { position: relative; z-index: 7; }
+.mt-gap { height: 14px; flex: none; }
