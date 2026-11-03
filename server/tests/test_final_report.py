@@ -44,6 +44,13 @@ def test_final_report_sections_match_session_records(api, db):
         None,
     )
     assert f["confirmed_at"] and f["lock_at"] and f["author_name"] == "김 정비" and f["equipment_type"]
+    assert f["author_role"] == "야간 정비"  # 답장 001-zzx-2: 머리 '작성 김 정비(야간 정비)'
+    assert f["cause_basis"] == {
+        "section": "4.3",
+        "title": "흡기 필터 육안 점검",
+        "value": "이상",
+        "memo": "기름때가 필터 표면 절반 넘게 덮음",
+    }
     # 1 센서 표: 알람 센서(온도 차)가 첫 줄 · 경계 넘음
     assert (
         f["sensors"][0]["name"] == "온도 차"
@@ -74,7 +81,9 @@ def test_final_report_sections_match_session_records(api, db):
     assert [x["at"] for x in f["timeline"]] == sorted(x["at"] for x in f["timeline"])
     # 4 권한 사용 = 3의 등급 셈
     assert f["grade_use"] == {g: sum(1 for x in f["timeline"] if x["grade"] == g) for g in ("A", "B", "C")}
-    assert f["restart"] and f["restart"].endswith("경계 이내") and f["downtime"]
+    assert (
+        f["restart"] and " · 경계 " in f["restart"] and f["restart"].endswith(" 이내") and f["downtime"]
+    )  # 경계 값까지
     assert f["unresolved"]
     # 읽기만: 표 행 수 그대로
     assert {t: table_count(db, f"select count(*) from {t}") for t in before} == before

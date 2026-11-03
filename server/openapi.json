@@ -1734,6 +1734,42 @@
     "title": "FinalCause",
     "type": "object"
    },
+   "FinalCauseBasis": {
+    "additionalProperties": false,
+    "properties": {
+     "memo": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Memo"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "type": "string"
+     }
+    },
+    "required": [
+     "section",
+     "title",
+     "value",
+     "memo"
+    ],
+    "title": "FinalCauseBasis",
+    "type": "object"
+   },
    "FinalDecision": {
     "additionalProperties": false,
     "properties": {
@@ -1788,9 +1824,23 @@
       "title": "Author Name",
       "type": "string"
      },
+     "author_role": {
+      "title": "Author Role",
+      "type": "string"
+     },
      "cause": {
       "title": "Cause",
       "type": "string"
+     },
+     "cause_basis": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FinalCauseBasis"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "causes": {
       "items": {
@@ -1926,6 +1976,7 @@
      "occurred_at",
      "confirmed_at",
      "author_name",
+     "author_role",
      "lock_at",
      "rejected_before",
      "decision",
@@ -1933,6 +1984,7 @@
      "sensor_evidence",
      "causes",
      "cause",
+     "cause_basis",
      "check_path",
      "evidence_records",
      "timeline",

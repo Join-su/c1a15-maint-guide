@@ -167,10 +167,18 @@ def test_procedure_steps_and_criterion(k):
 
 
 def test_action_block_carries_procedure_steps():
-    """D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 1 ~ 3 — 세션 응답 action에 그 조치 절의 번호 줄(매뉴얼 그대로)."""
+    """D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 — action에 그 조치 절의 번호 줄(매뉴얼 그대로)."""
     from c1a15.api import responses
 
     assert responses.ActionBlock.model_fields["steps"].annotation == list[str]
+
+
+def test_final_report_carries_cause_basis_and_author_role():
+    """D-530 답장 001-zzx-2(가이드 20 · 21쪽): 최종본 확정 근거(점검 결과 · 메모) · 작성 근무."""
+    from c1a15.api import responses
+
+    fields = responses.FinalReport.model_fields
+    assert "cause_basis" in fields and "author_role" in fields
 
 
 def test_lock_instruction_is_only_section_1_2(k, grades):

@@ -98,6 +98,27 @@ def _timeline(c: Connection, k, rep, row: m.DiagSession, grades: dict) -> list[d
     return out
 
 
+def _cause_basis(k, row: m.DiagSession, events: list[dict], state) -> dict | None:
+    """확정 근거(가이드 20쪽): 확정 원인을 정한 점검 절의 마지막 결과 · 메모(정정이면 고친 값, 무효 기록 뺌)."""
+    if not state.confirmed:
+        return None
+    last = {}
+    for e in events:
+        if e["type"] == "result" and not e.get("void") and e.get("value"):
+            last[e["section"]] = e
+    done = [ch for ch in k.checks.get(row.symptom_group, []) if ch.cause == state.confirmed and ch.section_id in last]
+    if not done:
+        return None
+    ch = next((x for x in done if last[x.section_id]["value"] == "이상"), done[-1])
+    e = last[ch.section_id]
+    return {
+        "section": ch.section_id,
+        "title": k.sections[ch.section_id]["title"],
+        "value": e["value"],
+        "memo": e.get("memo"),
+    }
+
+
 def final_report(c: Connection, report_id: int) -> dict | None:
     rep = c.execute(select(m.Report.__table__).where(m.Report.report_id == report_id)).first()
     if rep is None:
@@ -118,8 +139,8 @@ def final_report(c: Connection, report_id: int) -> dict | None:
     restart_text = None
     if restart:
         rv = flow.restart_block(alarm, bool(state.confirmed))
-        side = "경계 이내" if restart["outcome"] == "within" else "여전히 밖"
-        restart_text = f"{rv['sensor']} {rv['value_text']} · {side}"
+        side = "이내" if restart["outcome"] == "within" else "밖"  # 가이드 21쪽: '온도 차 9.0 K · 경계 8.2 K 이내'
+        restart_text = f"{rv['sensor']} {rv['value_text']} · 경계 {rv['boundary_text']} {side}"
     decision = None
     if rep.status == "approved" and rep.approval:
         ap = rep.approval
@@ -140,6 +161,7 @@ def final_report(c: Connection, report_id: int) -> dict | None:
         "occurred_at": alarm.occurred_at.isoformat(),
         "confirmed_at": rep.confirmed_at.isoformat() if rep.confirmed_at else None,
         "author_name": names.get(rep.author, rep.author),
+        "author_role": f"{screen.shift_summary(0)['label']} 정비",  # 머리 '작성 김 정비(야간 정비)'
         "lock_at": lock["_at"] if lock else None,
         "rejected_before": rep.rejection is not None,  # 진행 '정비자 다시 확정'(반려 뒤 다시 확정)
         "decision": decision,
@@ -156,6 +178,7 @@ def final_report(c: Connection, report_id: int) -> dict | None:
         "sensor_evidence": _field(f, "sensor_evidence"),
         "causes": _cause_rows(k, row, events, state, grades),
         "cause": _field(f, "cause"),
+        "cause_basis": _cause_basis(k, row, events, state),
         "check_path": _field(f, "check_path"),
         "evidence_records": _field(f, "evidence_records"),
         "timeline": timeline,

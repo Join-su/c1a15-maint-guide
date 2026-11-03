@@ -18,6 +18,7 @@ const t = (iso: string | null | undefined) => (iso ? hhmm(iso) : "");
 export function FinalReport({ data }: { data: Final }) {
   const approved = data.status === "approved";
   const rejected = data.status === "rejected";
+  const cb = data.cause_basis; // 답장 001-zzx-2(가이드 20쪽): 확정 근거 = 확정 원인을 정한 점검 결과 · 메모
   const steps: [string, boolean][] = [
     ["초안 자동 작성", true],
     [`정비자 ${data.rejected_before ? "다시 " : ""}확정${!rejected && data.confirmed_at ? ` ${t(data.confirmed_at)}` : ""}`, !rejected && !!data.confirmed_at],
@@ -37,7 +38,7 @@ export function FinalReport({ data }: { data: Final }) {
           <h1>정비 보고서 {data.equipment_id}</h1>
           <p>
             {data.equipment_type} · 알람 {t(data.occurred_at)}
-            {data.confirmed_at ? ` · 보고서 확정 ${t(data.confirmed_at)}` : ""} · 작성 {data.author_name}
+            {data.confirmed_at ? ` · 보고서 확정 ${t(data.confirmed_at)}` : ""} · 작성 {data.author_name}({data.author_role})
           </p>
         </div>
         <div className="fd-st">
@@ -100,6 +101,13 @@ export function FinalReport({ data }: { data: Final }) {
           </table>
           <p className="fd-note">
             <b>확정 원인</b> {data.cause}
+            {cb ? (
+              <>
+                {" · "}
+                <b>확정 근거</b> {cb.title}({cb.section}) 결과 {cb.value}
+                {cb.memo ? ` · 메모 "${cb.memo}"` : ""}
+              </>
+            ) : null}
             <br />
             <b>근거 사례</b> {data.evidence_records}
           </p>

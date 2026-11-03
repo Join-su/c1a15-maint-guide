@@ -1029,6 +1029,17 @@ export interface components {
             /** Result */
             result: string;
         };
+        /** FinalCauseBasis */
+        FinalCauseBasis: {
+            /** Memo */
+            memo: string | null;
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
+            /** Value */
+            value: string;
+        };
         /** FinalDecision */
         FinalDecision: {
             /** At */
@@ -1049,8 +1060,11 @@ export interface components {
             action: string;
             /** Author Name */
             author_name: string;
+            /** Author Role */
+            author_role: string;
             /** Cause */
             cause: string;
+            cause_basis: components["schemas"]["FinalCauseBasis"] | null;
             /** Causes */
             causes: components["schemas"]["FinalCause"][];
             /** Check Path */

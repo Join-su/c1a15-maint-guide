@@ -526,6 +526,13 @@ class FinalCause(_Out):
     confirmed: bool
 
 
+class FinalCauseBasis(_Out):
+    section: str
+    title: str
+    value: str
+    memo: str | None
+
+
 class FinalStep(_Out):
     at: str
     who: str
@@ -546,6 +553,7 @@ class FinalReport(_Out):
     occurred_at: str
     confirmed_at: str | None
     author_name: str
+    author_role: str  # 작성 근무(가이드 20쪽 '(야간 정비)')
     lock_at: str | None
     rejected_before: bool
     decision: FinalDecision | None
@@ -553,6 +561,7 @@ class FinalReport(_Out):
     sensor_evidence: str
     causes: list[FinalCause]
     cause: str
+    cause_basis: FinalCauseBasis | None  # 확정 근거(가이드 20쪽) — 확정 원인 없으면 없음
     check_path: str
     evidence_records: str
     timeline: list[FinalStep]

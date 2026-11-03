@@ -58,6 +58,10 @@ describe("정비자 최종본 화면", () => {
     expect(texts(container, ".fbar .btn")).toEqual(["보고서로", "출력"]);
     expect(container.querySelector(".fd-h h1")?.textContent).toBe(`정비 보고서 ${f.equipment_id}`);
     expect(texts(container, ".fdoc h2")).toEqual(["1. 이상 내용 · 센서 근거", "2. 원인 분석", "3. 조치 경과", "4. 조치 결과", "5. 미확인 · 주간 요청"]);
+    // 답장 001-zzx-2(가이드 20 · 21 · 31쪽): 머리 '작성 이름(근무)' · 2번 구역 '확정 근거' 줄 · 4번 재가동 뒤 경계 값
+    expect(container.querySelector(".fd-h p")?.textContent).toMatch(/ · 작성 김 정비\(야간 정비\)$/);
+    expect(texts(container, ".fd-note").join(" ")).toContain('확정 원인 냉각 필터 막힘 · 확정 근거 흡기 필터 육안 점검(4.3) 결과 이상 · 메모 "기름때가 필터 표면 절반 넘게 덮음"');
+    expect(container.textContent).toContain("온도 차 9.0 K · 경계 8.2 K 이내");
     fireEvent.click(btn(container, "출력"));
     fireEvent.click(btn(container, "출력"));
     expect(GET).toHaveBeenCalledTimes(1);
