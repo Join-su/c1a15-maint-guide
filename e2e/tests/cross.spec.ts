@@ -2,7 +2,7 @@
 // 실제 nginx · API · PostgreSQL, fixture 모드, 외부 요청 0. 파트장 답 · 반려 · 승인 · 등급 변경은 실제 파트장 화면으로 한다.
 
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartWithin, result, shot, sidOf, TECH_PW, toFirstCheck } from "./helpers";
+import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartWithin, result, shot, sidOf, TECH_PW, toFirstCheck, confirmReportModal } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -21,7 +21,7 @@ async function confirmReport(page: Page, scenario = "DEMO-01"): Promise<number> 
   await page.getByText("교체 완료").click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
-  await page.locator(".cta2 .btn").click();
+  await confirmReportModal(page);
   await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다/);
   return sid;
 }
@@ -220,12 +220,13 @@ test("SC-35 · AC-24 · AC-11 · AC-37: 반려 사유 없으면 저장 안 됨 �
   await expect(page.locator(".panel .grp")).toContainText(["반려된 보고서"]);
   await shot(page, info, "T12-list-rejected");
   await page.locator(".nt-item .btn", { hasText: "보고서 보기" }).click(); // AC-37-C2: 반려 보고서가 열림
-  await expect(page.locator(".cd-h .ch.amber")).toHaveText("초안");
+  await expect(page.locator(".cd-h .ch.red")).toHaveText("반려 · 고치는 중"); // D-528: 반려 뒤 다시 열린 초안
+  await expect(page.locator('[data-part="rejection"]')).toContainText("필터 표면 상태를 메모로 다시 적어 주세요");
   await page.locator('[data-field="check_path"] .ed').click();
   const ta = page.locator('[data-field="check_path"] textarea');
   await ta.fill((await ta.inputValue()).replace("이상: 기름때", "이상: 기름때가 필터 표면 절반 넘게 덮음, 뒷면도 확인"));
   await page.locator(".cd-h b", { hasText: "정비 보고서 초안" }).click();
-  await page.locator(".cta2 .btn").click(); // AC-11-C2
+  await confirmReportModal(page); // AC-11-C2
   await expect(page.locator(".cd-h .ch.green")).toHaveText("확정 · 승인 대기");
   await lead.reload();
   await expect(lead.locator("tr[data-report]")).toHaveCount(1);
@@ -256,7 +257,7 @@ test("AC-37: 종 목록 4종류(새 알람 · 진행 중 · 답이 온 호출 ·
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator('[data-field="evidence_records"] .ch.amber')).toHaveText("근거 적음"); // AC-29-C2
   await shot(page, info, "T09-low_evidence");
-  await page.locator(".cta2 .btn").click();
+  await confirmReportModal(page);
   await expect(page.locator(".banner.ok")).toBeVisible();
   await home(page);
   await toFirstCheck(page, "DEMO-03");

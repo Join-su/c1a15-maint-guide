@@ -1,5 +1,6 @@
 // T04 진단: 원인 후보 순위(이름 = cause_names, A-04) · 비슷한 과거 기록 3건(P-19 ④) · 다음 점검(미리보기, P-06 · P-18).
 // 첫 판정이 호출이면 같은 구조에서 강조 카드 값만 바뀐다(T04 / first_call, 예외는 이 상태에서만 — CO-42).
+// D-528(가이드 정비자 4): 순위 아래 「근거 n = …」 설명 · 과거 기록 아래 안내 문장 뺌.
 
 import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
 
@@ -87,11 +88,6 @@ export function DiagnosisScreen({
                 <span className="rs">근거 {r.n}</span>
               </div>
             ))}
-            <div className="hint">
-              <Icon name="info" />
-              근거 n = 비슷한 과거 기록 상위 10건 중 그 원인으로 확정된 기록 수. 이 빈도로 시작해, 점검 결과를 입력할 때마다 다시
-              계산됩니다.
-            </div>
           </div>
           <div className="cd mt">
             <div className="cd-h">
@@ -102,10 +98,6 @@ export function DiagnosisScreen({
               {s.similar_cards.map((c) => (
                 <RecordCard key={c.record_id} card={c} onOpen={onRecord} />
               ))}
-            </div>
-            <div className="hint">
-              <Icon name="info" />
-              카드를 누르면 그 기록 전체를 봅니다.
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 // 띠(R-PASTBAR) = '지난 화면 · 단계' · 제출 시각 · 보내지 않은 입력 '그대로' 칩 · 이전 · 다음(n / m) · 현재 단계로.
 // 정비자가 입력한 결과 · 메모 · 사전 확인 측정값에만 '이 기록 정정', 그 밖의 기록은 '메모 덧붙이기'만(가능 여부는 서버 값).
 // 다시 판정으로 열린 지시가 바뀌면 서버가 확인을 요구하고(confirm_required), 확인 창에서 보내지 않은 입력이 지워진다고 알린다.
+// D-528(가이드 정비자 8): 정정 · 메모 화면 안내 문장 다섯 뺌.
 // 값은 모두 API(/history) 값이고, 앱은 판정 · 정정 반영 방식을 정하지 않는다.
 
 import { useState } from "react";
@@ -74,7 +75,6 @@ function ResultCard({ r, closedNote, onCorrect }: { r: Rec; closedNote: string |
         {r.correctable ? (
           <>
             <IconBtn cls="lg full ghost" icon="pencil" label="이 기록 정정" onClick={onCorrect} />
-            <span className="note">정비자가 입력한 결과 · 메모만 정정합니다. 사유를 적어야 저장되고 원래 값은 감사 기록에 남습니다.</span>
           </>
         ) : closedNote ? (
           <div className="hint">
@@ -106,7 +106,6 @@ function RecordCard({ r, closedNote, onNote }: { r: Rec; closedNote: string | nu
         {r.notable ? (
           <>
             <IconBtn cls="lg full ghost" icon="message-square-plus" label="메모 덧붙이기" onClick={onNote} />
-            <span className="note">실제로 한 일이나 이미 보낸 기록은 정정하지 않습니다. 메모를 덧붙일 수 있습니다.</span>
           </>
         ) : closedNote ? (
           <div className="hint">
@@ -279,7 +278,7 @@ export function PastScreen(p: PastProps) {
         <div className="cd">
           <LockOk at={r.lock_at} />
           <div className="ins-h">
-            <span className="sm">사전 확인 · 점수 없이 항상 먼저</span>
+            <span className="sm">사전 확인</span>
             <h3>{r.title}</h3>
             <Tags r={r} />
           </div>
@@ -304,7 +303,6 @@ export function PastScreen(p: PastProps) {
             {r.correctable ? (
               <>
                 <IconBtn cls="lg full ghost" icon="pencil" label="이 기록 정정" onClick={() => openCorrect(r)} />
-                <span className="note">측정값은 정정할 수 있습니다. 사전 확인 완료 자체는 정정하지 않습니다.</span>
               </>
             ) : closedNote ? (
               <div className="hint">
@@ -507,7 +505,6 @@ export function PastScreen(p: PastProps) {
               }}
             />
           </div>
-          <span className="note">사유를 적어야 저장됩니다. 원래 값은 지워지지 않고 감사 기록에 남습니다.</span>
         </div>
       ) : null}
       {m?.kind === "confirm" ? (
@@ -540,7 +537,6 @@ export function PastScreen(p: PastProps) {
             <Icon name="message-square-plus" />
             <b>메모 덧붙이기 · {(m.r.record ?? "").split(" · ")[0]}</b>
           </div>
-          <span className="sm">원래 기록은 그대로이고, 메모가 시각과 함께 덧붙습니다.</span>
           <textarea className="memo sm3" aria-label="덧붙일 메모" value={m.memo} onChange={(e) => setModal({ ...m, memo: e.target.value })} />
           <div className="mb">
             <Btn cls="ghost" label="취소" onClick={() => setModal(null)} />

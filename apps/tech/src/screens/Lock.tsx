@@ -1,5 +1,5 @@
-// T05 잠금(R1): 잠금 전에는 1.2절 절차만 보이고 지시 내용은 내려받지 않는다(가린 자리는 빈 자리 표시).
-// 잠금 뒤에는 사전 확인 절(점수 없이 항상 먼저).
+// T05 잠금(R1): 잠금 전에는 1.2절 절차만 보이고 지시 내용은 내려받지 않는다(뒤 칸은 비어 있음).
+// 잠금 뒤에는 사전 확인 절(점수 없이 항상 먼저 — 화면 문구는 D-528로 뺌).
 
 import { GradeBadge, hhmm, Icon, type SessionWithPreview } from "@c1a15/ui";
 
@@ -27,55 +27,34 @@ export function LockOk({ at }: { at: string | null | undefined }) {
   );
 }
 
-// 가린 자리: 지시 내용을 내려받지 않으므로 내용 없는 줄만 흐리게 보인다.
-const MASK = ["", "", ""];
-
+// D-528(가이드 정비자 5): 잠금 확인 = 가운데 큰 창(680px) · 뒤는 어둡게(지시 내용은 내려받지 않아 빈 칸만) · 단계 띠만 위에 남아
+// 「진단 ›」으로 돌아감(창을 닫는 다른 길 없음). 「누른 시각이 기록되고 …」 · 가린 칸 안내 문장 뺌.
 export function LockScreen({ s, busy, onLock }: { s: SessionWithPreview; busy: boolean; onLock: () => void }) {
   const li = s.lock_instruction;
   return (
-    <div className="ap-body">
-      <div className="g64">
-        <div className="cd">
-          <div className="lockbox">
-            <Icon name="lock" />
-            <h3>잠금 확인이 필요합니다</h3>
-            <span>
-              매뉴얼 {li?.section ?? "1.2"}절 · {li?.title}
-            </span>
-          </div>
-          <Proc steps={li?.steps ?? []} />
-          <span className={`btn lg full${busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={onLock}>
-            잠금 완료
-          </span>
-          <span className="note">누른 시각이 기록되고 보고서에 자동으로 들어갑니다.</span>
-        </div>
-        <div className="cd">
-          <div className="masked" aria-hidden="true">
-            <ol className="proc">
-              {MASK.map((_, i) => (
-                <li key={i}>
-                  <span>{i + 1}</span>
-                  {" ".repeat(24)}
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div className="hint">
-            <Icon name="info" />
-            잠금 확인 전에는 지시 내용이 가려져 있습니다. 다른 설비로 옮기면 그 설비에서 다시 잠금을 확인합니다.
-          </div>
+    <>
+      <div className="ap-body" aria-hidden="true">
+        <div className="g64">
+          <div className="cd" />
+          <div className="cd" />
         </div>
       </div>
-    </div>
+      <div className="lockdim" />
+      <div className="lockm" role="dialog" aria-label="잠금 확인">
+        <div className="n-lockbox">
+          <Icon name="lock" />
+          <h3>잠금 확인이 필요합니다</h3>
+          <span>
+            매뉴얼 {li?.section ?? "1.2"}절 · {li?.title}
+          </span>
+        </div>
+        <Proc steps={li?.steps ?? []} />
+        <span className={`btn lg full${busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={onLock}>
+          잠금 완료
+        </span>
+      </div>
+    </>
   );
-}
-
-/** 사전 확인 뒤 다음 안내 = 진단 미리보기(서버, P-06 · P-18). */
-export function nextNote(s: SessionWithPreview): string {
-  const p = s.preview;
-  if (p.kind === "call") return `다음: 파트장 호출 요약(${p.section}절 ${p.title ?? ""}, ${p.grade}등급)`;
-  if (p.kind === "instruct" || p.kind === "instruct_after_checklist") return `다음: 지시된 점검 1개(${p.section}절 ${p.title ?? ""})`;
-  return "";
 }
 
 export function PrecheckScreen({
@@ -99,7 +78,7 @@ export function PrecheckScreen({
         <div className="cd">
           <LockOk at={s.lock_at} />
           <div className="ins-h">
-            <span className="sm">사전 확인 · 점수 없이 항상 먼저</span>
+            <span className="sm">사전 확인</span>
             <h3>{ins.title}</h3>
             <div className="tags">
               <GradeBadge grade={ins.grade} />
@@ -122,7 +101,6 @@ export function PrecheckScreen({
             >
               사전 확인 완료 <Icon name="check" />
             </span>
-            <span className="note">{nextNote(s)}</span>
           </div>
         </div>
       </div>

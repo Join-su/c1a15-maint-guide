@@ -1,33 +1,11 @@
-// T03 알람 화면: 증상 · 계통 · 이탈 수 · 추이 · 센서 표 · AI 해석(R8) · 찾은 기록 수(P-19 ③). '진단 보기'가 유일한 다음 행동.
+// T03 알람 화면: 증상 · 계통 · 이탈 수 · 센서 표 · AI 해석(R8) · 찾은 기록 수(P-19 ③). '진단 보기'가 유일한 다음 행동.
+// D-528(가이드 정비자 3): 경계 넘음 추이 그래프 · 「알람 확인 시각이 기록됩니다」 문장 뺌(센서 값은 숫자 표로).
 
 import { hhmm, Icon, type SessionView } from "@c1a15/ui";
 
 type Block = SessionView["alarm"];
 
 const GROUP_ICON: Record<string, string> = { CL: "thermometer" };
-
-/** 같은 설비 직전 12회 추이(R11)와 경계 점선. 위치 계산은 그리기만 한다(값은 서버). */
-export function Trend({ a }: { a: Block }) {
-  const vals = a.trend.map((p) => p.value);
-  const b = a.alarm.boundary;
-  const lo = Math.min(b, ...vals);
-  const hi = Math.max(b, ...vals);
-  const span = hi - lo || 1;
-  const y = (v: number) => 72 - ((v - lo) / span) * 50;
-  const x = (i: number) => (vals.length > 1 ? 10 + (300 * i) / (vals.length - 1) : 310);
-  const d = vals.map((v, i) => `${i ? "L" : "M"}${Math.round(x(i))},${Math.round(y(v))}`).join(" ");
-  const by = Math.round(y(b));
-  return (
-    <svg viewBox="0 0 330 90" className="spk" role="img" aria-label={a.trend_title ?? "추이"}>
-      <line x1="0" y1={by} x2="330" y2={by} className="thr" />
-      <text x="4" y={by - 4} className="tl">
-        {a.boundary_text}
-      </text>
-      {vals.length ? <path d={d} className="ln" /> : null}
-      {vals.length ? <circle cx={Math.round(x(vals.length - 1))} cy={Math.round(y(vals[vals.length - 1]))} r="5" className="pt" /> : null}
-    </svg>
-  );
-}
 
 /** past = T15 / alarm(지난 화면): 같은 화면, 조작은 잠김. */
 export function AlarmScreen({
@@ -61,8 +39,6 @@ export function AlarmScreen({
               </div>
             </div>
           </div>
-          <div className="sub">{a.trend_title}</div>
-          <Trend a={a} />
           <table className="tbl">
             <tbody>
               <tr>
@@ -105,7 +81,6 @@ export function AlarmScreen({
             <span className={past || busy ? "btn lg dis" : "btn lg"} role="button" tabIndex={0} onClick={past || busy ? undefined : onNext}>
               진단 보기 <Icon name="arrow-right" />
             </span>
-            <span className="note">알람 확인 시각이 기록됩니다</span>
           </div>
         </div>
       </div>

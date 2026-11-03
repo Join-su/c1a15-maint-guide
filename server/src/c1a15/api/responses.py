@@ -43,6 +43,7 @@ class AlarmRow(_Out):
     equipment_id: str
     symptom_group: str
     group_name: str
+    system: str | None = None
     alarm: AlarmValue
     sensor_snapshot: dict[str, int | float]
     trend: list[TrendPoint]
@@ -59,6 +60,7 @@ class RecentReport(_Out):
     report_id: int
     session_id: int
     equipment_id: str
+    system: str | None = None
     cause: str
     confirmed_at: str | None
     status: str

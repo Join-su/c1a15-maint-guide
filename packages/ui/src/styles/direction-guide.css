@@ -20,8 +20,8 @@
 /* State clarity: 파트장 앱 현재 메뉴 = 강조 막대 + 굵기 + 대비 */
 .wn { color: #aab4cc; font-weight: 500; } .wn.on { color: #fff; font-weight: 800; background: rgba(255,255,255,.18); box-shadow: inset 3px 0 0 var(--accent); }
 /* v2 (사용자 결정 004 · EV-058): 확정 전 확인 = 자동 검사 결과. 체크박스가 아니라 상태 아이콘으로 보인다 */
-.ckl { position: relative; padding-top: 26px; }
-.ckl::before { content: "자동 검사 · 모두 통과해야 확정할 수 있습니다"; position: absolute; top: 0; left: 0; font-size: 12.5px; font-weight: 700; color: var(--sub); background: #eef0f3; border-radius: 999px; padding: 2px 10px; }
+/* D-528(부록 4): 화면 안 설명 문장 ::before('자동 검사 · 모두 통과해야 …') 지움 */
+.ckl { position: relative; }
 .ckl .ck { cursor: default; } .ckl .ck .cb { border: none; background: none; width: 22px; height: 22px; }
 .ckl .ck.on .cb { background: none; color: var(--ok); } .ckl .ck.on .cb .ic { width: 20px; height: 20px; stroke-width: 3; }
 .ckl .ck.no .cb { color: var(--bad); } .ckl .ck.no .cb .ic { width: 20px; height: 20px; stroke-width: 3; }
@@ -29,7 +29,6 @@
 /* v2 Craft Review 1회 보정(direction-level): 구조 · 영역 · 순서는 바꾸지 않는다 */
 .hint { display: flex; gap: 8px; align-items: flex-start; } .hint > svg { flex: 0 0 16px; margin-top: 2px; }
 .hc-t { flex-wrap: nowrap; } .hc-t span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .hc-t em { color: var(--ink); }
-.ckl::before { background: none; padding: 0; border-radius: 0; font-weight: 500; font-size: 13px; color: var(--sub); }
 .rf { padding-left: 12px; padding-right: 12px; margin-left: -12px; margin-right: -12px; border-radius: 8px; }
 .rf.fail { box-shadow: inset 3px 0 0 var(--bad); } .rf.fail .rk2::before { content: "✕ "; color: var(--bad); font-weight: 900; }
 .ckl ~ .banner { margin-top: 12px; }

@@ -6,3 +6,46 @@
 .ap textarea.memo:disabled { background: #f3f5f8; }
 .ap .catch { position: absolute; inset: 0; z-index: 4; }
 .ap [role="button"]:not(.dis) { cursor: pointer; }
+
+/* D-528 최종안(부록 1 · 2 · 4): 태블릿 1280 × 800 · 왼쪽 「오늘 밤 알람」 칸 264px · 본문 1280 − 264px. 정비자 토큰 · 본문 꼴은 그대로. */
+.ap { width: 1280px; height: 800px; }
+.ap-main { margin-left: 264px; }
+.ap-main .ap-body { height: 680px; } .ap-main .ap-body.nostep { height: 736px; } .ap-main .ap-body.past { height: 608px; }
+.ap .modal { left: 380px; top: 200px; } .ap .modal.wide { left: 280px; top: 76px; max-height: 660px; }
+.n-lp { position: absolute; top: 64px; left: 0; bottom: 0; width: 264px; background: #fff; border-right: 1px solid var(--ln); display: flex; flex-direction: column; overflow: auto; }
+.n-lh { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 10px; }
+.n-lh b { font-size: 16px; font-weight: 800; }
+.n-cnt { background: var(--bad); color: #fff; border-radius: 999px; font-size: 13px; font-weight: 800; padding: 1px 9px; }
+.n-lp .tabs { display: flex; gap: 4px; padding: 3px; border-radius: 9px; background: var(--bg); margin: 0 18px 8px; }
+.n-lp .tabs button { flex: 1; height: 32px; border: 0; border-radius: 7px; font: inherit; font-size: 13.5px; font-weight: 600; color: var(--sub); background: none; cursor: pointer; }
+.n-lp .tabs button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); }
+.n-li { display: flex; flex-direction: column; gap: 3px; text-align: left; width: 100%; padding: 12px 18px; border: 0; border-left: 3px solid transparent; border-bottom: 1px solid #f0f2f5; background: none; font: inherit; color: var(--ink); cursor: pointer; }
+.n-li:hover { background: #f8f9fb; }
+.n-li.on { background: var(--pri-s); border-left-color: var(--pri); }
+.n-li.ro { cursor: default; } .n-li.ro:hover { background: none; }
+.n-li b { font-size: 15.5px; font-weight: 800; }
+.n-lr { display: flex; align-items: center; justify-content: space-between; }
+.n-k { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: #eef0f4; color: #4a5263; font-size: 12.5px; font-weight: 700; }
+.n-t { font-size: 13px; color: var(--mut); }
+.n-lv { display: flex; gap: 10px; font-size: 14px; color: var(--sub); font-weight: 600; }
+.n-lv .bad { color: var(--bad); font-weight: 800; }
+.n-ls { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--sub); font-weight: 600; }
+.n-ls .em { font-style: normal; }
+.n-le { padding: 24px 18px; color: var(--mut); font-size: 14.5px; }
+/* 내 알람 카드 상태값 한 줄(계통 · 값 · 경계 · 방향) */
+.n-vals { display: flex; align-items: center; gap: 14px; margin-top: 6px; font-size: 14px; white-space: nowrap; }
+.n-vals .k { color: var(--sub); font-size: 13.5px; }
+.n-vals b { color: var(--bad); font-weight: 800; }
+.n-bd { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; background: var(--bad-s); color: var(--bad); font-size: 12.5px; font-weight: 700; }
+/* 잠금 확인 큰 팝업(가운데 680px · 뒤 어둡게 · 닫기는 단계 띠만) */
+.lockdim { position: absolute; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 20; }
+.ap:has(.lockm) .ap-step { position: relative; z-index: 22; }
+.ap:has(.lockm) .ap-step::after { content: ""; position: absolute; inset: 0; background: rgba(15, 23, 42, 0.45); pointer-events: none; }
+.lockm { position: absolute; left: 300px; top: 160px; width: 680px; z-index: 21; background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); display: flex; flex-direction: column; gap: 16px; }
+.lockm .n-lockbox { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; border: 1.5px solid #d97706; background: var(--warn-s); border-radius: 12px; padding: 16px; }
+.lockm .n-lockbox .ic { width: 26px; height: 26px; color: #d97706; }
+.lockm .n-lockbox h3 { margin: 0; font-size: 22px; font-weight: 900; }
+.lockm .n-lockbox span { font-size: 14.5px; color: var(--sub); }
+.lockm .proc { gap: 10px; } .lockm .proc li { font-size: 16px; }
+.lockm .proc li:last-child { background: var(--warn-s); }
+.banner.rej { margin-bottom: 14px; }

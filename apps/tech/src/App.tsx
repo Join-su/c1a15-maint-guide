@@ -1,4 +1,5 @@
 // 정비자 앱(P-08): 로그인 → 홈(5초 주기 조회) · 종 목록 → 진단 세션(3초). 상단 '홈'은 확인 없이 홈으로(세션 · 입력은 그대로).
+// D-528: 모든 화면 왼쪽에 「오늘 밤 알람」 칸(264px), 본문은 그 오른쪽(1280 − 264px).
 // 화면은 API 값만 보인다. 주소(/session/{id})를 기억해 새로고침 · 다시 열기에도 같은 자리로 온다.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -20,6 +21,7 @@ import { HomeScreen, NotifyPanel } from "./screens/Home";
 import { ManualModal, type ManualView } from "./screens/Instruction";
 import { Login } from "./screens/Login";
 import { Session } from "./screens/Session";
+import { TodayPanel } from "./screens/Today";
 
 type View = { name: "home" } | { name: "session"; sid: number };
 
@@ -144,43 +146,48 @@ export function App() {
           setPanel((x) => !x);
         }}
       />
-      {view.name === "home" ? <PackNotice state={pack} onRetry={() => packAlarm !== null && void startAlarm(packAlarm)} /> : null}
-      {view.name === "home" ? (
-        home ? (
-          <HomeScreen
-            home={home}
-            onResume={(sid) => go({ name: "session", sid })}
-            onOpen={(a) => {
-              const sid = a.session_id ?? a.report_session_id; // 완료 행 '보기' = 확정한 보고서
-              if (a.status === "new") void startAlarm(a.alarm_id);
-              else if (sid) go({ name: "session", sid });
-            }}
+      <TodayPanel
+        home={home}
+        current={view.name === "session" ? view.sid : null}
+        onOpen={(a) =>
+          a.status === "new" ? void startAlarm(a.alarm_id) : a.session_id ? go({ name: "session", sid: a.session_id }) : undefined
+        }
+      />
+      <div className="ap-main">
+        {view.name === "home" ? <PackNotice state={pack} onRetry={() => packAlarm !== null && void startAlarm(packAlarm)} /> : null}
+        {view.name === "home" ? (
+          home ? (
+            <HomeScreen
+              home={home}
+              onResume={(sid) => go({ name: "session", sid })}
+              onOpen={(a) => {
+                const sid = a.session_id ?? a.report_session_id; // 완료 행 '보기' = 확정한 보고서
+                if (a.status === "new") void startAlarm(a.alarm_id);
+                else if (sid) go({ name: "session", sid });
+              }}
+            />
+          ) : null
+        ) : (
+          <Session
+            key={view.sid}
+            api={api}
+            sid={view.sid}
+            initial={opened?.session_id === view.sid ? opened : null}
+            onSession={setSession}
+            onExpired={expired}
+            onRecord={(id) => void openRecord(id)}
+            onManual={(section) => void openManual(view.sid, section)}
+            onHome={() => go({ name: "home" })}
           />
-        ) : null
-      ) : (
-        <Session
-          key={view.sid}
-          api={api}
-          sid={view.sid}
-          initial={opened?.session_id === view.sid ? opened : null}
-          onSession={setSession}
-          onExpired={expired}
-          onRecord={(id) => void openRecord(id)}
-          onManual={(section) => void openManual(view.sid, section)}
-          onHome={() => go({ name: "home" })}
-        />
-      )}
+        )}
+      </div>
       {panel && notes ? (
         <>
           <div className="catch" onClick={() => setPanel(false)} />
           <NotifyPanel
             data={notes}
             onItem={(i) =>
-              i.kind === "new_alarm"
-                ? void startAlarm(i.alarm_id)
-                : i.session_id
-                  ? go({ name: "session", sid: i.session_id })
-                  : undefined
+              i.kind === "new_alarm" ? void startAlarm(i.alarm_id) : i.session_id ? go({ name: "session", sid: i.session_id }) : undefined
             }
           />
         </>

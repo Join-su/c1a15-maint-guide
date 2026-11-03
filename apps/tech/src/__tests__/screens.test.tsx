@@ -56,14 +56,14 @@ describe("T02 홈 · T12 종 목록", () => {
 });
 
 describe("T03 알람", () => {
-  it("증상 · 계통 칩 · 이탈 수 · 추이 · 센서 표 5행 · AI 해석 · '진단 보기'가 유일한 다음 행동", () => {
+  it("증상 · 계통 칩 · 이탈 수 · 센서 표 5행 · AI 해석 · '진단 보기'가 유일한 다음 행동 · 추이 그래프 · 안내 문장 없음(D-528)", () => {
     const s = load<SessionWithPreview>("session-before-lock");
     const onNext = vi.fn();
     const { container } = render(<AlarmScreen s={s} onNext={onNext} />);
     expect(container.querySelector(".alh h3")?.textContent).toBe(s.alarm.group_name);
     expect(texts(container, ".alh .ch")).toEqual([`증상군 · ${s.alarm.system}`, `센서 ${s.alarm.out_of_range_count}개 이탈`]);
-    expect(container.querySelector("svg.spk .thr")).not.toBeNull();
-    expect(container.querySelectorAll("svg.spk path.ln")).toHaveLength(1);
+    expect(container.querySelector("svg.spk")).toBeNull(); // D-528 가이드 정비자 3: 경계 넘음 추이 그래프 뺌
+    expect(container.querySelector(".note")).toBeNull(); // 「알람 확인 시각이 기록됩니다」 뺌
     const rows = [...container.querySelectorAll(".tbl tr")].slice(1);
     expect(rows).toHaveLength(5);
     expect(rows[0].className).toBe("down");
@@ -147,29 +147,28 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
 });
 
 describe("T05 잠금 · 사전 확인", () => {
-  it("잠금 전: 1.2절 절차만, 가린 자리에는 지시 내용이 없다(R1)", () => {
+  it("잠금 전: 가운데 큰 창(1.2절 절차 · 「잠금 완료」 하나) · 뒤 칸에는 지시 내용이 없다(R1 · D-528 가이드 정비자 5)", () => {
     const s = load<SessionWithPreview>("session-before-lock");
     const { container } = render(<LockScreen s={s} busy={false} onLock={() => {}} />);
-    expect(texts(container, ".lockbox ~ .proc li").length).toBe(4);
-    expect(container.querySelector(".lockbox span")?.textContent).toBe("매뉴얼 1.2절 · 잠금 확인");
-    expect(container.querySelector(".masked")?.textContent?.replace(/[\s\d ]/g, "")).toBe("");
+    const dlg = container.querySelector('.lockm[role="dialog"]')!;
+    expect(container.querySelector(".lockdim")).not.toBeNull();
+    expect(texts(dlg, ".n-lockbox ~ .proc li").length).toBe(4);
+    expect(dlg.querySelector(".n-lockbox span")?.textContent).toBe("매뉴얼 1.2절 · 잠금 확인");
+    expect(container.querySelector(".ap-body")?.textContent).toBe(""); // 뒤 칸 = 빈 카드 둘
     expect(texts(container, ".btn")).toEqual(["잠금 완료"]);
+    expect(container.querySelector(".note, .hint")).toBeNull(); // 「누른 시각이 기록되고 …」 · 가린 칸 안내 뺌
     expect(stepNumber(s, "lock")).toBe(3);
   });
 
-  it("잠금 뒤 사전 확인: 잠금 표시줄 · 등급 · 절 · 분 · 다음 안내 = 미리보기", () => {
+  it("잠금 뒤 사전 확인: 잠금 표시줄 · 등급 · 절 · 분 · 「점수 없이 항상 먼저」 · 다음 안내 줄 없음(D-528 가이드 정비자 5)", () => {
     const s = load<SessionWithPreview>("session-precheck");
     const { container } = render(<PrecheckScreen s={s} busy={false} values="" onValues={() => {}} onDone={() => {}} />);
     expect(container.querySelector(".lockok b")?.textContent).toBe("잠금 확인 완료");
-    expect(container.querySelector(".ins-h .sm")?.textContent).toBe("사전 확인 · 점수 없이 항상 먼저");
+    expect(container.querySelector(".ins-h .sm")?.textContent).toBe("사전 확인");
     expect(container.querySelector(".ins-h .gb")?.textContent).toBe("A단독 가능");
-    expect(container.querySelector(".res .note")?.textContent).toBe(`다음: 지시된 점검 1개(${s.preview.section}절 ${s.preview.title})`);
-  });
-
-  it("첫 판정 호출 잠금 뒤 다음 안내 = 파트장 호출 요약(…, C등급)", () => {
-    const s = load<SessionWithPreview>("session-first-call-locked");
-    const { container } = render(<PrecheckScreen s={s} busy={false} values="" onValues={() => {}} onDone={() => {}} />);
-    expect(container.querySelector(".res .note")?.textContent).toBe(`다음: 파트장 호출 요약(${s.preview.section}절 ${s.preview.title}, C등급)`);
+    expect(container.querySelector(".res .note")).toBeNull();
+    expect(texts(container, ".res .btn")).toEqual(["사전 확인 완료"]);
+    expect(container.querySelector(".res .btn")?.className).toContain("dis"); // 값이 없으면 열리지 않음(D-422)
   });
 });
 
@@ -228,7 +227,7 @@ describe("T06 점검 지시 · 결과 입력", () => {
     expect(texts(container, ".ck")).toEqual(s.instruction!.checklist);
     expect([...container.querySelectorAll(".rbtn")].every((b) => b.className.includes("dis"))).toBe(true);
     expect(container.querySelector(".res .btn")?.className).toContain("dis");
-    expect(container.querySelector(".res .note")?.textContent).toBe("시작 전 체크리스트를 모두 확인해야 결과를 입력할 수 있습니다.");
+    expect(container.querySelector(".res .note")).toBeNull(); // D-528: 버튼 아래 안내 문장 뺌(잠김은 버튼 · 결과 칸이 보임)
     fireEvent.click(container.querySelectorAll(".ck")[0]);
     expect(props.onCheck).toHaveBeenCalledWith(s.instruction!.checklist[0]);
   });

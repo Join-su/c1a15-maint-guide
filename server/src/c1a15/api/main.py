@@ -230,6 +230,7 @@ def _alarm_view(a) -> dict:
         "equipment_id": a.equipment_id,
         "symptom_group": a.symptom_group,
         "group_name": deps.group_names()[a.symptom_group],  # P-19: 알람 행 증상 이름
+        "system": deps.group_systems()[a.symptom_group],  # D-528 내 알람 한 줄 · 왼쪽 칸 계통(부록 4)
         "alarm": a.alarm,
         "sensor_snapshot": a.sensor_snapshot,
         "trend": a.trend,
@@ -244,7 +245,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
     """주기 조회(EP-C1-SYNC-001): 내 알람과 진행 중 세션, 변경 순번."""
     start, end = screen.shift_window()
     reports = c.execute(  # 내 확정 보고서(S-03): 최근 · 이 교대 완료 수 · 완료 알람 행
-        select(m.Report.__table__, m.DiagSession.alarm_id, m.Alarm.equipment_id)
+        select(m.Report.__table__, m.DiagSession.alarm_id, m.Alarm.equipment_id, m.Alarm.symptom_group)
         .join(m.DiagSession, m.DiagSession.session_id == m.Report.session_id)
         .join(m.Alarm, m.Alarm.alarm_id == m.DiagSession.alarm_id)
         .where(m.Report.author == user.user_id)
@@ -295,6 +296,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
                 "report_id": r.report_id,
                 "session_id": r.session_id,
                 "equipment_id": r.equipment_id,
+                "system": deps.group_systems()[r.symptom_group],  # D-528 왼쪽 칸 완료 탭 계통
                 "cause": next((f["text"] for f in r.fields if f["key"] == "cause"), ""),
                 "confirmed_at": r.confirmed_at.isoformat() if r.confirmed_at else None,
                 "status": r.status,

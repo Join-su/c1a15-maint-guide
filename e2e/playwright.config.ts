@@ -11,7 +11,7 @@ export default defineConfig({
   reporter: [["list"], ["json", { outputFile: process.env.E2E_REPORT ?? "test-results/report.json" }]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://127.0.0.1:8081",
-    viewport: { width: 1100, height: 760 },
+    viewport: { width: 1280, height: 800 }, // D-528: 정비자 태블릿 1280 × 800(왼쪽 칸 264 + 본문)
     trace: "off",
     screenshot: "only-on-failure",
   },

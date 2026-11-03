@@ -43,7 +43,7 @@ test("첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠�
   await page.getByText("진단 보기").click();
   // AC-40 문구 · 합 100 · CO-42(기본 진단에는 호출 경고 토큰 없음)
   await expect(page.locator(".rk").first()).toHaveClass(/on/);
-  await expect(page.locator(".hint").first()).toContainText("근거 n = 비슷한 과거 기록 상위 10건 중");
+  await expect(page.locator(".hint")).toHaveCount(0); // D-528: 「근거 n = …」 · 과거 기록 안내 문장 뺌
   await expect(page.locator(".cd.mt .cd-h b")).toHaveText(/비슷한 과거 기록 \d건 · 상위 10건 중/);
   const pcts = await page.locator(".rk .rv").allTextContents();
   expect(pcts.reduce((a, p) => a + Number(p.replace("%", "")), 0)).toBe(100);
@@ -60,8 +60,8 @@ test("첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠�
   await expect(page.locator(".ap-step .sp.on")).toContainText("진단");
   // 잠금 전에는 1.2절만(R1)
   await page.locator(".nx .btn").click();
-  await expect(page.locator(".lockbox h3")).toHaveText("잠금 확인이 필요합니다");
-  await expect(page.locator(".masked")).not.toContainText("판정");
+  await expect(page.locator('.lockm[role="dialog"] .n-lockbox h3')).toHaveText("잠금 확인이 필요합니다"); // D-528: 가운데 큰 창
+  await expect(page.locator(".ap-main .ap-body").first()).not.toContainText("판정");
   await shot(page, info, "T05-before_lock");
   await page.getByText("잠금 완료", { exact: true }).click();
   await expect(page.locator(".lockok b")).toHaveText("잠금 확인 완료");
@@ -133,7 +133,7 @@ test("AC-14: 앱을 닫았다 다시 열어도 '이어서 하기'로 같은 단�
   await ctx2.close();
 });
 
-test("AC-02(P-08): 첫 판정 호출 — T04 / first_call → 잠금 → T05 / locked '다음: 파트장 호출 요약(…, C등급)', 절차 · 판정 기준 없음", async ({ page }, info) => {
+test("AC-02(P-08): 첫 판정 호출 — T04 / first_call → 잠금 → T05 / locked(다음 안내 줄 없음 — D-528), 절차 · 판정 기준 없음", async ({ page }, info) => {
   const g = guard(page);
   psql("update ops.grade_table set grade = 'C' where section_id in ('4.3', '4.5', '4.6')");
   await login(page);
@@ -149,7 +149,7 @@ test("AC-02(P-08): 첫 판정 호출 — T04 / first_call → 잠금 → T05 / l
   await shot(page, info, "T04-first_call");
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await expect(page.locator(".res .note")).toHaveText(/^다음: 파트장 호출 요약\(4\.\d절 .+, C등급\)$/);
+  await expect(page.locator(".res .note")).toHaveCount(0); // D-528: 「다음: …」 안내 줄 뺌
   await expect(page.locator(".ins-h h3")).toHaveText("고온부 확인과 온도 기록"); // 잠금 우선 → 사전 확인
   await expect(page.getByText("판정 기준")).toHaveCount(0);
   await shot(page, info, "T05-locked-first_call");

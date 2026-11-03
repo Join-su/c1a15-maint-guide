@@ -45,7 +45,7 @@ describe("T08 조치 · 재가동", () => {
     const send = vi.fn();
     const onCheck = vi.fn();
     const r = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={onCheck} send={send} />);
-    expect(r.container.querySelector(".act .sm")?.textContent).toBe("아래 항목을 모두 확인해야 진행 버튼이 열립니다");
+    expect(r.container.querySelector(".act .sm")).toBeNull(); // D-528: 「아래 항목을 모두 확인해야 …」 뺌(잠김은 버튼이 보임)
     expect(texts(r.container, ".act .ck")).toEqual(a.checklist);
     const locked = btn(r.container, "체크리스트 확인 후 교체 진행");
     expect(locked.className).toContain("dis");
@@ -202,7 +202,7 @@ describe("T11 숙련자 인계 · 감시 마감", () => {
 describe("T09 보고서", () => {
   const LABELS = ["설비 · 알람", "센서 근거", "점검 경로", "확정 원인", "근거 사례", "조치", "정지 시간", "미확인 · 요청"];
 
-  it("draft: 8항목(출처 칩 · 고치기), 확정 전 확인 3항목 통과, 확정 버튼이 열린다(R10 · AC-07-C2)", () => {
+  it("draft: 8항목(출처 칩 · 고치기), 확정 전 확인 3항목 통과, 「보고서 확정」 → 확인 창 → 「확정」(R10 · AC-07-C2 · D-528)", () => {
     const s = load("s03-report-draft");
     const send = vi.fn();
     const { container } = render(<ReportScreen report={s.report!} busy={false} send={send} onHome={() => {}} />);
@@ -211,8 +211,20 @@ describe("T09 보고서", () => {
     expect(texts(container, ".rf .ch.src")).toEqual(["자동", "센서", "입력", "입력", "기록", "매뉴얼", "자동", "입력"]);
     expect(container.querySelectorAll(".rf .ed svg").length).toBe(8);
     expect(texts(container, ".ckl .ck.on")).toEqual(["근거 없는 문장 없음", "권한 등급 위반 없음", "필수 8항목 모두 채워짐"]);
+    expect(container.querySelector(".cta2 .note")).toBeNull(); // 버튼 아래 안내 문장 뺌
     fireEvent.click(btn(container, "보고서 확정"));
+    expect(send).not.toHaveBeenCalled(); // 바로 확정하지 않고 확인 창(가이드 정비자 12)
+    const dlg = container.querySelector('.modal[aria-label="보고서 확정"]')!;
+    expect(dlg.querySelector(".mh b")?.textContent).toBe("보고서를 확정합니까?");
+    expect(texts(dlg, ".mb .btn")).toEqual(["취소", "확정"]);
+    fireEvent.click(btn(dlg, "취소")); // 취소는 창만 닫음
+    expect(container.querySelector(".modal")).toBeNull();
+    expect(send).not.toHaveBeenCalled();
+    fireEvent.click(btn(container, "보고서 확정"));
+    fireEvent.click(btn(container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith({ type: "report_confirm" });
+    expect(container.querySelector(".modal")).toBeNull();
   });
 
   it("고치기: 연필 → 글 상자 → 벗어나면 report_edit(바뀐 경우만)", () => {
@@ -239,7 +251,7 @@ describe("T09 보고서", () => {
     expect(confirm.className).toContain("dis");
     fireEvent.click(confirm);
     expect(send).not.toHaveBeenCalled();
-    expect(container.querySelector(".cta2 .note")?.textContent).toBe("확정 전 확인을 모두 통과해야 확정할 수 있습니다.");
+    expect(container.querySelector(".modal")).toBeNull(); // 잠긴 「보고서 확정」은 창도 열지 않음
   });
 
   it("confirmed: 확정 · 승인 대기 칩, 고치기 없음, 확정 배너 · 홈으로(AC-33)", () => {
@@ -412,10 +424,13 @@ describe("S-04 정비자 쪽: 반려 · 숙련자 인계 답 · 직접 확인(�
     expect(onReport).toHaveBeenCalled();
   });
 
-  it("반려 뒤 다시 열린 보고서는 초안(고칠 수 있음) · 확정 가능(AC-11-C2)", () => {
+  it("반려 뒤 다시 열린 보고서: 「반려 · 고치는 중」 · 오른쪽 위 반려 사유(파트장 · 시각) · 고칠 수 있음 · 확정 가능(AC-11-C2 · D-528 가이드 34쪽)", () => {
     const s = load("s04-report-reopened");
     const { container } = render(<ReportScreen report={s.report!} busy={false} send={() => {}} onHome={() => {}} />);
-    expect(container.querySelector(".cd-h .ch.amber")?.textContent).toBe("초안");
+    expect(container.querySelector(".cd-h .ch.red")?.textContent).toBe("반려 · 고치는 중");
+    const rej = container.querySelector('[data-part="rejection"]')!;
+    expect(rej.querySelector("b")?.textContent).toMatch(/^반려 사유 · 박 파트장 \d\d:\d\d$/);
+    expect(rej.textContent).toContain(s.report!.rejection!.reason!);
     expect(container.querySelectorAll(".rf .ed svg").length).toBe(8);
     expect(btn(container, "보고서 확정").className).not.toContain("dis");
   });

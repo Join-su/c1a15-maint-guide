@@ -2,7 +2,7 @@
 // 파트장 답 · 정정 기록은 시험 DB 시뮬레이션(S-04 P-11 · S-05 P-14 전, PBC-4 v10 실행 해석 ③). fixture 모드, 외부 요청 0.
 
 import { expect, test, type Page } from "@playwright/test";
-import { alarm, guard, login, psql, resetOps, restartWithin, result, shot, apiCorrection, simLeadAnswer, simLlmFailure, simR5Example, toFirstCheck } from "./helpers";
+import { alarm, guard, login, psql, resetOps, restartWithin, result, shot, apiCorrection, simLeadAnswer, simLlmFailure, simR5Example, toFirstCheck, confirmReportModal } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -33,15 +33,16 @@ test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 교체 완료
   await page.locator(".cd-h b", { hasText: "정비 보고서 초안" }).click();
   await expect(page.locator(".rf.fail .rk2")).toHaveText("조치");
   await expect(page.locator(".banner.bad b")).toHaveText("근거 없는 문장 1건");
-  await expect(page.locator(".cta2 .btn")).toHaveClass(/dis/);
+  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).toHaveClass(/dis/);
   await shot(page, info, "T09-check_failed");
-  await page.locator(".cta2 .btn").click({ force: true });
+  await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click({ force: true });
+  await expect(page.locator(".modal")).toHaveCount(0); // 잠긴 확정은 확인 창도 열지 않음
   expect(psql(`select count(*) from ops.reports where session_id = ${sid}`)).toBe("0");
   await page.locator('[data-field="action"] .ed').click();
   await page.locator('[data-field="action"] textarea').fill(action);
   await page.locator(".cd-h b", { hasText: "정비 보고서 초안" }).click();
   await expect(page.locator(".rf.fail")).toHaveCount(0);
-  await page.locator(".cta2 .btn").click(); // AC-07-C2
+  await confirmReportModal(page); // AC-07-C2
   await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다 · \d\d:\d\d$/);
   await expect(page.locator(".cd-h .ch.green")).toHaveText("확정 · 승인 대기");
   await expect(page.locator(".rf .ed svg")).toHaveCount(0); // AC-33-C1: 확정 뒤 고치기 없음
@@ -196,7 +197,7 @@ test("AC-22 · AC-32-C2 · AC-43-C4: 모두 정상 → 재가동 → 6.2 감시 
   psql("update ops.grade_table set grade = 'B' where section_id = '4.3.2'");
   await toFirstCheckFromHome(page, "DEMO-02");
   await result(page, "이상", "기름때");
-  await expect(page.locator(".act .sm")).toHaveText("아래 항목을 모두 확인해야 진행 버튼이 열립니다");
+  await expect(page.locator(".act .sm")).toHaveCount(0); // D-528: 체크리스트 안내 문장 뺌(잠김은 버튼이 보임)
   await expect(page.getByText("체크리스트 확인 후 교체 진행")).toHaveClass(/dis/);
   const items = page.locator(".act .ck");
   for (let i = 0; i < (await items.count()); i++) await items.nth(i).click();

@@ -82,9 +82,6 @@ export function Login({ api, onDone }: { api: Api; onDone: (me: Me) => void }) {
           >
             로그인
           </span>
-          <span className="note">
-            사전 등록된 정비자 계정으로만 로그인합니다. 로그인 후 알림음 사용을 위해 화면을 한 번 누릅니다.
-          </span>
         </form>
       </div>
     </div>

@@ -403,6 +403,17 @@
       "title": "Symptom Group",
       "type": "string"
      },
+     "system": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "System"
+     },
      "trend": {
       "items": {
        "$ref": "#/components/schemas/TrendPoint"
@@ -4397,6 +4408,17 @@
      "status": {
       "title": "Status",
       "type": "string"
+     },
+     "system": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "System"
      }
     },
     "required": [

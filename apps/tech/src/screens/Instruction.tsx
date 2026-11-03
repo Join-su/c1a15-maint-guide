@@ -1,5 +1,6 @@
 // T06 점검 지시 · 결과 입력(지시 하나, 건너뛰기 없음 — AC-35), T07 확인 질문 · 맞지 않는 소견, T14 매뉴얼 원문 창.
 // 값은 세션 응답의 instruction(P-06 · P-19 ⑥). 확인 질문 동안은 직전에 받은 지시를 뒤 화면에 흐리게 보인다.
+// D-528(가이드 정비자 6 · 7): 메모 이름표 괄호 · 버튼 아래 안내 문장 · 입력 내용 확인 창 둘째 줄 뺌.
 
 import { GradeBadge, Icon, type Instruction, type SessionView } from "@c1a15/ui";
 import type { Draft } from "../device";
@@ -157,7 +158,7 @@ export function InstructionScreen(p: InstructionProps) {
                 </span>
               ))}
             </div>
-            <span className="sm">메모 (보이는 그대로 적습니다)</span>
+            <span className="sm">메모</span>
             <textarea
               className="memo"
               aria-label="메모"
@@ -167,11 +168,6 @@ export function InstructionScreen(p: InstructionProps) {
             />
             <span className={`btn lg full${ready ? "" : " dis"}`} role="button" tabIndex={0} onClick={() => ready && p.onSend()}>
               결과 보내기 <Icon name="send" />
-            </span>
-            <span className="note">
-              {needsChecklist
-                ? "시작 전 체크리스트를 모두 확인해야 결과를 입력할 수 있습니다."
-                : '지시된 점검만 결과를 보낼 수 있습니다. 볼 수 없으면 "확인 불가"를 고릅니다.'}
             </span>
           </div>
         </div>
@@ -243,7 +239,6 @@ export function PendingModal({
           <div>
             {ins?.title ?? "이 점검"} 결과를 <b>"{s.step.interpretation ?? "불명"}"</b>으로 이해했습니다. 맞습니까?
           </div>
-          <span className="sm">확인하면 원인 후보 순위가 다시 계산됩니다.</span>
         </div>
         <div className="mb">
           <span className={`btn ghost${dis}`} role="button" tabIndex={0} onClick={() => !busy && onConfirm(false)}>

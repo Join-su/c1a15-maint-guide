@@ -194,6 +194,12 @@ export async function result(page: Page, value: "정상" | "이상" | "확인 �
   await expect(page.locator(".rbtn.sel")).toHaveCount(0);
 }
 
+/** 「보고서 확정」 → 확인 창 「확정」(D-528 가이드 정비자 12 — 지금 앱은 바로 확정하던 것). */
+export async function confirmReportModal(page: Page): Promise<void> {
+  await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
+  await page.locator('.modal[aria-label="보고서 확정"] .btn').filter({ hasText: /^확정$/ }).click();
+}
+
 export async function restartWithin(page: Page): Promise<void> {
   const items = page.locator(".act .ck");
   await expect(page.getByText("체크리스트 확인 후 재가동")).toHaveClass(/dis/); // AC-21-C1

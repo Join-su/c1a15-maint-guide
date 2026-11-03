@@ -160,7 +160,6 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
               </div>
               {actionOpen && a.checklist.length > 0 && !a.checklist_done ? (
                 <>
-                  <span className="sm">아래 항목을 모두 확인해야 진행 버튼이 열립니다</span>
                   <Checks items={actionChecks} on={(x) => checked.includes(x)} onToggle={toggle} />
                 </>
               ) : null}
@@ -184,7 +183,6 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
                 <GradeBadge grade={r.grade} />
                 <span className="ch blue">{r.section}절</span>
               </div>
-              <span className="sm">아래 항목을 모두 확인해야 재가동 버튼이 열립니다</span>
               <Checks items={r.checklist} on={(x) => checked.includes(x)} onToggle={toggle} />
               <Btn
                 label={restartReady ? "재가동" : "체크리스트 확인 후 재가동"}
@@ -291,7 +289,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
   };
   const callBtn = <Btn cls="lg full warnb" label="파트장 호출" icon="phone-call" off={busy} onClick={sendCall} />;
   const summary = (
-    <Summary call={call} label="파트장에게 보낼 요약 (자동 작성 · 고칠 수 있음)" editable={editable} text={text} onText={setText} />
+    <Summary call={call} label="파트장에게 보낼 요약" editable={editable} text={text} onText={setText} />
   );
   let right;
   if (ans?.answer === "approved" && ins && !approvedSeen) {
@@ -356,7 +354,6 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
           </div>
         </div>
         {summary}
-        <span className="note">화면에 지시되지 않은 C · D등급 작업을 혼자 진행하지 마십시오.</span>
       </div>
     );
   } else if (call.status === "waiting") {
@@ -365,7 +362,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
         <div className="banner warn">
           <Icon name="clock" />
           <div>
-            <b>호출하지 않고 대기 중 · {call.waiting_at ? hhmm(call.waiting_at) : ""}</b>호출은 보내지 않았습니다. 설비는 정지 상태로 둡니다.
+            <b>호출하지 않고 대기 중 · {call.waiting_at ? hhmm(call.waiting_at) : ""}</b>
           </div>
         </div>
         {summary}
@@ -556,9 +553,12 @@ export interface ReportProps {
   onHome: () => void;
 }
 
-/** T09: 보고서 8항목(출처 · 고치기), 확정 전 확인 3항목, 확정 → 승인 대기(확정 뒤 수정 없음 — AC-33). */
+/** T09: 보고서 8항목(출처 · 고치기), 확정 전 확인 3항목, 확정 → 승인 대기(확정 뒤 수정 없음 — AC-33).
+ *  D-528(가이드 정비자 12 · 13 · 반려 34쪽): 반려면 오른쪽 위에 반려 사유 · 「보고서 확정」은 확인 창(확정 · 취소) · 안내 문장 뺌. */
 export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
   const [edit, setEdit] = useState<{ key: string; text: string } | null>(null);
+  const [asking, setAsking] = useState(false);
+  const rej = report.rejection;
   const draft = report.status === "draft";
   const save = () => {
     if (!edit) return;
@@ -574,7 +574,11 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
           <div className="cd-h">
             <Icon name="file-text" />
             <b>정비 보고서 초안</b>
-            {draft ? <span className="ch amber">초안</span> : <span className="ch green">확정 · 승인 대기</span>}
+            {draft ? (
+              <span className={`ch ${rej ? "red" : "amber"}`}>{rej ? "반려 · 고치는 중" : "초안"}</span>
+            ) : (
+              <span className="ch green">확정 · 승인 대기</span>
+            )}
           </div>
           {report.fields.map((f) => (
             <div className={`rf${f.ok ? "" : " fail"}`} key={f.key} data-field={f.key}>
@@ -617,6 +621,17 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
           ))}
         </div>
         <div>
+          {draft && rej ? (
+            <div className="banner bad rej" data-part="rejection">
+              <Icon name="rotate-ccw" />
+              <div>
+                <b>
+                  반려 사유 · {rej.by_name ?? ""} {rej.at ? hhmm(rej.at) : ""}
+                </b>
+                {rej.reason}
+              </div>
+            </div>
+          ) : null}
           <div className="cd ">
             <div className="cd-h">
               <Icon name="shield-check" />
@@ -648,20 +663,15 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
                 label="보고서 확정"
                 icon="file-check-2"
                 off={busy || !report.can_confirm || edit !== null}
-                onClick={() => void send({ type: "report_confirm" })}
+                onClick={() => setAsking(true)}
               />
-              <span className="note">
-                {report.can_confirm
-                  ? "확정하면 파트장 승인 대기로 넘어갑니다. 확정 뒤에는 정비자가 고칠 수 없습니다."
-                  : "확정 전 확인을 모두 통과해야 확정할 수 있습니다."}
-              </span>
             </div>
           ) : (
             <>
               <div className="banner ok">
                 <Icon name="circle-check" />
                 <div>
-                  <b>보고서를 확정했습니다 · {report.confirmed_at ? hhmm(report.confirmed_at) : ""}</b>파트장 승인 대기로 넘어갔습니다. 고칠 내용이 있으면 파트장에게 수정 요청 메모를 남기십시오.
+                  <b>보고서를 확정했습니다 · {report.confirmed_at ? hhmm(report.confirmed_at) : ""}</b>
                 </div>
               </div>
               <Btn cls="lg full ghost" label="홈으로" onClick={onHome} />
@@ -669,6 +679,37 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
           )}
         </div>
       </div>
+      {asking && draft ? (
+        <>
+          <div className="dim" />
+          <div className="modal" role="dialog" aria-label="보고서 확정">
+            <div className="mh">
+              <Icon name="file-check-2" />
+              <b>보고서를 확정합니까?</b>
+            </div>
+            <div className="bub ai">
+              <div>확정하면 파트장 승인 대기로 넘어갑니다.</div>
+            </div>
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setAsking(false)}>
+                취소
+              </span>
+              <span
+                className={`btn${busy || !report.can_confirm ? " dis" : ""}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  if (busy || !report.can_confirm) return;
+                  setAsking(false);
+                  void send({ type: "report_confirm" });
+                }}
+              >
+                확정
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

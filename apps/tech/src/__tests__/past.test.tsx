@@ -136,9 +136,9 @@ describe("정정(AC-45 · AC-46)", () => {
     const i = h.steps[2].records.findIndex((r) => r.kind === "precheck");
     const POST = vi.fn(() => ok(load("s05-session-open")));
     const { container } = past(h, 3, i, { api: { GET: vi.fn(), POST } as unknown as Api });
-    expect(container.querySelector(".ins-h .sm")?.textContent).toBe("사전 확인 · 점수 없이 항상 먼저");
+    expect(container.querySelector(".ins-h .sm")?.textContent).toBe("사전 확인");
     expect(container.querySelector(".res .rt")?.textContent).toBe("기록한 값");
-    expect(container.querySelector(".res .note")?.textContent).toBe("측정값은 정정할 수 있습니다. 사전 확인 완료 자체는 정정하지 않습니다.");
+    expect(container.querySelector(".res .note")).toBeNull(); // D-528 가이드 정비자 8: 정정 화면 안내 문장 뺌
     fireEvent.click(btn(container, "이 기록 정정"));
     const modal = container.querySelector(".modal.wide")!;
     expect(modal.querySelector(".mh b")?.textContent).toBe("이 기록 정정 · 4.2 사전 확인 측정값");

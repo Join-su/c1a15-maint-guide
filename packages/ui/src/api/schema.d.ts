@@ -650,6 +650,8 @@ export interface components {
             status: string;
             /** Symptom Group */
             symptom_group: string;
+            /** System */
+            system?: string | null;
             /** Trend */
             trend: components["schemas"]["TrendPoint"][];
         };
@@ -1753,6 +1755,8 @@ export interface components {
             session_id: number;
             /** Status */
             status: string;
+            /** System */
+            system?: string | null;
         };
         /** Record */
         Record: {

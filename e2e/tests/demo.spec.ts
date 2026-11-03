@@ -4,7 +4,7 @@
 // 입력표 밖 단계가 나오면 시험이 멈춘다(실패). 외부 요청 0 · 콘솔 오류 0.
 
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartApi, restartWithin, shot } from "./helpers";
+import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartApi, restartWithin, shot, confirmReportModal } from "./helpers";
 
 test.describe.configure({ mode: "serial" });
 test.beforeAll(() => resetOps()); // 시연 한 번 = 깨끗한 스택에서 10건을 이어서
@@ -216,7 +216,7 @@ for (const d of DEMO) {
     await expect(page.locator(".rf")).toHaveCount(8); // 보고서 8항목(T09)
     await expect(page.locator('[data-field="cause"] .rv2')).toHaveText(d.cause);
     if (d.unresolved) await expect(page.locator('[data-field="unresolved"] .rv2')).toHaveText(d.unresolved);
-    await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
+    await confirmReportModal(page);
     await expect(page.locator(".banner.ok")).toBeVisible(); // T09 / confirmed
     expect(psql(`select status from ops.reports where session_id = ${sid}`)).toBe("awaiting_approval");
     await shot(page, info, `T09-confirmed-${d.id}`);

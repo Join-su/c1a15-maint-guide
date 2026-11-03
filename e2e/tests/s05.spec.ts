@@ -2,7 +2,7 @@
 // 실제 nginx · API · PostgreSQL, fixture 모드, 외부 요청 0. 정정 · 답은 모두 실제 화면 조작으로 한다(시험 DB 시뮬레이션 없음).
 
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartWithin, result, shot, sidOf } from "./helpers";
+import { alarm, guard, LEAD_URL, login, loginLead, psql, resetOps, restartWithin, result, shot, sidOf, confirmReportModal } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -208,7 +208,7 @@ test("AC-46-C2 · AC-45-C5 · AC-48: 뒤 기록 '정정으로 무효' → 보고
   await expect(path).toContainText("정정 1회"); // AC-45-C5 · 결정 019 ⑤
   await expect(path).toContainText("정정으로 무효");
   await shot(page, info, "T09-draft_corrected");
-  await page.locator(".cta2 .btn").click();
+  await confirmReportModal(page);
   await expect(page.locator(".banner.ok")).toBeVisible();
   await step(page, 3).click(); // AC-48-C2: 확정 세션은 정정 수단 없이 안내
   await expect(page.locator(".pastbar .tt")).toHaveText(/· 보고서 \d\d:\d\d 확정$/);

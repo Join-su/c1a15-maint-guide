@@ -5,7 +5,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
-import { guard, LEAD_PW, LEAD_URL, login, resetOps, restartWithin, result, shot, toFirstCheck } from "./helpers";
+import { guard, LEAD_PW, LEAD_URL, login, resetOps, restartWithin, result, shot, toFirstCheck, confirmReportModal } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -28,7 +28,7 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await page.getByText("교체 완료").click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
-  await page.locator(".cta2 .btn").click();
+  await confirmReportModal(page);
   await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다/);
 
   const lead = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
@@ -84,7 +84,7 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   const ta = page.locator('[data-field="check_path"] textarea');
   await ta.fill((await ta.inputValue()).replace("이상: 기름때", "이상: 기름때가 필터 표면 절반 넘게 덮음, 뒷면도 확인")); // 새 숫자 0(R8)
   await page.locator(".cd-h b", { hasText: "정비 보고서 초안" }).click();
-  await page.locator(".cta2 .btn").click();
+  await confirmReportModal(page);
   await expect(page.locator(".cd-h .ch.green")).toHaveText("확정 · 승인 대기");
 
   // 다시 올라옴 → 진행 '정비자 다시 확정' → 승인

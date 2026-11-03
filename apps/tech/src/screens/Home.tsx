@@ -1,9 +1,13 @@
 // T02 홈 · T12 알람 · 할 일(종 목록). 값은 /api/tech/home · /api/tech/notifications 응답 그대로(P-19 ① · ②, S-03 P-09).
+// D-528(가이드 정비자 2): 내 알람 카드에 상태값 한 줄 · 안전 수칙 · 반려 칸 설명 문장 뺌.
 
 import { Fragment } from "react";
-import { dateTime, hhmm, Icon, type Home as HomeData, type Notifications } from "@c1a15/ui";
+import { dateTime, hhmm, Icon, num, type Home as HomeData, type Notifications } from "@c1a15/ui";
 
 type Row = HomeData["alarms"][number];
+
+/** 센서 값 표시: 정수면 천 단위 쉼표, 아니면 소수 한 자리(7.8 K · 1,409 rpm). */
+export const val = (v: number, unit: string) => `${num(v, Number.isInteger(v) ? 0 : 1)} ${unit}`;
 
 const REPORT: Record<string, { label: string; chip: string }> = {
   awaiting_approval: { label: "승인 대기", chip: "amber" },
@@ -66,6 +70,14 @@ export function HomeScreen({
                         {a.equipment_id} · {a.group_name}
                       </b>
                       <span>{st.text}</span>
+                      {a.status === "done" ? null : ( // D-528: 상태값은 글자 한 줄(계통 · 값 · 경계 · 방향)
+                        <div className="n-vals">
+                          <span className="k">{a.system}</span>
+                          <b>{val(a.alarm.value, a.alarm.unit)}</b>
+                          <span>{val(a.alarm.boundary, a.alarm.unit)}</span>
+                          <span className="n-bd">{a.alarm.direction}</span>
+                        </div>
+                      )}
                     </div>
                     <span className={`btn ${st.ghost ? "ghost" : ""}`} role="button" tabIndex={0} onClick={() => onOpen(a)}>
                       {st.button}
@@ -108,7 +120,6 @@ export function HomeScreen({
               <Icon name="lock" />
               <div>
                 <b>잠금을 먼저 확인합니다</b>
-                <span>잠금(1.2절)을 확인하기 전에는 어떤 점검 지시도 표시되지 않습니다.</span>
               </div>
             </div>
           </div>
@@ -140,7 +151,7 @@ export function HomeScreen({
                     <b>
                       반려 사유 · {rejected.rejected_by_name} {rejected.rejected_at ? hhmm(rejected.rejected_at) : ""}
                     </b>
-                    {rejected.reject_reason} "이어서 하기"로 추가 점검하거나 보고서 항목을 고친 뒤 다시 확정합니다.
+                    {rejected.reject_reason}
                   </div>
                 </div>
                 <span className="btn ghost full" role="button" tabIndex={0} onClick={() => onResume?.(rejected.session_id)}>
