@@ -171,7 +171,9 @@ describe("T10 파트장 호출", () => {
     expect(v.c.querySelectorAll(".cd:nth-child(2) > .btn").length).toBe(0);
     v = view("s03-ans-approved");
     const s = load("s03-ans-approved");
-    expect(v.c.querySelector(".banner.ok b")?.textContent).toMatch(/^승인 후 진행 · 박 파트장 \d\d:\d\d$/);
+    // 답장 001-zzx 26쪽 정함: 흐름 그대로(그 C 점검 지시) · 띠 = '파트장 답 · 승인 후 진행 · 파트장 · 시각' · 설명 문장 뺌
+    expect(v.c.querySelector(".banner.ok b")?.textContent).toMatch(/^파트장 답 · 승인 후 진행 · 박 파트장 \d\d:\d\d$/);
+    expect(v.c.querySelector(".banner.ok div")?.textContent).toBe(v.c.querySelector(".banner.ok b")?.textContent);
     expect(v.c.querySelector(".ins-h .sm")?.textContent).toBe(`점검 ${s.instruction!.check_no} · 파트장 승인`);
     expect(texts(v.c, ".ins-h .tags > *")).toEqual(["C승인 필요", "승인됨", "매뉴얼 4.4절"]);
     expect(texts(v.c, ".proc li").length).toBe(s.instruction!.steps.length);

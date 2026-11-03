@@ -310,8 +310,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
         <div className="banner ok">
           <Icon name="circle-check" />
           <div>
-            <b>승인 후 진행 · {by}</b>
-            {call.title}({call.section}절) 지시가 열렸습니다. 호출 기록에 승인자와 시각이 남습니다.
+            <b>파트장 답 · 승인 후 진행 · {by}</b>
           </div>
         </div>
         <div className="ins-h">

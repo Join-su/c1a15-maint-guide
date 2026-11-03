@@ -102,7 +102,7 @@ test("AC-03 L3 · AC-30 · AC-08 · AC-37: R5 계산 예시 → 4.3 → 정상 �
   await expect(page.locator(".panel .grp")).toContainText(["파트장 답이 온 호출"]);
   await expect(page.locator(".nt-item", { hasText: "냉각 팬 분해 점검(4.4, C)" })).toContainText("승인 후 진행");
   await page.locator(".nt-item .btn", { hasText: "답 보기" }).click(); // AC-37-C2
-  await expect(page.locator(".banner.ok b")).toHaveText(/^승인 후 진행 · .+ \d\d:\d\d$/);
+  await expect(page.locator(".banner.ok b")).toHaveText(/^파트장 답 · 승인 후 진행 · .+ \d\d:\d\d$/);
   await expect(page.locator(".ins-h .ch.green")).toHaveText("승인됨");
   await shot(page, info, "T10-ans_approved");
   await page.getByText("점검 시작").click();

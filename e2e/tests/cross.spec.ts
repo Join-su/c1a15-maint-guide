@@ -104,7 +104,7 @@ test("교차 ① AC-08 · AC-42 · AC-37: C 호출 → 파트장 '승인 후 진
   await page.locator(".tb-bell").click();
   await expect(page.locator(".panel .grp")).toContainText(["파트장 답이 온 호출"]);
   await page.locator(".nt-item .btn", { hasText: "답 보기" }).click();
-  await expect(page.locator(".banner.ok b")).toHaveText(/^승인 후 진행 · /);
+  await expect(page.locator(".banner.ok b")).toHaveText(/^파트장 답 · 승인 후 진행 · /);
   await page.getByText("점검 시작").click();
   await expect(page.locator(".ins-h h3")).toHaveText("냉각 팬 분해 점검");
   await result(page, "정상");
