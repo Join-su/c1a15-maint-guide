@@ -295,7 +295,7 @@ export function Session(p: SessionProps) {
         data={hist}
         no={past.no}
         idx={past.idx}
-        onIdx={(i) => setPast({ ...past, idx: i })}
+        onPick={(no, i) => setPast({ no, idx: i })} // 답장 001-zzx 마: 목록에서 점검 · 조치 기록을 함께 고름
         onCurrent={() => setPast(null)} // AC-41-C3: 현재 단계와 넣던 입력은 그대로(기기)
         unsent={
           unsentIns

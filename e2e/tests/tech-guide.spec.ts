@@ -59,7 +59,7 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(lock).toHaveCount(0);
   await expect(page.locator(".rk").first()).toBeVisible();
   await pause(page);
-  await page.getByText("현재 단계로").click();
+  await page.locator(".pastbar .btn", { hasText: "지금 단계로" }).click();
   await expect(lock).toBeVisible();
   await pause(page);
   await lock.getByText("잠금 완료", { exact: true }).click();

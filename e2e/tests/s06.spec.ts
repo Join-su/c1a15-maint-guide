@@ -62,7 +62,7 @@ test("AC-44-C3(S-05 이어받음): 조치 B 시작 전 체크 · 재가동 체�
   g.check(info);
 });
 
-test("AC-41-C1(S-06 전 화면 대조에서 발견): 잠금 전(진단 화면)에도 진행 표시 완료 단계 '알람'을 누르면 그때 화면 → 현재 단계로", async ({ page }, info) => {
+test("AC-41-C1(S-06 전 화면 대조에서 발견): 잠금 전(진단 화면)에도 진행 표시 완료 단계 '알람'을 누르면 그때 화면 → 지금 단계로", async ({ page }, info) => {
   const g = guard(page);
   await login(page);
   alarm("DEMO-01");
@@ -72,7 +72,7 @@ test("AC-41-C1(S-06 전 화면 대조에서 발견): 잠금 전(진단 화면)�
   await expect(page.locator(".ap-step .sp").nth(0)).toHaveClass(/pick/); // T04: 완료 단계는 누를 수 있음(Prototype)
   await page.locator(".ap-step .sp").nth(0).click();
   await expect(page.locator(".pastbar > b")).toHaveText("지난 화면 · 알람");
-  await page.locator(".pastbar .btn", { hasText: "현재 단계로" }).click();
+  await page.locator(".pastbar .btn", { hasText: "지금 단계로" }).click();
   await expect(page.locator(".pastbar")).toHaveCount(0);
   await expect(page.locator(".nx .btn")).toBeVisible(); // 진단 화면 그대로(잠금 전 단계 유지)
   g.check(info);

@@ -84,3 +84,22 @@
 .ap .rejb .btn { margin-top: 12px; background: #fff; }
 .ap .stk .act .proc { margin-bottom: 14px; }
 .ap .stk .act .proc li:last-child { background: #f8f9fb; }
+/* 답장 001-zzx 마(가이드 22 · 23쪽): 지난 점검 = 왼쪽 기록 목록 + 오른쪽 고른 기록 칸(정정 · 메모는 칸 안) + 「지금 단계로」 */
+.ap-body.pl .g64 > .cd { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.ap .plist { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
+.ap .pli { display: flex; flex-direction: column; gap: 4px; padding: 11px 14px; border: 1px solid var(--ln); border-radius: 10px; background: #fff; cursor: pointer; }
+.ap .pli b { font-size: 15px; } .ap .pli span { font-size: 13px; color: var(--sub); }
+.ap .pli.on { border: 2px solid var(--pri); background: var(--pri-s); padding: 10px 13px; }
+.ap .pli.bad b { color: var(--bad); }
+.ap .pli.void b, .ap .pli.void span { color: var(--mut); text-decoration: line-through; }
+.ap .pdet .unsent { align-self: flex-start; margin: -4px 0 10px; }
+.ap .prow { display: flex; justify-content: space-between; gap: 16px; padding: 4px 0 12px; border-bottom: 1px solid var(--ln); font-size: 15px; }
+.ap .prow span { color: var(--sub); flex: none; } .ap .prow b { text-align: right; }
+.ap .pdet .pv, .ap .pdet .corr-box, .ap .pdet .corr-list { margin-top: 12px; }
+.ap .pdet > .btn { margin-top: 16px; }
+.ap .pform { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.ap .pform > .sm { font-size: 13px; color: var(--sub); font-weight: 700; margin-top: 4px; }
+.ap .pform .memo { min-height: 72px; margin: 0; border-color: var(--pri); }
+.ap .pform .rbtns .rbtn { min-height: 92px; }
+.ap .pform .mb { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.ap .pfoot { margin-top: auto; padding-top: 14px; }
