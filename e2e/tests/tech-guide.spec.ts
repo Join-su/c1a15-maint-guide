@@ -78,9 +78,9 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await pause(page); // 새 화면 직후 0.4초 누름 무시(EV-007) — 사람처럼 잠깐 뒤
   await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
   await pause(page);
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   // 재가동 체크리스트 셋(다 고르기 전 잠김) — 공용 restartWithin은 막기를 끈 시험용이라 여기서는 사람처럼 하나씩
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toHaveClass(/dis/);
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toHaveClass(/dis/);
   const items = page.locator(".act .ck");
   for (let i = 0; i < (await items.count()); i++) {
     await pause(page);

@@ -18,7 +18,7 @@ async function leadPage(browser: Browser): Promise<Page> {
 async function confirmReport(page: Page, scenario = "DEMO-01"): Promise<number> {
   const sid = await toFirstCheck(page, scenario);
   await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await confirmReportModal(page);
@@ -252,7 +252,7 @@ test("AC-37: 종 목록 4종류(새 알람 · 진행 중 · 답이 온 호출 ·
   expect(ins.low_evidence).toBe(true);
   expect(ins.step.kind).toMatch(/^instruct/);
   await result(page, "이상", "기름때");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator('[data-field="evidence_records"] .ch.amber')).toHaveText("근거 적음"); // AC-29-C2

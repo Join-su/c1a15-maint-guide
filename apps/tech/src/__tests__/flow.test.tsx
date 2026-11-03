@@ -22,24 +22,30 @@ afterEach(() => {
 });
 
 describe("T08 조치 · 재가동", () => {
-  it("action_a: 원인 확정 머리 · 조치(A, 절, 분) · '교체 완료' → action_done, 점검 경로 끝은 '지금'", () => {
+  // 답장 001-zzx 가 · 나(가이드 14 ~ 16 · 27쪽): 왼쪽 카드 셋(원인 확정 · 조치 · 재가동) · 재가동 뒤 값과 두 버튼은 재가동 카드 안(따로 화면 0),
+  // 오른쪽 '지금까지 점검 · 조치'.
+  const cards = (root: ParentNode) => [...root.querySelectorAll(".stk > .cd")];
+  it("action_a: 원인 확정 카드(원인 칩 · 근거 사례) · 조치 카드(조치 · 절 이름 · 등급) · '조치 완료' → action_done, 경로 끝은 '지금'", () => {
     const s = load("s03-action-a");
     const send = vi.fn();
     const { container } = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={() => {}} send={send} />);
-    expect(container.querySelector(".done-h .sm")?.textContent).toBe("원인 확정");
-    expect(container.querySelector(".done-h h3")?.textContent).toBe(s.action!.cause_name);
-    expect(container.querySelector(".done-h span:last-child")?.textContent).toBe(
-      `근거: 점검 결과(이상) · 과거 기록 ${s.action!.evidence_record_ids.join(" · ")}`,
-    );
-    expect(texts(container, ".act-h > *")).toEqual(["흡기 필터 교체", "A단독 가능", "4.3.2절", `약 ${s.action!.minutes}분`]);
-    fireEvent.click(btn(container, "교체 완료"));
+    const [cause, act, ...rest] = cards(container);
+    expect(rest).toHaveLength(0);
+    expect(texts(cause, ".cd-h > b, .cd-h > .ch")).toEqual(["원인 확정", s.action!.cause_name]);
+    expect(cause.querySelector(".cd-h .ch")?.className).toContain("red");
+    expect(texts(cause, ".kvr > *")).toEqual(["근거 사례", s.action!.evidence_record_ids.join(" · ")]);
+    expect(texts(act, ".act-h > *")).toEqual(["조치 · 4.3.2 흡기 필터 교체", "A단독 가능"]);
+    expect(texts(act, ".btn")).toEqual(["조치 완료"]);
+    expect(container.querySelector(".done-h")).toBeNull();
+    fireEvent.click(btn(container, "조치 완료"));
     expect(send).toHaveBeenCalledWith({ type: "action_done", section: "4.3.2" });
     const tl = [...container.querySelectorAll(".tli")];
     expect(tl.map((t) => t.className)).toEqual(["tli ok", "tli ok", "tli bad", "tli now"]);
     expect(tl.at(-1)!.querySelector(".tt")?.textContent).toBe("지금");
+    expect(container.querySelector(".g64 > .cd:last-child .cd-h b")?.textContent).toBe("지금까지 점검 · 조치");
   });
 
-  it("checklist_b: B 조치는 체크리스트를 모두 확인해야 진행 버튼이 열린다(AC-32-C2 · AC-43-C4)", () => {
+  it("checklist_b: B 조치는 체크리스트를 모두 확인해야 「조치 진행」이 열린다(AC-32-C2 · AC-43-C4)", () => {
     const s = load("s03-action-b");
     const a = s.action!;
     const send = vi.fn();
@@ -47,43 +53,53 @@ describe("T08 조치 · 재가동", () => {
     const r = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={onCheck} send={send} />);
     expect(r.container.querySelector(".act .sm")).toBeNull(); // D-528: 「아래 항목을 모두 확인해야 …」 뺌(잠김은 버튼이 보임)
     expect(texts(r.container, ".act .ck")).toEqual(a.checklist);
-    const locked = btn(r.container, "체크리스트 확인 후 교체 진행");
+    const locked = btn(r.container, "조치 진행"); // 가이드 15쪽 꼴: 잠긴 동안도 이름 그대로
     expect(locked.className).toContain("dis");
     fireEvent.click(locked);
     expect(send).not.toHaveBeenCalled();
     fireEvent.click(r.container.querySelectorAll(".act .ck")[0]);
     expect(onCheck).toHaveBeenCalledWith([a.checklist[0]]);
     r.rerender(<ActionScreen s={s} busy={false} checked={a.checklist} onCheck={onCheck} send={send} />);
-    fireEvent.click(btn(r.container, "교체 진행"));
+    fireEvent.click(btn(r.container, "조치 진행"));
     expect(send).toHaveBeenCalledWith({ type: "b_checklist_done", section: "4.3.2", checked: a.checklist });
   });
 
-  it("restart_check: 조치 완료 칩 · 재가동(B, 6.1) 체크리스트, 다 확인해야 재가동(AC-21-C1)", () => {
+  it("restart_check: 조치 카드 '완료' 칩 · 재가동 카드(재가동 · 6.1절, B) 체크리스트, 다 확인해야 「재가동」(AC-21-C1)", () => {
     const s = load("s03-restart-check");
     const items = s.restart!.checklist;
     const send = vi.fn();
     const r = render(<ActionScreen s={s} busy={false} checked={items.slice(0, 2)} onCheck={() => {}} send={send} />);
-    const acts = r.container.querySelectorAll(".act");
-    expect(acts[0].querySelector(".ch.green")?.textContent).toMatch(/^완료 \d\d:\d\d$/);
-    expect(texts(acts[1], ".act-h > *")).toEqual(["재가동", "B확인 후", "6.1절"]);
-    expect(texts(acts[1], ".ck.on")).toEqual(items.slice(0, 2));
-    const locked = btn(r.container, "체크리스트 확인 후 재가동");
+    const [, act, rs] = cards(r.container);
+    expect(texts(act, ".act-h > *")).toEqual(["조치 · 4.3.2 흡기 필터 교체", "A단독 가능", "완료"]);
+    expect(act.querySelector(".btn")).toBeNull();
+    expect(texts(rs, ".act-h > *")).toEqual(["재가동 · 6.1절", "B확인 후"]);
+    expect(texts(rs, ".ck.on")).toEqual(items.slice(0, 2));
+    const locked = btn(rs, "재가동"); // 잠긴 동안도 이름 '재가동'
     expect(locked.className).toContain("dis");
+    fireEvent.click(locked);
+    expect(send).not.toHaveBeenCalled();
     r.rerender(<ActionScreen s={s} busy={false} checked={items} onCheck={() => {}} send={send} />);
     fireEvent.click(btn(r.container, "재가동"));
     expect(send).toHaveBeenCalledWith({ type: "restart", checked: items });
   });
 
-  it("restart_value: 재가동 시각 · 센서 · 큰 값 · 경계 규칙, '경계 이내' · '여전히 밖'(AC-21-C2)", () => {
+  it("restart_value: 같은 조치 화면 재가동 카드 안 값(센서 · 큰 값 · 경계) · 「여전히 밖」「경계 이내」 순서 · 설명 문장 0(AC-21-C2)", () => {
     const s = load("s03-restart-value");
+    const v = s.restart!.value!;
     const send = vi.fn();
     const { container } = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={() => {}} send={send} />);
-    expect(container.querySelector(".act-h b")?.textContent).toBe("재가동 후 값 확인");
-    expect(container.querySelector(".act-h .ch.green")?.textContent).toMatch(/^재가동 \d\d:\d\d$/);
-    expect(container.querySelector(".sub")?.textContent).toBe("온도 차 · 무부하 3분 운전 뒤");
-    expect(container.querySelector(".rv-big")?.textContent).toBe(s.restart!.value!.value_text);
-    expect(container.querySelector(".rv-sub")?.textContent).toBe("경계 8.3 K 이상이면 경계 이내");
-    expect(texts(container, ".choice2 .btn")).toEqual(["경계 이내", "여전히 밖"]);
+    const [cause, act, rs] = cards(container);
+    expect(cause.querySelector(".cd-h b")?.textContent).toBe("원인 확정");
+    expect(texts(act, ".act-h > *").at(-1)).toBe("완료");
+    expect(texts(rs, ".act-h > *")).toEqual(["재가동 · 6.1절", "B확인 후", expect.stringMatching(/^재가동 \d\d:\d\d$/)]);
+    expect(rs.querySelector(".ck")).toBeNull();
+    expect(texts(rs, ".rvrow > *")).toEqual([v.sensor, v.value_text, `경계 ${v.boundary_text}`]);
+    expect(texts(rs, ".choice2 .btn")).toEqual(["여전히 밖", "경계 이내"]);
+    expect(container.querySelector(".note")).toBeNull();
+    expect(container.querySelector(".stk")?.textContent).not.toContain("재가동 후 값 확인"); // 오른쪽 경로의 지금 줄 이름은 서버 값 그대로
+    fireEvent.click(btn(container, "경계 이내"));
+    expect(send).toHaveBeenCalledWith({ type: "restart_result", outcome: "within" });
+    send.mockClear();
     // D-530 답장 001-zzt 6(가이드 27쪽): 「여전히 밖」 → 확인 창(숙련자 인계 · 취소) — 취소는 창만 닫음
     fireEvent.click(btn(container, "여전히 밖"));
     expect(send).not.toHaveBeenCalled();

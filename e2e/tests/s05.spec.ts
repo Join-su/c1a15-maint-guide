@@ -201,7 +201,7 @@ test("AC-46-C2 · AC-45-C5 · AC-48: 뒤 기록 '정정으로 무효' → 보고
   await expect(page.locator(".btn", { hasText: "이 기록 정정" })).toHaveCount(0);
   await pastBtn(page, "현재 단계로").click();
   await expect(page.locator(".tli.void .ch.vd").first()).toHaveText("정정으로 무효");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   const path = page.locator('[data-field="check_path"] .rv2');
@@ -275,8 +275,8 @@ test("AC-47-C1 · 결정 012 ② · 019 ⑧: 조치 뒤 정정 → 정정 호출
   await login(page);
   const sid = await toCheck(page);
   await result(page, "이상", "기름때");
-  await page.getByText("교체 완료").click();
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toBeVisible();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toBeVisible();
   await step(page, 3).click();
   await page.locator(".btn", { hasText: "이 기록 정정" }).click();
   const modal = page.locator(".modal.wide");
@@ -300,7 +300,7 @@ test("AC-47-C1 · 결정 012 ② · 019 ⑧: 조치 뒤 정정 → 정정 호출
   await lead.locator("button.lbtn", { hasText: "답 저장" }).click(); // 승인 후 진행(골라야 열림 — D-528)
   await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
   await page.reload();
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toBeVisible(); // 새 작업 없이 정정 때 하던 단계(재가동 확인)
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toBeVisible(); // 새 작업 없이 정정 때 하던 단계(재가동 확인)
   const s = await page.request.get(`/api/tech/sessions/${sid}`).then((r) => r.json());
   expect(s.step.kind).toBe("restart_check");
   g.check(info);

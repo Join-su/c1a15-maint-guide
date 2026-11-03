@@ -49,14 +49,14 @@ test("AC-44-C3(S-05 이어받음): 조치 B 시작 전 체크 · 재가동 체�
   await page.locator(".act .btn", { hasText: / 진행$/ }).first().click(); // B 조치: 시작 전 체크 보냄
   await page.locator(".act .btn", { hasText: / 완료$/ }).first().click();
   // 재가동 체크리스트(T08 / restart_checklist): 하나만 체크
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toHaveClass(/dis/);
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toHaveClass(/dis/);
   const rs = page.locator(".act .ck:not(.on)");
   const before = await page.locator(".act .ck.on").count();
   await rs.first().click();
   await expect(page.locator(".act .ck.on")).toHaveCount(before + 1);
   for (const via of ["home", "bell"] as const) {
     await back(page, via);
-    await expect(page.getByText("체크리스트 확인 후 재가동")).toBeVisible();
+    await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toBeVisible();
     await expect(page.locator(".act .ck.on")).toHaveCount(before + 1); // 재가동 체크도 그대로
   }
   g.check(info);

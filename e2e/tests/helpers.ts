@@ -202,7 +202,7 @@ export async function confirmReportModal(page: Page): Promise<void> {
 
 export async function restartWithin(page: Page): Promise<void> {
   const items = page.locator(".act .ck");
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toHaveClass(/dis/); // AC-21-C1
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toHaveClass(/dis/); // AC-21-C1
   for (let i = 0; i < (await items.count()); i++) await items.nth(i).click();
   await page.locator(".btn", { hasText: /^재가동$/ }).click();
   await expect(page.locator(".rv-big")).toBeVisible(); // AC-21-C2

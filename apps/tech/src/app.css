@@ -59,3 +59,20 @@
 .ap .modal.wide[aria-label^="매뉴얼 원문"] { left: 320px; top: 134px; width: 640px; max-height: 540px; }
 .ap:has(.modal.wide[aria-label^="매뉴얼 원문"]) .ap-step { position: relative; z-index: 7; }
 .mt-gap { height: 14px; flex: none; }
+/* 답장 001-zzx 가(가이드 14 ~ 16쪽): 조치 화면 왼쪽 = 카드 셋(원인 확정 · 조치 · 재가동)을 내용 높이로 쌓음 · 재가동 뒤 값은 재가동 카드 안 */
+.ap .g64 > .stk { gap: 16px; }
+.ap .g64 > .stk > .cd:last-child { flex: none; }
+.ap .stk .cd-h { margin-bottom: 10px; }
+.ap .kvr { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+.ap .kvr span { color: var(--sub); }
+.ap .kvr b { color: var(--pri); font-weight: 700; }
+.ap .stk .act-h { margin-bottom: 12px; }
+.ap .stk .act-h .ch.green { margin-left: auto; }
+.ap .rvrow { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 14px; color: var(--sub); font-size: 14px; }
+.ap .rvrow .rv-big { color: var(--ink); }
+.ap .stk .choice2 { margin-top: 0; }
+/* 답장 001-zzx 나(가이드 14쪽): 오른쪽 '지금까지 점검 · 조치' 줄 = 이름 · 절 · 결과 한 줄 */
+.ap .tli > div > b, .ap .tli > div > span:not(.vd) { display: inline; font-size: 15.5px; }
+.ap .tli > div > span:not(.vd):not(:empty)::before { content: " · "; }
+.ap .tli > div > span:not(.vd) { color: var(--ink); font-weight: 700; }
+.ap .tli { padding-bottom: 14px; }

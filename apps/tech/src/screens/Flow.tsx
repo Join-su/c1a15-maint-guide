@@ -13,7 +13,7 @@ export function PathCard({ path }: { path: SessionView["path"] }) {
     <div className="cd ">
       <div className="cd-h">
         <Icon name="history" />
-        <b>점검 경로</b>
+        <b>지금까지 점검 · 조치</b>
       </div>
       <div className="tlw">
         {(path ?? []).map((p, i) => (
@@ -32,16 +32,21 @@ export function PathCard({ path }: { path: SessionView["path"] }) {
   );
 }
 
-function CauseHead({ a }: { a: NonNullable<SessionView["action"]> }) {
-  const ev = a.evidence_record_ids.length ? ` · 과거 기록 ${a.evidence_record_ids.join(" · ")}` : "";
+// 답장 001-zzx 가(가이드 14쪽): '원인 확정' 카드 — 머리 오른쪽 원인 칩 · '근거 사례' 한 줄.
+function CauseCard({ a }: { a: NonNullable<SessionView["action"]> }) {
   return (
-    <div className="done-h">
-      <Icon name="circle-check" />
-      <div>
-        <span className="sm">원인 확정</span>
-        <h3>{a.cause_name}</h3>
-        <span>근거: 점검 결과(이상){ev}</span>
+    <div className="cd">
+      <div className="cd-h">
+        <Icon name="circle-alert" />
+        <b>원인 확정</b>
+        <span className="ch red">{a.cause_name}</span>
       </div>
+      {a.evidence_record_ids.length ? (
+        <div className="kvr">
+          <span>근거 사례</span>
+          <b>{a.evidence_record_ids.join(" · ")}</b>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -88,82 +93,23 @@ export interface ActionProps {
   send: (body: Record<string, unknown>) => void;
 }
 
-/** T08: 원인 확정 → 조치(A 바로 · B 체크리스트 뒤) → 재가동 체크리스트, 재가동 뒤 값 확인(경계 이내 · 여전히 밖). */
+/** T08: 원인 확정 · 조치(A 바로 · B 체크리스트 뒤) · 재가동(체크리스트 → 재가동 뒤 값 · 경계 이내 · 여전히 밖) — 한 화면 카드 셋. */
+// 답장 001-zzx 가(가이드 14 ~ 16 · 27쪽): 재가동 뒤 값과 두 버튼은 따로 화면이 아니라 재가동 카드 안 · 버튼 이름은 잠긴 동안도 그대로.
 export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
   const [askOutside, setAskOutside] = useState(false); // D-530 답장 001-zzt 6(가이드 27쪽): 「여전히 밖」 → 숙련자 인계 확인 창
   const a = s.action;
   const r = s.restart;
   const kind = s.step.kind;
   const toggle = (x: string) => onCheck(checked.includes(x) ? checked.filter((y) => y !== x) : [...checked, x]);
-  if (kind === "restart_value" && r?.value) {
-    const v = r.value;
-    return (
-      <div className="ap-body">
-        <div className="g64">
-          <div className="cd">
-            <div className="act-h">
-              <b>재가동 후 값 확인</b>
-              <GradeBadge grade={r.grade} />
-              <span className="ch blue">{r.section}절</span>
-              {r.restarted_at ? <span className="ch green">재가동 {hhmm(r.restarted_at)}</span> : null}
-            </div>
-            <div className="sub">
-              {v.sensor} · {v.basis}
-            </div>
-            <div className="rv-big">{v.value_text}</div>
-            <span className="rv-sub">{v.rule_text}</span>
-            <div className="choice2">
-              <Btn cls="" label="경계 이내" off={busy} onClick={() => send({ type: "restart_result", outcome: "within" })} />
-              <Btn cls="ghost" label="여전히 밖" off={busy} onClick={() => setAskOutside(true)} />
-            </div>
-            <span className="note">
-              {a
-                ? '값을 보고 정비자가 고릅니다. "여전히 밖"이면 원인 확정 후에도 회복되지 않은 것으로 보고 숙련자 인계로 넘어갑니다.'
-                : '값을 보고 정비자가 고릅니다. "경계 이내"면 이상 없음 · 감시로 마감하고, "여전히 밖"이면 숙련자 인계로 넘어갑니다.'}
-            </span>
-          </div>
-          <PathCard path={s.path} />
-        </div>
-        {askOutside ? (
-          <>
-            <div className="dim" />
-            <div className="modal" role="dialog" aria-label="숙련자 인계 확인">
-              <div className="mh">
-                <Icon name="triangle-alert" />
-                <b>재가동 뒤에도 경계 밖입니다. 숙련자에게 인계합니까?</b>
-              </div>
-              <div className="mb">
-                <span className="btn ghost" role="button" tabIndex={0} onClick={() => setAskOutside(false)}>
-                  취소
-                </span>
-                <span
-                  className={`btn warnb${busy ? " dis" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    if (busy) return;
-                    setAskOutside(false);
-                    send({ type: "restart_result", outcome: "outside" });
-                  }}
-                >
-                  숙련자 인계
-                </span>
-              </div>
-            </div>
-          </>
-        ) : null}
-      </div>
-    );
-  }
   const actionOpen = a && !a.done_at && (kind === "action" || kind === "action_after_checklist");
   const needs = !!a && a.checklist.length > 0 && !a.checklist_done;
   const actionChecks = needs ? a!.checklist : [];
   const restartReady = r && r.checklist.every((x) => checked.includes(x));
+  const v = kind === "restart_value" ? r?.value : null;
   return (
     <div className="ap-body">
       <div className="g64">
-        <div className="cd">
-          {a ? <CauseHead a={a} /> : null}
+        <div className="stk">
           {s.correction ? (
             <div className="banner info">
               <Icon name="pencil" />
@@ -175,54 +121,90 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
               </div>
             </div>
           ) : null}
+          {a ? <CauseCard a={a} /> : null}
           {a ? (
-            <div className="act">
+            <div className="cd act">
               <div className="act-h">
-                <b>{a.title}</b>
+                <b>
+                  조치 · {a.section} {a.title}
+                </b>
                 <GradeBadge grade={a.grade} />
-                <span className="ch blue">{a.section}절</span>
-                {a.done_at ? (
-                  <span className="ch green">완료 {hhmm(a.done_at)}</span>
-                ) : a.minutes != null ? (
-                  <span className="ch gray">약 {a.minutes}분</span>
-                ) : null}
+                {a.done_at ? <span className="ch green">완료</span> : null}
               </div>
-              {actionOpen && a.checklist.length > 0 && !a.checklist_done ? (
-                <>
-                  <Checks items={actionChecks} on={(x) => checked.includes(x)} onToggle={toggle} />
-                </>
-              ) : null}
+              {actionOpen && needs ? <Checks items={actionChecks} on={(x) => checked.includes(x)} onToggle={toggle} /> : null}
               {actionOpen ? (
                 needs ? (
                   <Btn
-                    label={actionChecks.every((x) => checked.includes(x)) ? `${a.verb} 진행` : `체크리스트 확인 후 ${a.verb} 진행`}
+                    label="조치 진행"
                     off={busy || !actionChecks.every((x) => checked.includes(x))}
                     onClick={() => send({ type: "b_checklist_done", section: a.section, checked: a.checklist })}
                   />
                 ) : (
-                  <Btn label={`${a.verb} 완료`} off={busy} onClick={() => send({ type: "action_done", section: a.section })} />
+                  <Btn label="조치 완료" off={busy} onClick={() => send({ type: "action_done", section: a.section })} />
                 )
               ) : null}
             </div>
           ) : null}
-          {kind === "restart_check" && r ? (
-            <div className="act">
+          {r && (kind === "restart_check" || v) ? (
+            <div className="cd act">
               <div className="act-h">
-                <b>{r.title}</b>
+                <b>
+                  {r.title} · {r.section}절
+                </b>
                 <GradeBadge grade={r.grade} />
-                <span className="ch blue">{r.section}절</span>
+                {r.restarted_at ? <span className="ch green">재가동 {hhmm(r.restarted_at)}</span> : null}
               </div>
-              <Checks items={r.checklist} on={(x) => checked.includes(x)} onToggle={toggle} />
-              <Btn
-                label={restartReady ? "재가동" : "체크리스트 확인 후 재가동"}
-                off={busy || !restartReady}
-                onClick={() => send({ type: "restart", checked: r.checklist })}
-              />
+              {v ? (
+                <>
+                  <div className="rvrow">
+                    <span>{v.sensor}</span>
+                    <b className="rv-big">{v.value_text}</b>
+                    <span>경계 {v.boundary_text}</span>
+                  </div>
+                  <div className="choice2">
+                    <Btn cls="ghost" label="여전히 밖" off={busy} onClick={() => setAskOutside(true)} />
+                    <Btn cls="" label="경계 이내" off={busy} onClick={() => send({ type: "restart_result", outcome: "within" })} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Checks items={r.checklist} on={(x) => checked.includes(x)} onToggle={toggle} />
+                  <Btn label="재가동" off={busy || !restartReady} onClick={() => send({ type: "restart", checked: r.checklist })} />
+                </>
+              )}
             </div>
           ) : null}
         </div>
         <PathCard path={s.path} />
       </div>
+      {askOutside ? (
+        <>
+          <div className="dim" />
+          <div className="modal" role="dialog" aria-label="숙련자 인계 확인">
+            <div className="mh">
+              <Icon name="triangle-alert" />
+              <b>재가동 뒤에도 경계 밖입니다. 숙련자에게 인계합니까?</b>
+            </div>
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setAskOutside(false)}>
+                취소
+              </span>
+              <span
+                className={`btn warnb${busy ? " dis" : ""}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  if (busy) return;
+                  setAskOutside(false);
+                  send({ type: "restart_result", outcome: "outside" });
+                }}
+              >
+                숙련자 인계
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -6,16 +6,16 @@ import { alarm, guard, login, psql, resetOps, restartWithin, result, shot, apiCo
 
 test.beforeEach(() => resetOps());
 
-test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 교체 완료 → 재가동 → 경계 이내 → 보고서 → 근거 없는 수치 → 확정 잠김 → 고쳐 확정 → 승인 대기", async ({ page }, info) => {
+test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 조치 완료 → 재가동 → 경계 이내 → 보고서 → 근거 없는 수치 → 확정 잠김 → 고쳐 확정 → 승인 대기", async ({ page }, info) => {
   const g = guard(page);
   await login(page);
   const sid = await toFirstCheck(page);
   await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검");
   await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
-  await expect(page.locator(".done-h h3")).toHaveText("냉각 필터 막힘");
+  await expect(page.locator(".stk .cd-h .ch.red")).toHaveText("냉각 필터 막힘");
   await expect(page.locator(".ap-step .sp.on")).toContainText("조치");
   await shot(page, info, "T08-action_a");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await expect(page.locator(".act .ch.green")).toHaveText(/^완료 \d\d:\d\d$/);
   await shot(page, info, "T08-restart_checklist");
   await restartWithin(page);
@@ -173,7 +173,7 @@ test("AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소�
   // AC-21-C3: 원인 확정 · 조치 뒤 재가동이 여전히 밖
   await toFirstCheckFromHome(page, "DEMO-03");
   await result(page, "이상", "기름때");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "여전히 밖" }).click();
   await page.locator('.modal[aria-label="숙련자 인계 확인"] .btn', { hasText: "숙련자 인계" }).click(); // D-530 답장 001-zzt 6: 확인 창
@@ -187,7 +187,7 @@ test("AC-22 · AC-32-C2 · AC-43-C4: 모두 정상 → 재가동 → 6.2 감시 
   await login(page);
   await toFirstCheck(page);
   for (let i = 0; i < 6 && (await page.locator(".rbtns").count()); i++) await result(page, "정상");
-  await expect(page.locator(".done-h")).toHaveCount(0); // 원인 확정 없이 재가동 확인
+  await expect(page.locator(".stk .ch.red")).toHaveCount(0); // 원인 확정 없이 재가동 확인
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator(".done-h .sm")).toHaveText("이상 없음 · 감시");
@@ -199,13 +199,13 @@ test("AC-22 · AC-32-C2 · AC-43-C4: 모두 정상 → 재가동 → 6.2 감시 
   await toFirstCheckFromHome(page, "DEMO-02");
   await result(page, "이상", "기름때");
   await expect(page.locator(".act .sm")).toHaveCount(0); // D-528: 체크리스트 안내 문장 뺌(잠김은 버튼이 보임)
-  await expect(page.getByText("체크리스트 확인 후 교체 진행")).toHaveClass(/dis/);
+  await expect(page.locator(".act .btn", { hasText: "조치 진행" })).toHaveClass(/dis/);
   const items = page.locator(".act .ck");
   for (let i = 0; i < (await items.count()); i++) await items.nth(i).click();
   await shot(page, info, "T08-checklist_b");
-  await page.getByText("교체 진행").click();
-  await page.getByText("교체 완료").click();
-  await expect(page.getByText("체크리스트 확인 후 재가동")).toBeVisible();
+  await page.locator(".act .btn", { hasText: "조치 진행" }).click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
+  await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toBeVisible();
   g.check(info);
 });
 
@@ -220,7 +220,7 @@ test("T08 / corrected_path(정정 API — S-05 P-14): 4.3 정정 → 다시 판�
   await expect(page.locator(".banner.info b")).toHaveText(/^4\.3 정정으로 다시 판정했습니다 · \d\d:\d\d$/);
   await expect(page.locator(".tli.void .ch.vd").first()).toHaveText("정정으로 무효");
   await expect(page.locator(".tli.bad span").filter({ hasText: /정정 1회\(\d\d:\d\d, 정상 → 이상\)/ })).toBeVisible();
-  await expect(page.getByText("교체 완료")).toBeVisible();
+  await expect(page.locator(".act .btn", { hasText: "조치 완료" })).toBeVisible();
   await shot(page, info, "T08-corrected_path");
   g.check(info);
 });
