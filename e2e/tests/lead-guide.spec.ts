@@ -25,7 +25,7 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await login(page);
   await toFirstCheck(page, "DEMO-01");
   await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
-  await page.getByText("교체 완료").click();
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await confirmReportModal(page);
@@ -127,6 +127,10 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await lead.locator(".lnav a", { hasText: "권한 등급" }).click();
   await expect(lead.locator(".ltiles b").first()).toHaveText(/^\d+절$/);
   await snap(lead, info, "P4-grades");
+  // 결함(답장 001-zzx 자): '등급의 뜻' A ~ D 글자가 칸 이름표 색에 덮여 안 보임 — 검정 네모 흰 글자
+  for (const gl of await lead.locator(".lkv .gl").all()) {
+    expect(await gl.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(255, 255, 255)");
+  }
   await pause(lead);
   await lead.locator('tr[data-section="4.5"] .lseg button', { hasText: "B" }).click();
   await expect(lead.locator(".lmdl h4")).toHaveText("4.5 냉각수 수위 확인 등급을 A → B로 바꿉니까?");

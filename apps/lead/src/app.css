@@ -103,7 +103,7 @@
 .L .lkv { padding: 6px 18px 10px; }
 .L .lkv div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 6px 0; font-size: 15px; border-bottom: 1px solid #e6e6e6; }
 .L .lkv div:last-child { border-bottom: 0; }
-.L .lkv span { color: var(--lsub); }
+.L .lkv span:not(.gl) { color: var(--lsub); } /* .gl(검정 네모 흰 글자)은 덮지 않음 — 답장 001-zzx 자 */
 .L .rhd { display: flex; align-items: center; gap: 12px; padding: 20px 30px 0; }
 .L .rhd h2 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.3px; }
 .L .rsub { padding: 4px 30px 0; font-size: 15px; color: var(--lsub); }
