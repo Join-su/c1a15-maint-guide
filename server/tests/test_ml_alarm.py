@@ -34,7 +34,7 @@ def test_vc15_ml_type_when_confident():
 
 
 def test_vc15_low_confidence_or_rnf_goes_to_candidates():
-    r = ml.route(pred(NONE=0.2, TWF=0.45, HDF=0.35), None, 0.5)
+    r = ml.route(pred(NONE=0.2, PWF=0.45, HDF=0.35), None, 0.5)
     assert (
         r["alarm"] is False
         and r["candidate"]["reason"] == "low_confidence"
@@ -42,6 +42,28 @@ def test_vc15_low_confidence_or_rnf_goes_to_candidates():
     )
     r = ml.route(pred(NONE=0.1, RNF=0.7, TWF=0.2), None, 0.5)
     assert r["alarm"] is False and r["candidate"]["reason"] == "rnf" and not r["candidate"]["boundary_crossed"]
+
+
+def test_twf_probability_folds_into_none():
+    """D-526 덧 6: 모델은 5클래스 그대로, TWF 확률은 정상(NONE)에 더하고 TWF 칸은 지움 — 위험도에서 TWF 몫이 빠지고 유형 후보에 TWF 0."""
+    assert "TWF" not in ml.TYPE_TO_GROUP
+    r = ml.route(pred(NONE=0.3, TWF=0.6, HDF=0.1), None, 0.5)  # TWF로 위험하던 예측 → 알람 없음 · 기록 없음
+    assert r["alarm"] is False and r["candidate"] is None and r["ml"]["risk"] == pytest.approx(0.1)
+    assert [x["type"] for x in r["ml"]["top_k"]] == ["HDF"]
+    r = ml.route(pred(NONE=0.1, TWF=0.35, HDF=0.55), BOUNDARY, 0.5)  # 다른 유형이 남으면 그대로 알람
+    assert (r["alarm"], r["group"], r["ml"]["risk"]) == (True, "CL", pytest.approx(0.55))
+    # 1위가 TWF였어도 다음 유형으로(확신 낮으면 후보)
+    r = ml.route(pred(NONE=0.05, TWF=0.4, OSF=0.3, PWF=0.25), None, 0.5)
+    assert r["candidate"]["reason"] == "low_confidence"
+    assert [x["type"] for x in r["candidate"]["top_k"]] == ["OSF", "PWF"]
+    assert r["ml"]["risk"] == pytest.approx(0.55) and r["ml"]["confidence"] == 0.3
+
+
+def test_twf_without_probabilities_is_normal():
+    """실패 쪽: probabilities 없이 type TWF만 오면 NONE과 같게(알람 · 후보 0) — TW 증상군으로 새지 않음."""
+    twf = ml.route({"type": "TWF", "probability": 0.9, "model_release": "m"}, None, 0.5)
+    none = ml.route({"type": "NONE", "probability": 0.9, "model_release": "m"}, None, 0.5)
+    assert twf == none and twf["alarm"] is False and twf["candidate"] is None and twf["ml"]["top_k"] == []
 
 
 def test_vc29_model_failure_record_without_alarm():
