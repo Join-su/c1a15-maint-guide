@@ -352,6 +352,20 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 
     out = {"decision": decide(body["events"])}
+    ex = opts.get("exception")
+    if ex and body["kind"] == "judge" and _exception_turn(body["events"]):
+        # D-543 예외 안내 흉내(앱 임시 칸 — Pack 응답 칸은 v7과 함께 c1a15-pack이 정함)
+        # : 첫 결과 뒤 매뉴얼 밖 새 점검 호출
+        sent = [
+            e for e in body["events"] if e["type"] in ("call_sent", "call_wait") and e.get("section") == ex["section"]
+        ]
+        out["decision"] = {
+            **{x: out["decision"][x] for x in ("probabilities", "evidence", "low_evidence") if x in out["decision"]},
+            "kind": "call",
+            "section": ex["section"],
+            "grade": ex.get("grade", "C"),
+            "exception": {x: ex[x] for x in ("record_id", "title", "guide_text", "next_section")},
+        } | ({"call_status": "sent" if sent[-1]["type"] == "call_sent" else "waiting"} if sent else {})
     if row:
         out["similar"], out["retrieval"] = row["similar"], row["retrieval"]
         if opts.get("preview"):  # 약속 v5 덧칸: 잠금 · 사전 확인을 했다고 놓은 판정(start에만)
@@ -359,6 +373,12 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         if ms is not None:
             out["manual_support"] = ms
     return out
+
+
+def _exception_turn(events: list[dict]) -> bool:
+    """예외 안내 흉내가 나서는 때: 점검 결과가 하나라도 있고 아직 파트장 답 · 조치가 없을 때."""
+    types = {e["type"] for e in events}
+    return "result" in types and not types & {"call_answer", "action_done"}
 
 
 def pack_answer(**opts):

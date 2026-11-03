@@ -906,6 +906,16 @@
        }
       ]
      },
+     "exception": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionGuide"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "grade": {
       "anyOf": [
        {
@@ -1821,6 +1831,104 @@
      "action"
     ],
     "title": "ExceptionDraft",
+    "type": "object"
+   },
+   "ExceptionGuide": {
+    "additionalProperties": false,
+    "description": "D-543 예외 안내(호출 단계): 노하우 글 + 출처 + 원래 순서 다음. Pack 응답 칸 이름은 v7과 함께 정함(임시).",
+    "properties": {
+     "guide_text": {
+      "title": "Guide Text",
+      "type": "string"
+     },
+     "next": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionGuideNext"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "record_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Record Id"
+     },
+     "source": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionGuideSource"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "record_id",
+     "guide_text",
+     "next",
+     "source"
+    ],
+    "title": "ExceptionGuide",
+    "type": "object"
+   },
+   "ExceptionGuideNext": {
+    "additionalProperties": false,
+    "properties": {
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "section",
+     "title"
+    ],
+    "title": "ExceptionGuideNext",
+    "type": "object"
+   },
+   "ExceptionGuideSource": {
+    "additionalProperties": false,
+    "description": "출처 한 줄 = 앱 원본(승인 이력)의 예외 상황 기록.",
+    "properties": {
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     },
+     "situation": {
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "record_id",
+     "equipment_id",
+     "occurred_at",
+     "situation"
+    ],
+    "title": "ExceptionGuideSource",
     "type": "object"
    },
    "ExceptionInput": {

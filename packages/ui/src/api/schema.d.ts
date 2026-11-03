@@ -826,6 +826,7 @@ export interface components {
             /** Checks Done */
             checks_done: components["schemas"]["CheckDone"][];
             correction?: components["schemas"]["CallCorrection"] | null;
+            exception?: components["schemas"]["ExceptionGuide"] | null;
             /** Grade */
             grade: string | null;
             /** Head */
@@ -1075,6 +1076,39 @@ export interface components {
         ExceptionDraft: {
             /** Action */
             action: string;
+            /** Situation */
+            situation: string;
+        };
+        /**
+         * ExceptionGuide
+         * @description D-543 예외 안내(호출 단계): 노하우 글 + 출처 + 원래 순서 다음. Pack 응답 칸 이름은 v7과 함께 정함(임시).
+         */
+        ExceptionGuide: {
+            /** Guide Text */
+            guide_text: string;
+            next: components["schemas"]["ExceptionGuideNext"] | null;
+            /** Record Id */
+            record_id: string | null;
+            source: components["schemas"]["ExceptionGuideSource"] | null;
+        };
+        /** ExceptionGuideNext */
+        ExceptionGuideNext: {
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * ExceptionGuideSource
+         * @description 출처 한 줄 = 앱 원본(승인 이력)의 예외 상황 기록.
+         */
+        ExceptionGuideSource: {
+            /** Equipment Id */
+            equipment_id: string;
+            /** Occurred At */
+            occurred_at: string;
+            /** Record Id */
+            record_id: string;
             /** Situation */
             situation: string;
         };

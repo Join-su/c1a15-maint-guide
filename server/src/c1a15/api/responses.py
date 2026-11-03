@@ -279,6 +279,29 @@ class CallAnswer(_Out):
     note: str | None
 
 
+class ExceptionGuideNext(_Out):
+    section: str
+    title: str
+
+
+class ExceptionGuideSource(_Out):
+    """출처 한 줄 = 앱 원본(승인 이력)의 예외 상황 기록."""
+
+    record_id: str
+    equipment_id: str
+    occurred_at: str
+    situation: str
+
+
+class ExceptionGuide(_Out):
+    """D-543 예외 안내(호출 단계): 노하우 글 + 출처 + 원래 순서 다음. Pack 응답 칸 이름은 v7과 함께 정함(임시)."""
+
+    record_id: str | None
+    guide_text: str
+    next: ExceptionGuideNext | None
+    source: ExceptionGuideSource | None
+
+
 class CallBlock(_Out):
     kind: str
     reason: str | None
@@ -296,6 +319,7 @@ class CallBlock(_Out):
     answer: CallAnswer | None
     correction: CallCorrection | None = None
     actions_done: list[ActionDone] = []
+    exception: ExceptionGuide | None = None
 
 
 class ReportField(_Out):

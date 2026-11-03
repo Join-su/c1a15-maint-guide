@@ -140,3 +140,15 @@
 .ap .kh .khf + .khf { margin-top: 10px; }
 .ap .kh .khf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
 .ap .xref { margin-bottom: 12px; } /* D-543 참고 알림 */
+/* D-543 예외 안내(호출 화면): 노하우 글 + 출처 · 왼쪽 카드 오른쪽 아래 「노하우 등록」 · 같은 자리 두 칸 */
+.ap .g64 > .cd:has(.xkh) { position: relative; }
+.ap .g64 > .cd:has(.xkr) { padding-bottom: 80px; }
+.ap .xkh p { font-size: 16px; line-height: 1.75; margin: 0; }
+.ap .xkh .xsrc { display: block; margin-top: 8px; font-size: 13px; color: var(--sub); }
+.ap .xkr { position: absolute; right: 20px; bottom: 18px; }
+.ap .xkr .btn, .ap .xkf .mb .btn { height: 44px; padding: 0 22px; }
+.ap .xkf { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--ln); }
+.ap .xkf .cd-h { margin-bottom: 4px; }
+.ap .xkf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin: 8px 0 6px; }
+.ap .xkf .memo { min-height: 44px; margin: 0; width: 100%; border-color: var(--pri); resize: vertical; }
+.ap .xkf .mb { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }

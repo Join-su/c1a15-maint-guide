@@ -143,6 +143,84 @@ describe("T10 파트장 호출", () => {
     expect(send).toHaveBeenCalledWith({ type: "call_wait" });
   });
 
+  // D-543 구현 2 · 답장 001-zzz10(사용자): 예외 안내 = 머리 '예외 기록에서 온 점검' · 노하우 글 + 출처 한 줄 · 원래 순서 다음,
+  // 왼쪽 카드 오른쪽 아래 「노하우 등록」 → 같은 카드 자리에 두 칸(호출과 따로 · exception_draft)
+  const exceptionCall = () => {
+    const s = load("s03-call-summary");
+    Object.assign(s.call!, {
+      section: "X-0012",
+      title: "필터 덮개 고정 나사 확인",
+      minutes: null,
+      exception: {
+        record_id: "R-0012",
+        guide_text: "덮개 고정 나사 네 개가 다 있는지 먼저 본다.",
+        next: { section: "4.5", title: "냉각수 수위 확인" },
+        source: { record_id: "R-0012", equipment_id: "M-01", occurred_at: "2026-10-28T01:10:00Z", situation: "나사 하나가 빠져 있었음" },
+      },
+    });
+    return s;
+  };
+  it("예외 안내: 머리 · 노하우 글 + 출처 · 원래 순서 다음 · 호출 버튼 그대로", () => {
+    const s = exceptionCall();
+    const send = vi.fn();
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />,
+    );
+    expect(container.querySelector(".warn-h .sm")?.textContent).toBe("예외 기록에서 온 점검");
+    expect(container.querySelector(".warn-h h3")?.textContent).toBe("필터 덮개 고정 나사 확인");
+    expect(texts(container, ".warn-h .tags > *")).toEqual(["C승인 필요", "예외 기록 R-0012"]);
+    expect(texts(container, ".sub")).toEqual(["노하우", "지금까지 점검", "원래 순서 다음"]);
+    expect(container.querySelector(".xkh p")?.textContent).toBe("덮개 고정 나사 네 개가 다 있는지 먼저 본다.");
+    expect(container.querySelector(".xkh .xsrc")?.textContent).toBe("출처 · 예외 기록 R-0012 · M-01 · 10-28 — 상황 '나사 하나가 빠져 있었음'");
+    expect(texts(container, ".xnext .ch")).toEqual(["4.5 냉각수 수위 확인"]);
+    expect(texts(container, ".g64 > .cd:first-child .xkr .btn")).toEqual(["노하우 등록"]);
+    expect(texts(container, ".cd:nth-child(2) > .btn")).toEqual(["파트장 호출", "호출하지 않고 대기"]);
+    fireEvent.click(btn(container, "파트장 호출"));
+    expect(send).toHaveBeenLastCalledWith({ type: "call_send" });
+  });
+
+  it("「노하우 등록」: 같은 카드에 두 칸 · 목록 접힘 → 등록이면 exception_draft · 취소면 그대로", () => {
+    const s = exceptionCall();
+    s.exception_draft = { situation: "앞서 적은 상황", action: "" };
+    const send = vi.fn();
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />,
+    );
+    fireEvent.click(btn(container, "노하우 등록"));
+    expect(container.querySelector(".xkr")).toBeNull();
+    expect(texts(container, ".sub")).toEqual(["노하우"]); // 등록 칸이 열린 동안 목록 둘은 접음
+    expect(texts(container, ".xkf .cd-h > *")).toEqual(["노하우 등록", "보고서와 함께 승인"]);
+    const [sit, act] = [...container.querySelectorAll(".xkf textarea")] as HTMLTextAreaElement[];
+    expect([sit.getAttribute("aria-label"), act.getAttribute("aria-label")]).toEqual(["어떤 상황이었나", "무엇을 했나"]);
+    expect(sit.value).toBe("앞서 적은 상황"); // 초안이 있으면 채움
+    fireEvent.click(btn(container, "취소"));
+    expect(container.querySelector(".xkf")).toBeNull();
+    expect(texts(container, ".sub")).toEqual(["노하우", "지금까지 점검", "원래 순서 다음"]);
+    expect(send).not.toHaveBeenCalled();
+    fireEvent.click(btn(container, "노하우 등록"));
+    const [sit2, act2] = [...container.querySelectorAll(".xkf textarea")] as HTMLTextAreaElement[];
+    fireEvent.change(sit2, { target: { value: " 덕트 이음매 빠짐 " } });
+    fireEvent.change(act2, { target: { value: "다시 끼움" } });
+    fireEvent.click(btn(container, "등록"));
+    expect(send).toHaveBeenCalledWith({ type: "exception_draft", exception_record: { situation: "덕트 이음매 빠짐", action: "다시 끼움" } });
+    expect(container.querySelector(".xkf")).toBeNull();
+  });
+
+  it("예외 안내 출처가 앱 원본에 없으면 기록 번호만 · 다음 없으면 그 줄 없음 · 보통 호출엔 등록 버튼 없음", () => {
+    const s = exceptionCall();
+    s.call!.exception = { ...s.call!.exception!, source: null, next: null };
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={() => {}} />,
+    );
+    expect(container.querySelector(".xkh .xsrc")?.textContent).toBe("출처 · 예외 기록 R-0012");
+    expect(texts(container, ".sub")).toEqual(["노하우", "지금까지 점검"]);
+    cleanup();
+    const plain = render(
+      <CallScreen s={load("s03-call-summary")} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={() => {}} />,
+    ).container;
+    expect(plain.querySelector(".xkr")).toBeNull();
+  });
+
   it("첫 판정 호출처럼 한 점검이 없으면 '점검 전'", () => {
     const s = load("s03-call-summary");
     s.call!.checks_done = [];

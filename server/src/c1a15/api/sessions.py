@@ -644,7 +644,8 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
             raise
         _store(c, row.session_id, last + 1, stype, {**spayload, "_client_type": etype, "_client": payload}, actor)
         audit(c, actor, etype, f"session:{row.session_id}", {"seq": last + 1, **spayload})
-        _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
+        if etype != "exception_draft":  # D-543 「노하우 등록」은 판정 입력이 아님 — 판정 Run을 다시 부르지 않음
+            _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
         return view(c, _row(c, row.session_id))
     if etype == "lock":
         from datetime import UTC, datetime

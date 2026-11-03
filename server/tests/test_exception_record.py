@@ -91,6 +91,9 @@ def test_exception_record_confirm_context_reject_reconfirm_approve_history_and_l
     items = _mine(api, rid)
     assert [(x["record_id"], x["report_id"]) for x in items] == [(hid, rid)]
     assert items[0]["approved_at"] and items[0]["exception_record"] == rec["exception_record"]
+    if os.environ.get("EXCEPTION_LIST_OUT"):  # D-545: 내부 목록 응답 한 건 그대로(가상 기록 · 토큰 · 접속 정보 0)
+        with open(os.environ["EXCEPTION_LIST_OUT"], "w", encoding="utf-8") as fp:
+            json.dump(items[0], fp, ensure_ascii=False, indent=1)
     if os.environ.get("KG_RECORD_OUT"):  # D-543 받은 편지함 꼴 초안의 예시 한 건(시험 DB 값 그대로 · 실제 꼴)
         with open(os.environ["KG_RECORD_OUT"], "w", encoding="utf-8") as fp:
             json.dump({"approved_at": items[0]["approved_at"], "record": rec}, fp, ensure_ascii=False, indent=1)

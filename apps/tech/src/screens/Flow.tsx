@@ -2,7 +2,7 @@
 // 값은 세션 응답의 path · action · restart · monitor · call · report(P-09). 화면 문구 외의 값은 만들지 않는다.
 
 import { useState } from "react";
-import { GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
+import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
 import { Proc } from "./Lock";
 
 type Call = Schemas["CallBlock"];
@@ -309,6 +309,8 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
   const call = s.call!;
   const cor = call.correction; // T10 / summary_corrected: 조치 뒤 정정 → 다시 판정 대신 확인 요청(AC-47-C1)
   const [text, setText] = useState<string | null>(null);
+  const ex = cor ? null : call.exception; // D-543 예외 안내(예외 기록에서 온 매뉴얼 밖 점검)
+  const [kf, setKf] = useState<{ situation: string; action: string } | null>(null); // 「노하우 등록」 두 칸(열림)
   const ans = call.answer;
   const ins: Instruction | null | undefined = s.instruction;
   const editable = call.status === "none" || call.status === "waiting";
@@ -434,42 +436,120 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             <div className="warn-h">
               <Icon name="hand" />
               <div>
-                <span className="sm">다음 점검은 혼자 진행할 수 없습니다</span>
+                <span className="sm">{ex ? "예외 기록에서 온 점검" : "다음 점검은 혼자 진행할 수 없습니다"}</span>
                 <h3>{call.title}</h3>
                 <div className="tags">
                   <GradeBadge grade={call.grade} />
-                  <span className="ch blue">매뉴얼 {call.section}절</span>
+                  <span className="ch blue">{ex ? `예외 기록 ${ex.record_id ?? ""}` : `매뉴얼 ${call.section}절`}</span>
                   {call.minutes != null ? <span className="ch gray">약 {call.minutes}분</span> : null}
                 </div>
               </div>
             </div>
           )}
-          <div className="sub">지금까지 점검</div>
-          <div className="dn2">
-            {call.checks_done.length ? (
-              call.checks_done.map((d) => (
-                <span key={d.section}>
-                  <Icon name={icon(d.value)} className={tone(d.value)} />
-                  {d.title} · {d.value}
-                  {d.note ? `(${d.note})` : ""}
-                </span>
-              ))
-            ) : (
-              <span>점검 전</span>
-            )}
-          </div>
-          {cor ? null : ( // 정정 확인은 조치 뒤라 남은 후보 칸 없음(가이드 24쪽)
+          {ex ? (
+            // 답장 001-zzz10(사용자): 노하우 글 = 안내 글 + 출처 한 줄(앱 원본의 승인 예외 기록)
             <>
-              <div className="sub">남은 후보</div>
-              <div className="tags">
-                {call.candidates.map((c) => (
-                  <span className="ch gray" key={c.code}>
-                    {c.name} {c.pct}%
-                  </span>
-                ))}
+              <div className="sub">노하우</div>
+              <div className="pv xkh">
+                <p>{ex.guide_text}</p>
+                <span className="xsrc">
+                  출처 · 예외 기록 {ex.record_id}
+                  {ex.source
+                    ? ` · ${ex.source.equipment_id} · ${dateTime(ex.source.occurred_at).slice(5, 10)} — 상황 '${ex.source.situation}'`
+                    : ""}
+                </span>
               </div>
             </>
+          ) : null}
+          {kf ? (
+            // 「노하우 등록」: 같은 카드 자리에 예외 상황 기록 두 칸(보고서 칸과 같은 꼴) · 열린 동안 목록 둘은 접음
+            <div className="xkf">
+              <div className="cd-h">
+                <b>노하우 등록</b>
+                <span className="ch gray">보고서와 함께 승인</span>
+              </div>
+              <span className="sm">어떤 상황이었나</span>
+              <textarea
+                className="memo"
+                aria-label="어떤 상황이었나"
+                maxLength={1000}
+                value={kf.situation}
+                onChange={(e) => setKf({ ...kf, situation: e.target.value })}
+              />
+              <span className="sm">무엇을 했나</span>
+              <textarea
+                className="memo"
+                aria-label="무엇을 했나"
+                maxLength={1000}
+                value={kf.action}
+                onChange={(e) => setKf({ ...kf, action: e.target.value })}
+              />
+              <div className="mb">
+                <Btn cls="ghost" label="취소" onClick={() => setKf(null)} />
+                <Btn
+                  cls=""
+                  label="등록"
+                  off={busy}
+                  onClick={() => {
+                    void send({
+                      type: "exception_draft",
+                      exception_record: { situation: kf.situation.trim(), action: kf.action.trim() },
+                    });
+                    setKf(null);
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+            <div className="sub">지금까지 점검</div>
+            <div className="dn2">
+              {call.checks_done.length ? (
+                call.checks_done.map((d) => (
+                  <span key={d.section}>
+                    <Icon name={icon(d.value)} className={tone(d.value)} />
+                    {d.title} · {d.value}
+                    {d.note ? `(${d.note})` : ""}
+                  </span>
+                ))
+              ) : (
+                <span>점검 전</span>
+              )}
+            </div>
+            {ex ? (
+              ex.next ? (
+                <>
+                  <div className="sub">원래 순서 다음</div>
+                  <div className="tags xnext">
+                    <span className="ch gray">
+                      {ex.next.section} {ex.next.title}
+                    </span>
+                  </div>
+                </>
+              ) : null
+            ) : cor ? null : ( // 정정 확인은 조치 뒤라 남은 후보 칸 없음(가이드 24쪽)
+              <>
+                <div className="sub">남은 후보</div>
+                <div className="tags">
+                  {call.candidates.map((c) => (
+                    <span className="ch gray" key={c.code}>
+                      {c.name} {c.pct}%
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
+            </>
           )}
+          {ex && !kf ? ( // 답장 001-zzz10(사용자): 왼쪽 카드 오른쪽 아래 — 호출과 따로
+            <div className="xkr">
+              <Btn
+                cls="ghost"
+                label="노하우 등록"
+                onClick={() => setKf({ situation: s.exception_draft?.situation ?? "", action: s.exception_draft?.action ?? "" })}
+              />
+            </div>
+          ) : null}
         </div>
         {right}
       </div>
