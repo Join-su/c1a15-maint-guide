@@ -5,6 +5,9 @@
 표 · 열 더함 0. 두 글이 모두 비면 기록 없음. 자동 정보에 데이터가 없는 칸은 null(지어내기 0).
 """
 
+import json
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
@@ -88,6 +91,9 @@ def test_exception_record_confirm_context_reject_reconfirm_approve_history_and_l
     items = _mine(api, rid)
     assert [(x["record_id"], x["report_id"]) for x in items] == [(hid, rid)]
     assert items[0]["approved_at"] and items[0]["exception_record"] == rec["exception_record"]
+    if os.environ.get("KG_RECORD_OUT"):  # D-543 받은 편지함 꼴 초안의 예시 한 건(시험 DB 값 그대로 · 실제 꼴)
+        with open(os.environ["KG_RECORD_OUT"], "w", encoding="utf-8") as fp:
+            json.dump({"approved_at": items[0]["approved_at"], "record": rec}, fp, ensure_ascii=False, indent=1)
 
 
 def test_exception_record_empty_is_none_and_list_needs_internal_token(api, db):
