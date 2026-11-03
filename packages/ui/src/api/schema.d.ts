@@ -115,46 +115,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/lead/candidates": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Candidates
-         * @description 사람 판단 목록: 판단 전 · 평가 아님 · 새것 위.
-         */
-        get: operations["candidates_api_lead_candidates_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/lead/candidates/{candidate_id}/decision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Candidate Decision
-         * @description 알람으로 올림 = 지금 알람 발생기와 같은 배정(R9) · 같은 알람 행(새 Run 0) / 문제없음. 판단 끝이면 409.
-         */
-        post: operations["candidate_decision_api_lead_candidates__candidate_id__decision_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/lead/grades": {
         parameters: {
             query?: never;
@@ -869,33 +829,6 @@ export interface components {
             /** Pct */
             pct: number;
         };
-        /**
-         * CandidateDecisionBody
-         * @description EV-009 '사람 판단': 알람으로 올림(경계 안이면 증상군 — 없으면 ML 1위 제안) · 문제없음.
-         */
-        CandidateDecisionBody: {
-            /**
-             * Decision
-             * @enum {string}
-             */
-            decision: "promote" | "dismiss";
-            /** Group */
-            group?: ("TW" | "PW" | "CL" | "LD") | null;
-        };
-        /** CandidateResult */
-        CandidateResult: {
-            /** Alarm Id */
-            alarm_id?: number | null;
-            /** Status */
-            status: string;
-        };
-        /** CandidateTop */
-        CandidateTop: {
-            /** Probability */
-            probability: number;
-            /** Type */
-            type: string;
-        };
         /** CheckDone */
         CheckDone: {
             /** Note */
@@ -1095,13 +1028,6 @@ export interface components {
             /** Head */
             head: string;
         };
-        /** GroupOption */
-        GroupOption: {
-            /** Label */
-            label: string;
-            /** Value */
-            value: string;
-        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -1234,38 +1160,6 @@ export interface components {
             now: string;
             /** Rows */
             rows: components["schemas"]["LeadCallRow"][];
-        };
-        /**
-         * LeadCandidateRow
-         * @description EV-009 '사람 판단' 한 줄: ML 길에서 알람 없이 남은 후보(D-444 #18).
-         */
-        LeadCandidateRow: {
-            /** Boundary Crossed */
-            boundary_crossed: boolean;
-            /** Candidate Id */
-            candidate_id: number;
-            /** Created At */
-            created_at: string;
-            /** Equipment Id */
-            equipment_id: string;
-            /** Group Fixed */
-            group_fixed: boolean;
-            /** Group Suggestion */
-            group_suggestion: string | null;
-            /** Reason */
-            reason: string;
-            /** Risk */
-            risk: number | null;
-            /** Sensors Text */
-            sensors_text: string;
-            top: components["schemas"]["CandidateTop"] | null;
-        };
-        /** LeadCandidates */
-        LeadCandidates: {
-            /** Groups */
-            groups: components["schemas"]["GroupOption"][];
-            /** Rows */
-            rows: components["schemas"]["LeadCandidateRow"][];
         };
         /** LeadField */
         LeadField: {
@@ -2294,61 +2188,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnswerResult"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    candidates_api_lead_candidates_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LeadCandidates"];
-                };
-            };
-        };
-    };
-    candidate_decision_api_lead_candidates__candidate_id__decision_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                candidate_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CandidateDecisionBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CandidateResult"];
                 };
             };
             /** @description Validation Error */

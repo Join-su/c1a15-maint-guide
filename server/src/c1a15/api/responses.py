@@ -531,41 +531,6 @@ class LeadCalls(_Out):
     rows: list[LeadCallRow]
 
 
-class CandidateTop(_Out):
-    type: str
-    probability: float
-
-
-class GroupOption(_Out):
-    value: str
-    label: str
-
-
-class LeadCandidateRow(_Out):
-    """EV-009 '사람 판단' 한 줄: ML 길에서 알람 없이 남은 후보(D-444 #18)."""
-
-    candidate_id: int
-    reason: str
-    equipment_id: str
-    created_at: str
-    sensors_text: str
-    risk: float | None
-    top: CandidateTop | None
-    boundary_crossed: bool
-    group_suggestion: str | None
-    group_fixed: bool
-
-
-class LeadCandidates(_Out):
-    rows: list[LeadCandidateRow]
-    groups: list[GroupOption]
-
-
-class CandidateResult(_Out):
-    status: str
-    alarm_id: int | None = None
-
-
 class LeadSessionHold(_Out):
     kind: str
     label: str

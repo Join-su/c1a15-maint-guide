@@ -77,7 +77,7 @@ def test_cli_reports_failure_and_exit_code(monkeypatch, capsys):
 
 
 def test_ch26_cli_continues_on_no_alarm_and_prints_summary(monkeypatch, capsys):
-    """EV-001 CH-26(GAP-19): alarm_id 없는 응답(ML 길 알람 없음 · ML 유형 · 후보)은 실패가 아님.
+    """EV-001 CH-26(GAP-19): alarm_id 없는 응답(ML 길 알람 없음 · ML 유형 · Pack 후보 D-529)은 실패가 아님.
 
     한 줄 찍고 다음 행, 끝에 요약.
     """
@@ -86,21 +86,23 @@ def test_ch26_cli_continues_on_no_alarm_and_prints_summary(monkeypatch, capsys):
     ml = {"model_release": "mr-x", "risk": 0.113, "threshold": 0.5}
     answers = iter(
         [
-            {"alarm_id": None, "candidate_id": None, "reason": "below_threshold", "ml": ml},
+            {"alarm_id": None, "reason": "below_threshold", "ml": ml},
             {"alarm_id": 3, "assigned_to": "tech.kim", "occurred_at": "2026-10-25T00:00:00+09:00"},
-            {"alarm_id": None, "candidate_id": 9, "reason": "low_confidence"},
-            {"alarm_id": None, "candidate_id": None, "reason": "ml_type_no_block", "ml": {**ml, "risk": 0.8}},
+            {"alarm_id": None, "reason": "low_confidence", "ml": {**ml, "risk": 0.7}},
+            {"alarm_id": None, "reason": "ml_type_no_block", "ml": {**ml, "risk": 0.8}},
+            {"alarm_id": None, "reason": "model_failure", "ml": dict.fromkeys(ml)},
         ]
     )
     monkeypatch.setattr(cli, "send", lambda *_: next(answers))
-    assert cli.main(["DEMO-01", "DEMO-02", "DEMO-03", "DEMO-04"]) == 0
+    assert cli.main(["DEMO-01", "DEMO-02", "DEMO-03", "DEMO-04", "DEMO-05"]) == 0
     out = capsys.readouterr().out.splitlines()
     assert out == [
         "DEMO-01 알람 없음 · 위험도 낮음 · 위험도 0.11 < 문턱 0.50 · mr-x",
         "DEMO-02 알람 3 등록 · 배정 tech.kim · 2026-10-25T00:00:00+09:00",
-        "DEMO-03 알람 없음 · 후보 9 기록(low_confidence)",
+        "DEMO-03 알람 없음 · 유형 확신 낮음 · 위험도 0.70 ≥ 문턱 0.50 · mr-x",  # D-529: Pack 후보 = 알람 없음
         "DEMO-04 알람 없음 · ML 유형 · 경계 표시 없음 · 위험도 0.80 ≥ 문턱 0.50 · mr-x",
-        "요약: 알람 1 / 각본 4 · 알람 없음 2 · 후보 1 · model mr-x · 문턱 0.50",
+        "DEMO-05 알람 없음 · 예측 실패 · 위험도 - ≥ 문턱 - · -",  # 마지막 행이 예측 실패여도 요약 ML 값은 앞 행 값
+        "요약: 알람 1 / 각본 5 · 알람 없음 4 · model mr-x · 문턱 0.50",
     ]
 
 
@@ -110,7 +112,7 @@ def test_ch26_summary_without_ml_values(monkeypatch, capsys):
     monkeypatch.setenv("C1A15_INTERNAL_TOKEN", "t")
     monkeypatch.setattr(cli, "send", lambda *_: {"alarm_id": 1, "assigned_to": None, "occurred_at": "t"})
     assert cli.main(["DEMO-01"]) == 0
-    assert capsys.readouterr().out.splitlines()[-1] == "요약: 알람 1 / 각본 1 · 알람 없음 0 · 후보 0 · model - · 문턱 -"
+    assert capsys.readouterr().out.splitlines()[-1] == "요약: 알람 1 / 각본 1 · 알람 없음 0 · model - · 문턱 -"
 
 
 def test_cli_list(monkeypatch, capsys):

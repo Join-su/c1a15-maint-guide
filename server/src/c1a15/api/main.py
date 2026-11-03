@@ -19,7 +19,7 @@ from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, N
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import alarm_rules, rules
+from c1a15.engine import rules
 
 PACK = config.pack_settings()  # Pack을 부르는 길 · 배포 서버 주소 — 어긋나면 서버 시작 거절(EV-001 CH-15)
 config.r12_inbox()  # R12 받은 편지 폴더 — 절대 경로가 아니면 시작 거절(EV-001 CH-23)
@@ -108,7 +108,7 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
     # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2)) — 앱 안 경계 판정 갈래는 ES-23에서 지움
     hit, snapshot, pack_cols = _alarm_via_pack(c, body)
     if hit is None:
-        return pack_cols  # 알람 없음: '사람 판단 필요' 후보 기록 · ML 길 알람 없음 · ML 유형(CH-24 · CH-25)
+        return pack_cols  # 알람 없음: ML 길 알람 없음 · Pack 후보(D-529) · ML 유형(CH-24 · CH-25)
     to = rules.assign(body.equipment_id, assignments, sessions.open_alarm_counts(c))
     now = datetime.now(UTC)
     alarm_id = c.execute(
@@ -141,7 +141,7 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
 
 def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, dict]:
     """Pack alarm Run(정본 = c1a15-pack 약속 v2): 알람이면 (경계 판정 모양 hit, 센서 7칸, 저장 칸),
-    후보(낮은 확신 · RNF · 예측 실패 D-275)면 alarm_candidates에 기록하고 (None, {}, 응답)을 돌려준다.
+    후보(낮은 확신 · RNF · 예측 실패 D-275)는 알람 없음 + 감사 한 줄(D-529 — 파트장 '사람 판단' 지움, 후보 표 쓰기 0).
     ML 길 알람 없음 · ML 유형(경계 표시 없음)도 (None, {}, 응답) — 저장 0 · ML 유형은 감사만(CH-24 · CH-25)."""
     sc = deps.scenarios().get(body.scenario_id or "", {})
     lineage = body.data_lineage
@@ -172,20 +172,13 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
         if (
             e.code == "run_failed" and e.where == "run.predict_failure"
         ):  # D-275: 예측 실패 = Run 실패 → 후보 model_failure
-            cand = {"reason": "model_failure", "risk": None, "top_k": [], "model_release": None, "run_id": e.run_id}
-            given = {
-                k: body.sensor_snapshot[k] for k in DERIVED if k in body.sensor_snapshot
-            }  # 발생기가 준 값만(앱 계산 0)
-            return None, {}, _store_candidate(c, body, req, cand, given if len(given) == len(DERIVED) else None)
+            refs = {"event_id": event_id, "run_id": e.run_id}
+            return None, {}, _reject_candidate(c, body, "model_failure", refs, {})
         raise
     out = res.output["alarm"]
     refs = {"event_id": event_id, "run_id": res.run_id, "deployment_id": res.deployment_id}
     if out.get("candidate"):
-        return (
-            None,
-            {},
-            _store_candidate(c, body, req, {**out["candidate"], "run_id": res.run_id}, out.get("sensor_derived")),
-        )
+        return None, {}, _reject_candidate(c, body, out["candidate"]["reason"], refs, out)
     if not out["alarm"]:
         if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
             return None, {}, _no_alarm("below_threshold", out)
@@ -207,59 +200,26 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
 
 
 def _no_alarm(reason: str, out: dict) -> dict:
-    """ML 길에서 알람을 만들지 않은 정상 결과(EV-001 CH-24 · CH-25) — 발생기 · 평가 실행기가 읽고 계속한다."""
+    """ML 길에서 알람을 만들지 않은 정상 결과(EV-001 CH-24 · CH-25 · D-529) — 발생기 · 평가 실행기가 읽고 계속한다."""
     ml = out.get("ml") or {}
     return {
         "alarm_id": None,
-        "candidate_id": None,
         "reason": reason,
         "ml": {k: ml.get(k) for k in ("model_release", "risk", "threshold")},
     }
 
 
-DERIVED = ("power_w", "temp_diff_k")  # Pack이 계산하는 칸(출력 · 온도 차)
-
-
-def _store_candidate(c: Connection, body: AlarmBody, req: dict, cand: dict, derived: dict | None = None) -> dict:
-    """알람을 만들지 않은 '사람 판단 필요' 기록(ES-04 표) — 파트장 '사람 판단'(EV-009)이 읽음.
-
-    derived = Pack 계산 칸 — event에 같이 남겨 올릴 때 앱이 다시 계산하지 않게(없으면 그 후보는 올리지 못함)."""
-    card = req["event_card"]
-    try:
-        crossed = alarm_rules.detect(body.sensor_snapshot, deps.alarm_table()) is not None  # 기록용(판정 아님)
-    except KeyError:
-        crossed = False
-    cid = c.execute(
-        m.AlarmCandidate.__table__.insert()
-        .values(
-            equipment_id=body.equipment_id,
-            reason=cand["reason"],
-            risk=cand.get("risk"),
-            top_k=cand.get("top_k") or [],
-            boundary_crossed=bool(cand.get("boundary_crossed", crossed)),
-            model_release=cand.get("model_release"),
-            sensor_snapshot=card["sensor_snapshot"],
-            # 올릴 때 알람 행으로 옮길 것(EV-009): Pack 계산 칸 · 발생기 추이(같은 설비 지난 12회)
-            event={
-                **card,
-                **({"sensor_derived": derived} if derived else {}),
-                "trend": [p.model_dump() for p in body.trend],
-            },
-            eval_mode=body.eval_mode,
-            event_id=card["event_id"],
-            run_id=cand.get("run_id"),
-        )
-        .returning(m.AlarmCandidate.candidate_id)
-    ).scalar_one()
+def _reject_candidate(c: Connection, body: AlarmBody, reason: str, refs: dict, out: dict) -> dict:
+    """Pack 후보(확신 낮음 · RNF · 예측 실패)는 알람 없음 + 감사 한 줄(D-529) — 대상 = 설비 · 시각(감사 행 시각)."""
     sessions.audit(
         c,
         "system",
-        "alarm_candidate",
-        f"candidate:{cid}",
-        {"reason": cand["reason"], "event_id": card["event_id"]},
+        "alarm_rejected",
+        f"event:{refs['event_id']}",
+        {"reason": reason, **refs},
         body.equipment_id,
     )
-    return {"alarm_id": None, "candidate_id": cid, "reason": cand["reason"]}
+    return _no_alarm(reason, out)
 
 
 def _alarm_view(a) -> dict:
