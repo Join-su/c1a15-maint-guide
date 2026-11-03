@@ -200,13 +200,16 @@ describe("T11 숙련자 인계 · 감시 마감", () => {
     expect(container.querySelector(".pv .sm")?.textContent).toBe("숙련자 인계 요약");
     expect(container.querySelector(".pv p")?.textContent).toContain("확인 불가 2회");
     expect(container.querySelector(".note")).toBeNull();
-    expect(container.querySelector(".g64 > div:first-child .warn-h")).not.toBeNull();
-    expect(container.querySelector(".g64 > div:first-child .tli")).not.toBeNull();
+    // 답장 001-zzx 바(가이드 28쪽): 왼쪽 = 한 카드(빨강 머리 + '지금까지 점검 · 조치' 체크 목록 ✓ / !)
+    const left = container.querySelector(".g64 > .cd:first-child")!;
+    expect(left.querySelector(".warn-h.bad")).not.toBeNull();
+    expect(left.querySelector(".sub")?.textContent).toBe("지금까지 점검 · 조치");
+    expect(left.querySelector(".tli")).toBeNull();
+    expect(texts(left, ".cki .t")).toEqual(s.path!.map((p) => (p.detail ? `${p.title} · ${p.detail}` : p.title)));
+    expect(texts(left, ".cki.bad .t")).toContain("흡기 필터 육안 점검 · 확인 불가 2회 · 제외");
     expect(container.querySelector(".g64 > .cd:last-child .pv")).not.toBeNull();
     fireEvent.click(btn(container, "숙련자 인계 보내기"));
     expect(send).toHaveBeenCalledWith({ type: "call_send" });
-    expect(texts(container, ".tli .ch.vd")).toEqual([]);
-    expect(texts(container, ".tli span:not(.tt):not(.td)")).toContain("확인 불가 2회 · 제외");
   });
 
   it("expert_handover(맞지 않는 소견) · 재가동 뒤 밖: '숙련자 인계' 머리(AC-20 · AC-21-C3)", () => {
@@ -215,9 +218,15 @@ describe("T11 숙련자 인계 · 감시 마감", () => {
       ["s03-handover-restart", "재가동 뒤에도 값이 경계 밖"],
     ]) {
       cleanup();
-      const { container } = render(<HandoverScreen s={load(name)} busy={false} send={() => {}} />);
+      const s = load(name);
+      const { container } = render(<HandoverScreen s={s} busy={false} send={() => {}} />);
       expect(container.querySelector(".warn-h .sm")?.textContent).toBe("숙련자 인계");
       expect(container.querySelector(".warn-h h3")?.textContent).toBe(head);
+      // 재가동 뒤 밖이면 머리 아래 값 줄(가이드 28쪽 '온도 차 9.0 K · 경계 8.2 K')
+      const v = s.restart?.value;
+      expect(container.querySelector(".warn-h .vline")?.textContent ?? null).toBe(
+        name === "s03-handover-restart" ? `${v!.sensor} ${v!.value_text} · 경계 ${v!.boundary_text}` : null,
+      );
     }
   });
 

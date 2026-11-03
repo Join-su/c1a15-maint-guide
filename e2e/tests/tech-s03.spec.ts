@@ -154,7 +154,7 @@ test("AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소�
   }
   await expect(page.locator(".warn-h .sm")).toHaveText("확인 불가가 반복됨");
   await expect(page.locator(".pv p")).toContainText("확인 불가 2회");
-  await expect(page.locator(".tli span").filter({ hasText: "확인 불가 2회 · 제외" }).first()).toBeVisible();
+  await expect(page.locator(".cki .t").filter({ hasText: "확인 불가 2회 · 제외" }).first()).toBeVisible(); // 답장 001-zzx 바: 체크 목록
   await shot(page, info, "T11-unable_repeat");
   await page.locator(".btn.warnb", { hasText: "숙련자 인계" }).click();
   await expect(page.locator(".banner.info b")).toHaveText(/^숙련자 인계를 보냈습니다 · \d\d:\d\d$/); // 결정 018 ④: 답 대기

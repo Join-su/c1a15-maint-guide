@@ -497,6 +497,7 @@ export function HandoverScreen({
     void send(body);
   };
   const label = "숙련자 인계 요약"; // D-530 답장 001-zzt 7: 괄호 이름표 뺌(가이드 28쪽)
+  const rv = s.restart?.outcome === "outside" ? s.restart.value : null;
   let action;
   if (ans) {
     // 결정 018 ④: 파트장 답(주간 숙련자 배정 · 직접 확인)과 처리 메모 → 보고서
@@ -540,19 +541,29 @@ export function HandoverScreen({
   return (
     <div className="ap-body">
       <div className="g64">
-        <div>
-          {/* 가이드 28쪽: 왼쪽 = 머리 + 지금까지 점검 · 조치, 오른쪽 = 인계 요약 + 보내기(칸 · 기능 그대로) */}
-          <div className="cd">
-            <div className="warn-h">
-              <Icon name="triangle-alert" />
-              <div>
-                <span className="sm">{head}</span>
-                <h3>{call.head}</h3>
-              </div>
+        {/* 답장 001-zzx 바(가이드 28쪽): 왼쪽 = 한 카드(빨강 머리 · 재가동 뒤 값 줄 + '지금까지 점검 · 조치' 체크 목록), 오른쪽 = 인계 요약 + 보내기 */}
+        <div className="cd">
+          <div className="warn-h bad">
+            <Icon name="hand" />
+            <div>
+              <span className="sm">{head}</span>
+              <h3>{call.head}</h3>
+              {rv ? (
+                <span className="vline">
+                  {rv.sensor} {rv.value_text} · 경계 {rv.boundary_text}
+                </span>
+              ) : null}
             </div>
           </div>
-          <div className="mt-gap" />
-          <PathCard path={s.path} />
+          <div className="sub">지금까지 점검 · 조치</div>
+          <div className="cklist">
+            {(s.path ?? []).map((p, i) => (
+              <div className={`cki ${p.status}`} key={i}>
+                <span className="cb">{p.status === "bad" ? "!" : <Icon name="check" />}</span>
+                <span className="t">{p.detail ? `${p.title} · ${p.detail}` : p.title}</span>
+              </div>
+            ))}
+          </div>
         </div>
         <div className="cd">{action}</div>
       </div>

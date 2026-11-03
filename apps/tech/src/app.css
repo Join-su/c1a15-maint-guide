@@ -58,7 +58,6 @@
 /* D-530 답장 001-zzt 1(가이드 10쪽): 매뉴얼 원문 창 = 가운데 · 조금 작게 · 단계 띠는 어둠 위(밝게) */
 .ap .modal.wide[aria-label^="매뉴얼 원문"] { left: 320px; top: 134px; width: 640px; max-height: 540px; }
 .ap:has(.modal.wide[aria-label^="매뉴얼 원문"]) .ap-step { position: relative; z-index: 7; }
-.mt-gap { height: 14px; flex: none; }
 /* 답장 001-zzx 가(가이드 14 ~ 16쪽): 조치 화면 왼쪽 = 카드 셋(원인 확정 · 조치 · 재가동)을 내용 높이로 쌓음 · 재가동 뒤 값은 재가동 카드 안 */
 .ap .g64 > .stk { gap: 16px; }
 .ap .g64 > .stk > .cd:last-child { flex: none; }
@@ -103,3 +102,14 @@
 .ap .pform .rbtns .rbtn { min-height: 92px; }
 .ap .pform .mb { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
 .ap .pfoot { margin-top: auto; padding-top: 14px; }
+/* 답장 001-zzx 바(가이드 28쪽): 인계 요약 왼쪽 = 빨강 머리 + 값 줄 + '지금까지 점검 · 조치' 체크 목록 */
+.ap .warn-h.bad { background: var(--bad-s); }
+.ap .warn-h.bad > .ic { color: var(--bad); }
+.ap .warn-h .vline { display: block; color: var(--bad); font-size: 14px; font-weight: 800; }
+.ap .cklist { display: flex; flex-direction: column; gap: 10px; }
+.ap .cki { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+.ap .cki .cb { flex: none; width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; background: var(--ok); color: #fff; font-size: 13px; font-weight: 900; }
+.ap .cki .cb .ic { width: 14px; height: 14px; }
+.ap .cki.bad .cb { background: var(--bad); }
+.ap .cki.now .cb { background: var(--pri); }
+.ap .cki.void { color: var(--mut); text-decoration: line-through; } .ap .cki.void .cb { background: #c4cad4; }
