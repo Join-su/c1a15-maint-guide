@@ -2,8 +2,8 @@
 // 진행 탭 = 내 알람(새 · 진행 중): 계통 · 시각 · 설비 · 알람 · 센서 값 · 경계 · 단계. 완료 탭 = 최근 내 보고서(승인 상태).
 
 import { useState } from "react";
-import { hhmm, type Home as HomeData } from "@c1a15/ui";
-import { dayTime, val } from "./Home";
+import { hhmm, Icon, type Home as HomeData } from "@c1a15/ui";
+import { dayTime, risk, val } from "./Home";
 
 type Row = HomeData["alarms"][number];
 
@@ -66,12 +66,27 @@ export function TodayPanel({
                 <b>
                   {a.equipment_id} · {a.group_name}
                 </b>
-                <div className="n-lv">
-                  <span className="bad">
-                    {a.alarm.sensor} {val(a.alarm.value, a.alarm.unit)}
-                  </span>
-                  <span>경계 {val(a.alarm.boundary, a.alarm.unit)}</span>
-                </div>
+                {a.alarm.origin === "ml_type" && a.ml ? ( // D-546 U5(꼴 01): 「ML 예측」 · 예측 유형 / 빨간 위험도
+                  <>
+                    <div className="n-lv">
+                      <span className="mlk">
+                        <Icon name="sparkles" />
+                        ML 예측
+                      </span>
+                      <span>{a.ml.type_name}</span>
+                    </div>
+                    <div className="n-lv">
+                      <span className="bad">위험도 {risk(a.ml.risk)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="n-lv">
+                    <span className="bad">
+                      {a.alarm.sensor} {val(a.alarm.value, a.alarm.unit)}
+                    </span>
+                    <span>경계 {val(a.alarm.boundary, a.alarm.unit)}</span>
+                  </div>
+                )}
                 <div className="n-ls">
                   <i className="em">{st.e}</i>
                   {st.text}

@@ -77,6 +77,27 @@ describe("T03 알람", () => {
   });
 });
 
+describe("D-546 U5 ML 알람 화면(꼴 01)", () => {
+  it("머리 칩 증상군 · 「ML 예측」(파랑) · 「센서 이탈 0」(회색) · AI 해석 = 예측 유형 · 위험도 두 줄(글 0) · 진단 보기 그대로", () => {
+    const s = load<SessionWithPreview>("session-before-lock");
+    s.alarm = { ...s.alarm, alarm: { ...s.alarm.alarm, origin: "ml_type", crossed: false }, out_of_range_count: 0, ml: { type: "HDF", type_name: "열 방출 고장(HDF)", risk: 0.82 } };
+    const onNext = vi.fn();
+    const { container } = render(<AlarmScreen s={s} onNext={onNext} />);
+    expect(texts(container, ".alh .ch")).toEqual([`증상군 · ${s.alarm.system}`, "ML 예측", "센서 이탈 0"]);
+    expect([...container.querySelectorAll(".alh .ch")].map((e) => e.className)).toEqual(["ch blue", "ch blue mlc", "ch gray"]);
+    expect(container.querySelector(".alh .mlc .ic")?.getAttribute("class")).toContain("lucide-sparkles");
+    expect(container.querySelector(".ai")).toBeNull(); // 해석 글 자리 = 두 줄
+    expect([...container.querySelectorAll(".ai-c .mlr")].map((r) => texts(r, ":scope > *"))).toEqual([
+      ["예측 유형", "열 방출 고장(HDF)"],
+      ["위험도", "0.82"],
+    ]);
+    expect(container.querySelector(".ai-c .mlr b.bad")?.textContent).toBe("0.82");
+    expect(container.querySelector(".ev")?.textContent).toContain(`${s.alarm.similar_count}건`);
+    fireEvent.click(container.querySelector(".btn")!);
+    expect(onNext).toHaveBeenCalled();
+  });
+});
+
 describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)", () => {
   const structure = (root: Element) => [...root.querySelectorAll(".nx > *")].map((e) => e.tagName + "." + e.className.split(" ")[0]);
 

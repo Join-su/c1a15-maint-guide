@@ -84,7 +84,7 @@ test("교차 ① AC-08 · AC-42 · AC-37: C 호출 → 파트장 '승인 후 진
   for (let i = 0; i < 4 && (await page.locator(".rbtns").count()); i++) await result(page, "정상");
   await expect(page.locator(".warn-h h3")).toHaveText("냉각 팬 분해 점검");
   await page.getByText("파트장 호출").click();
-  await expect(page.locator(".banner.info")).toBeVisible();
+  await expect(page.locator(".wait")).toBeVisible(); // 보낸 뒤 꼴(답장 u4-audit-fix)
   const lead = await leadPage(browser);
   const lg = guard(lead);
   await expect(lead.locator(".ltiles b").nth(1)).toHaveText("1");

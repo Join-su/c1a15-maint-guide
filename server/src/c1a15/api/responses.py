@@ -38,6 +38,14 @@ class Progress(_Out):
 # ---------------------------------------------------------------- 홈 · 종(T02 · T12)
 
 
+class AlarmMl(_Out):
+    """D-546 U5 화면 칸: 알람 행에 저장한 Pack ML 값 중 예측 유형(확률 1위) · 위험도."""
+
+    type: str | None
+    type_name: str | None
+    risk: float | None
+
+
 class AlarmRow(_Out):
     alarm_id: int
     equipment_id: str
@@ -54,6 +62,7 @@ class AlarmRow(_Out):
     progress: Progress | None
     report_status: str | None
     report_session_id: int | None
+    ml: AlarmMl | None = None
 
 
 class RecentReport(_Out):
@@ -86,6 +95,20 @@ class Shift(_Out):
     calls: int
 
 
+class ToolCaution(_Out):
+    """D-546 U6 공구 교체 주의(알람 아님): 설비마다 확인 전 최근 값 하나."""
+
+    caution_id: int
+    equipment_id: str
+    tool_wear_min: float
+    at: str
+
+
+class ToolCautionAck(_Out):
+    caution_id: int
+    equipment_id: str
+
+
 class Home(_Out):
     alarms: list[AlarmRow]
     new_since: list[AlarmRow]
@@ -93,6 +116,7 @@ class Home(_Out):
     change_seq: int
     shift: Shift
     recent_reports: list[RecentReport]
+    cautions: list[ToolCaution]
 
 
 class NotifyItem(_Out):
@@ -158,6 +182,7 @@ class AlarmBlock(_Out):
     sensors: list[SensorRow]
     ai_reading: Reading
     similar_count: int
+    ml: AlarmMl | None = None
 
 
 class RecordCard(_Out):

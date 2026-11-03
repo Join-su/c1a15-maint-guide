@@ -250,7 +250,13 @@ describe("T10 파트장 호출", () => {
     expect(v.c.querySelector(".banner.warn b")?.textContent).toMatch(/^호출하지 않고 대기 중 · \d\d:\d\d$/);
     expect(texts(v.c, ".cd:nth-child(2) > .btn")).toEqual(["파트장 호출"]);
     v = view("s03-call-sent");
-    expect(v.c.querySelector(".banner.info b")?.textContent).toMatch(/^파트장 호출을 보냈습니다 · \d\d:\d\d$/);
+    // 답장 u4-audit-fix: '보낸 요약'(읽기만 · 연필 0) → 아래 '파트장 호출 보냄 · 시각 / 답 기다림' · 위 띠 · 설명 문장 0
+    expect(v.c.querySelector(".banner")).toBeNull();
+    expect(v.c.querySelector(".cd:nth-child(2) > .pv")?.className).toBe("pv ro");
+    expect(v.c.querySelector(".pv .sm")?.textContent).toBe("보낸 요약");
+    expect(v.c.querySelector(".cd:nth-child(2) > .pv")?.nextElementSibling?.className).toBe("wait");
+    expect(texts(v.c, ".wait > *")[1]).toBe("답 기다림");
+    expect(v.c.querySelector(".wait b")?.textContent).toMatch(/^파트장 호출 보냄 · \d\d:\d\d$/);
     expect(v.c.querySelector(".pv p")?.getAttribute("role")).toBeNull(); // 보낸 뒤에는 고치지 않는다
     expect(v.c.querySelectorAll(".cd:nth-child(2) > .btn").length).toBe(0);
     v = view("s03-ans-approved");
@@ -533,6 +539,33 @@ describe("T02 홈 완료 행 · 최근 보고서 · T12 답이 온 호출", () =
   });
 });
 
+describe("D-546 U6 공구 교체 주의", () => {
+  // 꼴 02(architecture-diagram d546): 알람 아님 · 내 알람 카드 바로 위 주황 줄 · 설비마다 한 줄 · 「확인」(설명 문장 0)
+  it("설비마다 한 줄(공구 아이콘 · 이름 · 설비 · 마모 · 주의 범위) · 「확인」 → onAckCaution(두 번째 누름도 그대로) · 없으면 줄 0", () => {
+    const home = load<Home>("home-in-progress");
+    home.cautions = [
+      { caution_id: 41, equipment_id: "M-03", tool_wear_min: 214, at: "2026-11-04T01:10:00Z" },
+      { caution_id: 40, equipment_id: "M-05", tool_wear_min: 203, at: "2026-11-04T01:02:00Z" },
+    ];
+    const onAck = vi.fn();
+    const { container } = render(<HomeScreen home={home} onOpen={() => {}} onAckCaution={onAck} />);
+    const col = container.querySelector(".g2 > div:first-child")!;
+    const rows = [...col.querySelectorAll(":scope > .tool")];
+    expect(rows).toHaveLength(2);
+    expect(rows[1].nextElementSibling?.querySelector(".cd-h b")?.textContent).toBe("내 알람"); // 내 알람 카드 바로 위
+    expect(rows[0].querySelector(".ic")?.getAttribute("class")).toContain("lucide-wrench");
+    expect(texts(rows[0], ".tm > *")).toEqual(["공구 교체 주의", "M-03 · 공구 마모 214분 · 주의 범위 200 ~ 246분"]);
+    expect(rows[0].querySelector(".tm em")?.textContent).toBe("214분");
+    expect(texts(col, ".tool .btn")).toEqual(["확인", "확인"]);
+    fireEvent.click(rows[0].querySelector(".btn")!);
+    fireEvent.click(rows[0].querySelector(".btn")!);
+    expect(onAck.mock.calls).toEqual([[41], [41]]);
+    cleanup();
+    const none = render(<HomeScreen home={{ ...home, cautions: [] }} onOpen={() => {}} />).container;
+    expect(none.querySelector(".tool")).toBeNull();
+  });
+});
+
 describe("세션 화면 넘김(기기 표시)", () => {
   const mount = (view: SessionView) => {
     const ok = (data: unknown) => Promise.resolve({ data, error: undefined, response: { status: 200 } });
@@ -616,7 +649,9 @@ describe("S-04 정비자 쪽: 반려 · 숙련자 인계 답 · 직접 확인(�
   it("숙련자 인계 보낸 뒤 · 답 온 뒤(결정 018 ④): 보냄 배너 · 답 대기 → 답 배너 · '보고서 작성'", () => {
     const sent = load("s04-handover-sent");
     let r = render(<HandoverScreen s={sent} busy={false} send={() => {}} />);
-    expect(r.container.querySelector(".banner.info b")?.textContent).toMatch(/^숙련자 인계를 보냈습니다 · \d\d:\d\d$/);
+    expect(r.container.querySelector(".banner")).toBeNull(); // 호출과 같은 꼴(답장 u4-audit-fix)
+    expect(r.container.querySelector(".pv.ro .sm")?.textContent).toBe("보낸 요약");
+    expect(texts(r.container, ".wait > *")).toEqual([expect.stringMatching(/^숙련자 인계 보냄 · \d\d:\d\d$/), "답 기다림"]);
     expect([...r.container.querySelectorAll(".btn")].length).toBe(0);
     cleanup();
     const onReport = vi.fn();

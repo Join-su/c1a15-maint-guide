@@ -11,7 +11,6 @@ import urllib.error
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import text
 
 import fake_deploy
 from c1a15.alarms import __main__ as cli
@@ -31,9 +30,7 @@ def kinds(path=None):
             out[udi] = reason
         elif not a["alarm"]:
             out[udi] = "below_threshold"
-        elif a["alarm_block"] is None:
-            out[udi] = "ml_type_no_block"
-        else:
+        else:  # D-546 U5: ML 유형으로 정한 알람(alarm_block 없음)도 등록
             out[udi] = "alarm"
     return out
 
@@ -141,8 +138,8 @@ def test_pr30_model_swap_needs_no_test_change(api, db, ml, monkeypatch, capsys, 
     check_against_data(api, db, monkeypatch, capsys, p)
 
 
-def test_vc49_ml_type_no_block_is_200_with_audit(api, db, ml, monkeypatch):
-    """VC-49 · CH-25: ML 유형(alarm_block 없음) = 200 ml_type_no_block · 알람 0 · 감사 alarm_rejected 1."""
+def test_vc49_ml_type_no_block_is_registered(api, db, ml, monkeypatch):
+    """D-546 U5(CH-25를 바꿈): ML 유형(alarm_block 없음) = 알람 등록(origin ml_type) · 거절 감사 0."""
     reset_ops(db)
     rows = fake_deploy.ml_alarm_outputs()
     sc = scenarios()[0]
@@ -153,20 +150,11 @@ def test_vc49_ml_type_no_block_is_200_with_audit(api, db, ml, monkeypatch):
     ml.plan = [{"output": {"alarm": out}}]
     before = count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'")
     r = register_sc(api, sc)
-    assert r.status_code == 200
-    body = r.json()
-    assert body == {
-        "alarm_id": None,
-        "reason": "ml_type_no_block",
-        "ml": {k: out["ml"][k] for k in ("model_release", "risk", "threshold")},
-    }
-    assert alarm_rows(db) == [] and count(db, "select count(*) from ops.alarm_candidates") == 0
-    assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") == before + 1
-    with db.connect() as c:
-        d = c.execute(
-            text("select detail from ops.audit_log where action = 'alarm_rejected' order by audit_id desc limit 1")
-        ).scalar_one()
-    assert d["reason"] == "ml_type_alarm_unsupported" and d["run_id"] and d["event_id"]
+    assert r.status_code == 200 and r.json()["alarm_id"] and r.json()["symptom_group"] == "CL"
+    (row,) = alarm_rows(db)
+    assert row["alarm"]["origin"] == "ml_type" and row["alarm"]["crossed"] is False and row["ml"] == ml_out
+    assert count(db, "select count(*) from ops.alarm_candidates") == 0
+    assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") == before
 
 
 def test_vc49_boundary_modes_keep_422(api, db, deploy, monkeypatch):

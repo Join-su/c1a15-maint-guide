@@ -85,3 +85,34 @@ describe("홈 내 알람 · 안내 문장", () => {
     expect(texts(container, ".btn.full")).toEqual(["이어서 하기"]);
   });
 });
+
+describe("D-546 U5 ML 알람 카드(꼴 01)", () => {
+  // ML 유형으로 정한 알람(alarm.origin = ml_type): 경계 값 줄 자리 = 「ML 예측」 · 예측 유형 · 빨간 위험도(설명 문장 0)
+  const mlHome = () => {
+    const h = load<Home>("home-d528");
+    const a = h.alarms.find((x) => x.status !== "done")!;
+    a.alarm = { ...a.alarm, origin: "ml_type", crossed: false };
+    a.ml = { type: "HDF", type_name: "열 방출 고장(HDF)", risk: 0.82 };
+    return { h, a };
+  };
+  it("왼쪽 칸: 「ML 예측」 · 예측 유형 / 다음 줄 빨간 위험도", () => {
+    const { h, a } = mlHome();
+    const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);
+    const row = container.querySelector(`button.n-li[data-alarm="${a.alarm_id}"]`)!;
+    const lines = [...row.querySelectorAll(".n-lv")];
+    expect(texts(lines[0], ":scope > span")).toEqual(["ML 예측", "열 방출 고장(HDF)"]);
+    expect(lines[0].querySelector(".mlk .ic")?.getAttribute("class")).toContain("lucide-sparkles");
+    expect(texts(lines[1], ":scope > span")).toEqual(["위험도 0.82"]);
+    expect(lines[1].querySelector("span")?.className).toBe("bad");
+  });
+  it("홈 내 알람 값 줄: 계통 · 「ML 예측」 · 예측 유형 · 빨간 위험도 / 경계 알람은 그대로", () => {
+    const { h, a } = mlHome();
+    const { container } = render(<HomeScreen home={h} onOpen={() => {}} />);
+    const vals = container.querySelector(`.al[data-alarm="${a.alarm_id}"] .n-vals`)!;
+    expect(vals.className).toBe("n-vals ml");
+    expect(texts(vals, ":scope > *")).toEqual([a.system!, "ML 예측", "열 방출 고장(HDF)", "위험도 0.82"]);
+    expect(vals.querySelector("b")?.className).toBe("bad");
+    const other = h.alarms.find((x) => x.status !== "done" && x.alarm_id !== a.alarm_id);
+    if (other) expect(container.querySelector(`.al[data-alarm="${other.alarm_id}"] .n-vals`)?.className).toBe("n-vals");
+  });
+});

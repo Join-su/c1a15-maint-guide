@@ -93,7 +93,7 @@ test("AC-03 L3 · AC-30 · AC-08 · AC-37: R5 계산 예시 → 4.3 → 정상 �
   const text = (await page.locator(".pv textarea").inputValue()) + " 정비자 메모: 팬 소음 있음.";
   await page.locator(".pv textarea").fill(text);
   await page.getByText("파트장 호출").click();
-  await expect(page.locator(".banner.info b")).toHaveText(/^파트장 호출을 보냈습니다 · \d\d:\d\d$/);
+  await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
   expect(psql(`select summary from ops.calls where session_id = ${sid}`)).toBe(text);
   await shot(page, info, "T10-sent");
   simLeadAnswer(sid, "approved");
@@ -118,7 +118,7 @@ test("AC-23-C1 · C2: 주간 처리 답 → 답 화면 → 보고서 작성 → 
   for (let i = 0; i < 4 && (await page.locator(".rbtns").count()); i++) await result(page, "정상");
   await expect(page.locator(".warn-h h3")).toBeVisible();
   await page.getByText("파트장 호출").click();
-  await expect(page.locator(".banner.info")).toBeVisible();
+  await expect(page.locator(".wait")).toBeVisible(); // 보낸 뒤 꼴(답장 u4-audit-fix)
   simLeadAnswer(sid, "daytime");
   await page.reload();
   await expect(page.locator(".banner.warn b")).toHaveText("주간 처리로 결정 · 저부하 감시 운전");
@@ -129,7 +129,7 @@ test("AC-23-C1 · C2: 주간 처리 답 → 답 화면 → 보고서 작성 → 
   const sid2 = await toFirstCheckFromHome(page, "DEMO-04");
   for (let i = 0; i < 4 && (await page.locator(".rbtns").count()); i++) await result(page, "정상");
   await page.getByText("파트장 호출").click();
-  await expect(page.locator(".banner.info")).toBeVisible();
+  await expect(page.locator(".wait")).toBeVisible(); // 보낸 뒤 꼴(답장 u4-audit-fix)
   await expect(page.locator(".pv p")).toContainText("설비는 정지 상태로 대기 중"); // 답 전: 보냄 · 설비 정지 대기
   simLeadAnswer(sid2, "direct");
   await page.reload();
@@ -157,7 +157,7 @@ test("AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소�
   await expect(page.locator(".cki .t").filter({ hasText: "확인 불가 2회 · 제외" }).first()).toBeVisible(); // 답장 001-zzx 바: 체크 목록
   await shot(page, info, "T11-unable_repeat");
   await page.locator(".btn.warnb", { hasText: "숙련자 인계" }).click();
-  await expect(page.locator(".banner.info b")).toHaveText(/^숙련자 인계를 보냈습니다 · \d\d:\d\d$/); // 결정 018 ④: 답 대기
+  await expect(page.locator(".wait b")).toHaveText(/^숙련자 인계 보냄 · \d\d:\d\d$/); // 결정 018 ④: 답 대기
   simLeadAnswer(sid, "assign");
   await page.reload();
   await page.locator(".btn", { hasText: "보고서 작성" }).click();
@@ -236,7 +236,7 @@ test("AC-31-C2 연결(사용자 결정 016 ④): 문장 생성 3회 연속 실�
   await expect(page.locator(".warn-h h3")).toHaveText("안내 문장 생성이 반복해서 실패함");
   await shot(page, info, "T11-llm_failure");
   await page.locator(".btn.warnb", { hasText: "숙련자 인계" }).click();
-  await expect(page.locator(".banner.info b")).toHaveText(/^숙련자 인계를 보냈습니다 · \d\d:\d\d$/); // 결정 018 ④: 답 대기
+  await expect(page.locator(".wait b")).toHaveText(/^숙련자 인계 보냄 · \d\d:\d\d$/); // 결정 018 ④: 답 대기
   simLeadAnswer(sid, "assign");
   await page.reload();
   await page.locator(".btn", { hasText: "보고서 작성" }).click();

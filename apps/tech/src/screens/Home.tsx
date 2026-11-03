@@ -9,6 +9,9 @@ type Row = HomeData["alarms"][number];
 /** 센서 값 표시: 정수면 천 단위 쉼표, 아니면 소수 한 자리(7.8 K · 1,409 rpm). */
 export const val = (v: number, unit: string) => `${num(v, Number.isInteger(v) ? 0 : 1)} ${unit}`;
 
+/** D-546 U5 ML 위험도(0 ~ 1, 소수 둘째 자리). */
+export const risk = (v: number | null | undefined) => (v == null ? "" : num(v, 2));
+
 const REPORT: Record<string, { label: string; chip: string }> = {
   awaiting_approval: { label: "승인 대기", chip: "amber" },
   approved: { label: "승인 완료", chip: "green" },
@@ -39,19 +42,37 @@ export function HomeScreen({
   onOpen,
   onResume,
   onFinal,
+  onAckCaution,
 }: {
   home: HomeData;
   onOpen: (a: Row) => void;
   onResume?: (sessionId: number) => void;
   onFinal?: (reportId: number) => void;
+  onAckCaution?: (cautionId: number) => void;
 }) {
   const rows = sortedAlarms(home);
   const rejected = home.recent_reports.find((r) => r.status === "rejected");
   const s = home.shift;
+  const cautions = home.cautions ?? []; // D-546 U6 공구 교체 주의(알람 아님 · 설비마다 확인 전 한 줄)
   return (
     <div className="ap-body nostep">
       <div className="g2">
         <div>
+          {cautions.map((c) => (
+            // D-546 U6(꼴 02): 내 알람 카드 바로 위 주황 줄 · 설비마다 한 줄 · 「확인」이면 사라짐(알람 아님)
+            <div className="tool" key={c.caution_id} data-caution={c.caution_id}>
+              <Icon name="wrench" />
+              <div className="tm">
+                <b>공구 교체 주의</b>
+                <span>
+                  {c.equipment_id} · 공구 마모 <em>{num(c.tool_wear_min)}분</em> · 주의 범위 200 ~ 246분
+                </span>
+              </div>
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => onAckCaution?.(c.caution_id)}>
+                확인
+              </span>
+            </div>
+          ))}
           <div className="cd ">
             <div className="cd-h">
               <Icon name="bell" />
@@ -74,7 +95,17 @@ export function HomeScreen({
                         {a.equipment_id} · {a.group_name}
                       </b>
                       <span>{st.text}</span>
-                      {a.status === "done" ? null : ( // D-528: 상태값은 글자 한 줄(계통 · 값 · 경계 · 방향)
+                      {a.status === "done" ? null : a.alarm.origin === "ml_type" && a.ml ? ( // D-546 U5(꼴 01): 계통 · 「ML 예측」 · 예측 유형 · 빨간 위험도
+                        <div className="n-vals ml">
+                          <span className="k">{a.system}</span>
+                          <span className="mlk">
+                            <Icon name="sparkles" />
+                            ML 예측
+                          </span>
+                          <span>{a.ml.type_name}</span>
+                          <b className="bad">위험도 {risk(a.ml.risk)}</b>
+                        </div>
+                      ) : ( // D-528: 상태값은 글자 한 줄(계통 · 값 · 경계 · 방향)
                         <div className="n-vals">
                           <span className="k">{a.system}</span>
                           <b>{val(a.alarm.value, a.alarm.unit)}</b>

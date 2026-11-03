@@ -387,6 +387,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tech/cautions/{caution_id}/ack": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tech Caution Ack
+         * @description D-546 U6: 공구 교체 주의 「확인」 — 그 설비 주의가 다음 공구 교체 전까지 사라짐(같은 확인 두 번째는 그대로).
+         */
+        post: operations["tech_caution_ack_api_tech_cautions__caution_id__ack_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tech/home": {
         parameters: {
             query?: never;
@@ -619,6 +639,7 @@ export interface components {
             equipment_type: string;
             /** Group Name */
             group_name: string;
+            ml?: components["schemas"]["AlarmMl"] | null;
             /** Occurred At */
             occurred_at: string;
             /** Out Of Range Count */
@@ -666,6 +687,18 @@ export interface components {
              */
             trend: components["schemas"]["TrendPoint"][];
         };
+        /**
+         * AlarmMl
+         * @description D-546 U5 화면 칸: 알람 행에 저장한 Pack ML 값 중 예측 유형(확률 1위) · 위험도.
+         */
+        AlarmMl: {
+            /** Risk */
+            risk: number | null;
+            /** Type */
+            type: string | null;
+            /** Type Name */
+            type_name: string | null;
+        };
         /** AlarmRow */
         AlarmRow: {
             alarm: components["schemas"]["AlarmValue"];
@@ -677,6 +710,7 @@ export interface components {
             equipment_id: string;
             /** Group Name */
             group_name: string;
+            ml?: components["schemas"]["AlarmMl"] | null;
             /** Occurred At */
             occurred_at: string;
             progress: components["schemas"]["Progress"] | null;
@@ -1380,6 +1414,8 @@ export interface components {
         Home: {
             /** Alarms */
             alarms: components["schemas"]["AlarmRow"][];
+            /** Cautions */
+            cautions: components["schemas"]["ToolCaution"][];
             /** Change Seq */
             change_seq: number;
             /** In Progress */
@@ -2350,6 +2386,27 @@ export interface components {
             /** Unable Before */
             unable_before: number | null;
         };
+        /**
+         * ToolCaution
+         * @description D-546 U6 공구 교체 주의(알람 아님): 설비마다 확인 전 최근 값 하나.
+         */
+        ToolCaution: {
+            /** At */
+            at: string;
+            /** Caution Id */
+            caution_id: number;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Tool Wear Min */
+            tool_wear_min: number;
+        };
+        /** ToolCautionAck */
+        ToolCautionAck: {
+            /** Caution Id */
+            caution_id: number;
+            /** Equipment Id */
+            equipment_id: string;
+        };
         /** TrendPoint */
         TrendPoint: {
             /** At */
@@ -2950,6 +3007,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionWithPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tech_caution_ack_api_tech_cautions__caution_id__ack_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                caution_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ToolCautionAck"];
                 };
             };
             /** @description Validation Error */

@@ -240,7 +240,7 @@ test("AC-47-C2 · L04 / call_corrected · L06 / correction: 보낸 호출 뒤 �
   const sid = await toCheck(page, "DEMO-03");
   for (let i = 0; i < 4 && (await page.locator(".rbtns").count()); i++) await result(page, "정상");
   await page.getByText("파트장 호출").click();
-  await expect(page.locator(".banner.info")).toBeVisible();
+  await expect(page.locator(".wait")).toBeVisible(); // 보낸 뒤 꼴(답장 u4-audit-fix)
   await step(page, 3).click();
   await pick(page, "흡기 필터 육안 점검 · 4.3");
   await page.locator(".btn", { hasText: "이 기록 정정" }).click();

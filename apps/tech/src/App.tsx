@@ -79,6 +79,12 @@ export function App() {
     }
   };
   usePoll(refresh, 5000, [me?.user_id]);
+  const ackCaution = async (cautionId: number) => {
+    // D-546 U6 공구 교체 주의 「확인」 → 홈을 바로 다시 읽어 사라지게
+    const { response } = await api.POST("/api/tech/cautions/{caution_id}/ack", { params: { path: { caution_id: cautionId } } });
+    if (response.status === 401) return expired();
+    await refresh();
+  };
   // D-528: 왼쪽 「오늘 밤 알람」 · 위 띠가 세션 단계와 어긋나지 않게 — 잠금 · 단계 · 보고서 상태가 바뀌면 홈을 바로 다시 읽는다(5초 주기를 기다리지 않음)
   useEffect(() => {
     if (session) void refresh();
@@ -170,6 +176,7 @@ export function App() {
               home={home}
               onResume={(sid) => go({ name: "session", sid })}
               onFinal={(rid) => go({ name: "final", rid })}
+              onAckCaution={(id) => void ackCaution(id)}
               onOpen={(a) => {
                 const sid = a.session_id ?? a.report_session_id; // 완료 행 '보기' = 확정한 보고서
                 if (a.status === "new") void startAlarm(a.alarm_id);

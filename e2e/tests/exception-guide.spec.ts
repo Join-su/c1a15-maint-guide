@@ -111,7 +111,7 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   await left.locator(".xkf .btn", { hasText: "취소" }).click();
   await pause(page);
   await page.locator(".g64 > .cd").nth(1).locator(".btn", { hasText: "파트장 호출" }).click();
-  await expect(page.locator(".banner.info b")).toHaveText(/^파트장 호출을 보냈습니다 · \d\d:\d\d$/);
+  await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
   await expect(left.locator(".xkh p")).toHaveText(TEXT); // 보낸 뒤에도 카드 그대로
   await snap(page, info, "G3-call-sent");
   const ev = psql("select string_agg(type, ',' order by seq) from ops.session_events where type in ('exception_draft', 'call_sent')");

@@ -152,3 +152,27 @@
 .ap .xkf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin: 8px 0 6px; }
 .ap .xkf .memo { min-height: 44px; margin: 0; width: 100%; border-color: var(--pri); resize: vertical; }
 .ap .xkf .mb { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+/* D-546 U6 공구 교체 주의(꼴 02): 내 알람 카드 위 주황 줄 */
+.ap .tool { display: flex; align-items: center; gap: 14px; background: var(--warn-s); border: 1px solid #f3d29b; border-radius: 14px; padding: 14px 18px; margin-bottom: 14px; }
+.ap .tool > .ic { width: 24px; height: 24px; color: #a85a00; flex: none; }
+.ap .tool .tm { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ap .tool .tm b { font-size: 16px; font-weight: 800; color: #7a4300; }
+.ap .tool .tm span { font-size: 14px; color: var(--sub); font-weight: 600; }
+.ap .tool .tm em { font-style: normal; color: #a85a00; font-weight: 800; }
+.ap .tool .btn { flex: none; background: #fff; }
+/* D-546 U5 ML 알람(꼴 01): 「ML 예측」 표 · 예측 유형 · 위험도 두 줄 */
+.ap .mlk { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px; border-radius: 6px; background: var(--pri-s); color: var(--pri); font-size: 12.5px; font-weight: 700; }
+.ap .mlk .ic, .ap .mlc .ic { width: 13px; height: 13px; }
+.ap .mlc { display: inline-flex; align-items: center; gap: 4px; }
+.ap .n-vals.ml { gap: 10px; flex-wrap: wrap; row-gap: 4px; }
+.ap .n-vals .bad, .ap .n-lv .bad, .ap .mlr .bad { color: var(--bad); }
+.ap .mlr { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--ln); }
+.ap .mlr:first-of-type { padding-top: 2px; }
+.ap .mlr span { font-size: 14.5px; color: var(--sub); font-weight: 600; }
+.ap .mlr b { font-size: 17px; font-weight: 800; }
+.ap .mlr b.bad { font-size: 22px; }
+.ap .mlr:last-of-type { margin-bottom: 14px; }
+/* 호출 · 인계 보낸 뒤(답장 u4-audit-fix): '보낸 요약' 읽기만 · 아래 '보냄 · 시각 / 답 기다림' 한 줄 */
+.ap .pv.ro .sm::after { content: none; }
+.ap .wait { display: flex; flex-direction: column; gap: 2px; background: var(--warn-s); border-radius: 12px; padding: 14px 16px; margin-top: 12px; color: #7a4a00; }
+.ap .wait span { font-size: 14px; color: var(--sub); }

@@ -143,6 +143,35 @@ def ai_reading(alarm: dict, key: str, group_name: str, system: str) -> dict:
     return {"text": r.text, "fallback": r.fallback, "label": r.label}
 
 
+ML_TYPE_NAMES = {"HDF": "열 방출 고장(HDF)", "PWF": "전력 고장(PWF)", "OSF": "과부하 고장(OSF)"}  # D-546 U5
+
+
+def ml_view(ml: dict | None) -> dict | None:
+    """알람 행 ml(Pack 값 그대로) → 화면 칸: 예측 유형 = 확률 1위 · 위험도. 없으면 None."""
+    if not ml:
+        return None
+    top = ((ml.get("top_k") or [{}])[0]).get("type")
+    return {"type": top, "type_name": ML_TYPE_NAMES.get(top, top), "risk": ml.get("risk")}
+
+
+def ml_type_alarm(group: str, snapshot: dict, table: dict) -> dict:
+    """D-546 U5: ML 유형으로 정한 알람(Pack alarm_block 없음)의 알람 꼴 — 그 증상군 센서 값 · 가까운 경계 ·
+    origin ml_type · crossed false(경계 안 넘음). 화면 · 세션 · 보고서가 쓰는 칸을 그대로 채움."""
+    rule = _rule_for(table, group)
+    v = snapshot[SNAPSHOT_KEY[rule["key"]]]
+    side, b = min(rule["boundaries"].items(), key=lambda kv: abs(v - kv[1]))
+    return {
+        "sensor": rule["sensor"],
+        "value": v,
+        "unit": rule["unit"],
+        "boundary": b,
+        "direction": "경계 아래" if side == "low" else "경계 위",
+        "trend_title": f"{rule['sensor']} 추이 · 최근 12회 측정",
+        "origin": "ml_type",
+        "crossed": False,
+    }
+
+
 def alarm_block(a: m.Alarm, similar_count: int) -> dict:
     table = deps.alarm_table()
     group_name = deps.group_names()[a.symptom_group]
@@ -166,6 +195,7 @@ def alarm_block(a: m.Alarm, similar_count: int) -> dict:
         "sensors": sensor_rows(al, a.symptom_group, a.sensor_snapshot, table),
         "ai_reading": ai_reading(al, rule_key, group_name, system),
         "similar_count": similar_count,
+        "ml": ml_view(a.ml),  # D-546 U5
     }
 
 

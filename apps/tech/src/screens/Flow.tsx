@@ -269,15 +269,17 @@ function Summary({
   editable,
   text,
   onText,
+  ro,
 }: {
   call: Call;
   label: string;
   editable: boolean;
   text: string | null;
   onText: (t: string | null) => void;
+  ro?: boolean; // 보낸 뒤 '보낸 요약'(읽기만 · 연필 표시 뺌)
 }) {
   return (
-    <div className="pv">
+    <div className={ro ? "pv ro" : "pv"}>
       <span className="sm">{label}</span>
       {editable && text !== null ? (
         <textarea className="memo" aria-label="요약 고치기" value={text} autoFocus onChange={(e) => onText(e.target.value)} />
@@ -378,15 +380,14 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
       </div>
     );
   } else if (call.status === "sent") {
+    // D-546 U4 대조(답장 u4-audit-fix): '보낸 요약'(읽기만) 아래 '파트장 호출 보냄 · 시각 / 답 기다림' 한 줄 · 설명 문장 0
     right = (
       <div className="cd">
-        <div className="banner info">
-          <Icon name="send" />
-          <div>
-            <b>파트장 호출을 보냈습니다 · {call.sent_at ? hhmm(call.sent_at) : ""}</b>파트장 앱 "처리할 호출"에 올라갔습니다. 답을 기다리는 중입니다.
-          </div>
+        <Summary call={call} label="보낸 요약" editable={false} text={null} onText={() => {}} ro />
+        <div className="wait">
+          <b>파트장 호출 보냄 · {call.sent_at ? hhmm(call.sent_at) : ""}</b>
+          <span>답 기다림</span>
         </div>
-        {summary}
       </div>
     );
   } else if (call.status === "waiting") {
@@ -601,17 +602,14 @@ export function HandoverScreen({
       </>
     );
   } else if (call.status === "sent") {
-    // 결정 018 ④: 보낸 뒤 답 대기(T10 / sent 구조)
+    // 결정 018 ④: 보낸 뒤 답 대기 — 파트장 호출과 같은 꼴(답장 u4-audit-fix: '보낸 요약' 아래 '보냄 · 시각 / 답 기다림')
     action = (
       <>
-        <div className="banner info">
-          <Icon name="send" />
-          <div>
-            <b>숙련자 인계를 보냈습니다 · {call.sent_at ? hhmm(call.sent_at) : ""}</b>파트장 앱 "처리할 호출"에 유형 "숙련자 인계"로
-            올라갔습니다. 답을 기다리는 중입니다.
-          </div>
+        <Summary call={call} label="보낸 요약" editable={false} text={null} onText={() => {}} ro />
+        <div className="wait">
+          <b>숙련자 인계 보냄 · {call.sent_at ? hhmm(call.sent_at) : ""}</b>
+          <span>답 기다림</span>
         </div>
-        <Summary call={call} label={label} editable={false} text={null} onText={() => {}} />
       </>
     );
   } else {

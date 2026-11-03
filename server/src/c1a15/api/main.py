@@ -9,7 +9,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
-from sqlalchemy import Connection, select
+from sqlalchemy import Connection, select, text
 
 from c1a15 import config
 from c1a15.alarms import ml
@@ -115,6 +115,7 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
     assignments = dict(c.execute(select(m.EquipmentAssignment.equipment_id, m.EquipmentAssignment.user_id)).all())
     if body.equipment_id not in assignments:
         raise HTTPException(status_code=422, detail="unknown_equipment")
+    _tool_caution(body)  # D-546 U6: 알람과 따로(알람 없음 응답이어도 남음)
     # 알람을 켤지 · 증상군 = Pack alarm Run(EV-001 ES-08, D-259 (2)) — 앱 안 경계 판정 갈래는 ES-23에서 지움
     hit, snapshot, pack_cols = _alarm_via_pack(c, body)
     if hit is None:
@@ -195,20 +196,93 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
         if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
             return None, {}, _no_alarm("below_threshold", out)
         raise HTTPException(status_code=422, detail="no_boundary_crossed")  # 지금 기본 길과 같은 응답 · 저장 0
-    if out["alarm_block"] is None:  # ML 유형으로 정한 알람(경계 표시 없음) — 화면 · 세션이 알람 행의 경계 표시를 씀
-        sessions.audit(  # CH-25: 화면은 UI 작업 때(D-304 (1))까지 알람으로 등록하지 않음 — 감사만
-            c,
-            "system",
-            "alarm_rejected",
-            f"event:{event_id}",
-            {"reason": "ml_type_alarm_unsupported", **refs},
-            body.equipment_id,
-        )
-        return None, {}, _no_alarm("ml_type_no_block", out)
     snapshot = {**req["event_card"]["sensor_snapshot"], **out["sensor_derived"]}  # 화면 · 리트리버 센서 7칸
     if out.get("ml") is not None:  # 없으면 칸을 빼 SQL NULL(JSON null로 저장하지 않음)
         refs["ml"] = out["ml"]
-    return {"group": out["group"], "alarm": out["alarm_block"]}, snapshot, refs
+    block = out["alarm_block"]
+    if (
+        block is None
+    ):  # D-546 U5(CH-25를 바꿈): ML 유형으로 정한 알람도 등록 — 알람 꼴은 그 증상군 센서로(origin ml_type)
+        block = screen.ml_type_alarm(out["group"], snapshot, deps.alarm_table())
+    return {"group": out["group"], "alarm": block}, snapshot, refs
+
+
+TOOL_CAUTION = (200, 246)  # D-546 U6 공구 교체 주의 범위(분) — 알람 아님(공구 마모 알람 경계 215는 그대로)
+# 주의는 공구 교체(마모 < 200 · tool_caution_reset) 뒤부터 셈 — 「확인」하면 다음 교체 전엔 다시 뜨지 않음
+_LAST_RESET = (
+    "coalesce((select max(r.audit_id) from ops.audit_log r "
+    "where r.action = 'tool_caution_reset' and r.equipment_id = {eq}), 0)"
+)
+
+
+def _tool_caution(body: AlarmBody) -> None:
+    """범위 안이면 주의 한 줄 · 200 아래면 교체 한 줄(앞에 주의가 있을 때만) — 요청과 따로 커밋(알람 없음에도 남음)."""
+    wear = body.sensor_snapshot.get("tool_wear_min")
+    if wear is None or isinstance(wear, bool) or wear > TOOL_CAUTION[1]:
+        return
+    eq = body.equipment_id
+    with deps.engine().begin() as c2:
+        if wear >= TOOL_CAUTION[0]:
+            sessions.audit(c2, "system", "tool_caution", f"equipment:{eq}", {"tool_wear_min": wear}, eq)
+            return
+        open_ = c2.execute(
+            text(
+                "select exists(select 1 from ops.audit_log where action = 'tool_caution' and equipment_id = :e "
+                f"and audit_id > {_LAST_RESET.format(eq=':e')})"
+            ),
+            {"e": eq},
+        ).scalar()
+        if open_:
+            sessions.audit(c2, "system", "tool_caution_reset", f"equipment:{eq}", {"tool_wear_min": wear}, eq)
+
+
+def tool_cautions(c: Connection) -> list[dict]:
+    """설비마다 마지막 교체 뒤 최근 주의 하나 — 교체 뒤 확인이 있으면 없음. 정비자 모두에게 · 최근 먼저."""
+    last_reset = _LAST_RESET.format(eq="a.equipment_id")
+    rows = c.execute(
+        text(
+            "select distinct on (a.equipment_id) a.audit_id, a.equipment_id, a.at, a.detail from ops.audit_log a "
+            f"where a.action = 'tool_caution' and a.audit_id > {last_reset} "
+            "and not exists(select 1 from ops.audit_log k where k.action = 'tool_caution_ack' "
+            f"and k.equipment_id = a.equipment_id and k.audit_id > {last_reset}) "
+            "order by a.equipment_id, a.audit_id desc"
+        )
+    ).all()
+    out = [
+        {
+            "caution_id": r.audit_id,
+            "equipment_id": r.equipment_id,
+            "tool_wear_min": r.detail["tool_wear_min"],
+            "at": r.at.isoformat(),
+        }
+        for r in rows
+    ]
+    return sorted(out, key=lambda x: -x["caution_id"])
+
+
+@app.post("/api/tech/cautions/{caution_id}/ack", response_model=responses.ToolCautionAck)
+def tech_caution_ack(
+    caution_id: int, user: User = Depends(tech_user), c: Connection = Depends(conn, scope="function")
+) -> dict:
+    """D-546 U6: 공구 교체 주의 「확인」 — 그 설비 주의가 다음 공구 교체 전까지 사라짐(같은 확인 두 번째는 그대로)."""
+    eq = c.execute(
+        select(m.AuditEntry.equipment_id).where(
+            m.AuditEntry.audit_id == caution_id, m.AuditEntry.action == "tool_caution"
+        )
+    ).scalar()
+    if eq is None:
+        raise HTTPException(status_code=404, detail="no_caution")
+    last_reset = _LAST_RESET.format(eq=":e")
+    done = c.execute(
+        text(
+            f"select :i <= {last_reset} or exists(select 1 from ops.audit_log where action = 'tool_caution_ack' "
+            f"and equipment_id = :e and audit_id > {last_reset})"
+        ),
+        {"e": eq, "i": caution_id},
+    ).scalar()
+    if not done:
+        sessions.audit(c, user.user_id, "tool_caution_ack", f"equipment:{eq}", {"caution_id": caution_id}, eq)
+    return {"caution_id": caution_id, "equipment_id": eq}
 
 
 def _no_alarm(reason: str, out: dict) -> dict:
@@ -247,6 +321,7 @@ def _alarm_view(a) -> dict:
         "occurred_at": a.occurred_at.isoformat(),
         "status": a.status,
         "change_seq": a.change_seq,
+        "ml": screen.ml_view(a.ml),  # D-546 U5
     }
 
 
@@ -301,6 +376,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
         "in_progress": in_progress,
         "change_seq": latest,
         "shift": screen.shift_summary(len(in_progress), done=len(in_shift), calls=len(calls)),  # 결정 014 ④
+        "cautions": tool_cautions(c),  # D-546 U6 공구 교체 주의
         "recent_reports": [  # 최근 내 보고서(상태 칩), 최근 3건
             {
                 "report_id": r.report_id,

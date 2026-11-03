@@ -193,7 +193,7 @@ for (const d of DEMO) {
         await page.getByText("보고서 작성").click();
       } else if ("call" in st) {
         await page.getByText("파트장 호출").click();
-        await expect(page.locator(".banner.info b")).toHaveText(/^파트장 호출을 보냈습니다 · \d\d:\d\d$/);
+        await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
         await leadAnswer(await toLead(), st.call, st.memo);
         await openAnswer(page);
         if (st.call === "승인 후 진행") {
@@ -208,7 +208,7 @@ for (const d of DEMO) {
         await expect(page.locator(".warn-h .sm")).toHaveText("확인 불가가 반복됨");
       } else if ("handover" in st) {
         await page.locator(".btn.warnb", { hasText: "숙련자 인계" }).click();
-        await expect(page.locator(".banner.info b")).toHaveText(/^숙련자 인계를 보냈습니다 · \d\d:\d\d$/);
+        await expect(page.locator(".wait b")).toHaveText(/^숙련자 인계 보냄 · \d\d:\d\d$/);
         await leadAnswer(await toLead(), "주간 숙련자 배정");
         await page.reload();
         await page.getByText("보고서 작성").click();

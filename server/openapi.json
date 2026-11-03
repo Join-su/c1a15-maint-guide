@@ -160,6 +160,16 @@
       "title": "Group Name",
       "type": "string"
      },
+     "ml": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/AlarmMl"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "occurred_at": {
       "title": "Occurred At",
       "type": "string"
@@ -320,6 +330,52 @@
     "title": "AlarmBody",
     "type": "object"
    },
+   "AlarmMl": {
+    "additionalProperties": false,
+    "description": "D-546 U5 화면 칸: 알람 행에 저장한 Pack ML 값 중 예측 유형(확률 1위) · 위험도.",
+    "properties": {
+     "risk": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Risk"
+     },
+     "type": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Type"
+     },
+     "type_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Type Name"
+     }
+    },
+    "required": [
+     "type",
+     "type_name",
+     "risk"
+    ],
+    "title": "AlarmMl",
+    "type": "object"
+   },
    "AlarmRow": {
     "additionalProperties": false,
     "properties": {
@@ -341,6 +397,16 @@
      "group_name": {
       "title": "Group Name",
       "type": "string"
+     },
+     "ml": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/AlarmMl"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "occurred_at": {
       "title": "Occurred At",
@@ -2719,6 +2785,13 @@
       "title": "Alarms",
       "type": "array"
      },
+     "cautions": {
+      "items": {
+       "$ref": "#/components/schemas/ToolCaution"
+      },
+      "title": "Cautions",
+      "type": "array"
+     },
      "change_seq": {
       "title": "Change Seq",
       "type": "integer"
@@ -2754,7 +2827,8 @@
      "in_progress",
      "change_seq",
      "shift",
-     "recent_reports"
+     "recent_reports",
+     "cautions"
     ],
     "title": "Home",
     "type": "object"
@@ -6379,6 +6453,55 @@
     "title": "Step",
     "type": "object"
    },
+   "ToolCaution": {
+    "additionalProperties": false,
+    "description": "D-546 U6 공구 교체 주의(알람 아님): 설비마다 확인 전 최근 값 하나.",
+    "properties": {
+     "at": {
+      "title": "At",
+      "type": "string"
+     },
+     "caution_id": {
+      "title": "Caution Id",
+      "type": "integer"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "tool_wear_min": {
+      "title": "Tool Wear Min",
+      "type": "number"
+     }
+    },
+    "required": [
+     "caution_id",
+     "equipment_id",
+     "tool_wear_min",
+     "at"
+    ],
+    "title": "ToolCaution",
+    "type": "object"
+   },
+   "ToolCautionAck": {
+    "additionalProperties": false,
+    "properties": {
+     "caution_id": {
+      "title": "Caution Id",
+      "type": "integer"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "caution_id",
+     "equipment_id"
+    ],
+    "title": "ToolCautionAck",
+    "type": "object"
+   },
    "TrendPoint": {
     "additionalProperties": false,
     "properties": {
@@ -7224,6 +7347,46 @@
      }
     },
     "summary": "Start Session"
+   }
+  },
+  "/api/tech/cautions/{caution_id}/ack": {
+   "post": {
+    "description": "D-546 U6: 공구 교체 주의 「확인」 — 그 설비 주의가 다음 공구 교체 전까지 사라짐(같은 확인 두 번째는 그대로).",
+    "operationId": "tech_caution_ack_api_tech_cautions__caution_id__ack_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "caution_id",
+      "required": true,
+      "schema": {
+       "title": "Caution Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ToolCautionAck"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Tech Caution Ack"
    }
   },
   "/api/tech/home": {

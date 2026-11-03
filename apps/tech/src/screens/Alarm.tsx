@@ -2,6 +2,7 @@
 // D-528(가이드 정비자 3): 경계 넘음 추이 그래프 · 「알람 확인 시각이 기록됩니다」 문장 뺌(센서 값은 숫자 표로).
 
 import { hhmm, Icon, type SessionView } from "@c1a15/ui";
+import { risk } from "./Home";
 
 type Block = SessionView["alarm"];
 
@@ -20,6 +21,7 @@ export function AlarmScreen({
   busy?: boolean; // EV-007: 알람 확인을 보내는 동안 잠김
 }) {
   const a = s.alarm;
+  const ml = a.alarm.origin === "ml_type" ? a.ml : null; // D-546 U5: ML 유형으로 정한 알람
   return (
     <div className={past ? "ap-body past" : "ap-body"}>
       <div className="g73">
@@ -35,7 +37,17 @@ export function AlarmScreen({
               <h3>{a.group_name}</h3>
               <div className="tags">
                 <span className="ch blue">증상군 · {a.system}</span>
-                {a.out_of_range_count > 0 ? <span className="ch red">센서 {a.out_of_range_count}개 이탈</span> : null}
+                {ml ? ( // 꼴 01: 「ML 예측」(파랑 · 반짝 아이콘) · 「센서 이탈 n」(회색)
+                  <>
+                    <span className="ch blue mlc">
+                      <Icon name="sparkles" />
+                      ML 예측
+                    </span>
+                    <span className="ch gray">센서 이탈 {a.out_of_range_count}</span>
+                  </>
+                ) : a.out_of_range_count > 0 ? (
+                  <span className="ch red">센서 {a.out_of_range_count}개 이탈</span>
+                ) : null}
               </div>
             </div>
           </div>
@@ -69,7 +81,20 @@ export function AlarmScreen({
               <b>AI 해석</b>
               {a.ai_reading.fallback ? <span className="ch fb">{a.ai_reading.label}</span> : null}
             </div>
-            <p className="ai">{a.ai_reading.text}</p>
+            {ml ? ( // 꼴 01: 해석 글 자리 = 예측 유형 · 위험도 두 줄(글 0)
+              <>
+                <div className="mlr">
+                  <span>예측 유형</span>
+                  <b>{ml.type_name}</b>
+                </div>
+                <div className="mlr">
+                  <span>위험도</span>
+                  <b className="bad">{risk(ml.risk)}</b>
+                </div>
+              </>
+            ) : (
+              <p className="ai">{a.ai_reading.text}</p>
+            )}
             <div className="ev">
               <Icon name="search" />
               <span>
