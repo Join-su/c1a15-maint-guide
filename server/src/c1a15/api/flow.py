@@ -11,7 +11,7 @@ import re
 from datetime import UTC, datetime
 
 from fastapi import HTTPException
-from sqlalchemy import Connection, select
+from sqlalchemy import Connection, select, text
 
 from c1a15.api import deps, screen
 from c1a15.db import models as m
@@ -616,6 +616,47 @@ def _report_grounding(row: m.DiagSession, events: list[dict], facts: dict[str, s
     )
 
 
+def exception_of(events: list[dict]) -> dict | None:
+    """D-538: 마지막 보고서 확정 때 함께 보낸 예외 상황 기록 — 반려 뒤 다시 확정하면 새 기록이 이김."""
+    last = next((e for e in reversed(events) if e["type"] == "report_confirm"), None)
+    return (last or {}).get("exception_record") or None
+
+
+def exception_context(c: Connection, alarm: m.Alarm, events: list[dict], cause: str, report_id: int) -> dict:
+    """D-538 자동 정보 여덟(입력 0): 설비 · 증상군 · 시각 · 센서값 · 직전 정비 · AI 첫 안내 · 확정 원인 · 보고서 번호.
+
+    지금 데이터에 없는 칸은 None(지어내기 0). 직전 정비 = 같은 설비 정비 이력 중 이 알람 앞 마지막 한 건.
+    """
+    pv = next((e["preview"] for e in events if e["type"] == "preview_shown" and "preview" in e), None)
+    prev = c.execute(
+        text(
+            "select record_id, occurred_at, record from knowledge.history_records "
+            "where equipment_id = :eq and occurred_at < :at order by occurred_at desc, record_id desc limit 1"
+        ),
+        {"eq": alarm.equipment_id, "at": alarm.occurred_at},
+    ).first()
+    previous = None
+    if prev is not None:
+        act = next((s for s in prev.record.get("steps", []) if s.get("kind") == "action"), None)
+        oc = prev.record.get("outcome") or {}
+        previous = {
+            "record_id": prev.record_id,
+            "occurred_at": prev.occurred_at.isoformat(),
+            "outcome": oc.get("cause_name") or oc.get("type"),  # 확정 원인, 없으면 결과 종류(원인 미상 · 감시)
+            "action": f"{act['name']}({act['section']})" if act else None,
+        }
+    return {
+        "equipment_id": alarm.equipment_id,
+        "symptom_group": {"code": alarm.symptom_group, "name": deps.group_names()[alarm.symptom_group]},
+        "occurred_at": alarm.occurred_at.isoformat(),
+        "sensor_values": {"alarm": alarm.alarm, "snapshot": alarm.sensor_snapshot},
+        "previous_maintenance": previous,
+        "ai_first_check": {"section": pv["section"], "title": pv["title"]} if pv and pv.get("section") else None,
+        "confirmed_cause": cause,
+        "report_id": report_id,
+    }
+
+
 def report_view(
     c: Connection, row: m.DiagSession, alarm: m.Alarm, state: session.SessionState, step: dict, events: list[dict]
 ) -> dict:
@@ -717,6 +758,7 @@ def report_view(
         "messages": messages,
         "can_confirm": status == "draft" and all(x["ok"] for x in checks),
         "confirmed_at": confirmed_at.isoformat() if confirmed_at else None,
+        "exception_record": exception_of(events),
         "low_evidence": rules.low_evidence(
             session.fold(k, row.symptom_group, [rules.Similar(**s) for s in row.similar], []).similar
         ),
@@ -868,7 +910,18 @@ def accept(
             .where(m.Alarm.alarm_id == row.alarm_id)
             .values(status="done", change_seq=deps.next_change_seq(c))
         )
-        return "report_confirm", {"confirmed_at": now.isoformat()}
+        out = {"confirmed_at": now.isoformat(), "exception_record": None}
+        ex = payload.get("exception_record") or {}
+        situation, action = (ex.get("situation") or "").strip(), (ex.get("action") or "").strip()
+        if situation or action:  # D-538: 정비자가 예외라고 판단해 적었을 때만 — 자동 정보는 서버가 확정 때 붙임
+            rid = c.execute(select(m.Report.report_id).where(m.Report.session_id == row.session_id)).scalar()
+            cause = next((f["text"] for f in fields if f["key"] == "cause"), "")
+            out["exception_record"] = {
+                "situation": situation,
+                "action": action,
+                "context": exception_context(c, alarm, events, cause, rid),
+            }
+        return "report_confirm", out
     reject("unknown_event")
     raise AssertionError
 

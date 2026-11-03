@@ -316,7 +316,7 @@ def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict
         }
     )
     downtime = int("".join(ch for ch in f["downtime"] if ch.isdigit()) or 0)
-    return {
+    rec = {
         "record_id": f"R-{r.report_id:04d}",
         "equipment_id": alarm.equipment_id,
         "equipment_type": deps.equipment_types().get(alarm.equipment_id),
@@ -345,6 +345,34 @@ def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict
             )
             if x
         ),
+    }
+    ex = flow.exception_of(
+        events
+    )  # D-538: 확정 때 함께 보낸 예외 상황 기록 — 이력 원본 층에 같이(서술 · 벡터 글 그대로)
+    if ex:
+        rec["exception_record"] = ex
+    return rec
+
+
+def exception_record_list(c: Connection) -> dict:
+    """D-538: 승인된 예외 상황 기록 — 정비 이력 원본 층(승인 보고서 이력)의 record.exception_record만, 발생 순."""
+    rows = c.execute(
+        text(
+            "select record_id, record from knowledge.history_records "
+            "where source = 'approved_report' and record->'exception_record' is not null "
+            "order by occurred_at, record_id"
+        )
+    ).all()
+    return {
+        "items": [
+            {
+                "record_id": r.record_id,
+                "report_id": r.record["source"]["report_id"],
+                "approved_at": (r.record.get("approval") or {}).get("at"),
+                "exception_record": r.record["exception_record"],
+            }
+            for r in rows
+        ]
     }
 
 

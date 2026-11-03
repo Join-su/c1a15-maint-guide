@@ -181,6 +181,30 @@ def test_final_report_carries_cause_basis_and_author_role():
     assert "cause_basis" in fields and "author_role" in fields
 
 
+def test_exception_record_input_and_blocks():
+    """D-538: 예외 상황 기록 = 두 글(상황 · 조치, 각 1000자) + 자동 정보 — 확정 입력 · 보고서 · 최종본 · 목록 꼴."""
+    from c1a15.api import responses, schemas
+
+    body = schemas.EventBody(seq=1, type="report_confirm", exception_record={"situation": "가", "action": "나"})
+    assert (body.exception_record.situation, body.exception_record.action) == ("가", "나")
+    with pytest.raises(ValueError):
+        schemas.ExceptionInput(situation="가" * 1001)
+    assert (
+        "exception_record" in responses.ReportBlock.model_fields
+        and "exception_record" in responses.FinalReport.model_fields
+    )
+    assert set(responses.ExceptionContext.model_fields) == {
+        "equipment_id",
+        "symptom_group",
+        "occurred_at",
+        "sensor_values",
+        "previous_maintenance",
+        "ai_first_check",
+        "confirmed_cause",
+        "report_id",
+    }
+
+
 def test_lock_instruction_is_only_section_1_2(k, grades):
     out = screen.lock_instruction(k, *grades)
     assert set(out) == {"section", "title", "grade", "minutes", "steps"}

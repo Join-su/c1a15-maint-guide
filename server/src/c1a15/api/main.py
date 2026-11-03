@@ -99,6 +99,16 @@ def logout(
     return {"ok": True}
 
 
+@app.get(
+    "/api/internal/exception-records",
+    dependencies=[Depends(internal_token)],
+    response_model=responses.ExceptionRecordList,
+)
+def exception_records(c: Connection = Depends(conn, scope="function")) -> dict:
+    """D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음. 읽기만."""
+    return lead.exception_record_list(c)
+
+
 @app.post("/api/internal/alarms", dependencies=[Depends(internal_token)])
 def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="function")) -> dict:
     """시연 알람 발생기(FLOW-01)만 부른다. 경계 판정 · 증상군 = 서버, 시각 = 지금(AC-34-C1), 배정 = R9."""

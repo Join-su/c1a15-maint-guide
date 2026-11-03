@@ -5,7 +5,7 @@
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class _Strict(BaseModel):
@@ -33,6 +33,13 @@ class AlarmBody(_Strict):
     # deploy 길(EV-001 ES-08)에서 Pack 알람 입력에 담는 것 — 없으면 각본(scenario_id)의 UDI · Type으로 채운다
     data_lineage: dict[str, int | str | None] | None = None
     product_type: Literal["L", "M", "H"] | None = None
+
+
+class ExceptionInput(_Strict):
+    """D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임)."""
+
+    situation: str = Field(default="", max_length=1000)  # 어떤 상황이었나
+    action: str = Field(default="", max_length=1000)  # 무엇을 했나
 
 
 class EventBody(_Strict):
@@ -70,6 +77,7 @@ class EventBody(_Strict):
     summary: str | None = None  # 호출 · 인계 요약(고친 문장)
     field: str | None = None  # 보고서 항목 키(R10)
     text: str | None = None  # 보고서 항목 문장(고친 문장, R8 검사)
+    exception_record: ExceptionInput | None = None  # D-538: 예외 상황 기록(선택) — 보고서 확정과 함께
 
     @model_validator(mode="after")
     def _required_by_type(self):

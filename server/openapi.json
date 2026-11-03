@@ -1551,6 +1551,16 @@
       ],
       "title": "Equipment Id"
      },
+     "exception_record": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionInput"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "field": {
       "anyOf": [
        {
@@ -1698,6 +1708,237 @@
      "type"
     ],
     "title": "EventBody",
+    "type": "object"
+   },
+   "ExceptionCheck": {
+    "additionalProperties": false,
+    "properties": {
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "section",
+     "title"
+    ],
+    "title": "ExceptionCheck",
+    "type": "object"
+   },
+   "ExceptionContext": {
+    "additionalProperties": false,
+    "description": "D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0).",
+    "properties": {
+     "ai_first_check": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionCheck"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "confirmed_cause": {
+      "title": "Confirmed Cause",
+      "type": "string"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "previous_maintenance": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionPrev"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "report_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Report Id"
+     },
+     "sensor_values": {
+      "additionalProperties": true,
+      "title": "Sensor Values",
+      "type": "object"
+     },
+     "symptom_group": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "title": "Symptom Group",
+      "type": "object"
+     }
+    },
+    "required": [
+     "equipment_id",
+     "symptom_group",
+     "occurred_at",
+     "sensor_values",
+     "previous_maintenance",
+     "ai_first_check",
+     "confirmed_cause",
+     "report_id"
+    ],
+    "title": "ExceptionContext",
+    "type": "object"
+   },
+   "ExceptionInput": {
+    "additionalProperties": false,
+    "description": "D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).",
+    "properties": {
+     "action": {
+      "default": "",
+      "maxLength": 1000,
+      "title": "Action",
+      "type": "string"
+     },
+     "situation": {
+      "default": "",
+      "maxLength": 1000,
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "title": "ExceptionInput",
+    "type": "object"
+   },
+   "ExceptionPrev": {
+    "additionalProperties": false,
+    "properties": {
+     "action": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Action"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "outcome": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Outcome"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "record_id",
+     "occurred_at",
+     "outcome",
+     "action"
+    ],
+    "title": "ExceptionPrev",
+    "type": "object"
+   },
+   "ExceptionRecord": {
+    "additionalProperties": false,
+    "properties": {
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "context": {
+      "$ref": "#/components/schemas/ExceptionContext"
+     },
+     "situation": {
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "situation",
+     "action",
+     "context"
+    ],
+    "title": "ExceptionRecord",
+    "type": "object"
+   },
+   "ExceptionRecordItem": {
+    "additionalProperties": false,
+    "properties": {
+     "approved_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Approved At"
+     },
+     "exception_record": {
+      "$ref": "#/components/schemas/ExceptionRecord"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     },
+     "report_id": {
+      "title": "Report Id",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "record_id",
+     "report_id",
+     "approved_at",
+     "exception_record"
+    ],
+    "title": "ExceptionRecordItem",
+    "type": "object"
+   },
+   "ExceptionRecordList": {
+    "additionalProperties": false,
+    "description": "D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음.",
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionRecordItem"
+      },
+      "title": "Items",
+      "type": "array"
+     }
+    },
+    "required": [
+     "items"
+    ],
+    "title": "ExceptionRecordList",
     "type": "object"
    },
    "FinalCause": {
@@ -1890,6 +2131,16 @@
       "title": "Evidence Records",
       "type": "string"
      },
+     "exception_record": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionRecord"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "grade_use": {
       "additionalProperties": {
        "type": "integer"
@@ -1992,7 +2243,8 @@
      "restart",
      "downtime",
      "grade_use",
-     "unresolved"
+     "unresolved",
+     "exception_record"
     ],
     "title": "FinalReport",
     "type": "object"
@@ -4804,6 +5056,16 @@
       ],
       "title": "Confirmed At"
      },
+     "exception_record": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionRecord"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "fields": {
       "items": {
        "$ref": "#/components/schemas/ReportField"
@@ -6021,6 +6283,25 @@
      }
     },
     "summary": "Register Alarm"
+   }
+  },
+  "/api/internal/exception-records": {
+   "get": {
+    "description": "D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음. 읽기만.",
+    "operationId": "exception_records_api_internal_exception_records_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ExceptionRecordList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Exception Records"
    }
   },
   "/api/lead/audit": {

@@ -322,6 +322,37 @@ class Rejection(_Out):
     at: str | None
 
 
+class ExceptionPrev(_Out):
+    record_id: str
+    occurred_at: str
+    outcome: str | None  # 확정 원인, 없으면 결과 종류
+    action: str | None
+
+
+class ExceptionCheck(_Out):
+    section: str
+    title: str
+
+
+class ExceptionContext(_Out):
+    """D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0)."""
+
+    equipment_id: str
+    symptom_group: dict[str, str]
+    occurred_at: str
+    sensor_values: dict
+    previous_maintenance: ExceptionPrev | None
+    ai_first_check: ExceptionCheck | None
+    confirmed_cause: str
+    report_id: int | None
+
+
+class ExceptionRecord(_Out):
+    situation: str  # 어떤 상황이었나
+    action: str  # 무엇을 했나
+    context: ExceptionContext
+
+
 class ReportBlock(_Out):
     status: str
     report_id: int | None = None
@@ -331,6 +362,7 @@ class ReportBlock(_Out):
     messages: list[str]
     can_confirm: bool
     confirmed_at: str | None
+    exception_record: ExceptionRecord | None = None  # D-538: 마지막 확정 때 함께 보낸 예외 상황 기록
     low_evidence: bool
 
 
@@ -570,6 +602,20 @@ class FinalReport(_Out):
     downtime: str
     grade_use: dict[str, int]
     unresolved: str
+    exception_record: ExceptionRecord | None  # D-538: 6. 예외 상황 기록(보기만)
+
+
+class ExceptionRecordItem(_Out):
+    record_id: str
+    report_id: int
+    approved_at: str | None
+    exception_record: ExceptionRecord
+
+
+class ExceptionRecordList(_Out):
+    """D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음."""
+
+    items: list[ExceptionRecordItem]
 
 
 class EditCheckField(_Out):

@@ -15,10 +15,18 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 
 const t = (iso: string | null | undefined) => (iso ? hhmm(iso) : "");
 
+/** 예외 상황 기록 센서값 한 줄: 알람 센서 값 · 경계(서버가 붙인 그대로). */
+function alarmText(v: { [key: string]: unknown }): string {
+  const a = v.alarm as { sensor?: string; value?: number; unit?: string; boundary?: number; direction?: string } | undefined;
+  return a ? `${a.sensor} ${a.value} ${a.unit} · 경계 ${a.boundary} ${a.unit} ${a.direction ?? ""}`.trim() : "—";
+}
+
 export function FinalReport({ data }: { data: Final }) {
   const approved = data.status === "approved";
   const rejected = data.status === "rejected";
   const cb = data.cause_basis; // 답장 001-zzx-2(가이드 20쪽): 확정 근거 = 확정 원인을 정한 점검 결과 · 메모
+  const xr = data.exception_record;
+  const xc = xr?.context;
   const steps: [string, boolean][] = [
     ["초안 자동 작성", true],
     [`정비자 ${data.rejected_before ? "다시 " : ""}확정${!rejected && data.confirmed_at ? ` ${t(data.confirmed_at)}` : ""}`, !rejected && !!data.confirmed_at],
@@ -171,6 +179,51 @@ export function FinalReport({ data }: { data: Final }) {
           <div className="fd-open">{data.unresolved}</div>
         </section>
       </div>
+      {xr ? ( // D-538: 예외 상황 기록 — 정비자 두 글 + 서버가 붙인 자동 정보(보기만)
+        <section>
+          <h2>6. 예외 상황 기록</h2>
+          <table className="fd-kv fd-ex">
+            <tbody>
+              <tr>
+                <th>상황</th>
+                <td>{xr.situation}</td>
+              </tr>
+              <tr>
+                <th>조치</th>
+                <td>{xr.action}</td>
+              </tr>
+              <tr>
+                <th>설비 · 증상</th>
+                <td>
+                  {xc!.equipment_id} · {xc!.symptom_group.name} · {t(xc!.occurred_at)}
+                </td>
+              </tr>
+              <tr>
+                <th>센서값</th>
+                <td>{alarmText(xc!.sensor_values)}</td>
+              </tr>
+              <tr>
+                <th>직전 정비</th>
+                <td>
+                  {xc!.previous_maintenance
+                    ? [xc!.previous_maintenance.record_id, xc!.previous_maintenance.outcome, xc!.previous_maintenance.action]
+                        .filter(Boolean)
+                        .join(" · ")
+                    : "—"}
+                </td>
+              </tr>
+              <tr>
+                <th>AI 첫 안내</th>
+                <td>{xc!.ai_first_check ? `${xc!.ai_first_check.section} ${xc!.ai_first_check.title}` : "—"}</td>
+              </tr>
+              <tr>
+                <th>확정 원인</th>
+                <td>{xc!.confirmed_cause}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      ) : null}
       <footer className="fd-f">
         <div>
           <span>작성(정비자)</span>

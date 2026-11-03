@@ -187,4 +187,5 @@ def final_report(c: Connection, report_id: int) -> dict | None:
         "downtime": _field(f, "downtime"),
         "grade_use": use,
         "unresolved": _field(f, "unresolved"),
+        "exception_record": flow.exception_of(events),
     }

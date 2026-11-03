@@ -148,6 +148,22 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     expect(container.textContent).not.toContain("수정 후 승인");
   });
 
+  it("예외 상황 기록(D-538): 정비자 두 글 + 자동 정보가 있으면 '6. 예외 상황 기록' 구역(보기만) · 없으면 구역 없음", () => {
+    const ctx = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": {"record_id": "H-0279", "occurred_at": "2026-10-28T01:10:00+09:00", "outcome": "냉각수 부족", "action": "냉각수 보충(4.5.2)"}, "ai_first_check": {"section": "4.3", "title": "흡기 필터 육안 점검"}, "confirmed_cause": "냉각 필터 막힘", "report_id": 1};
+    const xr = { situation: "바닥에 절삭유가 고여 있었음", action: "나사를 새로 끼우고 바닥을 닦음", context: ctx };
+    const c = render(<Review api={{} as Api} report={{ ...report(), exception_record: xr }} onBack={noop} onDone={noop} />).container;
+    expect(texts(c, "h2").at(-1)).toBe("6. 예외 상황 기록");
+    expect(texts(c, ".fd-ex th")).toEqual(["상황", "조치", "설비 · 증상", "센서값", "직전 정비", "AI 첫 안내", "확정 원인"]);
+    const td = texts(c, ".fd-ex td");
+    expect(td.slice(0, 2)).toEqual([xr.situation, xr.action]);
+    expect(td[2]).toMatch(/^M-01 · 온도 차 저하 · \d\d:\d\d$/);
+    expect(td.slice(3)).toEqual(["온도 차 7.8 K · 경계 8.2 K 경계 아래", "H-0279 · 냉각수 부족 · 냉각수 보충(4.5.2)", "4.3 흡기 필터 육안 점검", "냉각 필터 막힘"]);
+    expect(c.querySelector(".fd-ex textarea, .fd-ex input")).toBeNull(); // 보기만
+    cleanup();
+    const none = render(<Review api={{} as Api} report={{ ...report(), exception_record: null }} onBack={noop} onDone={noop} />).container;
+    expect(texts(none, "h2")).not.toContain("6. 예외 상황 기록");
+  });
+
   it("승인: 확인 창(메모 고를 수 있음) → 결정 요청 approve · 「출력」은 요청 0", async () => {
     const f = report();
     const api = { POST: vi.fn(() => ok({ status: "approved", history_record_id: "R-0001" })) } as unknown as Api;

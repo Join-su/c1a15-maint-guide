@@ -21,6 +21,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/internal/exception-records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exception Records
+         * @description D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음. 읽기만.
+         */
+        get: operations["exception_records_api_internal_exception_records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/internal/alarms": {
         parameters: {
             query?: never;
@@ -988,6 +1008,7 @@ export interface components {
             choice?: ("handover" | "continue") | null;
             /** Equipment Id */
             equipment_id?: string | null;
+            exception_record?: components["schemas"]["ExceptionInput"] | null;
             /** Field */
             field?: string | null;
             /** Memo */
@@ -1015,6 +1036,90 @@ export interface components {
             } | null;
             /** Yes */
             yes?: boolean | null;
+        };
+        /** ExceptionCheck */
+        ExceptionCheck: {
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * ExceptionContext
+         * @description D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0).
+         */
+        ExceptionContext: {
+            ai_first_check: components["schemas"]["ExceptionCheck"] | null;
+            /** Confirmed Cause */
+            confirmed_cause: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Occurred At */
+            occurred_at: string;
+            previous_maintenance: components["schemas"]["ExceptionPrev"] | null;
+            /** Report Id */
+            report_id: number | null;
+            /** Sensor Values */
+            sensor_values: {
+                [key: string]: unknown;
+            };
+            /** Symptom Group */
+            symptom_group: {
+                [key: string]: string;
+            };
+        };
+        /**
+         * ExceptionInput
+         * @description D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).
+         */
+        ExceptionInput: {
+            /**
+             * Action
+             * @default
+             */
+            action: string;
+            /**
+             * Situation
+             * @default
+             */
+            situation: string;
+        };
+        /** ExceptionPrev */
+        ExceptionPrev: {
+            /** Action */
+            action: string | null;
+            /** Occurred At */
+            occurred_at: string;
+            /** Outcome */
+            outcome: string | null;
+            /** Record Id */
+            record_id: string;
+        };
+        /** ExceptionRecord */
+        ExceptionRecord: {
+            /** Action */
+            action: string;
+            context: components["schemas"]["ExceptionContext"];
+            /** Situation */
+            situation: string;
+        };
+        /** ExceptionRecordItem */
+        ExceptionRecordItem: {
+            /** Approved At */
+            approved_at: string | null;
+            exception_record: components["schemas"]["ExceptionRecord"];
+            /** Record Id */
+            record_id: string;
+            /** Report Id */
+            report_id: number;
+        };
+        /**
+         * ExceptionRecordList
+         * @description D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음.
+         */
+        ExceptionRecordList: {
+            /** Items */
+            items: components["schemas"]["ExceptionRecordItem"][];
         };
         /** FinalCause */
         FinalCause: {
@@ -1074,6 +1179,7 @@ export interface components {
             decision: components["schemas"]["FinalDecision"] | null;
             /** Downtime */
             downtime: string;
+            exception_record: components["schemas"]["ExceptionRecord"] | null;
             /** Equipment Id */
             equipment_id: string;
             /** Equipment Type */
@@ -1887,6 +1993,7 @@ export interface components {
             checks: components["schemas"]["ReportCheck"][];
             /** Confirmed At */
             confirmed_at: string | null;
+            exception_record?: components["schemas"]["ExceptionRecord"] | null;
             /** Fields */
             fields: components["schemas"]["ReportField"][];
             /** Low Evidence */
@@ -2216,6 +2323,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: string | null;
                     };
+                };
+            };
+        };
+    };
+    exception_records_api_internal_exception_records_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExceptionRecordList"];
                 };
             };
         };

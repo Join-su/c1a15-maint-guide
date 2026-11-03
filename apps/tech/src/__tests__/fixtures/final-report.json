@@ -162,5 +162,6 @@
   "title": "흡기 필터 육안 점검",
   "value": "이상",
   "memo": "기름때가 필터 표면 절반 넘게 덮음"
- }
+ },
+ "exception_record": null
 }

@@ -62,6 +62,7 @@ describe("정비자 최종본 화면", () => {
     expect(container.querySelector(".fd-h p")?.textContent).toMatch(/ · 작성 김 정비\(야간 정비\)$/);
     expect(texts(container, ".fd-note").join(" ")).toContain('확정 원인 냉각 필터 막힘 · 확정 근거 흡기 필터 육안 점검(4.3) 결과 이상 · 메모 "기름때가 필터 표면 절반 넘게 덮음"');
     expect(container.textContent).toContain("온도 차 9.0 K · 경계 8.2 K 이내");
+    expect(container.querySelector(".fd-ex")).toBeNull(); // 예외 상황 기록이 없으면 6번 구역 없음
     fireEvent.click(btn(container, "출력"));
     fireEvent.click(btn(container, "출력"));
     expect(GET).toHaveBeenCalledTimes(1);

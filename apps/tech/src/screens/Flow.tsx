@@ -587,6 +587,8 @@ export interface ReportProps {
 export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProps) {
   const [edit, setEdit] = useState<{ key: string; text: string } | null>(null);
   const [asking, setAsking] = useState(false);
+  // D-538 예외 상황 기록(선택): 정비자가 예외라고 판단할 때만 적는 두 글 — 자동 정보는 서버가 확정 때 붙임
+  const [ex, setEx] = useState({ situation: report.exception_record?.situation ?? "", action: report.exception_record?.action ?? "" });
   const rej = report.rejection;
   const draft = report.status === "draft";
   const save = () => {
@@ -659,6 +661,36 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 </b>
                 {rej.reason}
               </div>
+            </div>
+          ) : null}
+          {draft || report.exception_record ? ( // D-538: 예외 상황 기록(선택) — 확정 전엔 적고, 뒤엔 읽기만
+            <div className="cd kh">
+              <div className="cd-h">
+                <Icon name="message-square-plus" />
+                <b>예외 상황 기록</b>
+                <span className="ch gray">선택</span>
+              </div>
+              {(
+                [
+                  ["situation", "어떤 상황이었나"],
+                  ["action", "무엇을 했나"],
+                ] as const
+              ).map(([k2, label]) => (
+                <div className="khf" key={k2}>
+                  <span className="sm">{label}</span>
+                  {draft ? (
+                    <textarea
+                      className="memo"
+                      aria-label={label}
+                      maxLength={1000}
+                      value={ex[k2]}
+                      onChange={(e) => setEx({ ...ex, [k2]: e.target.value })}
+                    />
+                  ) : (
+                    <div className="khv">{report.exception_record?.[k2]}</div>
+                  )}
+                </div>
+              ))}
             </div>
           ) : null}
           <div className="cd ">
@@ -734,7 +766,9 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 onClick={() => {
                   if (busy || !report.can_confirm) return;
                   setAsking(false);
-                  void send({ type: "report_confirm" });
+                  const situation = ex.situation.trim();
+                  const action = ex.action.trim();
+                  void send({ type: "report_confirm", ...(situation || action ? { exception_record: { situation, action } } : {}) });
                 }}
               >
                 확정

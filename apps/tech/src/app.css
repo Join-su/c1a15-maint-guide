@@ -133,3 +133,9 @@
 .ap .hc-t { flex-wrap: wrap; }
 .ap .hc-t em { flex-basis: 100%; text-align: right; color: var(--ok); }
 .ap .sp.pick:not(.done) { cursor: pointer; } /* 지난 단계를 보는 동안 뒤 단계(회색)도 누름 — 지시 d530-p33 */
+/* D-538: 보고서 화면 예외 상황 기록 칸(선택 · 두 글 · 확정 뒤 읽기만) */
+.ap .kh .memo { min-height: 64px; margin: 0; width: 100%; resize: vertical; }
+.ap .kh .khv { font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+.ap .g73 > div:last-child > .kh { margin-bottom: 14px; }
+.ap .kh .khf + .khf { margin-top: 10px; }
+.ap .kh .khf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }

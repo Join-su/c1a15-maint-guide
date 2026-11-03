@@ -254,7 +254,7 @@ describe("T09 보고서", () => {
     const s = load("s03-report-draft");
     const send = vi.fn();
     const { container } = render(<ReportScreen report={s.report!} busy={false} send={send} onHome={() => {}} />);
-    expect(texts(container, ".cd-h b, .cd-h .ch")).toEqual(["정비 보고서 초안", "초안", "확정 전 확인"]);
+    expect(texts(container, ".cd-h b, .cd-h .ch")).toEqual(["정비 보고서 초안", "초안", "예외 상황 기록", "선택", "확정 전 확인"]);
     expect(texts(container, ".rk2")).toEqual(LABELS);
     expect(texts(container, ".rf .ch.src")).toEqual(["자동", "센서", "입력", "입력", "기록", "매뉴얼", "자동", "입력"]);
     expect(container.querySelectorAll(".rf .ed svg").length).toBe(8);
@@ -274,6 +274,40 @@ describe("T09 보고서", () => {
     expect(send).toHaveBeenCalledTimes(1);
     expect(send).toHaveBeenCalledWith({ type: "report_confirm" });
     expect(container.querySelector(".modal")).toBeNull();
+  });
+
+  it("예외 상황 기록 칸(D-538): 확정 전 확인 위 · 선택 · 두 글(어떤 상황이었나 · 무엇을 했나) · 적은 글만 「확정」과 함께 · 확정 뒤 읽기만 · 비면 칸 없음", () => {
+    const SIT = "바닥에 절삭유가 고여 있었고 필터 덮개 고정 나사 하나가 빠져 있었음";
+    const ACT = "나사를 새로 끼우고 필터를 교체한 뒤 바닥을 닦음";
+    const s = load("s03-report-draft");
+    const send = vi.fn();
+    const r = render(<ReportScreen report={s.report!} busy={false} send={send} onHome={() => {}} />);
+    const cards = [...r.container.querySelectorAll(".g73 > div:last-child > .cd")];
+    expect(cards.map((c) => c.querySelector(".cd-h b")?.textContent)).toEqual(["예외 상황 기록", "확정 전 확인"]);
+    expect(texts(cards[0], ".khf > .sm")).toEqual(["어떤 상황이었나", "무엇을 했나"]);
+    expect(cards[0].querySelector(".note, p")).toBeNull(); // 설명 문장 0 · 앱이 묻거나 띄우는 조건 0
+    const sit = r.container.querySelector('textarea[aria-label="어떤 상황이었나"]') as HTMLTextAreaElement;
+    const act = r.container.querySelector('textarea[aria-label="무엇을 했나"]') as HTMLTextAreaElement;
+    expect([sit.value, act.value, sit.maxLength, act.maxLength]).toEqual(["", "", 1000, 1000]);
+    fireEvent.click(btn(r.container, "보고서 확정")); // 비어도 확정(선택)
+    fireEvent.click(btn(r.container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenLastCalledWith({ type: "report_confirm" });
+    fireEvent.change(sit, { target: { value: ` ${SIT} ` } });
+    fireEvent.change(act, { target: { value: ACT } });
+    fireEvent.click(btn(r.container, "보고서 확정"));
+    fireEvent.click(btn(r.container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenLastCalledWith({ type: "report_confirm", exception_record: { situation: SIT, action: ACT } });
+    r.unmount();
+    const c = load("s03-report-confirmed");
+    const CTX = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": {"record_id": "H-0279", "occurred_at": "2026-10-28T01:10:00+09:00", "outcome": "냉각수 부족", "action": "냉각수 보충(4.5.2)"}, "ai_first_check": {"section": "4.3", "title": "흡기 필터 육안 점검"}, "confirmed_cause": "냉각 필터 막힘", "report_id": 1};
+    const done = render(
+      <ReportScreen report={{ ...c.report!, exception_record: { situation: SIT, action: ACT, context: CTX } }} busy={false} send={() => {}} onHome={() => {}} />,
+    );
+    expect(done.container.querySelector(".kh textarea")).toBeNull();
+    expect(texts(done.container, ".kh .khv")).toEqual([SIT, ACT]);
+    done.unmount();
+    const none = render(<ReportScreen report={{ ...c.report!, exception_record: null }} busy={false} send={() => {}} onHome={() => {}} />);
+    expect(none.container.querySelector(".kh")).toBeNull();
   });
 
   it("고치기: 연필 → 글 상자 → 벗어나면 report_edit(바뀐 경우만)", () => {
