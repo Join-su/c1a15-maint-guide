@@ -855,6 +855,15 @@ NOTE_TARGET = {  # 메모 덧붙이기 대상 기록 이름(AC-48-C1)
 }
 
 
+# D-529: ML 길 알람 없음 사유(alarm_rejected) — 알람 발생기 줄과 같은 말
+NO_ALARM_REASON = {
+    "low_confidence": "유형 확신 낮음",
+    "rnf": "유형 RNF",
+    "model_failure": "예측 실패",
+    "ml_type_alarm_unsupported": "ML 유형 · 경계 표시 없음",
+}
+
+
 def audit_label(a, k, names: dict[str, str] | None = None) -> str:
     d = a.detail or {}
     sec = d.get("section")
@@ -925,6 +934,14 @@ def audit_label(a, k, names: dict[str, str] | None = None) -> str:
         return f"알람 등록 · 배정 {who}"
     if act == "reject":
         return f"요청 거부 · {d.get('reason')}"
+    if act == "alarm_rejected":
+        return f"알람 없음 · {NO_ALARM_REASON.get(d.get('reason'), '그 밖 사유')}"
+    if act == "alarm_candidate":  # D-529 전 옛 행(사람 판단 지움 — 새로 생기지 않음)
+        return f"후보 기록 · {NO_ALARM_REASON.get(d.get('reason'), '그 밖 사유')}"
+    if act == "candidate_promote":
+        return "후보 올림"
+    if act == "candidate_dismiss":
+        return "후보 버림"
     return act
 
 
@@ -992,6 +1009,8 @@ def audit(
             tlabel = "권한 등급"
         elif kind == "alarm":
             tlabel = f"{eq} 알람" if eq else a.target
+        elif kind in ("event", "candidate"):  # D-529: 알람 없음 · 옛 후보 행(event · 후보 번호는 보이지 않음)
+            tlabel = f"{eq or ''} {'알람 판정' if kind == 'event' else '후보'}".strip()
         else:
             tlabel = a.target
         if a.action == "session_start" and a.detail and a.detail.get("alarm_id"):

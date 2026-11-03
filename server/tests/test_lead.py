@@ -4,6 +4,7 @@
 값 정의는 사용자 결정 018(권한 위반 · 등급 표 범위 · 직접 확인 · 숙련자 인계 답 · 이력 변환).
 """
 
+import json
 from datetime import datetime, timedelta
 
 import pytest
@@ -849,3 +850,30 @@ def test_lead_sessions_other_holds(api, db):
     assert (row["stage"], row["step_no"], row["hold"]["kind"]) == ("check", 3, "call_unsent")
     s4 = ok(tech4, s4, type="call_send")
     assert _row(lc, s4["session_id"])["hold"]["kind"] == "handover_sent"
+
+
+def test_d529_audit_screen_no_english_for_ml_no_alarm_and_old_candidate_rows(api, db):
+    """D-529: 감사 기록 화면 — 알람 없음(alarm_rejected) · 옛 후보 행(기록 · 올림 · 버림)의 행동 · 대상 칸에 영어 이름 0."""
+    reset_ops(db)
+    rows = [
+        ("system", "alarm_rejected", "event:C1A-Eabc", {"reason": "low_confidence", "event_id": "C1A-Eabc"}),
+        ("system", "alarm_candidate", "candidate:7", {"reason": "rnf", "event_id": "C1A-Edef"}),
+        ("lead.park", "candidate_promote", "candidate:7", {"alarm_id": 1, "group": "CL", "reason": "rnf"}),
+        ("lead.park", "candidate_dismiss", "candidate:8", {"reason": "model_failure"}),
+    ]
+    with db.begin() as c:
+        for actor, action, target, detail in rows:
+            c.execute(
+                text(
+                    "insert into ops.audit_log (actor, action, equipment_id, target, detail) "
+                    "values (:a, :b, 'M-02', :t, cast(:d as jsonb))"
+                ),
+                {"a": actor, "b": action, "t": target, "d": json.dumps(detail)},
+            )
+    got = {(r["action"], r["target"]) for r in lead(api).get("/api/lead/audit").json()["rows"]}
+    assert got == {
+        ("알람 없음 · 유형 확신 낮음", "M-02 알람 판정"),
+        ("후보 기록 · 유형 RNF", "M-02 후보"),
+        ("후보 올림", "M-02 후보"),
+        ("후보 버림", "M-02 후보"),
+    }
