@@ -1,7 +1,7 @@
 // D-528 정비자 앱 최종안(가이드 정비자 1 ~ 13 · 반려 33 · 34쪽)을 사람 손 순서로(태블릿 1280 × 800 · 0.4초 막기 켬 · 누름 사이 0.8초):
 // 홈(왼쪽 「오늘 밤 알람」 · 내 알람 한 줄) → 알람(추이 그래프 없음) → 진단 → 잠금 큰 창(단계 띠 「진단 ›」으로 갔다 돌아옴) → 사전 확인
 // → 점검 → 조치 · 재가동 → 보고서 「보고서 확정」 확인 창(취소 → 다시 → 확정) → 왼쪽 완료 탭 → 파트장 반려 → 홈 반려 칸 → 「이어서 하기」
-// → 보고서 오른쪽 위 반려 사유 → 고쳐 다시 확정. SHOT_DIR이면 화면마다 PNG.
+// → 보고서 오른쪽 위 반려 사유 → 고쳐 다시 확정 → 홈 최근 보고서 「최종본 보기」(정비자 14). SHOT_DIR이면 화면마다 PNG.
 
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -107,7 +107,26 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await confirmReportModal(page);
   await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다 · \d\d:\d\d$/);
   await expect(page.locator(".banner.ok div")).toHaveText(/^보고서를 확정했습니다 · \d\d:\d\d$/); // 안내 문장 두 줄 뺌
+  // 확정하면 왼쪽 칸도 바로 '진행 중인 알람 없음'(가이드 19쪽 — 홈 5초 주기를 기다리지 않음).
+  // 위 띠는 지금 앱 그대로(세션 화면은 그 세션 알람 — 조각 2 남은 차이 1, 답장 001-zzr 받음)
+  await expect(left.locator(".n-le")).toHaveText("진행 중인 알람 없음", { timeout: 2000 });
   await snap(page, info, "T13-confirmed");
+  // 정비자 14 최종본: 「최종본 보기」 → 문서 · 「출력」(동작 0) 두 번 · 「보고서로」
+  await pause(page);
+  await page.locator(".btn", { hasText: "최종본 보기" }).click();
+  await expect(page).toHaveURL(/\/report\/\d+$/);
+  await expect(page.locator(".fd-h h1")).toHaveText("정비 보고서 M-01");
+  await expect(page.locator(".fd-st span").last()).toHaveText("승인 대기");
+  await expect(page.locator(".fdoc h2")).toHaveCount(5);
+  await snap(page, info, "T14-final");
+  await pause(page);
+  await page.locator(".fbar .btn", { hasText: "출력" }).click();
+  await pause(page);
+  await page.locator(".fbar .btn", { hasText: "출력" }).click();
+  await expect(page.locator(".fd-h h1")).toHaveText("정비 보고서 M-01");
+  await pause(page);
+  await page.locator(".fbar .btn", { hasText: "보고서로" }).click();
+  await expect(page.locator(".cd-h .ch.green")).toHaveText("확정 · 승인 대기");
   await pause(page);
   await left.locator(".tabs button", { hasText: "완료" }).click();
   await expect(left.locator(".n-li.ro").first()).toContainText("냉각 필터 막힘");
@@ -153,6 +172,13 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(page.locator('[data-part="rejection"]')).toHaveCount(0);
   await lead.reload();
   await expect(lead.locator("tr[data-report]")).toHaveCount(1);
+  // 홈 「최근 내 보고서」 줄에서도 최종본 — 다시 확정 표시
+  await pause(page);
+  await page.locator(".tb-home").click();
+  await pause(page);
+  await page.locator(".rl .lk2", { hasText: "최종본 보기" }).first().click();
+  await expect(page.locator(".fd-steps li").nth(1)).toContainText("정비자 다시 확정");
+  await snap(page, info, "T14-final-reconfirmed");
   g.check(info);
   lg.check(info);
 });

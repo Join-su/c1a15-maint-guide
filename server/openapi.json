@@ -4772,6 +4772,17 @@
        }
       ]
      },
+     "report_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Report Id"
+     },
      "status": {
       "title": "Status",
       "type": "string"
@@ -6670,6 +6681,46 @@
      }
     },
     "summary": "Tech Notifications"
+   }
+  },
+  "/api/tech/reports/{report_id}/final": {
+   "get": {
+    "description": "D-528 정비자 보고서 최종본(가이드 정비자 14): 파트장 검토와 같은 문서 값.\n\n본인이 작성한 보고서만(D-530 답장 001-zzq) — 남의 보고서는 403 · 거부 감사.",
+    "operationId": "tech_report_final_api_tech_reports__report_id__final_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "report_id",
+      "required": true,
+      "schema": {
+       "title": "Report Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FinalReport"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Tech Report Final"
    }
   },
   "/api/tech/sessions/{sid}": {

@@ -701,6 +701,7 @@ def report_view(
     rejection = stored.rejection if stored is not None and stored.rejection else None
     return {
         "status": status,
+        "report_id": stored.report_id if stored is not None else None,  # D-528 「최종본 보기」(확정한 보고서 행)
         "rejection": (
             {
                 **{k2: rejection.get(k2) for k2 in ("reason", "by", "at")},

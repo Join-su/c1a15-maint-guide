@@ -20,14 +20,17 @@ import { chime, unlockSound, useClock, usePoll } from "./hooks";
 import { HomeScreen, NotifyPanel } from "./screens/Home";
 import { ManualModal, type ManualView } from "./screens/Instruction";
 import { Login } from "./screens/Login";
+import { FinalScreen } from "./screens/Final";
 import { Session } from "./screens/Session";
 import { TodayPanel } from "./screens/Today";
 
-type View = { name: "home" } | { name: "session"; sid: number };
+type View = { name: "home" } | { name: "session"; sid: number } | { name: "final"; rid: number };
 
 function viewFromPath(): View {
   const m = /^\/session\/(\d+)/.exec(window.location.pathname);
-  return m ? { name: "session", sid: Number(m[1]) } : { name: "home" };
+  if (m) return { name: "session", sid: Number(m[1]) };
+  const f = /^\/report\/(\d+)/.exec(window.location.pathname); // D-528 보고서 최종본
+  return f ? { name: "final", rid: Number(f[1]) } : { name: "home" };
 }
 
 export function App() {
@@ -35,7 +38,7 @@ export function App() {
   const clock = useClock();
   const [me, setMeState] = useState<Me | null>(() => device.me());
   const [view, setView] = useState<View>(viewFromPath);
-  useFreshScreenGuard(view.name === "home" ? "home" : `session:${view.sid}`); // EV-007: 홈 → 세션 바뀐 직후 누름 무시
+  useFreshScreenGuard(view.name === "home" ? "home" : view.name === "final" ? `final:${view.rid}` : `session:${view.sid}`); // EV-007: 홈 → 세션 바뀐 직후 누름 무시
   const [home, setHome] = useState<HomeData | null>(null);
   const [notes, setNotes] = useState<Notifications | null>(null);
   const [panel, setPanel] = useState(false);
@@ -54,7 +57,7 @@ export function App() {
   const go = (v: View) => {
     setView(v);
     setPanel(false);
-    const path = v.name === "session" ? `/session/${v.sid}` : "/";
+    const path = v.name === "session" ? `/session/${v.sid}` : v.name === "final" ? `/report/${v.rid}` : "/";
     if (window.location.pathname !== path) window.history.pushState(null, "", path);
   };
   useEffect(() => {
@@ -76,6 +79,11 @@ export function App() {
     }
   };
   usePoll(refresh, 5000, [me?.user_id]);
+  // D-528: 왼쪽 「오늘 밤 알람」 · 위 띠가 세션 단계와 어긋나지 않게 — 잠금 · 단계 · 보고서 상태가 바뀌면 홈을 바로 다시 읽는다(5초 주기를 기다리지 않음)
+  useEffect(() => {
+    if (session) void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.session_id, session?.locked, session?.step?.kind, session?.report?.status]);
 
   const [pack, setPack] = useState<PackState>(null); // CH-17: 점검 시작(첫 Run)이 늦거나 실패할 때
   const [packAlarm, setPackAlarm] = useState<number | null>(null);
@@ -160,6 +168,7 @@ export function App() {
             <HomeScreen
               home={home}
               onResume={(sid) => go({ name: "session", sid })}
+              onFinal={(rid) => go({ name: "final", rid })}
               onOpen={(a) => {
                 const sid = a.session_id ?? a.report_session_id; // 완료 행 '보기' = 확정한 보고서
                 if (a.status === "new") void startAlarm(a.alarm_id);
@@ -167,6 +176,8 @@ export function App() {
               }}
             />
           ) : null
+        ) : view.name === "final" ? (
+          <FinalScreen api={api} rid={view.rid} onReport={(sid) => go({ name: "session", sid })} />
         ) : (
           <Session
             key={view.sid}
@@ -178,6 +189,7 @@ export function App() {
             onRecord={(id) => void openRecord(id)}
             onManual={(section) => void openManual(view.sid, section)}
             onHome={() => go({ name: "home" })}
+            onFinal={(rid) => go({ name: "final", rid })}
           />
         )}
       </div>

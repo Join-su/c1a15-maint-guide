@@ -116,3 +116,21 @@ def test_final_report_role_and_missing(api, db):
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
     assert tech.get(f"/api/lead/reports/{rid}/final").status_code in {401, 403}
     assert lead(api).get(f"/api/lead/reports/{rid + 999}/final").status_code == 404
+
+
+def test_tech_final_report_own_only_same_values(api, db):
+    """D-530 답장 001-zzq: 정비자 쪽 최종본 = 파트장 최종본과 같은 값(같은 함수), 본인 보고서만 — 남의 보고서는 403 · 거부 감사."""
+    reset_ops(db)
+    tech, s, rid = confirmed_report(api, db)
+    assert (
+        tech.get(f"/api/tech/sessions/{s['session_id']}").json()["report"]["report_id"] == rid
+    )  # 「최종본 보기」 번호
+    mine = tech.get(f"/api/tech/reports/{rid}/final")
+    assert mine.status_code == 200
+    assert mine.json() == lead(api).get(f"/api/lead/reports/{rid}/final").json()
+    other, _ = login(api, "tech", "tech.lee", TECH_PW)
+    r = other.get(f"/api/tech/reports/{rid}/final")
+    assert r.status_code == 403 and r.json()["detail"] == "not_own_report"
+    assert table_count(db, "select count(*) from ops.audit_log where detail->>'reason' = 'not_own_report'") == 1
+    assert tech.get(f"/api/tech/reports/{rid + 999}/final").status_code == 404
+    assert lead(api).get(f"/api/tech/reports/{rid}/final").status_code in {401, 403}

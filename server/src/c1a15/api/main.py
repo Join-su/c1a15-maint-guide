@@ -13,7 +13,7 @@ from sqlalchemy import Connection, select
 
 from c1a15 import config
 from c1a15.alarms import ml
-from c1a15.api import deps, history, lead, responses, screen, sessions
+from c1a15.api import deps, final, history, lead, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user, internal_token, tech_user
 from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody
 from c1a15.db import models as m
@@ -314,6 +314,22 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
             for r in reports[:3]
         ],
     }
+
+
+@app.get("/api/tech/reports/{report_id}/final", response_model=responses.FinalReport)
+def tech_report_final(
+    report_id: int, user: User = Depends(tech_user), c: Connection = Depends(conn, scope="function")
+) -> dict:
+    """D-528 정비자 보고서 최종본(가이드 정비자 14): 파트장 검토와 같은 문서 값.
+
+    본인이 작성한 보고서만(D-530 답장 001-zzq) — 남의 보고서는 403 · 거부 감사."""
+    author = c.execute(select(m.Report.author).where(m.Report.report_id == report_id)).scalar()
+    if author is None:
+        raise HTTPException(status_code=404, detail="no_report")
+    if author != user.user_id:
+        sessions.audit_rejection(user.user_id, "reject", f"report:{report_id}", {"reason": "not_own_report"})
+        raise HTTPException(status_code=403, detail="not_own_report")
+    return final.final_report(c, report_id)
 
 
 @app.get("/api/tech/notifications", response_model=responses.Notifications, response_model_exclude_unset=True)

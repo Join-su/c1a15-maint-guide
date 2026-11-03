@@ -36,10 +36,12 @@ export function HomeScreen({
   home,
   onOpen,
   onResume,
+  onFinal,
 }: {
   home: HomeData;
   onOpen: (a: Row) => void;
   onResume?: (sessionId: number) => void;
+  onFinal?: (reportId: number) => void;
 }) {
   const rows = sortedAlarms(home);
   const rejected = home.recent_reports.find((r) => r.status === "rejected");
@@ -139,7 +141,14 @@ export function HomeScreen({
                   <span>
                     {r.equipment_id} · {r.cause} · {r.confirmed_at ? dayTime(r.confirmed_at) : ""}
                   </span>
-                  <span className={`ch ${REPORT[r.status]?.chip ?? "gray"}`}>{REPORT[r.status]?.label ?? r.status}</span>
+                  <span className="rl-r">
+                    {r.status !== "rejected" && onFinal ? ( // D-528 가이드 정비자 14: 최근 내 보고서 줄에서도 최종본
+                      <span className="lk2" role="button" tabIndex={0} onClick={() => onFinal(r.report_id)}>
+                        최종본 보기
+                      </span>
+                    ) : null}
+                    <span className={`ch ${REPORT[r.status]?.chip ?? "gray"}`}>{REPORT[r.status]?.label ?? r.status}</span>
+                  </span>
                 </div>
               ))
             )}

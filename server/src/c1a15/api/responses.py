@@ -323,6 +323,7 @@ class Rejection(_Out):
 
 class ReportBlock(_Out):
     status: str
+    report_id: int | None = None
     rejection: Rejection | None = None
     fields: list[ReportField]
     checks: list[ReportCheck]

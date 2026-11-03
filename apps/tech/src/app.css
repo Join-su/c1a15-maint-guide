@@ -49,3 +49,9 @@
 .lockm .proc { gap: 10px; } .lockm .proc li { font-size: 16px; }
 .lockm .proc li:last-child { background: var(--warn-s); }
 .banner.rej { margin-bottom: 14px; }
+/* 보고서 최종본(정비자 14): 위 「보고서로」 · 「출력」, 아래 문서(스크롤) */
+.fbody { overflow: auto; }
+.fbar { display: flex; align-items: center; gap: 10px; max-width: 960px; margin: 0 auto 12px; }
+.fbar .sp { flex: 1; }
+.rl .rl-r { display: inline-flex; align-items: center; gap: 10px; }
+.rl .lk2 { color: var(--pri); font-weight: 700; font-size: 14px; cursor: pointer; }

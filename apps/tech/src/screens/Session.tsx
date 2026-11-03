@@ -41,6 +41,7 @@ export interface SessionProps {
   onRecord: (id: string) => void;
   onManual: (section: string) => void;
   onHome: () => void;
+  onFinal?: (reportId: number) => void;
 }
 
 export function Session(p: SessionProps) {
@@ -227,7 +228,7 @@ export function Session(p: SessionProps) {
       bump((n) => n + 1);
     };
     body = reportOpen ? (
-      <ReportScreen report={s.report} busy={busy} send={flowSend} onHome={p.onHome} />
+      <ReportScreen report={s.report} busy={busy} send={flowSend} onHome={p.onHome} onFinal={p.onFinal} />
     ) : s.call?.kind === "handover" ? (
       <HandoverScreen s={s} busy={busy} send={flowSend} onReport={openReport} />
     ) : (

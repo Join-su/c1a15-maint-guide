@@ -409,6 +409,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tech/reports/{report_id}/final": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tech Report Final
+         * @description D-528 정비자 보고서 최종본(가이드 정비자 14): 파트장 검토와 같은 문서 값.
+         *
+         *     본인이 작성한 보고서만(D-530 답장 001-zzq) — 남의 보고서는 403 · 거부 감사.
+         */
+        get: operations["tech_report_final_api_tech_reports__report_id__final_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tech/sessions/{sid}": {
         parameters: {
             query?: never;
@@ -1856,6 +1878,8 @@ export interface components {
             /** Messages */
             messages: string[];
             rejection?: components["schemas"]["Rejection"] | null;
+            /** Report Id */
+            report_id?: number | null;
             /** Status */
             status: string;
         };
@@ -2760,6 +2784,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Notifications"];
+                };
+            };
+        };
+    };
+    tech_report_final_api_tech_reports__report_id__final_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinalReport"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

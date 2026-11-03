@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@c1a15/ui/styles/guide-a.css";
 import "@c1a15/ui/styles/direction-guide.css";
+import "@c1a15/ui/styles/final-report.css";
 import "@c1a15/ui/styles/past-adjust.css"; // 표시 조정 ③(CO-38)
 import "./app.css";
 import { App } from "./App";

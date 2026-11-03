@@ -551,11 +551,12 @@ export interface ReportProps {
   busy: boolean;
   send: (body: Record<string, unknown>) => Promise<boolean> | void;
   onHome: () => void;
+  onFinal?: (reportId: number) => void;
 }
 
 /** T09: 보고서 8항목(출처 · 고치기), 확정 전 확인 3항목, 확정 → 승인 대기(확정 뒤 수정 없음 — AC-33).
  *  D-528(가이드 정비자 12 · 13 · 반려 34쪽): 반려면 오른쪽 위에 반려 사유 · 「보고서 확정」은 확인 창(확정 · 취소) · 안내 문장 뺌. */
-export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
+export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProps) {
   const [edit, setEdit] = useState<{ key: string; text: string } | null>(null);
   const [asking, setAsking] = useState(false);
   const rej = report.rejection;
@@ -674,6 +675,9 @@ export function ReportScreen({ report, busy, send, onHome }: ReportProps) {
                   <b>보고서를 확정했습니다 · {report.confirmed_at ? hhmm(report.confirmed_at) : ""}</b>
                 </div>
               </div>
+              {report.report_id != null && onFinal ? ( // D-528 가이드 정비자 13: 확정 뒤 「최종본 보기」(새 화면)
+                <Btn cls="lg full" label="최종본 보기" onClick={() => onFinal(report.report_id as number)} />
+              ) : null}
               <Btn cls="lg full ghost" label="홈으로" onClick={onHome} />
             </>
           )}
