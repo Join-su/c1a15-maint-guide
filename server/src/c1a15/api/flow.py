@@ -33,6 +33,7 @@ CLIENT_TYPES = {
     "report_edit",
     "report_confirm",
     "handover_request",
+    "exception_draft",  # D-543: 「노하우 등록」 — 판정에 쓰지 않음(접지 않음)
 }
 # 판정 엔진이 접는 S-03 업무 기록(파트장 답 call_answer는 S-04 P-11이 쓴다)
 ENGINE_TYPES = {
@@ -622,6 +623,34 @@ def exception_of(events: list[dict]) -> dict | None:
     return (last or {}).get("exception_record") or None
 
 
+def exception_draft_of(events: list[dict]) -> dict | None:
+    """D-543 「노하우 등록」: 마지막 확정 뒤 마지막 초안(두 글) — 보고서 칸에 채움(보고서와 함께 승인)."""
+    last_confirm = max((e["seq"] for e in events if e["type"] == "report_confirm"), default=0)
+    draft = next((e for e in reversed(events) if e["type"] == "exception_draft" and e["seq"] > last_confirm), None)
+    return (draft or {}).get("exception_record") or None
+
+
+def exception_notes(c: Connection, alarm: m.Alarm, limit: int = 3) -> list[dict]:
+    """D-543 참고 알림(답장 001-zzz9 다 = A): 승인 이력 원본의 예외 상황 기록 중 같은 설비 · 같은 증상군, 최근 순."""
+    rows = c.execute(
+        text(
+            "select record_id, occurred_at, record->'exception_record' as ex from knowledge.history_records "
+            "where source = 'approved_report' and equipment_id = :eq and symptom_group = :g "
+            "and record->'exception_record' is not null order by occurred_at desc, record_id desc limit :n"
+        ),
+        {"eq": alarm.equipment_id, "g": alarm.symptom_group, "n": limit},
+    ).all()
+    return [
+        {
+            "record_id": r.record_id,
+            "occurred_at": r.occurred_at.isoformat(),
+            "situation": r.ex.get("situation", ""),
+            "action": r.ex.get("action", ""),
+        }
+        for r in rows
+    ]
+
+
 def exception_context(c: Connection, alarm: m.Alarm, events: list[dict], cause: str, report_id: int) -> dict:
     """D-538 자동 정보 여덟(입력 0): 설비 · 증상군 · 시각 · 센서값 · 직전 정비 · AI 첫 안내 · 확정 원인 · 보고서 번호.
 
@@ -759,6 +788,7 @@ def report_view(
         "can_confirm": status == "draft" and all(x["ok"] for x in checks),
         "confirmed_at": confirmed_at.isoformat() if confirmed_at else None,
         "exception_record": exception_of(events),
+        "exception_draft": exception_draft_of(events),
         "low_evidence": rules.low_evidence(
             session.fold(k, row.symptom_group, [rules.Similar(**s) for s in row.similar], []).similar
         ),
@@ -803,6 +833,14 @@ def accept(
 
     if state.report_confirmed:
         reject("session_closed")
+    if etype == "exception_draft":  # D-543 「노하우 등록」: 두 글만 남김 → 보고서 칸에 채워져 보고서와 함께 확정 · 승인
+        if not state.locked:
+            reject("not_locked")
+        ex = payload.get("exception_record") or {}
+        situation, action = (ex.get("situation") or "").strip(), (ex.get("action") or "").strip()
+        return "exception_draft", {
+            "exception_record": {"situation": situation, "action": action} if situation or action else None
+        }
     if etype == "handover_request":  # AC-31-C2 · S6: 문장 생성 3회 연속 실패로 인계를 권할 때만 정비자가 고른다
         from c1a15.api import sessions as svc
 

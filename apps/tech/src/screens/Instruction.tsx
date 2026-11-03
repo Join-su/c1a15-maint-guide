@@ -37,6 +37,17 @@ export function InstructionScreen(p: InstructionProps) {
       <div className="g64">
         <div className="cd">
           <LockOk at={p.s.lock_at} />
+          {p.s.exception_notes?.length ? ( // D-543 참고 알림: 같은 설비 · 같은 증상군의 승인된 예외 상황 기록(순서는 그대로)
+            <div className="banner info xref">
+              <Icon name="info" />
+              <div>
+                <b>
+                  이전 예외 기록 · {p.s.alarm.equipment_id} · {p.s.alarm.group_name}
+                </b>
+                {p.s.exception_notes[0].situation}
+              </div>
+            </div>
+          ) : null}
           <div className="ins-h">
             <span className="sm">
               점검 {ins.check_no} / 최대 {ins.check_max}

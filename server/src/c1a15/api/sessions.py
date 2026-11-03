@@ -548,6 +548,8 @@ def view(c: Connection, row: m.DiagSession) -> dict:
             ],
         }
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
+    out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「노하우 등록」 초안
+    out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
     return out
 
 

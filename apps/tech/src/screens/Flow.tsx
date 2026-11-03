@@ -588,7 +588,8 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
   const [edit, setEdit] = useState<{ key: string; text: string } | null>(null);
   const [asking, setAsking] = useState(false);
   // D-538 예외 상황 기록(선택): 정비자가 예외라고 판단할 때만 적는 두 글 — 자동 정보는 서버가 확정 때 붙임
-  const [ex, setEx] = useState({ situation: report.exception_record?.situation ?? "", action: report.exception_record?.action ?? "" });
+  const pre = report.exception_record ?? report.exception_draft; // D-543: 「노하우 등록」 초안이 있으면 칸에 미리 채움
+  const [ex, setEx] = useState({ situation: pre?.situation ?? "", action: pre?.action ?? "" });
   const rej = report.rejection;
   const draft = report.status === "draft";
   const save = () => {

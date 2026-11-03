@@ -347,6 +347,22 @@ class ExceptionContext(_Out):
     report_id: int | None
 
 
+class ExceptionDraft(_Out):
+    """D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐."""
+
+    situation: str
+    action: str
+
+
+class ExceptionNote(_Out):
+    """D-543 참고 알림: 같은 설비 · 같은 증상군의 승인된 예외 상황 기록."""
+
+    record_id: str
+    occurred_at: str
+    situation: str
+    action: str
+
+
 class ExceptionRecord(_Out):
     situation: str  # 어떤 상황이었나
     action: str  # 무엇을 했나
@@ -363,6 +379,7 @@ class ReportBlock(_Out):
     can_confirm: bool
     confirmed_at: str | None
     exception_record: ExceptionRecord | None = None  # D-538: 마지막 확정 때 함께 보낸 예외 상황 기록
+    exception_draft: ExceptionDraft | None = None  # D-543: 「노하우 등록」 초안(마지막 확정 뒤)
     low_evidence: bool
 
 
@@ -449,6 +466,8 @@ class SessionView(_Out):
     call: CallBlock | None = None
     report: ReportBlock | None = None
     correction: Correction | None = None
+    exception_draft: ExceptionDraft | None = None  # D-543 「노하우 등록」 초안
+    exception_notes: list[ExceptionNote] = []  # D-543 참고 알림(같은 설비 · 같은 증상군 승인 예외 기록)
 
 
 class SessionWithPreview(SessionView):

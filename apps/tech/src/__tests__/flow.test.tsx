@@ -310,6 +310,18 @@ describe("T09 보고서", () => {
     expect(none.container.querySelector(".kh")).toBeNull();
   });
 
+  it("「노하우 등록」 초안(D-543)이 있으면 보고서 예외 상황 기록 칸에 미리 채움 → 그대로 「확정」과 함께", () => {
+    const s = load("s03-report-draft");
+    const send = vi.fn();
+    const draft = { situation: "덮개 고정 나사가 빠져 있었음", action: "나사를 새로 끼움" };
+    const { container } = render(<ReportScreen report={{ ...s.report!, exception_draft: draft }} busy={false} send={send} onHome={() => {}} />);
+    expect((container.querySelector('textarea[aria-label="어떤 상황이었나"]') as HTMLTextAreaElement).value).toBe(draft.situation);
+    expect((container.querySelector('textarea[aria-label="무엇을 했나"]') as HTMLTextAreaElement).value).toBe(draft.action);
+    fireEvent.click(btn(container, "보고서 확정"));
+    fireEvent.click(btn(container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenCalledWith({ type: "report_confirm", exception_record: draft });
+  });
+
   it("고치기: 연필 → 글 상자 → 벗어나면 report_edit(바뀐 경우만)", () => {
     const s = load("s03-report-draft");
     const send = vi.fn();

@@ -123,3 +123,43 @@ def test_exception_record_too_long_is_rejected(api, db):
     }
     assert tech.post(f"/api/tech/sessions/{s['session_id']}/events", json=body).status_code == 422  # 1000자까지
     assert _rid(db, s["session_id"]) is None  # 확정되지 않음
+
+
+def test_exception_draft_prefills_report_and_reference_notes(api, db):
+    """D-543 「노하우 등록」: 잠금 뒤 두 글 초안 → 보고서 칸에 채워짐 → 보고서와 함께 확정 · 승인 →
+    같은 설비 · 같은 증상군의 다음 세션에 참고 알림(앱 원본 조회 — 답장 001-zzz9 다 = A)."""
+    reset_ops(db)
+    tech, s = start(api, db)
+    body = {"seq": s["last_seq"] + 1, "type": "exception_draft", "exception_record": {"situation": SIT, "action": ACT}}
+    assert tech.post(f"/api/tech/sessions/{s['session_id']}/events", json=body).status_code == 409  # 잠금 전 0
+    s = to_instruct(tech, s)
+    assert s["exception_draft"] is None  # 아직 초안 없음(앞 시험이 남긴 승인 이력이 있으면 참고 알림은 있을 수 있음)
+    s = ok(tech, s, type="exception_draft", exception_record={"situation": f" {SIT} ", "action": ACT})
+    assert s["exception_draft"] == {"situation": SIT, "action": ACT}
+    assert s["step"]["kind"] == "instruct" and s["instruction"]["section"] == "4.3"  # 판정 · 단계 그대로
+    s = ok(tech, s, type="result", section="4.3", value="이상", memo="기름때가 필터 표면 절반 넘게 덮음")
+    s = ok(tech, s, type="action_done", section="4.3.2")
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    s = ok(tech, s, type="restart_result", outcome="within")
+    assert s["report"]["exception_draft"] == {"situation": SIT, "action": ACT}  # 보고서 칸에 채울 값
+    s = ok(tech, s, type="report_confirm", exception_record=s["report"]["exception_draft"])
+    assert s["report"]["exception_draft"] is None and s["report"]["exception_record"]["situation"] == SIT
+    rid = _rid(db, s["session_id"])
+    hid = lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).json()["history_record_id"]
+    tech2, s2 = start(api, db, equipment="M-01")
+    s2 = to_instruct(tech2, s2)
+    note = next(n for n in s2["exception_notes"] if n["record_id"] == hid)
+    assert (note["situation"], note["action"]) == (SIT, ACT) and note["occurred_at"]
+    tech3, s3 = start(api, db, equipment="M-03")  # 다른 설비는 이 기록을 보지 않음
+    s3 = to_instruct(tech3, s3)
+    assert all(n["record_id"] != hid for n in s3["exception_notes"])
+
+
+def test_exception_draft_empty_clears(api, db):
+    reset_ops(db)
+    tech, s = start(api, db)
+    s = to_instruct(tech, s)
+    s = ok(tech, s, type="exception_draft", exception_record={"situation": SIT, "action": ""})
+    assert s["exception_draft"] == {"situation": SIT, "action": ""}
+    s = ok(tech, s, type="exception_draft", exception_record={"situation": " ", "action": ""})
+    assert s["exception_draft"] is None  # 비우면 초안 없음

@@ -64,6 +64,7 @@ class EventBody(_Strict):
         "report_edit",
         "report_confirm",
         "handover_request",
+        "exception_draft",
     ]
     section: str | None = None
     value: Literal["정상", "이상", "확인 불가"] | None = None
@@ -91,6 +92,7 @@ class EventBody(_Strict):
             "restart": ("checked",),
             "restart_result": ("outcome",),
             "report_edit": ("field", "text"),
+            "exception_draft": ("exception_record",),
         }.get(self.type, ())
         missing = [f for f in need if getattr(self, f) is None]
         if self.type == "result" and self.value is None and not self.memo:

@@ -139,3 +139,4 @@
 .ap .g73 > div:last-child > .kh { margin-bottom: 14px; }
 .ap .kh .khf + .khf { margin-top: 10px; }
 .ap .kh .khf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+.ap .xref { margin-bottom: 12px; } /* D-543 참고 알림 */

@@ -192,6 +192,19 @@ function instr(s: SessionView, over: Partial<Parameters<typeof InstructionScreen
 }
 
 describe("T06 점검 지시 · 결과 입력", () => {
+  it("참고 알림(D-543 · 답장 001-zzz9 다 = A): 같은 설비 · 같은 증상군 승인 예외 기록이 있으면 잠금 줄 아래 한 줄(순서 그대로) · 없으면 0", () => {
+    const s = load<SessionView>("event-instruct");
+    const note = { record_id: "R-0012", occurred_at: "2026-10-28T01:10:00+00:00", situation: "바닥에 절삭유가 고여 있었음", action: "바닥을 닦음" };
+    const withNote = instr({ ...s, exception_notes: [note] }).container;
+    const b = withNote.querySelector(".banner.info.xref")!;
+    expect(b.querySelector("b")?.textContent).toBe(`이전 예외 기록 · ${s.alarm.equipment_id} · ${s.alarm.group_name}`);
+    expect(b.querySelector("div")?.textContent).toBe(`이전 예외 기록 · ${s.alarm.equipment_id} · ${s.alarm.group_name}${note.situation}`);
+    expect(b.previousElementSibling?.className).toBe("lockok"); // 잠금 줄 바로 아래 · 점검 머리 위
+    expect(b.nextElementSibling?.className).toBe("ins-h");
+    cleanup();
+    expect(instr({ ...s, exception_notes: [] }).container.querySelector(".xref")).toBeNull();
+  });
+
   it("점검 n / 최대 m · 절차 · 판정 기준 · 원문 · 근거, 결과 3버튼, 고르기 전에는 보내기 잠김", () => {
     const s = load<SessionView>("event-instruct");
     const { container, props } = instr(s);

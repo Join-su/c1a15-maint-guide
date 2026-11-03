@@ -1653,7 +1653,8 @@
        "call_wait",
        "report_edit",
        "report_confirm",
-       "handover_request"
+       "handover_request",
+       "exception_draft"
       ],
       "title": "Type",
       "type": "string"
@@ -1802,6 +1803,26 @@
     "title": "ExceptionContext",
     "type": "object"
    },
+   "ExceptionDraft": {
+    "additionalProperties": false,
+    "description": "D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐.",
+    "properties": {
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "situation": {
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "situation",
+     "action"
+    ],
+    "title": "ExceptionDraft",
+    "type": "object"
+   },
    "ExceptionInput": {
     "additionalProperties": false,
     "description": "D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).",
@@ -1820,6 +1841,36 @@
      }
     },
     "title": "ExceptionInput",
+    "type": "object"
+   },
+   "ExceptionNote": {
+    "additionalProperties": false,
+    "description": "D-543 참고 알림: 같은 설비 · 같은 증상군의 승인된 예외 상황 기록.",
+    "properties": {
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     },
+     "situation": {
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "record_id",
+     "occurred_at",
+     "situation",
+     "action"
+    ],
+    "title": "ExceptionNote",
     "type": "object"
    },
    "ExceptionPrev": {
@@ -5056,6 +5107,16 @@
       ],
       "title": "Confirmed At"
      },
+     "exception_draft": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionDraft"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "exception_record": {
       "anyOf": [
        {
@@ -5557,6 +5618,24 @@
       "title": "Evidence",
       "type": "object"
      },
+     "exception_draft": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionDraft"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "exception_notes": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionNote"
+      },
+      "title": "Exception Notes",
+      "type": "array"
+     },
      "instruction": {
       "anyOf": [
        {
@@ -5772,6 +5851,24 @@
       },
       "title": "Evidence",
       "type": "object"
+     },
+     "exception_draft": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionDraft"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "exception_notes": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionNote"
+      },
+      "title": "Exception Notes",
+      "type": "array"
      },
      "instruction": {
       "anyOf": [

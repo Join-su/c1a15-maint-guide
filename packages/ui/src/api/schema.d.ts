@@ -1027,7 +1027,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request";
+            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft";
             /** Value */
             value?: ("정상" | "이상" | "확인 불가") | null;
             /** Values */
@@ -1069,6 +1069,16 @@ export interface components {
             };
         };
         /**
+         * ExceptionDraft
+         * @description D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐.
+         */
+        ExceptionDraft: {
+            /** Action */
+            action: string;
+            /** Situation */
+            situation: string;
+        };
+        /**
          * ExceptionInput
          * @description D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).
          */
@@ -1082,6 +1092,20 @@ export interface components {
              * Situation
              * @default
              */
+            situation: string;
+        };
+        /**
+         * ExceptionNote
+         * @description D-543 참고 알림: 같은 설비 · 같은 증상군의 승인된 예외 상황 기록.
+         */
+        ExceptionNote: {
+            /** Action */
+            action: string;
+            /** Occurred At */
+            occurred_at: string;
+            /** Record Id */
+            record_id: string;
+            /** Situation */
             situation: string;
         };
         /** ExceptionPrev */
@@ -1993,6 +2017,7 @@ export interface components {
             checks: components["schemas"]["ReportCheck"][];
             /** Confirmed At */
             confirmed_at: string | null;
+            exception_draft?: components["schemas"]["ExceptionDraft"] | null;
             exception_record?: components["schemas"]["ExceptionRecord"] | null;
             /** Fields */
             fields: components["schemas"]["ReportField"][];
@@ -2124,6 +2149,12 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            exception_draft?: components["schemas"]["ExceptionDraft"] | null;
+            /**
+             * Exception Notes
+             * @default []
+             */
+            exception_notes: components["schemas"]["ExceptionNote"][];
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2180,6 +2211,12 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            exception_draft?: components["schemas"]["ExceptionDraft"] | null;
+            /**
+             * Exception Notes
+             * @default []
+             */
+            exception_notes: components["schemas"]["ExceptionNote"][];
             /** Evidence */
             evidence: {
                 [key: string]: number;

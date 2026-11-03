@@ -193,6 +193,14 @@ def test_exception_record_input_and_blocks():
         "exception_record" in responses.ReportBlock.model_fields
         and "exception_record" in responses.FinalReport.model_fields
     )
+    draft = schemas.EventBody(seq=1, type="exception_draft", exception_record={"situation": "가"})
+    assert draft.exception_record.situation == "가"
+    with pytest.raises(ValueError):
+        schemas.EventBody(seq=1, type="exception_draft")  # D-543 「노하우 등록」: 두 글 칸 없으면 422
+    assert (
+        "exception_notes" in responses.SessionView.model_fields
+        and "exception_draft" in responses.ReportBlock.model_fields
+    )
     assert set(responses.ExceptionContext.model_fields) == {
         "equipment_id",
         "symptom_group",
