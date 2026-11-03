@@ -23,6 +23,12 @@ const pause = (p: Page) => p.waitForTimeout(800);
 
 test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확인 창 · 반려 → 다시 확정(사람 손 순서)", async ({ page, browser }, info) => {
   const g = guard(page);
+  // 정비자 1 로그인(가이드 3쪽 — 답장 001-zzx 아): 큰 로고 위 · 이름 아래 두 줄
+  await page.goto("/");
+  const logo = await page.locator(".lg-card .brand .logo").boundingBox();
+  const brandName = await page.locator(".lg-card .brand .bn").boundingBox({ timeout: 3000 }).catch(() => null);
+  expect(brandName, "로고 아래 이름 줄").not.toBeNull();
+  expect(brandName!.y).toBeGreaterThanOrEqual(logo!.y + logo!.height);
   await login(page, undefined, undefined, false); // 막기 켬
   alarm("DEMO-01");
   // 정비자 2 홈: 왼쪽 칸 · 내 알람 한 줄

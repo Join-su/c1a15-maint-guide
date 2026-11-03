@@ -29,10 +29,11 @@ export function Login({ api, onDone }: { api: Api; onDone: (me: Me) => void }) {
       <div className="lg-wrap">
         <form className="lg-card" onSubmit={submit}>
           <div className="brand">
+            {/* 답장 001-zzx 아(가이드 3쪽): 큰 로고 위 · 이름 아래 */}
             <span className="logo">
               <Icon name="map" />
             </span>
-            정비 길잡이
+            <span className="bn">정비 길잡이</span>
           </div>
           <h3>정비자 로그인</h3>
           {error === "role" ? (

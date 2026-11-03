@@ -113,3 +113,6 @@
 .ap .cki.bad .cb { background: var(--bad); }
 .ap .cki.now .cb { background: var(--pri); }
 .ap .cki.void { color: var(--mut); text-decoration: line-through; } .ap .cki.void .cb { background: #c4cad4; }
+/* 답장 001-zzx 아(가이드 3쪽): 정비자 로그인 머리 = 큰 로고 위 · 이름 아래 */
+.ap .lg-card .brand { flex-direction: column; align-items: flex-start; gap: 10px; font-size: 18px; }
+.ap .lg-card .brand .logo { width: 46px; height: 46px; border-radius: 12px; } .ap .lg-card .brand .logo .ic { width: 24px; height: 24px; }
