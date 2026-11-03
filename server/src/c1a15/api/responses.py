@@ -499,6 +499,66 @@ class LeadReport(_Out):
     violations: int
 
 
+class FinalDecision(_Out):
+    kind: str
+    by_name: str
+    at: str | None
+    memo: str | None = None
+
+
+class FinalSensor(_Out):
+    name: str
+    value_text: str
+    range_text: str
+    status: str
+    out_of_range: bool
+
+
+class FinalCause(_Out):
+    name: str
+    probability: int
+    evidence: int
+    result: str
+    confirmed: bool
+
+
+class FinalStep(_Out):
+    at: str
+    who: str
+    text: str
+    section: str | None
+    grade: str | None
+
+
+class FinalReport(_Out):
+    """보고서 최종본(D-528 · 부록 5): 구역 1 ~ 5 값 — 두 앱이 같은 문서 화면(FinalReport.tsx)으로 그린다."""
+
+    report_id: int
+    session_id: int
+    status: str
+    equipment_id: str
+    equipment_type: str
+    group_name: str
+    occurred_at: str
+    confirmed_at: str | None
+    author_name: str
+    lock_at: str | None
+    rejected_before: bool
+    decision: FinalDecision | None
+    sensors: list[FinalSensor]
+    sensor_evidence: str
+    causes: list[FinalCause]
+    cause: str
+    check_path: str
+    evidence_records: str
+    timeline: list[FinalStep]
+    action: str
+    restart: str | None
+    downtime: str
+    grade_use: dict[str, int]
+    unresolved: str
+
+
 class EditCheckField(_Out):
     key: str
     ok: bool
@@ -584,6 +644,7 @@ class LeadCall(_Out):
     section: str | None
     grade: str | None
     summary: str
+    sender_name: str | None = None
     options: list[AnswerOption]
     answered: bool
     answer: dict | None
@@ -651,6 +712,7 @@ class AuditRow(_Out):
     action: str
     target: str
     equipment_id: str | None
+    report_id: int | None = None  # D-528 승인 대기 '오늘 기록' 「보고서 보기」(보고서 확정 · 결정 행)
 
 
 class AuditUser(_Out):

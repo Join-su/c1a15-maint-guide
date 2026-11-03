@@ -710,6 +710,17 @@
       ],
       "title": "Equipment Id"
      },
+     "report_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Report Id"
+     },
      "target": {
       "title": "Target",
       "type": "string"
@@ -1670,6 +1681,333 @@
     "title": "EventBody",
     "type": "object"
    },
+   "FinalCause": {
+    "additionalProperties": false,
+    "properties": {
+     "confirmed": {
+      "title": "Confirmed",
+      "type": "boolean"
+     },
+     "evidence": {
+      "title": "Evidence",
+      "type": "integer"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "probability": {
+      "title": "Probability",
+      "type": "integer"
+     },
+     "result": {
+      "title": "Result",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "probability",
+     "evidence",
+     "result",
+     "confirmed"
+    ],
+    "title": "FinalCause",
+    "type": "object"
+   },
+   "FinalDecision": {
+    "additionalProperties": false,
+    "properties": {
+     "at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "At"
+     },
+     "by_name": {
+      "title": "By Name",
+      "type": "string"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "memo": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Memo"
+     }
+    },
+    "required": [
+     "kind",
+     "by_name",
+     "at"
+    ],
+    "title": "FinalDecision",
+    "type": "object"
+   },
+   "FinalReport": {
+    "additionalProperties": false,
+    "description": "보고서 최종본(D-528 · 부록 5): 구역 1 ~ 5 값 — 두 앱이 같은 문서 화면(FinalReport.tsx)으로 그린다.",
+    "properties": {
+     "action": {
+      "title": "Action",
+      "type": "string"
+     },
+     "author_name": {
+      "title": "Author Name",
+      "type": "string"
+     },
+     "cause": {
+      "title": "Cause",
+      "type": "string"
+     },
+     "causes": {
+      "items": {
+       "$ref": "#/components/schemas/FinalCause"
+      },
+      "title": "Causes",
+      "type": "array"
+     },
+     "check_path": {
+      "title": "Check Path",
+      "type": "string"
+     },
+     "confirmed_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Confirmed At"
+     },
+     "decision": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FinalDecision"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "downtime": {
+      "title": "Downtime",
+      "type": "string"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "equipment_type": {
+      "title": "Equipment Type",
+      "type": "string"
+     },
+     "evidence_records": {
+      "title": "Evidence Records",
+      "type": "string"
+     },
+     "grade_use": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Grade Use",
+      "type": "object"
+     },
+     "group_name": {
+      "title": "Group Name",
+      "type": "string"
+     },
+     "lock_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lock At"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "rejected_before": {
+      "title": "Rejected Before",
+      "type": "boolean"
+     },
+     "report_id": {
+      "title": "Report Id",
+      "type": "integer"
+     },
+     "restart": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Restart"
+     },
+     "sensor_evidence": {
+      "title": "Sensor Evidence",
+      "type": "string"
+     },
+     "sensors": {
+      "items": {
+       "$ref": "#/components/schemas/FinalSensor"
+      },
+      "title": "Sensors",
+      "type": "array"
+     },
+     "session_id": {
+      "title": "Session Id",
+      "type": "integer"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     },
+     "timeline": {
+      "items": {
+       "$ref": "#/components/schemas/FinalStep"
+      },
+      "title": "Timeline",
+      "type": "array"
+     },
+     "unresolved": {
+      "title": "Unresolved",
+      "type": "string"
+     }
+    },
+    "required": [
+     "report_id",
+     "session_id",
+     "status",
+     "equipment_id",
+     "equipment_type",
+     "group_name",
+     "occurred_at",
+     "confirmed_at",
+     "author_name",
+     "lock_at",
+     "rejected_before",
+     "decision",
+     "sensors",
+     "sensor_evidence",
+     "causes",
+     "cause",
+     "check_path",
+     "evidence_records",
+     "timeline",
+     "action",
+     "restart",
+     "downtime",
+     "grade_use",
+     "unresolved"
+    ],
+    "title": "FinalReport",
+    "type": "object"
+   },
+   "FinalSensor": {
+    "additionalProperties": false,
+    "properties": {
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "out_of_range": {
+      "title": "Out Of Range",
+      "type": "boolean"
+     },
+     "range_text": {
+      "title": "Range Text",
+      "type": "string"
+     },
+     "status": {
+      "title": "Status",
+      "type": "string"
+     },
+     "value_text": {
+      "title": "Value Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "value_text",
+     "range_text",
+     "status",
+     "out_of_range"
+    ],
+    "title": "FinalSensor",
+    "type": "object"
+   },
+   "FinalStep": {
+    "additionalProperties": false,
+    "properties": {
+     "at": {
+      "title": "At",
+      "type": "string"
+     },
+     "grade": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade"
+     },
+     "section": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Section"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     },
+     "who": {
+      "title": "Who",
+      "type": "string"
+     }
+    },
+    "required": [
+     "at",
+     "who",
+     "text",
+     "section",
+     "grade"
+    ],
+    "title": "FinalStep",
+    "type": "object"
+   },
    "GradeBody": {
     "additionalProperties": false,
     "description": "L05 등급 변경: 경고를 확인했을 때만(confirmed = true) 저장.",
@@ -2156,6 +2494,17 @@
        }
       ],
       "title": "Section"
+     },
+     "sender_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sender Name"
      },
      "sent_at": {
       "anyOf": [
@@ -6040,6 +6389,46 @@
      }
     },
     "summary": "Report Decision"
+   }
+  },
+  "/api/lead/reports/{report_id}/final": {
+   "get": {
+    "description": "D-528 보고서 검토 = 최종본 문서(구역 1 ~ 5 · 읽기만).",
+    "operationId": "report_final_api_lead_reports__report_id__final_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "report_id",
+      "required": true,
+      "schema": {
+       "title": "Report Id",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FinalReport"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Report Final"
    }
   },
   "/api/lead/sessions": {

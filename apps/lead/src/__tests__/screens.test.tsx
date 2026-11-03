@@ -1,15 +1,16 @@
-// P-12 component 시험: 실제 API 응답(fixtures, dev 스택 파트장 API)으로 L01 ~ L06을 그려 Prototype v17 구조(packet 부록)와
-// 보내는 요청을 대조한다.
+// 파트장 앱 component 시험(D-528 최종안 · 가이드 파트장 1 ~ 5): 실제 API 응답(fixtures)으로 그려 가이드 구조 · 보내는 요청을 대조한다.
+// final-report.json = 시험 DB 실제 응답 한 건(server/tests/test_final_report.py FINAL_FIXTURE_OUT, D-503 2).
 
-import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Api, Schemas } from "@c1a15/ui";
-import { ApprovalList, Review } from "../screens/Approvals";
+import { ApprovalList } from "../screens/Approvals";
 import { AuditScreen } from "../screens/Audit";
 import { CallDetail, CallList } from "../screens/Calls";
-import { Frame } from "../screens/Frame";
+import { Frame, headDate } from "../screens/Frame";
 import { GradesScreen } from "../screens/Grades";
 import { Login } from "../screens/Login";
+import { Review } from "../screens/Review";
 
 const fx = import.meta.glob("./fixtures/*.json", { eager: true, import: "default" }) as Record<string, unknown>;
 function load<T>(name: string): T {
@@ -17,276 +18,366 @@ function load<T>(name: string): T {
 }
 const texts = (root: ParentNode, sel: string) => [...root.querySelectorAll(sel)].map((e) => e.textContent?.trim() ?? "");
 const btn = (root: ParentNode, label: string) =>
-  [...root.querySelectorAll(".btn")].find((b) => b.textContent?.trim() === label) as HTMLElement;
+  [...root.querySelectorAll("button.lbtn")].find((b) => b.textContent?.trim() === label) as HTMLButtonElement;
 const ok = (data: unknown) => Promise.resolve({ data, error: undefined, response: { status: 200 } });
 const fail = (status: number, detail: unknown) => Promise.resolve({ data: undefined, error: { detail }, response: { status } });
+const noop = () => {};
 
 afterEach(cleanup);
 
-describe("L01 로그인 · 틀", () => {
-  it("파트장 계정만: 역할이 다르면 거부 배너 · ID 칸 오류 토큰(AC-12)", async () => {
+describe("파트장 1 로그인 · 틀", () => {
+  it("ID · 비밀번호를 다 넣어야 열림 · 역할이 다르면 거부 줄 · ID 칸 오류(AC-12) · 설명 문장 없음", async () => {
     const api = { POST: vi.fn(() => fail(403, "role_mismatch")) } as unknown as Api;
-    const { container } = render(<Login api={api} onDone={() => {}} />);
-    expect(container.querySelector(".lg-card h3")?.textContent).toBe("파트장 로그인");
-    expect(btn(container, "로그인").className).toContain("dis");
+    const { container } = render(<Login api={api} onDone={noop} />);
+    expect(container.querySelector(".lg-card h2")?.textContent).toBe("파트장 로그인");
+    expect(btn(container, "로그인").disabled).toBe(true);
     fireEvent.change(container.querySelector('[aria-label="ID"]')!, { target: { value: "tech.kim" } });
+    expect(btn(container, "로그인").disabled).toBe(true);
     fireEvent.change(container.querySelector('[aria-label="비밀번호"]')!, { target: { value: "x" } });
     await act(async () => fireEvent.click(btn(container, "로그인")));
-    expect(container.querySelector(".banner.bad b")?.textContent).toBe("파트장 계정만 로그인할 수 있습니다");
-    expect(container.querySelector('[aria-label="ID"]')?.className).toBe("inp err");
+    expect(container.querySelector(".lerr b")?.textContent).toBe("파트장 계정만 로그인할 수 있습니다");
+    expect(container.querySelector('[aria-label="ID"]')?.className).toBe("err");
+    expect(container.textContent).not.toContain("사전 등록된");
   });
 
-  it("왼쪽 메뉴 4개(D-529) · 현재 메뉴 강조 · 메뉴 이동", () => {
+  it("왼쪽 메뉴 넷(사람 판단 없음) · 아이콘 0 · 개수는 회색 칸 숫자 · 현재 메뉴 · 메뉴 이동", () => {
     const onMenu = vi.fn();
     const { container } = render(
-      <Frame menu="calls" me={{ display_name: "박 파트장" }} title="처리할 호출" now="2026-10-01T08:12:00+09:00" onMenu={onMenu}>
+      <Frame menu="calls" me={{ display_name: "박 파트장" }} counts={{ approvals: 1, calls: 0 }} onMenu={onMenu}>
         <div />
       </Frame>,
     );
-    expect(texts(container, ".wn")).toEqual(["승인 대기", "호출", "권한 등급", "감사 기록"]);
-    expect(container.querySelector(".wn.on")?.textContent).toBe("호출");
-    expect(container.querySelector(".wb-top .sm")?.textContent).toBe("2026-10-01 (목) 08:12");
-    fireEvent.click(container.querySelectorAll(".wn")[2]); // 권한 등급
+    const items = [...container.querySelectorAll(".lnav a")];
+    expect(items.map((a) => a.childNodes[0].textContent)).toEqual(["승인 대기", "호출", "권한 등급", "감사 기록"]);
+    expect(texts(container, ".lnav a .c")).toEqual(["1"]); // 0이면 칸 없음
+    expect(container.querySelector(".lnav a.on")?.textContent).toBe("호출");
+    expect(container.querySelectorAll(".lnav svg, .lnav img").length).toBe(0);
+    expect(texts(container, ".who b")).toEqual(["박 파트장"]);
+    fireEvent.click(items[2]);
     expect(onMenu).toHaveBeenCalledWith("grades");
+  });
+
+  it("머리 날짜: '10월 1일(목) 08:12 · 야간 22:00 ~ 06:00'(현장 시각)", () => {
+    expect(headDate("2026-09-30T23:12:00Z")).toBe("10월 1일(목) 08:12 · 야간 22:00 ~ 06:00");
   });
 });
 
-describe("L02 승인 대기 · L03 검토", () => {
-  it("요약 타일 3개 = 실제 건수 · 행 항목 · 근거 적음 칩 · 권한 위반(AC-27 · AC-29-C3)", () => {
+describe("파트장 2 승인 대기", () => {
+  const props = { onOpen: noop, onCall: noop, onAudit: noop, onCalls: noop };
+
+  it("요약 셋 = 실제 건수(강조는 승인 대기 하나) · 확정된 보고서 표 · 근거 적음 · 위반 칸 · 「검토」(AC-27 · AC-29-C3)", () => {
     const o = load<Schemas["LeadOverview"]>("overview-list");
     const onOpen = vi.fn();
-    const { container } = render(<ApprovalList data={o} onOpen={onOpen} />);
-    expect(texts(container, ".kt b")).toEqual([String(o.tiles.awaiting), String(o.tiles.calls_open), String(o.tiles.violations)]);
-    expect(texts(container, ".kt span")).toEqual(["승인 대기", "처리할 호출", "권한 위반"]);
-    expect(texts(container, ".wt th")).toEqual(["설비 · 알람", "확정 원인", "작성", "확정 시각", "근거 기록", "권한", ""]);
+    const { container } = render(<ApprovalList data={o} audit={null} calls={null} {...props} onOpen={onOpen} />);
+    expect(container.querySelector(".lbar h2")?.textContent).toBe("승인 대기");
+    expect(texts(container, ".ltiles b")).toEqual([String(o.tiles.awaiting), String(o.tiles.calls_open), String(o.tiles.violations)]);
+    expect(texts(container, ".ltiles span")).toEqual(["승인 대기", "처리할 호출", "권한 위반"]);
+    expect(container.querySelectorAll(".ltiles b.acc").length).toBe(1);
+    expect(texts(container, ".lsect-h")[0]).toBe(`확정된 보고서${o.rows.length}건`);
     const rows = [...container.querySelectorAll("tr[data-report]")];
     expect(rows.length).toBe(o.rows.length);
-    const low = rows.find((r) => r.className === "low")!;
-    expect(low.querySelector(".ch.amber")?.textContent).toBe("근거 적음");
-    expect(texts(container, ".ch.green")).toEqual(o.rows.map(() => "위반 0"));
-    fireEvent.click(rows[0].querySelector(".btn")!);
-    expect(onOpen).toHaveBeenCalledWith(o.rows[0].report_id);
+    expect(texts(container, "tr[data-report] .tx.warn")).toEqual(["근거 적음"]);
+    expect(texts(container, "tr[data-report] .tx.ok")).toEqual(o.rows.map(() => "위반 0"));
+    fireEvent.click(rows[1].querySelector("button.lbtn")!);
+    expect(onOpen).toHaveBeenLastCalledWith(o.rows[1].report_id);
+    fireEvent.click(rows[2]); // 행을 눌러도 엶
+    expect(onOpen).toHaveBeenLastCalledWith(o.rows[2].report_id);
   });
 
-  it("빈 목록 안내(AC-27-C3)", () => {
-    const { container } = render(<ApprovalList data={load("overview-empty")} onOpen={() => {}} />);
-    expect(texts(container, ".kt b")).toEqual(["0", "0", "0"]);
-    expect(container.querySelector(".empty")?.textContent).toBe("승인 대기 보고서가 없습니다");
+  it("오늘 기록(최근 5줄 · 전체 건수 · 보고서 확정 행은 「보고서 보기」) · 처리할 호출(지금 API 그대로) · 전체 보기 링크", () => {
+    const o = load<Schemas["LeadOverview"]>("overview-list");
+    const a = load<Schemas["LeadAudit"]>("audit-default");
+    a.rows[1] = { ...a.rows[1], action: "보고서 확정", report_id: 6 };
+    const cl = load<Schemas["LeadCalls"]>("calls-list");
+    const on = { onOpen: vi.fn(), onCall: vi.fn(), onAudit: vi.fn(), onCalls: vi.fn() };
+    const { container } = render(<ApprovalList data={o} audit={a} calls={cl} {...on} />);
+    const today = container.querySelector('[data-part="today"]')!;
+    expect(today.querySelector(".lsect-h")?.textContent).toBe(`오늘 기록${a.rows.length}건`);
+    expect(today.querySelectorAll("tr.lsm").length).toBe(5);
+    expect(texts(today, "th")).toEqual(["시각", "앱", "사용자", "행동", "대상"]);
+    expect(texts(today, "tr.lsm td:nth-child(2)")[0]).toBe("파트장 앱");
+    fireEvent.click([...today.querySelectorAll("button.ltx")].find((b) => b.textContent === "보고서 보기")!);
+    expect(on.onOpen).toHaveBeenCalledWith(6);
+    fireEvent.click([...today.querySelectorAll("button.ltx")].find((b) => b.textContent === "감사 기록 전체 보기")!);
+    expect(on.onAudit).toHaveBeenCalled();
+    const calls = container.querySelector('[data-part="calls"]')!;
+    expect(calls.querySelector(".lsect-h")?.textContent).toBe(`처리할 호출${cl.rows.length}건`);
+    expect(texts(calls, "tr[data-call] td:nth-child(3)")).toEqual(["숙련자 인계", "파트장 호출"]);
+    fireEvent.click(calls.querySelector("tr[data-call]")!);
+    expect(on.onCall).toHaveBeenCalledWith(cl.rows[0].call_id);
+    fireEvent.click(calls.querySelector("button.ltx")!);
+    expect(on.onCalls).toHaveBeenCalled();
   });
 
-  it("EV-007: '결정 저장'을 빠르게 세 번 → 결정 요청 한 번(응답 전 두 번째 누름 무시)", async () => {
-    const report = load<Schemas["LeadReport"]>("report-review");
-    let release: () => void = () => {};
-    const POST = vi.fn(
-      () => new Promise((r) => (release = () => r({ data: { status: "approved", history_record_id: "R-0001" }, error: undefined, response: { status: 200 } }))),
-    );
-    const onDone = vi.fn();
-    const { container } = render(<Review api={{ POST } as unknown as Api} report={report} onDone={onDone} />);
-    fireEvent.click(btn(container, "결정 저장"));
-    fireEvent.click(btn(container, "결정 저장"));
-    fireEvent.click(btn(container, "결정 저장"));
-    expect(POST).toHaveBeenCalledTimes(1);
-    await act(async () => release());
-    expect(onDone).toHaveBeenCalledTimes(1);
+  it("빈 상태 셋: 승인 대기 보고서가 없습니다 · 기록이 없습니다 · 처리할 호출이 없습니다(부록 3)", () => {
+    const a = { ...load<Schemas["LeadAudit"]>("audit-default"), rows: [] };
+    const { container } = render(<ApprovalList data={load("overview-empty")} audit={a} calls={load("calls-empty")} {...props} />);
+    expect(texts(container, ".ltiles b")).toEqual(["0", "0", "0"]);
+    expect(container.querySelector(".lempty")?.textContent).toBe("승인 대기 보고서가 없습니다");
+    expect(texts(container, ".lnone")).toEqual(["기록이 없습니다", "처리할 호출이 없습니다"]);
+  });
+});
+
+describe("파트장 2 보고서 검토 = 최종본 문서", () => {
+  const report = () => load<Schemas["FinalReport"]>("final-report");
+
+  it("머리 · 진행 넷 · 구역 1 ~ 5 · 꼬리 = 서버 값 그대로 · 「출력」 「반려」 「승인」 · 수정 후 승인 없음", () => {
+    const f = report();
+    const { container } = render(<Review api={{} as Api} report={f} onBack={noop} onDone={noop} />);
+    expect(container.querySelector(".lcrumb")?.textContent).toBe(`승인 대기 / ${f.equipment_id} 보고서`);
+    expect(texts(container, ".lbar button.lbtn")).toEqual(["출력", "반려", "승인"]);
+    expect(container.querySelector(".fd-h h1")?.textContent).toBe(`정비 보고서 ${f.equipment_id}`);
+    expect(texts(container, ".fd-st span")).toEqual([expect.stringMatching(/^잠금 확인 \d\d:\d\d$/), "승인 대기"]);
+    expect(texts(container, ".fd-steps li").map((x) => x.replace(/\d\d:\d\d/, "hh:mm"))).toEqual([
+      "1초안 자동 작성",
+      "2정비자 확정 hh:mm",
+      "3파트장 승인",
+      "4이력 추가",
+    ]);
+    expect(container.querySelector(".fd-steps li.now")?.textContent).toBe("3파트장 승인");
+    expect(texts(container, "h2")).toEqual(["1. 이상 내용 · 센서 근거", "2. 원인 분석", "3. 조치 경과", "4. 조치 결과", "5. 미확인 · 주간 요청"]);
+    const sections = container.querySelectorAll(".fdoc section");
+    expect(sections[0].querySelectorAll("tr.hot").length).toBe(f.sensors.filter((s) => s.out_of_range).length);
+    expect(texts(sections[1], "tr td:first-child")).toEqual(f.causes.map((c) => c.name));
+    expect(texts(sections[1], "tr.hot td:last-child")).toEqual(["확정 · 4.3 점검 이상"]);
+    expect(sections[2].querySelectorAll("tr").length - 1).toBe(f.timeline.length);
+    expect(texts(sections[2], ".fd-g").length).toBe(f.timeline.filter((x) => x.grade).length);
+    expect(texts(sections[3], "tr")).toContain(`권한 사용A ${f.grade_use.A} · B ${f.grade_use.B} · C ${f.grade_use.C}`);
+    expect(container.querySelector(".fd-open")?.textContent).toBe(f.unresolved);
+    expect(texts(container, ".fd-f b")[1]).toBe("승인 대기");
+    expect(container.textContent).not.toContain("수정 후 승인");
   });
 
-  it("검토: 보고서 다섯 행 · 결정 3개(하나만) · 그대로 승인 저장", async () => {
-    const report = load<Schemas["LeadReport"]>("report-review");
+  it("승인: 확인 창(메모 고를 수 있음) → 결정 요청 approve · 「출력」은 요청 0", async () => {
+    const f = report();
     const api = { POST: vi.fn(() => ok({ status: "approved", history_record_id: "R-0001" })) } as unknown as Api;
     const onDone = vi.fn();
-    const { container } = render(<Review api={api} report={report} onDone={onDone} />);
-    expect(texts(container, ".rk2")).toEqual(["확정 원인", "점검 경로", "조치", "근거 사례", "미확인"]);
-    expect(container.querySelector(".cd-h .ch.gray")?.textContent).toBe(`${report.author_name} 작성`);
-    expect(texts(container, ".dopt b")).toEqual(["그대로 승인", "수정 후 승인", "반려"]);
-    expect(container.querySelectorAll(".dopt.sel").length).toBe(1);
-    await act(async () => fireEvent.click(btn(container, "결정 저장")));
+    const { container } = render(<Review api={api} report={f} onBack={noop} onDone={onDone} />);
+    fireEvent.click(btn(container, "출력"));
+    expect(api.POST).not.toHaveBeenCalled();
+    fireEvent.click(btn(container, "승인"));
+    const dlg = container.querySelector(".lmdl")!;
+    expect(dlg.querySelector("h4")?.textContent).toBe(`${f.equipment_id} 보고서를 승인합니까?`);
+    expect(dlg.querySelector("label")?.textContent).toBe("메모 (선택)");
+    await act(async () => fireEvent.click(btn(dlg, "승인")));
     expect(api.POST).toHaveBeenCalledWith("/api/lead/reports/{report_id}/decision", {
-      params: { path: { report_id: report.report_id } },
+      params: { path: { report_id: f.report_id } },
       body: { decision: "approve", edits: {}, memo: null },
     });
     expect(onDone).toHaveBeenCalled();
   });
 
-  it("반려: 사유가 비면 '반려 사유를 입력해야 저장됩니다' · 저장 잠김(AC-24-C1), 사유를 쓰면 저장", async () => {
-    const report = load<Schemas["LeadReport"]>("report-review");
+  it("반려: 사유를 적어야 「반려」가 열림(AC-24-C1) · 취소하면 창 닫힘 · 사유를 쓰면 reject", async () => {
+    const f = report();
     const api = { POST: vi.fn(() => ok({ status: "rejected" })) } as unknown as Api;
-    const { container } = render(<Review api={api} report={report} onDone={() => {}} />);
-    fireEvent.click(container.querySelectorAll(".dopt")[2]);
-    expect(container.querySelector(".req")?.textContent).toBe("반려 사유를 입력해야 저장됩니다");
-    const save = btn(container, "결정 저장");
-    expect(save.className).toContain("dis");
-    fireEvent.click(save);
-    expect(api.POST).not.toHaveBeenCalled();
-    fireEvent.change(container.querySelector("textarea.memo")!, { target: { value: "필터 표면 상태를 다시 적어 주세요" } });
-    await act(async () => fireEvent.click(btn(container, "결정 저장")));
-    expect(api.POST).toHaveBeenCalledWith("/api/lead/reports/{report_id}/decision", expect.objectContaining({ body: expect.objectContaining({ decision: "reject", memo: "필터 표면 상태를 다시 적어 주세요" }) }));
+    const { container } = render(<Review api={api} report={f} onBack={noop} onDone={noop} />);
+    fireEvent.click(btn(container, "반려"));
+    let dlg = container.querySelector(".lmdl")!;
+    expect(dlg.querySelector("label")?.textContent).toBe("반려 사유");
+    expect(btn(dlg, "반려").disabled).toBe(true);
+    fireEvent.click(btn(dlg, "취소"));
+    expect(container.querySelector(".lmdl")).toBeNull();
+    fireEvent.click(btn(container, "반려"));
+    dlg = container.querySelector(".lmdl")!;
+    fireEvent.change(dlg.querySelector("textarea")!, { target: { value: "4.3 메모에 필터 사진 번호를 적어 다시 확정" } });
+    await act(async () => fireEvent.click(btn(dlg, "반려")));
+    expect(api.POST).toHaveBeenCalledWith("/api/lead/reports/{report_id}/decision", {
+      params: { path: { report_id: f.report_id } },
+      body: { decision: "reject", edits: {}, memo: "4.3 메모에 필터 사진 번호를 적어 다시 확정" },
+    });
   });
 
-  it("수정 후 승인: 행을 직접 고침 → 서버 근거 검사 실패면 빨간 행 · 실패 배너 · 저장 잠김, 통과면 저장(L03 / edit · edit_failed)", async () => {
-    const report = load<Schemas["LeadReport"]>("report-review");
-    const failed = load("check-failed");
-    const passed = load("check-ok");
-    const post = vi.fn((path: string) => (path.endsWith("/check") ? ok(post.mock.calls.length < 2 ? failed : passed) : ok({ status: "approved" })));
-    const api = { POST: post } as unknown as Api;
-    const { container } = render(<Review api={api} report={report} onDone={() => {}} />);
-    fireEvent.click(container.querySelectorAll(".dopt")[1]);
-    fireEvent.click(container.querySelector('[data-field="unresolved"] .rv2')!);
-    const ta = container.querySelector('[data-field="unresolved"] textarea.edit-in') as HTMLTextAreaElement;
-    fireEvent.change(ta, { target: { value: `${ta.value} · 팬 회전수 1,850 rpm으로 정상 확인` } });
-    await waitFor(() => expect(container.querySelector(".rf.fail")).not.toBeNull(), { timeout: 2000 });
-    expect(container.querySelector(".banner.bad b")?.textContent).toBe("근거 검사 실패");
-    expect(btn(container, "결정 저장").className).toContain("dis");
-    fireEvent.change(ta, { target: { value: "냉각 팬 상태(4.4, C) · 주간 조 확인 배정" } });
-    await waitFor(() => expect(container.querySelector(".rf.fail")).toBeNull(), { timeout: 2000 });
-    fireEvent.change(container.querySelector("textarea.memo")!, { target: { value: "주간 확인 담당을 지정함" } });
-    await act(async () => fireEvent.click(btn(container, "결정 저장")));
-    expect(post).toHaveBeenLastCalledWith("/api/lead/reports/{report_id}/decision", {
-      params: { path: { report_id: report.report_id } },
-      body: { decision: "edit", edits: { unresolved: "냉각 팬 상태(4.4, C) · 주간 조 확인 배정" }, memo: "주간 확인 담당을 지정함" },
-    });
+  it("EV-007: 확인 창 「승인」을 빠르게 세 번 → 결정 요청 한 번", async () => {
+    let release: () => void = noop;
+    const POST = vi.fn(
+      () => new Promise((r) => (release = () => r({ data: { status: "approved" }, error: undefined, response: { status: 200 } }))),
+    );
+    const onDone = vi.fn();
+    const { container } = render(<Review api={{ POST } as unknown as Api} report={report()} onBack={noop} onDone={onDone} />);
+    fireEvent.click(btn(container, "승인"));
+    const ok3 = btn(container.querySelector(".lmdl")!, "승인");
+    fireEvent.click(ok3);
+    fireEvent.click(ok3);
+    fireEvent.click(ok3);
+    expect(POST).toHaveBeenCalledTimes(1);
+    await act(async () => release());
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  it("승인 뒤(보기만): 결정 버튼 없음 · 상태 승인 완료 · 진행 넷 다 끝 · 꼬리에 파트장 · 시각", () => {
+    const f = { ...report(), status: "approved", decision: { kind: "approved", by_name: "박 파트장", at: "2026-11-03T05:14:00Z", memo: null } };
+    const { container } = render(<Review api={{} as Api} report={f} onBack={noop} onDone={noop} />);
+    expect(texts(container, ".lbar button.lbtn")).toEqual(["출력"]);
+    expect(texts(container, ".fd-st span")[1]).toBe("승인 완료");
+    expect(container.querySelectorAll(".fd-steps li.done").length).toBe(4);
+    expect(texts(container, ".fd-f b")[1]).toBe("박 파트장 · 승인 14:14");
+  });
+
+  it("반려 뒤 다시 확정: 진행 둘째 칸 '정비자 다시 확정'", () => {
+    const f = { ...report(), rejected_before: true };
+    const { container } = render(<Review api={{} as Api} report={f} onBack={noop} onDone={noop} />);
+    expect(texts(container, ".fd-steps li")[1]).toMatch(/^2정비자 다시 확정 \d\d:\d\d$/);
   });
 });
 
-describe("L04 처리할 호출", () => {
-  it("목록: 유형 칩 · 설비 · 시각 · 필요한 작업 · 보낸 사람 · 답하기", () => {
+describe("파트장 3 호출", () => {
+  it("목록: 시각 · 설비 · 알람 · 유형 칸 · 보낸 사람 · 필요한 작업 · 「답하기」", () => {
     const d = load<Schemas["LeadCalls"]>("calls-list");
     const onOpen = vi.fn();
     const { container } = render(<CallList data={d} onOpen={onOpen} />);
-    expect(texts(container, ".wt th")).toEqual(["유형", "설비 · 알람", "시각", "필요한 작업", "보낸 사람", ""]);
-    expect(texts(container, "td .ch")).toEqual(d.rows.map((r) => (r.kind === "approval" ? "파트장 호출" : "숙련자 인계")));
-    expect(container.querySelector("td .ch.red")?.textContent).toBe("숙련자 인계");
-    fireEvent.click(container.querySelector("tr[data-call] .btn")!);
+    expect(container.querySelector(".lbar h2")?.textContent).toBe("호출");
+    expect(texts(container, ".lt th")).toEqual(["시각", "설비 · 알람", "유형", "보낸 사람", "필요한 작업", ""]);
+    expect(texts(container, "td .tx")).toEqual(d.rows.map((r) => (r.kind === "approval" ? "파트장 호출" : "숙련자 인계")));
+    fireEvent.click(container.querySelector("tr[data-call] button.lbtn")!);
     expect(onOpen).toHaveBeenCalledWith(d.rows[0].call_id);
   });
 
-  it("파트장 호출 상세: 답 3개 · 처리 메모 · D 안내 · 답 저장(AC-23)", async () => {
+  it("답하기: 미리 고른 답 없음 · 골라야 「답 저장」 열림 · 처리 메모 · 답 저장(AC-23)", async () => {
     const call = load<Schemas["LeadCall"]>("call-detail");
     const api = { POST: vi.fn(() => ok({ status: "answered", answer: "daytime" })) } as unknown as Api;
-    const { container } = render(<CallDetail api={api} call={call} onDone={() => {}} />);
-    expect(container.querySelector(".pv .sm")?.textContent).toBe("정비자가 보낸 요약");
-    expect(texts(container, ".dopt b")).toEqual(["승인 후 진행", "주간 처리", "직접 확인"]);
-    expect(container.querySelector(".note")?.textContent).toBe('D등급 작업 호출에는 "승인 후 진행"이 없습니다.');
-    fireEvent.click(container.querySelectorAll(".dopt")[1]);
-    fireEvent.change(container.querySelector("textarea.memo")!, { target: { value: "주간 정비 배정" } });
+    const onBack = vi.fn();
+    const { container } = render(<CallDetail api={api} call={call} onBack={onBack} onDone={noop} />);
+    expect(container.querySelector(".lcrumb")?.textContent).toBe(`호출 / ${call.equipment_id} 파트장 호출`);
+    expect(container.querySelector(".rhd .tx")?.textContent).toBe("답 기다림");
+    expect(texts(container, ".lsect-h")).toEqual(["정비자가 보낸 요약", "답하기"]);
+    expect(texts(container, ".lopts button")).toEqual(["승인 후 진행", "주간 처리", "직접 확인"]);
+    expect(container.querySelectorAll('.lopts [aria-checked="true"]').length).toBe(0);
+    expect(btn(container, "답 저장").disabled).toBe(true);
+    fireEvent.click(container.querySelectorAll(".lopts button")[1]);
+    expect(container.querySelector(".lopts button.on")?.textContent).toBe("주간 처리");
+    fireEvent.change(container.querySelector("textarea.lta")!, { target: { value: "주간 정비 배정" } });
     await act(async () => fireEvent.click(btn(container, "답 저장")));
     expect(api.POST).toHaveBeenCalledWith("/api/lead/calls/{call_id}/answer", {
       params: { path: { call_id: call.call_id } },
       body: { answer: "daytime", note: "주간 정비 배정" },
     });
+    fireEvent.click(container.querySelector(".lcrumb a")!);
+    expect(onBack).toHaveBeenCalled();
   });
 
-  it("D등급 호출(파생 L04 / call_detail_d)에는 '승인 후 진행'이 없다(AC-23-C3) · 숙련자 인계 상세는 2개", () => {
-    let r = render(<CallDetail api={{} as Api} call={load("call-detail-d")} onDone={() => {}} />);
-    expect(texts(r.container, ".dopt b")).toEqual(["주간 처리", "직접 확인"]);
+  it("D등급 호출에는 '승인 후 진행'이 없다(AC-23-C3) · 숙련자 인계는 2개", () => {
+    let r = render(<CallDetail api={{} as Api} call={load("call-detail-d")} onBack={noop} onDone={noop} />);
+    expect(texts(r.container, ".lopts button")).toEqual(["주간 처리", "직접 확인"]);
     cleanup();
-    r = render(<CallDetail api={{} as Api} call={load("handover-detail")} onDone={() => {}} />);
-    expect(texts(r.container, ".dopt b")).toEqual(["주간 숙련자 배정", "직접 확인"]);
-    expect(r.container.querySelector(".note")).toBeNull();
+    r = render(<CallDetail api={{} as Api} call={load("handover-detail")} onBack={noop} onDone={noop} />);
+    expect(texts(r.container, ".lopts button")).toEqual(["주간 숙련자 배정", "직접 확인"]);
+    expect(r.container.querySelector(".rhd h2")?.textContent).toContain("숙련자 인계");
+  });
+
+  it("답한 뒤 잠김: 고른 답 표시 · 선택지 · 메모 잠김 · 「답 저장」 없음", () => {
+    const call = { ...load<Schemas["LeadCall"]>("call-detail"), answered: true, answer: { answer: "direct", note: "현장 확인" } };
+    const { container } = render(<CallDetail api={{} as Api} call={call} onBack={noop} onDone={noop} />);
+    expect(container.querySelector(".rhd .tx")?.textContent).toBe("답함 · 직접 확인");
+    expect(container.querySelector(".lopts button.on")?.textContent).toBe("직접 확인");
+    expect([...container.querySelectorAll(".lopts button")].every((b) => (b as HTMLButtonElement).disabled)).toBe(true);
+    expect((container.querySelector("textarea.lta") as HTMLTextAreaElement).value).toBe("현장 확인");
+    expect(btn(container, "답 저장")).toBeUndefined();
+  });
+
+  it("보낸 뒤 정비자 정정 상자(AC-47-C2 · 결정 019 ②): 시각 · 점검 · 전 → 후 · 사유, 요약 칸 안", () => {
+    const call = load<Schemas["LeadCall"]>("call-corrected");
+    const { container } = render(<CallDetail api={{} as Api} call={call} onBack={noop} onDone={noop} />);
+    const box = container.querySelector('[data-part="correction"]')!;
+    expect(box.querySelector("b")?.textContent).toMatch(/^보낸 뒤 정비자 정정 · \d\d:\d\d$/);
+    expect(texts(box, "div")).toEqual(["4.3 흡기 필터 육안 점검 · 정상 → 이상", "사유 · 필터 뒷면 기름때를 못 보고 정상으로 눌렀음"]);
+    cleanup();
+    const h = render(<CallDetail api={{} as Api} call={load("handover-corrected")} onBack={noop} onDone={noop} />);
+    expect(texts(h.container, '[data-part="correction"] div')[0]).toBe("4.6 냉각 설정값 확인 · 정상 → 이상");
+    cleanup();
+    const c = render(<CallDetail api={{} as Api} call={load("correction-call-detail")} onBack={noop} onDone={noop} />);
+    expect(c.container.querySelector(".lsum")?.textContent).toContain("정정");
+    expect(c.container.querySelector('[data-part="correction"]')).toBeNull();
   });
 });
 
-describe("L05 권한 등급", () => {
-  it("등급표 전부 · 'n절 중 n절 표시' · 변경 기록 없음 안내(결정 018 ②)", () => {
+describe("파트장 4 권한 등급", () => {
+  it("요약 넷 · 등급표 전부(A ~ D 글자 칸 · 처리) · 변경 기록 없음 · 등급의 뜻(결정 018 ②)", () => {
     const g = load<Schemas["LeadGrades"]>("grades-default");
-    const { container } = render(<GradesScreen api={{} as Api} data={g} onChanged={() => {}} />);
-    expect(container.querySelector(".cd-h .ch.gray")?.textContent).toBe(`${g.total}절 중 ${g.total}절 표시`);
+    const { container } = render(<GradesScreen api={{} as Api} data={g} onChanged={noop} />);
+    const n = (x: string) => g.rows.filter((r) => r.grade === x).length;
+    expect(texts(container, ".ltiles b")).toEqual([`${g.total}절`, `${n("A")}절`, `${n("B")}절`, `${n("C") + n("D")}절`]);
     expect(container.querySelectorAll("tr[data-section]").length).toBe(g.total);
-    expect(container.querySelector(".empty")?.textContent).toBe("아직 변경 기록이 없습니다");
+    expect(texts(container, 'tr[data-section="4.4"] .lseg button')).toEqual(["A", "B", "C", "D"]);
+    expect(container.querySelector('tr[data-section="4.4"] .lseg button.on')?.textContent).toBe("C");
+    expect(texts(container, '[data-part="changes"]')).toEqual(["변경 기록 없음"]);
+    expect(texts(container, ".lkv div")).toEqual(["A단독 가능", "B확인 후", "C승인 필요", "D범위 밖"]);
   });
 
-  it("고르기 → 올림 경고(서버 문구) · 취소 / 변경 저장(confirmed) · 낮춤은 warnb 버튼(AC-25-C3)", async () => {
+  it("등급 글자 → 확인 창(지금 · 바꿀 등급 · 서버 경고 문구 그대로) → 「바꾸기」 저장(confirmed) · 취소면 요청 0(AC-25-C3)", async () => {
     const g = load<Schemas["LeadGrades"]>("grades-default");
-    const raise = load("warning-raise");
-    const api = {
-      GET: vi.fn(() => ok(raise)),
-      POST: vi.fn(() => ok({ section: "4.3", before: "A", after: "C" })),
-    } as unknown as Api;
+    const raise = load<Schemas["GradeWarning"]>("warning-raise");
+    const api = { GET: vi.fn(() => ok(raise)), POST: vi.fn(() => ok({ section: "4.3", before: "A", after: "C" })) } as unknown as Api;
     const onChanged = vi.fn();
     const { container } = render(<GradesScreen api={api} data={g} onChanged={onChanged} />);
-    fireEvent.click(container.querySelector('tr[data-section="4.3"] .sel2')!);
-    expect(texts(container, ".dd div")).toEqual(["A 단독 가능", "B 확인 후", "C 승인 필요", "D 범위 밖"]);
-    await act(async () => fireEvent.click(container.querySelectorAll(".dd div")[2]));
-    expect(container.querySelector(".banner.info b")?.textContent).toBe("등급을 올리려 합니다 · 4.3 흡기 필터 육안 점검 A → C");
-    expect(container.querySelector(".dd .on")?.textContent).toBe("C 승인 필요");
-    expect(texts(container, ".choice2 .btn")).toEqual(["취소", "C로 변경 저장"]);
-    await act(async () => fireEvent.click(btn(container, "C로 변경 저장")));
+    fireEvent.click(container.querySelector('tr[data-section="4.3"] .lseg button.on')!); // 지금 등급은 창 0
+    expect(api.GET).not.toHaveBeenCalled();
+    await act(async () => fireEvent.click(container.querySelectorAll('tr[data-section="4.3"] .lseg button')[2]));
+    expect(api.GET).toHaveBeenCalledWith("/api/lead/grades/{section}/warning", { params: { path: { section: "4.3" }, query: { grade: "C" } } });
+    const dlg = container.querySelector(".lmdl")!;
+    expect(dlg.querySelector("h4")?.textContent).toBe("4.3 흡기 필터 육안 점검 등급을 A → C로 바꿉니까?");
+    expect(texts(dlg, ".vt tr")).toEqual(["지금A 단독 가능", "바꿀 등급C 승인 필요"]);
+    expect(dlg.querySelector('[data-part="warning"] b')?.textContent).toBe(raise.head);
+    expect(dlg.querySelector('[data-part="warning"]')?.textContent).toContain(raise.body);
+    await act(async () => fireEvent.click(btn(dlg, "바꾸기")));
     expect(api.POST).toHaveBeenCalledWith("/api/lead/grades/{section}", { params: { path: { section: "4.3" } }, body: { grade: "C", confirmed: true } });
     expect(onChanged).toHaveBeenCalled();
     cleanup();
     const api2 = { GET: vi.fn(() => ok(load("warning-lower"))), POST: vi.fn() } as unknown as Api;
-    const r = render(<GradesScreen api={api2} data={g} onChanged={() => {}} />);
-    fireEvent.click(r.container.querySelector('tr[data-section="4.4"] .sel2')!);
-    await act(async () => fireEvent.click(r.container.querySelectorAll(".dd div")[1]));
-    expect(r.container.querySelector(".banner.warn b")?.textContent).toBe("등급을 낮추려 합니다 · 4.4 냉각 팬 분해 점검 C → B");
-    expect(btn(r.container, "B로 변경 저장").className).toContain("warnb");
-    fireEvent.click(btn(r.container, "취소"));
-    expect(r.container.querySelector(".banner")).toBeNull();
+    const r = render(<GradesScreen api={api2} data={g} onChanged={noop} />);
+    await act(async () => fireEvent.click(r.container.querySelectorAll('tr[data-section="4.4"] .lseg button')[1]));
+    expect(r.container.querySelector('[data-part="warning"].lower b')?.textContent).toBe("등급을 낮추려 합니다 · 4.4 냉각 팬 분해 점검 C → B");
+    fireEvent.click(btn(r.container.querySelector(".lmdl")!, "취소"));
+    expect(r.container.querySelector(".lmdl")).toBeNull();
     expect(api2.POST).not.toHaveBeenCalled();
   });
 
-  it("변경 기록: 누가 · 언제 · 전 → 후(AC-25-C2)", () => {
+  it("변경 기록: 시각 · 절 · 전 → 후 · 누가(AC-25-C2)", () => {
     const g = load<Schemas["LeadGrades"]>("grades-changed");
-    const { container } = render(<GradesScreen api={{} as Api} data={g} onChanged={() => {}} />);
-    expect(texts(container, ".cd:nth-child(2) td:nth-child(3)")).toEqual(["C → A", "A → C"]);
+    const { container } = render(<GradesScreen api={{} as Api} data={g} onChanged={noop} />);
+    expect(texts(container, '[data-part="changes"] div').map((x) => x.replace(/^\d\d:\d\d/, ""))).toEqual([
+      "4.3 흡기 필터 육안 점검 · C → A · 박 파트장",
+      "4.3 흡기 필터 육안 점검 · A → C · 박 파트장",
+    ]);
   });
 });
 
-describe("L04 정정(S-05 P-15)", () => {
-  it("call_corrected: 보낸 파트장 호출에 '보낸 뒤 정비자 정정' 상자(시각 · 점검 · 전 → 후 · 사유, 새 호출 없음 — AC-47-C2)", () => {
-    const call = load<Schemas["LeadCall"]>("call-corrected");
-    const { container } = render(<CallDetail api={{} as Api} call={call} onDone={() => {}} />);
-    const box = container.querySelector(".corr-box")!;
-    expect(box.querySelector("b")?.textContent).toMatch(/^보낸 뒤 정비자 정정 · \d\d:\d\d$/);
-    expect(box.querySelector("div")?.textContent).toBe("4.3 흡기 필터 육안 점검 · 정상 → 이상");
-    expect(box.querySelector(".sm")?.textContent).toBe("사유 · 필터 뒷면 기름때를 못 보고 정상으로 눌렀음. 이 호출을 보낸 뒤라 다시 판정하지 않았습니다.");
-    expect(container.querySelector(".pv")!.nextElementSibling).toBe(box); // 요약 아래
-    expect(texts(container, ".dopt b")).toEqual(["승인 후 진행", "주간 처리", "직접 확인"]);
+describe("파트장 5 감사 기록", () => {
+  it("표(시각 · 앱 · 사용자 · 행동 · 대상) · 칩 「전체 · 정비자 앱 · 파트장 앱」으로 거름 · 시스템 행은 전체에만", () => {
+    const a = load<Schemas["LeadAudit"]>("audit-default");
+    const onApp = vi.fn();
+    const { container, rerender } = render(<AuditScreen data={a} app="all" onApp={onApp} onFilter={noop} />);
+    expect(texts(container, ".lt th")).toEqual(["시각", "앱", "사용자", "행동", "대상"]);
+    expect(texts(container, ".lchips button")).toEqual(["전체", "정비자 앱", "파트장 앱"]);
+    expect(container.querySelectorAll("tr[data-audit]").length).toBe(a.rows.length);
+    expect(texts(container, "tr[data-audit] td:nth-child(2)")).toContain("시스템");
+    fireEvent.click(container.querySelectorAll(".lchips button")[2]);
+    expect(onApp).toHaveBeenCalledWith("파트장");
+    rerender(<AuditScreen data={a} app="파트장" onApp={onApp} onFilter={noop} />);
+    expect(new Set(texts(container, "tr[data-audit] td:nth-child(2)"))).toEqual(new Set(["파트장 앱"]));
+    expect(container.querySelector(".lsect-h")?.textContent).toBe(`기록${a.rows.filter((r) => r.app === "파트장").length}건`);
   });
 
-  it("handover_corrected(결정 019 ②): 숙련자 인계에도 같은 상자, 선택지는 인계 2개", () => {
-    const call = load<Schemas["LeadCall"]>("handover-corrected");
-    const { container } = render(<CallDetail api={{} as Api} call={call} onDone={() => {}} />);
-    expect(container.querySelector(".corr-box div")?.textContent).toBe("4.6 냉각 설정값 확인 · 정상 → 이상");
-    expect(texts(container, ".dopt b")).toEqual(["주간 숙련자 배정", "직접 확인"]);
-  });
-
-  it("correction_call_detail(결정 019 ⑧): 조치 뒤 정정 호출 — '승인 후 진행' 설명은 '정비자가 정정 때 하던 단계로 이어서 합니다'", () => {
-    const call = load<Schemas["LeadCall"]>("correction-call-detail");
-    const { container } = render(<CallDetail api={{} as Api} call={call} onDone={() => {}} />);
-    expect(call.need).toBe("정정 확인 · 4.3 흡기 필터 육안 점검(이상 → 정상)");
-    expect(texts(container, ".dopt span:not(.rd)")[0]).toBe("정비자가 정정 때 하던 단계로 이어서 합니다");
-    expect(container.querySelector(".pv p")?.textContent).toContain("정정");
-    expect(container.querySelector(".corr-box")).toBeNull();
-  });
-
-  it("L06 / correction: 정정(전 → 후 · 사유) · 메모 덧붙이기 행은 서버 문구 그대로", () => {
-    const a = load<Schemas["LeadAudit"]>("audit-correction");
-    const { container } = render(<AuditScreen data={a} onFilter={() => {}} />);
-    const acts = texts(container, ".wt td:nth-child(4)");
-    expect(acts).toContain("정정 · 4.3 결과 정상 → 이상 · 사유 '필터 뒷면 기름때를 못 보고 정상으로 눌렀음'");
-    expect(acts).toContain("메모 덧붙이기 · 잠금 완료 1.2");
-  });
-});
-
-describe("L06 감사 기록", () => {
-  it("필터 3개 · 표(시각 · 사용자 · 앱 · 행동 · 대상), 필터를 고르면 그 조건으로 다시 읽음(AC-26)", () => {
+  it("지금 거르기 셋(설비 · 사용자 · 기간)은 남김 — 고르면 그 조건으로 다시 읽음(AC-26)", () => {
     const a = load<Schemas["LeadAudit"]>("audit-default");
     const onFilter = vi.fn();
-    const { container } = render(<AuditScreen data={a} onFilter={onFilter} />);
-    expect(texts(container, ".flt > .sel2").map((t) => t.split(" · ")[0])).toEqual(["설비", "사용자", "기간"]);
-    expect(texts(container, ".wt th")).toEqual(["시각", "사용자", "앱", "행동", "대상"]);
-    expect(container.querySelectorAll(".wt tr").length - 1).toBe(a.rows.length);
-    expect(texts(container, ".wt td:nth-child(2)")).toContain("시스템");
-    fireEvent.click(container.querySelectorAll(".flt > .sel2")[0]);
+    const { container } = render(<AuditScreen data={a} app="all" onApp={noop} onFilter={onFilter} />);
+    expect(texts(container, ".lflt > .lsel").map((t) => t.split(" · ")[0])).toEqual(["설비", "사용자", "기간"]);
+    fireEvent.click(container.querySelectorAll(".lflt > .lsel")[0]);
     fireEvent.click([...container.querySelectorAll(".dd div")].find((d) => d.textContent === "M-01")!);
     expect(onFilter).toHaveBeenCalledWith({ equipment: "M-01", user_id: null, date: a.date });
+    cleanup();
+    const f = render(<AuditScreen data={load("audit-filtered")} app="all" onApp={noop} onFilter={noop} />);
+    expect(f.container.querySelectorAll(".lflt > .lsel")[0].textContent).toMatch(/^설비 · M-01/);
   });
 
-  it("걸러진 기록(L06 / filtered)", () => {
-    const a = load<Schemas["LeadAudit"]>("audit-filtered");
-    const { container } = render(<AuditScreen data={a} onFilter={() => {}} />);
-    expect(container.querySelectorAll(".flt > .sel2")[0].textContent).toMatch(/^설비 · M-01/);
-    expect(container.querySelectorAll(".flt > .sel2")[1].textContent).toMatch(/^사용자 · /);
-    expect(new Set(texts(container, ".wt td:nth-child(2)")).size).toBe(1);
+  it("정정(전 → 후 · 사유) · 메모 덧붙이기 행은 서버 문구 그대로 · 빈 표는 '기록이 없습니다'", () => {
+    const a = load<Schemas["LeadAudit"]>("audit-correction");
+    const { container } = render(<AuditScreen data={a} app="all" onApp={noop} onFilter={noop} />);
+    const acts = texts(container, "tr[data-audit] td:nth-child(4)");
+    expect(acts).toContain("정정 · 4.3 결과 정상 → 이상 · 사유 '필터 뒷면 기름때를 못 보고 정상으로 눌렀음'");
+    expect(acts).toContain("메모 덧붙이기 · 잠금 완료 1.2");
+    cleanup();
+    const e = render(<AuditScreen data={{ ...a, rows: [] }} app="all" onApp={noop} onFilter={noop} />);
+    expect(e.container.querySelector(".lempty")?.textContent).toBe("기록이 없습니다");
   });
 });

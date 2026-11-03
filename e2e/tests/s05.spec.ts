@@ -10,7 +10,7 @@ async function leadPage(browser: Browser): Promise<Page> {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 620 } });
   const page = await ctx.newPage();
   await loginLead(page);
-  await expect(page.locator(".wb-side")).toBeVisible();
+  await expect(page.locator(".lnav")).toBeVisible();
   return page;
 }
 
@@ -221,10 +221,10 @@ test("AC-46-C2 · AC-45-C5 · AC-48: 뒤 기록 '정정으로 무효' → 보고
   await shot(page, info, "T15-action");
   const lead = await leadPage(browser);
   const lg = guard(lead);
-  await lead.locator("tr[data-report] .btn", { hasText: "검토" }).click();
-  await lead.locator(".dopt", { hasText: "반려" }).click();
-  await lead.getByLabel("메모").fill("4.3 기록 다시 확인");
-  await lead.locator(".btn", { hasText: "결정 저장" }).click();
+  await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
+  await lead.locator(".lbar button.lbtn", { hasText: "반려" }).click();
+  await lead.getByLabel("반려 사유").fill("4.3 기록 다시 확인");
+  await lead.locator(".lmdl button.lbtn", { hasText: "반려" }).click();
   await page.goto(`/session/${sid}`); // AC-48-C3: 반려로 다시 열린 세션은 다시 정정
   await page.getByRole("button", { name: "점검 지난 화면" }).click(); // 세션을 받은 뒤에만 눌림 — 자리표시 진행 표시 클릭 경쟁(001-t)
   await pastBtn(page, "이전").click();
@@ -260,12 +260,11 @@ test("AC-47-C2 · L04 / call_corrected · L06 / correction: 보낸 호출 뒤 �
   const lg = guard(lead);
   await lead.goto(LEAD_URL + "/calls");
   await expect(lead.locator("tr[data-call]")).toHaveCount(1);
-  await lead.locator("tr[data-call] .btn", { hasText: "답하기" }).click();
-  await expect(lead.locator(".corr-box div")).toHaveText("4.3 흡기 필터 육안 점검 · 정상 → 이상");
-  await expect(lead.locator(".corr-box .sm")).toHaveText("사유 · 필터 뒷면 기름때를 못 보고 정상으로 눌렀음. 이 호출을 보낸 뒤라 다시 판정하지 않았습니다.");
+  await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+  await expect(lead.locator('[data-part="correction"] div')).toHaveText(["4.3 흡기 필터 육안 점검 · 정상 → 이상", "사유 · 필터 뒷면 기름때를 못 보고 정상으로 눌렀음"]);
   await shot(lead, info, "L04-call_corrected");
   await lead.goto(LEAD_URL + "/audit"); // AC-45-C3: 정정 기록이 파트장 감사 기록에
-  await expect(lead.locator(".wt td", { hasText: "정정 · 4.3 결과 정상 → 이상 · 사유 '필터 뒷면 기름때를 못 보고 정상으로 눌렀음'" })).toBeVisible();
+  await expect(lead.locator(".lt td", { hasText: "정정 · 4.3 결과 정상 → 이상 · 사유 '필터 뒷면 기름때를 못 보고 정상으로 눌렀음'" })).toBeVisible();
   await shot(lead, info, "L06-correction");
   g.check(info);
   lg.check(info);
@@ -293,12 +292,13 @@ test("AC-47-C1 · 결정 012 ② · 019 ⑧: 조치 뒤 정정 → 정정 호출
   const lead = await leadPage(browser);
   const lg = guard(lead);
   await lead.goto(LEAD_URL + "/calls");
-  await expect(lead.locator("tr[data-call] td").nth(3)).toHaveText("정정 확인 · 4.3 흡기 필터 육안 점검(이상 → 정상)");
-  await lead.locator("tr[data-call] .btn", { hasText: "답하기" }).click();
-  await expect(lead.locator(".dopt span:not(.rd)").first()).toHaveText("정비자가 정정 때 하던 단계로 이어서 합니다");
+  await expect(lead.locator("tr[data-call] td").nth(4)).toHaveText("정정 확인 · 4.3 흡기 필터 육안 점검(이상 → 정상)");
+  await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+  await expect(lead.locator(".lkv")).toContainText("정정 확인 · 4.3 흡기 필터 육안 점검(이상 → 정상)");
+  await lead.locator(".lopts button", { hasText: "승인 후 진행" }).click();
   await shot(lead, info, "L04-correction_call_detail");
-  await lead.locator(".btn", { hasText: "답 저장" }).click(); // 승인 후 진행(첫 선택지)
-  await expect(lead.locator(".empty")).toHaveText("처리할 호출이 없습니다");
+  await lead.locator("button.lbtn", { hasText: "답 저장" }).click(); // 승인 후 진행(골라야 열림 — D-528)
+  await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
   await page.reload();
   await expect(page.getByText("체크리스트 확인 후 재가동")).toBeVisible(); // 새 작업 없이 정정 때 하던 단계(재가동 확인)
   const s = await page.request.get(`/api/tech/sessions/${sid}`).then((r) => r.json());

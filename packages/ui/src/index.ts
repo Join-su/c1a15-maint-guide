@@ -12,4 +12,5 @@ export * from "./api";
 export * from "./clickGuard";
 export * from "./components";
 export * from "./format";
+export { FinalReport } from "./FinalReport";
 export { Icon } from "./icons";

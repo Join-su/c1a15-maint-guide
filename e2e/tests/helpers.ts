@@ -150,7 +150,7 @@ export async function login(page: Page, user = "tech.kim", pw = TECH_PW, guardOf
 }
 
 export async function shot(page: Page, info: TestInfo, name: string): Promise<void> {
-  const root = (await page.locator(".ap").count()) ? ".ap" : ".wb"; // 정비자 앱 · 파트장 앱 화면 틀
+  const root = (await page.locator(".ap").count()) ? ".ap" : (await page.locator(".L").count()) ? ".L" : ".wb"; // 정비자 앱 · 파트장 앱(D-528 .L) 화면 틀
   await info.attach(name, { body: await page.locator(root).first().screenshot(), contentType: "image/png" });
 }
 

@@ -253,6 +253,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/lead/reports/{report_id}/final": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Report Final
+         * @description D-528 보고서 검토 = 최종본 문서(구역 1 ~ 5 · 읽기만).
+         */
+        get: operations["report_final_api_lead_reports__report_id__final_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/lead/sessions": {
         parameters: {
             query?: never;
@@ -718,6 +738,8 @@ export interface components {
             audit_id: number;
             /** Equipment Id */
             equipment_id: string | null;
+            /** Report Id */
+            report_id?: number | null;
             /** Target */
             target: string;
             /** User Id */
@@ -968,6 +990,111 @@ export interface components {
             /** Yes */
             yes?: boolean | null;
         };
+        /** FinalCause */
+        FinalCause: {
+            /** Confirmed */
+            confirmed: boolean;
+            /** Evidence */
+            evidence: number;
+            /** Name */
+            name: string;
+            /** Probability */
+            probability: number;
+            /** Result */
+            result: string;
+        };
+        /** FinalDecision */
+        FinalDecision: {
+            /** At */
+            at: string | null;
+            /** By Name */
+            by_name: string;
+            /** Kind */
+            kind: string;
+            /** Memo */
+            memo?: string | null;
+        };
+        /**
+         * FinalReport
+         * @description 보고서 최종본(D-528 · 부록 5): 구역 1 ~ 5 값 — 두 앱이 같은 문서 화면(FinalReport.tsx)으로 그린다.
+         */
+        FinalReport: {
+            /** Action */
+            action: string;
+            /** Author Name */
+            author_name: string;
+            /** Cause */
+            cause: string;
+            /** Causes */
+            causes: components["schemas"]["FinalCause"][];
+            /** Check Path */
+            check_path: string;
+            /** Confirmed At */
+            confirmed_at: string | null;
+            decision: components["schemas"]["FinalDecision"] | null;
+            /** Downtime */
+            downtime: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Equipment Type */
+            equipment_type: string;
+            /** Evidence Records */
+            evidence_records: string;
+            /** Grade Use */
+            grade_use: {
+                [key: string]: number;
+            };
+            /** Group Name */
+            group_name: string;
+            /** Lock At */
+            lock_at: string | null;
+            /** Occurred At */
+            occurred_at: string;
+            /** Rejected Before */
+            rejected_before: boolean;
+            /** Report Id */
+            report_id: number;
+            /** Restart */
+            restart: string | null;
+            /** Sensor Evidence */
+            sensor_evidence: string;
+            /** Sensors */
+            sensors: components["schemas"]["FinalSensor"][];
+            /** Session Id */
+            session_id: number;
+            /** Status */
+            status: string;
+            /** Timeline */
+            timeline: components["schemas"]["FinalStep"][];
+            /** Unresolved */
+            unresolved: string;
+        };
+        /** FinalSensor */
+        FinalSensor: {
+            /** Name */
+            name: string;
+            /** Out Of Range */
+            out_of_range: boolean;
+            /** Range Text */
+            range_text: string;
+            /** Status */
+            status: string;
+            /** Value Text */
+            value_text: string;
+        };
+        /** FinalStep */
+        FinalStep: {
+            /** At */
+            at: string;
+            /** Grade */
+            grade: string | null;
+            /** Section */
+            section: string | null;
+            /** Text */
+            text: string;
+            /** Who */
+            who: string;
+        };
         /**
          * GradeBody
          * @description L05 등급 변경: 경고를 확인했을 때만(confirmed = true) 저장.
@@ -1132,6 +1259,8 @@ export interface components {
             options: components["schemas"]["AnswerOption"][];
             /** Section */
             section: string | null;
+            /** Sender Name */
+            sender_name?: string | null;
             /** Sent At */
             sent_at: string | null;
             /** Summary */
@@ -2397,6 +2526,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DecisionResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    report_final_api_lead_reports__report_id__final_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinalReport"];
                 };
             };
             /** @description Validation Error */

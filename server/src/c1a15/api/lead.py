@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import Connection, select, text
 
 from c1a15 import checkrecord, config, redact
-from c1a15.api import deps, flow, responses, screen, sessions
+from c1a15.api import deps, final, flow, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
@@ -175,6 +175,17 @@ def report_detail(
         ],
         "violations": violations(c, r.session_id),
     }
+
+
+@router.get("/reports/{report_id}/final", response_model=responses.FinalReport)
+def report_final(
+    report_id: int, user: User = Depends(lead_user), c: Connection = Depends(conn, scope="function")
+) -> dict:
+    """D-528 보고서 검토 = 최종본 문서(구역 1 ~ 5 · 읽기만)."""
+    out = final.final_report(c, report_id)
+    if out is None:
+        raise HTTPException(status_code=404, detail="no_report")
+    return out
 
 
 def _edit_grounding(c: Connection, r) -> grounding.Grounding:
@@ -673,6 +684,7 @@ def call_detail(call_id: int, user: User = Depends(lead_user), c: Connection = D
         "section": r.section,
         "grade": r.grade,
         "summary": r.summary,
+        "sender_name": _names(c).get(r.sent_by, r.sent_by),  # D-528 호출 답하기 머리(보낸 사람)
         "options": [{"value": v, "label": lb, "hint": hint} for v, lb, hint in opts],
         "answered": r.answer is not None,
         "answer": r.answer,
@@ -966,6 +978,7 @@ def audit(
             )
         ).all()
     )
+    rep_of_session = {sid: rid for rid, sid in c.execute(select(m.Report.report_id, m.Report.session_id)).all()}
     rep_eq = dict(
         c.execute(
             select(m.Report.report_id, m.Alarm.equipment_id)
@@ -1015,6 +1028,11 @@ def audit(
             tlabel = a.target
         if a.action == "session_start" and a.detail and a.detail.get("alarm_id"):
             tlabel = f"{eq} 세션" if eq else tlabel
+        report_id = None  # D-528 오늘 기록 「보고서 보기」: 보고서 확정(세션 기록) · 파트장 결정(보고서) 행
+        if kind == "report" and ident.isdigit():
+            report_id = int(ident)
+        elif a.action == "report_confirm" and kind == "session" and ident.isdigit():
+            report_id = rep_of_session.get(int(ident))
         system = a.action in {"instruct", "call_required"} or a.actor == "system"
         acct = accts.get(a.actor)
         row = {
@@ -1026,6 +1044,7 @@ def audit(
             "action": audit_label(a, k, {u: x.display_name for u, x in accts.items()}),
             "target": tlabel,
             "equipment_id": eq,
+            "report_id": report_id,
         }
         if equipment and row["equipment_id"] != equipment:
             continue

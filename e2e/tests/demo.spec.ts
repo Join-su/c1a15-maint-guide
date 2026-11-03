@@ -94,7 +94,7 @@ async function leadPage(browser: Browser): Promise<Page> {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 620 } });
   const page = await ctx.newPage();
   await loginLead(page);
-  await expect(page.locator(".wb-side")).toBeVisible();
+  await expect(page.locator(".lnav")).toBeVisible();
   return page;
 }
 
@@ -128,11 +128,11 @@ async function sendResult(page: Page, value: string, memo?: string): Promise<voi
 async function leadAnswer(lead: Page, label: string, memo?: string): Promise<void> {
   await lead.goto(LEAD_URL + "/calls");
   await expect(lead.locator("tr[data-call]")).toHaveCount(1);
-  await lead.locator("tr[data-call] .btn", { hasText: "답하기" }).click();
-  await lead.locator(".dopt", { hasText: label }).click();
+  await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+  await lead.locator(".lopts button", { hasText: label }).click();
   if (memo) await lead.getByLabel("처리 메모").fill(memo);
-  await lead.locator(".btn", { hasText: "답 저장" }).click();
-  await expect(lead.locator(".empty")).toHaveText("처리할 호출이 없습니다");
+  await lead.locator("button.lbtn", { hasText: "답 저장" }).click();
+  await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
 }
 
 async function openAnswer(page: Page): Promise<void> {
