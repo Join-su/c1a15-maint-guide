@@ -310,8 +310,10 @@ def test_alarm_boundary_path_no_alarm_is_422(api, db, deploy):
     assert r.status_code == 422 and r.json()["detail"] == "no_boundary_crossed" and alarm_rows(db) == []
 
 
-def pack_candidate_plan(reason):
-    """Pack이 후보를 돌려주는 꼴 = Pack alarm_route 원본(alarms/ml.py route)이 실제로 내는 값 — 예측 실패는 Run 실패(D-275)."""
+def pack_candidate_plan(reason, shape="v6"):
+    """Pack이 알람 없음 + 사유를 돌려주는 꼴 = Pack alarm_route 원본(alarms/ml.py route)이 실제로 내는 값 — 예측 실패는 Run 실패(D-275).
+
+    shape v5 = 지금 떠 있는 Pack(약속 v5 · 옛 route 사본)의 `candidate` 칸 — D-530 덧 3: 앱은 두 꼴 다 읽는다."""
     from c1a15.alarms import ml as alarm_route
 
     if reason == "model_failure":
@@ -321,19 +323,31 @@ def pack_candidate_plan(reason):
     first = "RNF" if reason == "rnf" else "HDF"  # 1위 RNF → rnf · 1위 확률 < 문턱 → low_confidence
     pred = {"model_release": "mr-x", "probabilities": {"NONE": 0.3, first: 0.45, "PWF": 0.25}}
     routed = alarm_route.route(pred, None, 0.5)
-    assert routed["candidate"]["reason"] == reason  # 원본이 정말 그 사유의 후보를 냄
+    assert routed["no_alarm_reason"] == reason  # 원본이 정말 그 사유의 알람 없음을 냄
+    if shape == "v5":  # 약속 v5 꼴(옛 route): 사유가 candidate 칸 안에
+        legacy = {
+            "reason": reason,
+            "risk": routed["ml"]["risk"],
+            "top_k": routed["ml"]["top_k"],
+            "boundary_crossed": False,
+            "model_release": "mr-x",
+        }
+        routed = {**{k: v for k, v in routed.items() if k != "no_alarm_reason"}, "candidate": legacy}
     out = {"event_id": "x", "alarm_block": None, "sensor_derived": {"power_w": 1, "temp_diff_k": 1.0}, **routed}
     return [{"output": {"alarm": out}}]
 
 
-@pytest.mark.parametrize("reason", ["low_confidence", "rnf", "model_failure"])
-def test_d529_pack_candidate_is_no_alarm_and_one_audit(api, db, deploy, reason):
-    """D-529: 파트장 '사람 판단'을 지움 — Pack 후보(확신 낮음 · RNF · 예측 실패)는 알람 없음(200) + 감사 alarm_rejected 한 줄.
+@pytest.mark.parametrize(
+    ("reason", "shape"),
+    [("low_confidence", "v6"), ("rnf", "v6"), ("model_failure", "v6"), ("low_confidence", "v5"), ("rnf", "v5")],
+)
+def test_d529_pack_candidate_is_no_alarm_and_one_audit(api, db, deploy, reason, shape):
+    """D-529 · D-530 덧 3: Pack 알람 없음 + 사유(확신 낮음 · RNF · 예측 실패)는 알람 없음(200) + 감사 alarm_rejected 한 줄.
 
-    후보 표(alarm_candidates)에는 새 행 0 · 응답에 candidate_id 칸 없음(알람 없음 응답과 같은 꼴)."""
+    새 꼴(no_alarm_reason) · 옛 꼴(candidate.reason) 둘 다. 후보 표(alarm_candidates)에는 새 행 0 · 응답에 candidate_id 칸 없음."""
     reset_ops(db)
     cands = count(db, "select count(*) from ops.alarm_candidates")
-    deploy.plan = pack_candidate_plan(reason)
+    deploy.plan = pack_candidate_plan(reason, shape)
     r = register_sc(api, scenarios()[0])
     assert r.status_code == 200
     body = r.json()

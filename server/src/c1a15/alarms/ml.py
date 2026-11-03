@@ -6,8 +6,9 @@
   (probabilities 없이 type TWF면 NONE과 같음) — 위험도에서 TWF 몫이 빠지고 유형 후보에 TWF가 나오지 않음.
 - 증상군: 경계 규칙이 넘으면 그 증상군(sensor_boundary). 아니면 ML 유형을 증상군 표
   (HDF → CL · PWF → PW · OSF → LD)로, 확신도(그 유형 확률) ≥ 문턱일 때만(ml_type).
-  그 밖(확신도 < 문턱 · RNF)은 알람 없이 alarm_candidates 기록(사람 판단 필요, 화면은 NX-05).
-- 예측 실패(모델 파일 없음 · 형식 오류 · 예외) → 알람 없이 alarm_candidates model_failure.
+  그 밖(확신도 < 문턱 · RNF)은 알람 없음 + 사유(no_alarm_reason low_confidence · rnf)
+  — 앱은 감사 한 줄만(D-529 · D-530 덧 3).
+- 예측 실패(모델 파일 없음 · 형식 오류 · 예외) → 알람 없음 + 사유 model_failure.
 - 문턱 = 앱 사용자 설정 한 곳 C1A15_ML_ALARM_THRESHOLD(기본 0.5). 모델 release threshold_config는 기록만.
 - R4(원인 순위)는 ML 값을 입력으로 쓰지 않는다(D-238) — ml 칸은 알람 행에 저장만.
 앱이 Pack을 부르는 길(C1A15_ALARM=ml)은 앱 → Pack 연결 결정 뒤(답장 007-06 · 007-11-01) — 이 판은 규칙만.
@@ -44,24 +45,13 @@ def event_card(event_id: str, equipment_id: str, sensor_snapshot: dict, lineage:
 def route(prediction: dict | None, boundary_hit: dict | None, th: float | None = None) -> dict:
     """prediction = Pack 예측(실패면 None), boundary_hit = engine.alarm_rules.detect 결과(없으면 None).
 
-    돌려줌: {alarm: bool, group, group_source, candidate: None | {reason, ...}, ml: {...} | None}.
+    돌려줌: {alarm: bool, group, group_source, ml: {...} | None,
+             no_alarm_reason: None | low_confidence · rnf · model_failure}.
     """
     th = threshold() if th is None else th
     crossed = boundary_hit is not None
     if prediction is None:
-        return {
-            "alarm": False,
-            "group": None,
-            "group_source": None,
-            "ml": None,
-            "candidate": {
-                "reason": "model_failure",
-                "risk": None,
-                "top_k": [],
-                "boundary_crossed": crossed,
-                "model_release": None,
-            },
-        }
+        return {"alarm": False, "group": None, "group_source": None, "ml": None, "no_alarm_reason": "model_failure"}
     probs = dict(prediction.get("probabilities") or {prediction["type"]: prediction["probability"]})
     if "TWF" in probs:  # D-526 덧 6: TWF 확률 → NONE
         probs["NONE"] = round(probs.get("NONE", 0.0) + probs.pop("TWF"), 6)
@@ -78,14 +68,14 @@ def route(prediction: dict | None, boundary_hit: dict | None, th: float | None =
         "confirmed": False,
     }
     if risk < th:
-        return {"alarm": False, "group": None, "group_source": None, "ml": ml, "candidate": None}
+        return {"alarm": False, "group": None, "group_source": None, "ml": ml, "no_alarm_reason": None}
     if crossed:
         return {
             "alarm": True,
             "group": boundary_hit["group"],
             "group_source": "sensor_boundary",
             "ml": {**ml, "group_source": "sensor_boundary"},
-            "candidate": None,
+            "no_alarm_reason": None,
         }
     t, p = top[0] if top else ("NONE", 0.0)
     if t in TYPE_TO_GROUP and p >= th:
@@ -94,19 +84,7 @@ def route(prediction: dict | None, boundary_hit: dict | None, th: float | None =
             "group": TYPE_TO_GROUP[t],
             "group_source": "ml_type",
             "ml": {**ml, "group_source": "ml_type"},
-            "candidate": None,
+            "no_alarm_reason": None,
         }
     reason = "rnf" if t == "RNF" else "low_confidence"
-    return {
-        "alarm": False,
-        "group": None,
-        "group_source": None,
-        "ml": ml,
-        "candidate": {
-            "reason": reason,
-            "risk": risk,
-            "top_k": top_k,
-            "boundary_crossed": crossed,
-            "model_release": ml["model_release"],
-        },
-    }
+    return {"alarm": False, "group": None, "group_source": None, "ml": ml, "no_alarm_reason": reason}

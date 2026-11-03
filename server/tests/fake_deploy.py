@@ -309,7 +309,7 @@ def engine_answer(body: dict) -> dict:
                     "alarm_block": hit["alarm"] if hit else None,
                     "sensor_derived": derived,
                     "ml": None,
-                    "candidate": None,
+                    "no_alarm_reason": None,  # Pack 약속 v6(D-530 덧 3)
                 }
             }
         }

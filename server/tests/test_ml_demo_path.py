@@ -26,8 +26,9 @@ def kinds(path=None):
     """자료 행(udi) → 앱 결과 갈래(preview v14 O 표)."""
     out = {}
     for udi, a in fake_deploy.ml_alarm_outputs(path).items():
-        if a.get("candidate"):  # D-529: Pack 후보도 알람 없음(사유 그대로) + 감사 한 줄
-            out[udi] = a["candidate"]["reason"]
+        reason = a.get("no_alarm_reason") or (a.get("candidate") or {}).get("reason")  # D-530 덧 3: 새 꼴 · 약속 v5 꼴
+        if reason:  # D-529: Pack 알람 없음 + 사유 그대로 + 감사 한 줄
+            out[udi] = reason
         elif not a["alarm"]:
             out[udi] = "below_threshold"
         elif a["alarm_block"] is None:

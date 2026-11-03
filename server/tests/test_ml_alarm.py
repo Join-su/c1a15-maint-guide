@@ -19,12 +19,13 @@ BOUNDARY = {"group": "CL", "alarm": {"direction": "경계 아래"}}
 
 def test_vc14_risk_below_threshold_no_alarm_no_record():
     r = ml.route(pred(NONE=0.6, HDF=0.3, PWF=0.1), None, 0.5)
-    assert r["alarm"] is False and r["candidate"] is None and r["ml"]["risk"] == pytest.approx(0.4)
+    assert r["alarm"] is False and r["no_alarm_reason"] is None and r["ml"]["risk"] == pytest.approx(0.4)
 
 
 def test_vc15_boundary_first():
     r = ml.route(pred(NONE=0.2, PWF=0.45, HDF=0.35), BOUNDARY, 0.5)  # 경계가 넘으면 그 증상군(ML 1순위와 달라도)
-    assert (r["alarm"], r["group"], r["group_source"]) == (True, "CL", "sensor_boundary") and r["candidate"] is None
+    assert (r["alarm"], r["group"], r["group_source"]) == (True, "CL", "sensor_boundary")
+    assert r["no_alarm_reason"] is None
     assert [x["type"] for x in r["ml"]["top_k"]] == ["PWF", "HDF"] and r["ml"]["top_k"][0]["group_suggestion"] == "PW"
 
 
@@ -33,29 +34,39 @@ def test_vc15_ml_type_when_confident():
     assert (r["alarm"], r["group"], r["group_source"]) == (True, "LD", "ml_type") and r["ml"]["confidence"] == 0.8
 
 
-def test_vc15_low_confidence_or_rnf_goes_to_candidates():
+def test_vc15_low_confidence_or_rnf_is_no_alarm_with_reason():
+    """D-530 덧 3: 후보 칸 없음 — 낮은 확신 · RNF는 알람 없음 + 사유 한 칸(no_alarm_reason), 위험도 · 유형은 ml 칸에."""
     r = ml.route(pred(NONE=0.2, PWF=0.45, HDF=0.35), None, 0.5)
-    assert (
-        r["alarm"] is False
-        and r["candidate"]["reason"] == "low_confidence"
-        and r["candidate"]["risk"] == pytest.approx(0.8)
-    )
+    assert r["alarm"] is False and r["no_alarm_reason"] == "low_confidence" and r["ml"]["risk"] == pytest.approx(0.8)
     r = ml.route(pred(NONE=0.1, RNF=0.7, TWF=0.2), None, 0.5)
-    assert r["alarm"] is False and r["candidate"]["reason"] == "rnf" and not r["candidate"]["boundary_crossed"]
+    assert r["alarm"] is False and r["no_alarm_reason"] == "rnf" and r["group"] is None
+
+
+def test_d530_route_output_has_no_candidate_key():
+    """실패 쪽: 다섯 갈래(문턱 아래 · 경계 · ML 유형 · 낮은 확신 · 예측 실패) 어디에도 candidate 칸이 없고 칸 이름은 같다."""
+    outs = [
+        ml.route(pred(NONE=0.6, HDF=0.3, PWF=0.1), None, 0.5),
+        ml.route(pred(NONE=0.2, PWF=0.45, HDF=0.35), BOUNDARY, 0.5),
+        ml.route(pred(NONE=0.1, OSF=0.8, PWF=0.1), None, 0.5),
+        ml.route(pred(NONE=0.2, PWF=0.45, HDF=0.35), None, 0.5),
+        ml.route(None, None, 0.5),
+    ]
+    assert all(set(r) == {"alarm", "group", "group_source", "ml", "no_alarm_reason"} for r in outs)
+    assert [r["no_alarm_reason"] for r in outs] == [None, None, None, "low_confidence", "model_failure"]
 
 
 def test_twf_probability_folds_into_none():
     """D-526 덧 6: 모델은 5클래스 그대로, TWF 확률은 정상(NONE)에 더하고 TWF 칸은 지움 — 위험도에서 TWF 몫이 빠지고 유형 후보에 TWF 0."""
     assert "TWF" not in ml.TYPE_TO_GROUP
     r = ml.route(pred(NONE=0.3, TWF=0.6, HDF=0.1), None, 0.5)  # TWF로 위험하던 예측 → 알람 없음 · 기록 없음
-    assert r["alarm"] is False and r["candidate"] is None and r["ml"]["risk"] == pytest.approx(0.1)
+    assert r["alarm"] is False and r["no_alarm_reason"] is None and r["ml"]["risk"] == pytest.approx(0.1)
     assert [x["type"] for x in r["ml"]["top_k"]] == ["HDF"]
     r = ml.route(pred(NONE=0.1, TWF=0.35, HDF=0.55), BOUNDARY, 0.5)  # 다른 유형이 남으면 그대로 알람
     assert (r["alarm"], r["group"], r["ml"]["risk"]) == (True, "CL", pytest.approx(0.55))
-    # 1위가 TWF였어도 다음 유형으로(확신 낮으면 후보)
+    # 1위가 TWF였어도 다음 유형으로(확신 낮으면 알람 없음 + 사유)
     r = ml.route(pred(NONE=0.05, TWF=0.4, OSF=0.3, PWF=0.25), None, 0.5)
-    assert r["candidate"]["reason"] == "low_confidence"
-    assert [x["type"] for x in r["candidate"]["top_k"]] == ["OSF", "PWF"]
+    assert r["no_alarm_reason"] == "low_confidence"
+    assert [x["type"] for x in r["ml"]["top_k"]] == ["OSF", "PWF"]
     assert r["ml"]["risk"] == pytest.approx(0.55) and r["ml"]["confidence"] == 0.3
 
 
@@ -63,17 +74,12 @@ def test_twf_without_probabilities_is_normal():
     """실패 쪽: probabilities 없이 type TWF만 오면 NONE과 같게(알람 · 후보 0) — TW 증상군으로 새지 않음."""
     twf = ml.route({"type": "TWF", "probability": 0.9, "model_release": "m"}, None, 0.5)
     none = ml.route({"type": "NONE", "probability": 0.9, "model_release": "m"}, None, 0.5)
-    assert twf == none and twf["alarm"] is False and twf["candidate"] is None and twf["ml"]["top_k"] == []
+    assert twf == none and twf["alarm"] is False and twf["no_alarm_reason"] is None and twf["ml"]["top_k"] == []
 
 
 def test_vc29_model_failure_record_without_alarm():
     r = ml.route(None, BOUNDARY, 0.5)
-    assert (
-        r["alarm"] is False
-        and r["ml"] is None
-        and r["candidate"]
-        == {"reason": "model_failure", "risk": None, "top_k": [], "boundary_crossed": True, "model_release": None}
-    )
+    assert r == {"alarm": False, "group": None, "group_source": None, "ml": None, "no_alarm_reason": "model_failure"}
 
 
 def test_threshold_is_one_user_setting(monkeypatch):

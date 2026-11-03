@@ -141,7 +141,7 @@ def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="functio
 
 def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, dict]:
     """Pack alarm Run(정본 = c1a15-pack 약속 v2): 알람이면 (경계 판정 모양 hit, 센서 7칸, 저장 칸),
-    후보(낮은 확신 · RNF · 예측 실패 D-275)는 알람 없음 + 감사 한 줄(D-529 — 파트장 '사람 판단' 지움, 후보 표 쓰기 0).
+    알람 없음 + 사유(낮은 확신 · RNF · 예측 실패 D-275)는 감사 한 줄(D-529 — 파트장 '사람 판단' 지움, 후보 표 쓰기 0).
     ML 길 알람 없음 · ML 유형(경계 표시 없음)도 (None, {}, 응답) — 저장 0 · ML 유형은 감사만(CH-24 · CH-25)."""
     sc = deps.scenarios().get(body.scenario_id or "", {})
     lineage = body.data_lineage
@@ -171,14 +171,16 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
     except PackUnavailable as e:
         if (
             e.code == "run_failed" and e.where == "run.predict_failure"
-        ):  # D-275: 예측 실패 = Run 실패 → 후보 model_failure
+        ):  # D-275: 예측 실패 = Run 실패 → 알람 없음 model_failure
             refs = {"event_id": event_id, "run_id": e.run_id}
             return None, {}, _reject_candidate(c, body, "model_failure", refs, {})
         raise
     out = res.output["alarm"]
     refs = {"event_id": event_id, "run_id": res.run_id, "deployment_id": res.deployment_id}
-    if out.get("candidate"):
-        return None, {}, _reject_candidate(c, body, out["candidate"]["reason"], refs, out)
+    # D-530 덧 3: 새 꼴 no_alarm_reason(약속 v6) · 옛 꼴 candidate.reason(약속 v5 — 지금 떠 있는 Pack) 둘 다
+    reason = out.get("no_alarm_reason") or (out.get("candidate") or {}).get("reason")
+    if reason:
+        return None, {}, _reject_candidate(c, body, reason, refs, out)
     if not out["alarm"]:
         if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
             return None, {}, _no_alarm("below_threshold", out)
@@ -210,7 +212,7 @@ def _no_alarm(reason: str, out: dict) -> dict:
 
 
 def _reject_candidate(c: Connection, body: AlarmBody, reason: str, refs: dict, out: dict) -> dict:
-    """Pack 후보(확신 낮음 · RNF · 예측 실패)는 알람 없음 + 감사 한 줄(D-529) — 대상 = 설비 · 시각(감사 행 시각)."""
+    """Pack 알람 없음 사유(확신 낮음 · RNF · 예측 실패)는 감사 한 줄(D-529) — 대상 = 설비 · 시각(감사 행 시각)."""
     sessions.audit(
         c,
         "system",
