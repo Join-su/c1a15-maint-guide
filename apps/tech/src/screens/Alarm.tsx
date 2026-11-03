@@ -76,11 +76,12 @@ export function AlarmScreen({
                 비슷한 과거 기록 <b>{a.similar_count}건</b>을 찾았습니다
               </span>
             </div>
-          </div>
-          <div className="cta">
-            <span className={past || busy ? "btn lg dis" : "btn lg"} role="button" tabIndex={0} onClick={past || busy ? undefined : onNext}>
-              진단 보기 <Icon name="arrow-right" />
-            </span>
+            {/* 답장 001-zzx 다(가이드 5쪽): 「진단 보기」는 AI 해석 카드 안 아래 */}
+            <div className="cta">
+              <span className={past || busy ? "btn lg dis" : "btn lg"} role="button" tabIndex={0} onClick={past || busy ? undefined : onNext}>
+                진단 보기 <Icon name="arrow-right" />
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -244,6 +244,7 @@ describe("T09 보고서", () => {
     expect(container.querySelectorAll(".rf .ed svg").length).toBe(8);
     expect(texts(container, ".ckl .ck.on")).toEqual(["근거 없는 문장 없음", "권한 등급 위반 없음", "필수 8항목 모두 채워짐"]);
     expect(container.querySelector(".cta2 .note")).toBeNull(); // 버튼 아래 안내 문장 뺌
+    expect(texts(container, ".g73 > div:last-child > .cd .btn")).toEqual(["보고서 확정"]); // 답장 001-zzx 다(가이드 17쪽): 확정 전 확인 카드 안
     fireEvent.click(btn(container, "보고서 확정"));
     expect(send).not.toHaveBeenCalled(); // 바로 확정하지 않고 확인 창(가이드 정비자 12)
     const dlg = container.querySelector('.modal[aria-label="보고서 확정"]')!;
@@ -295,6 +296,11 @@ describe("T09 보고서", () => {
     fireEvent.click(container.querySelector(".rf .ed")!);
     expect(container.querySelector(".rf textarea")).toBeNull();
     expect(container.querySelector(".banner.ok b")?.textContent).toMatch(/^보고서를 확정했습니다 · \d\d:\d\d$/);
+    // 답장 001-zzx 다(가이드 19쪽): 확정 띠 · 「홈으로」는 확정 전 확인 카드 안
+    const chk = container.querySelector(".g73 > div:last-child > .cd")!;
+    expect(chk.querySelector(".cd-h b")?.textContent).toBe("확정 전 확인");
+    expect(chk.querySelector(".banner.ok")).not.toBeNull();
+    expect(texts(chk, ".btn")).toEqual(["홈으로"]);
     fireEvent.click(btn(container, "홈으로"));
     expect(onHome).toHaveBeenCalled();
   });
@@ -427,7 +433,7 @@ describe("S-04 정비자 쪽: 반려 · 숙련자 인계 답 · 직접 확인(�
     expect(container.querySelector(".rl .ch.red")?.textContent).toBe("반려");
     expect(container.querySelector(".banner.bad b")?.textContent).toMatch(new RegExp(`^반려 사유 · ${rej.rejected_by_name} \\d\\d:\\d\\d$`));
     expect(container.querySelector(".banner.bad div")?.textContent).toContain(rej.reject_reason!);
-    fireEvent.click(container.querySelector(".banner.bad + .btn.ghost.full")!); // 알람 행의 '이어서 하기'와 다른 버튼
+    fireEvent.click(container.querySelector(".banner.bad .btn.ghost.full")!); // 답장 001-zzx 다(가이드 33쪽): 사유 상자 안 · 알람 행의 '이어서 하기'와 다른 버튼
     expect(onResume).toHaveBeenCalledWith(rej.session_id);
   });
 

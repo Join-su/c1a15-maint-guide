@@ -153,20 +153,19 @@ export function HomeScreen({
               ))
             )}
             {rejected ? ( // T02 / rejected(결정 017 ①, AC-11-C1): 반려 사유 · 파트장 · 시각 + 이어서 하기
-              <>
-                <div className="banner bad">
-                  <Icon name="rotate-ccw" />
-                  <div>
-                    <b>
-                      반려 사유 · {rejected.rejected_by_name} {rejected.rejected_at ? hhmm(rejected.rejected_at) : ""}
-                    </b>
-                    {rejected.reject_reason}
-                  </div>
+              <div className="banner bad rejb">
+                <Icon name="rotate-ccw" />
+                <div>
+                  <b>
+                    반려 사유 · {rejected.rejected_by_name} {rejected.rejected_at ? hhmm(rejected.rejected_at) : ""}
+                  </b>
+                  {rejected.reject_reason}
+                  {/* 답장 001-zzx 다(가이드 33쪽): 「이어서 하기」는 빨강 사유 상자 안 아래 */}
+                  <span className="btn ghost full" role="button" tabIndex={0} onClick={() => onResume?.(rejected.session_id)}>
+                    이어서 하기
+                  </span>
                 </div>
-                <span className="btn ghost full" role="button" tabIndex={0} onClick={() => onResume?.(rejected.session_id)}>
-                  이어서 하기
-                </span>
-              </>
+              </div>
             ) : null}
           </div>
         </div>

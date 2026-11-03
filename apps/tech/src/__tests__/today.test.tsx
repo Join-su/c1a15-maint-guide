@@ -72,7 +72,7 @@ describe("홈 내 알람 · 안내 문장", () => {
     const h = load<Home>("home-rejected");
     const r = h.recent_reports.find((x) => x.status === "rejected")!;
     const { container } = render(<HomeScreen home={h} onOpen={() => {}} />);
-    expect(container.querySelector(".banner.bad div")?.textContent).toMatch(new RegExp(`^반려 사유 · ${r.rejected_by_name} \\d\\d:\\d\\d${r.reject_reason}$`));
+    expect(container.querySelector(".banner.bad div")?.textContent).toMatch(new RegExp(`^반려 사유 · ${r.rejected_by_name} \\d\\d:\\d\\d${r.reject_reason}이어서 하기$`)); // 답장 001-zzx 다(가이드 33쪽): 「이어서 하기」는 사유 상자 안
     expect(container.textContent).not.toContain("이어서 하기\"로");
     expect(texts(container, ".btn.full")).toEqual(["이어서 하기"]);
   });

@@ -76,3 +76,9 @@
 .ap .tli > div > span:not(.vd):not(:empty)::before { content: " · "; }
 .ap .tli > div > span:not(.vd) { color: var(--ink); font-weight: 700; }
 .ap .tli { padding-bottom: 14px; }
+/* 답장 001-zzx 다(가이드 5 · 17 · 19 · 33쪽): 다음 버튼은 그 카드 · 상자 안 아래 */
+.ap .ai-c .cta { margin-top: 14px; }
+.ap .cd > .ckl + .banner.ok, .ap .cd > .ckl + .cta2 { margin-top: 16px; }
+.ap .cd > .banner.ok + .btn { margin-top: 12px; }
+.ap .rejb > div { flex: 1; }
+.ap .rejb .btn { margin-top: 12px; background: #fff; }

@@ -80,7 +80,7 @@ it("알람 확인 전 세션은 기기에 남은 단계가 잠금이어도 알�
   localStorage.setItem(`c1a15.tech.stage.${view.session_id}`, JSON.stringify("lock"));
   const api = { GET: vi.fn(() => ok(view)), POST: vi.fn() } as unknown as Api;
   const { container } = session(api, view);
-  expect(container.querySelector(".cta .btn")?.textContent).toContain("진단 보기");
+  expect(container.querySelector(".ai-c .cta .btn")?.textContent).toContain("진단 보기"); // 답장 001-zzx 다(가이드 5쪽): AI 해석 카드 안
   expect(container.textContent).not.toContain("잠금 완료");
 });
 

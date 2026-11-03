@@ -670,30 +670,31 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 </div>
               </div>
             ) : null}
-          </div>
-          {draft ? (
-            <div className="cta2">
-              <Btn
-                label="보고서 확정"
-                icon="file-check-2"
-                off={busy || !report.can_confirm || edit !== null}
-                onClick={() => setAsking(true)}
-              />
-            </div>
-          ) : (
-            <>
-              <div className="banner ok">
-                <Icon name="circle-check" />
-                <div>
-                  <b>보고서를 확정했습니다 · {report.confirmed_at ? hhmm(report.confirmed_at) : ""}</b>
-                </div>
+            {/* 답장 001-zzx 다(가이드 17 · 19쪽): 「보고서 확정」 · 확정 띠 · 「최종본 보기」「홈으로」는 확정 전 확인 카드 안 */}
+            {draft ? (
+              <div className="cta2">
+                <Btn
+                  label="보고서 확정"
+                  icon="file-check-2"
+                  off={busy || !report.can_confirm || edit !== null}
+                  onClick={() => setAsking(true)}
+                />
               </div>
-              {report.report_id != null && onFinal ? ( // D-528 가이드 정비자 13: 확정 뒤 「최종본 보기」(새 화면)
-                <Btn cls="lg full" label="최종본 보기" onClick={() => onFinal(report.report_id as number)} />
-              ) : null}
-              <Btn cls="lg full ghost" label="홈으로" onClick={onHome} />
-            </>
-          )}
+            ) : (
+              <>
+                <div className="banner ok">
+                  <Icon name="circle-check" />
+                  <div>
+                    <b>보고서를 확정했습니다 · {report.confirmed_at ? hhmm(report.confirmed_at) : ""}</b>
+                  </div>
+                </div>
+                {report.report_id != null && onFinal ? ( // D-528 가이드 정비자 13: 확정 뒤 「최종본 보기」(새 화면)
+                  <Btn cls="lg full" label="최종본 보기" onClick={() => onFinal(report.report_id as number)} />
+                ) : null}
+                <Btn cls="lg full ghost" label="홈으로" onClick={onHome} />
+              </>
+            )}
+          </div>
         </div>
       </div>
       {asking && draft ? (
