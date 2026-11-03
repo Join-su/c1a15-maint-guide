@@ -108,6 +108,15 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await expect(lead.locator(".fd-steps li.done")).toHaveCount(4);
   await expect(lead.locator(".lbar button.lbtn")).toHaveText(["출력"]);
   await snap(lead, info, "P2-approved-final");
+  // 결함(답장 001-zzv-1): 4번 구역 값 칸이 공용 .kv(grid)에 눌려 한 글자 폭 — 값 칸 폭 ≥ 구역 폭의 절반 · 아래까지 내린 그림
+  {
+    const sec4 = lead.locator(".fdoc section", { hasText: "4. 조치 결과" });
+    const secW = (await sec4.boundingBox())!.width;
+    const tdW = (await sec4.locator("table td").first().boundingBox())!.width;
+    expect(tdW).toBeGreaterThanOrEqual(secW / 2);
+    await lead.locator(".fd-f").scrollIntoViewIfNeeded();
+    await snap(lead, info, "P2-final-bottom");
+  }
 
   // 파트장 3 호출(빈) · 4 권한 등급 확인 창 · 5 감사 기록 칩
   await pause(lead);

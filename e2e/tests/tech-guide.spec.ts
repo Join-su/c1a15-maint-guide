@@ -119,6 +119,15 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(page.locator(".fd-st span").last()).toHaveText("승인 대기");
   await expect(page.locator(".fdoc h2")).toHaveCount(5);
   await snap(page, info, "T14-final");
+  // 결함(답장 001-zzv-1): 4번 구역 값 칸이 공용 .kv(grid)에 눌려 한 글자 폭 — 값 칸 폭 ≥ 구역 폭의 절반 · 아래까지 내린 그림
+  {
+    const sec4 = page.locator(".fdoc section", { hasText: "4. 조치 결과" });
+    const secW = (await sec4.boundingBox())!.width;
+    const tdW = (await sec4.locator("table td").first().boundingBox())!.width;
+    expect(tdW).toBeGreaterThanOrEqual(secW / 2);
+    await page.locator(".fd-f").scrollIntoViewIfNeeded();
+    await snap(page, info, "T14-final-bottom");
+  }
   await pause(page);
   await page.locator(".fbar .btn", { hasText: "출력" }).click();
   await pause(page);

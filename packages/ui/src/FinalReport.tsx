@@ -133,7 +133,7 @@ export function FinalReport({ data }: { data: Final }) {
       <div className="fd-2">
         <section>
           <h2>4. 조치 결과</h2>
-          <table className="kv">
+          <table className="fd-kv">
             <tbody>
               <tr>
                 <th>조치</th>
