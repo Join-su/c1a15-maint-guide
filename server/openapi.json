@@ -67,6 +67,13 @@
       "title": "Section",
       "type": "string"
      },
+     "steps": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Steps",
+      "type": "array"
+     },
      "title": {
       "title": "Title",
       "type": "string"
@@ -87,7 +94,8 @@
      "minutes",
      "done_at",
      "checklist",
-     "checklist_done"
+     "checklist_done",
+     "steps"
     ],
     "title": "ActionBlock",
     "type": "object"

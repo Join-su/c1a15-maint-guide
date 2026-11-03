@@ -166,6 +166,13 @@ def test_procedure_steps_and_criterion(k):
     assert screen.criterion(k, "1.2") is None
 
 
+def test_action_block_carries_procedure_steps():
+    """D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 1 ~ 3 — 세션 응답 action에 그 조치 절의 번호 줄(매뉴얼 그대로)."""
+    from c1a15.api import responses
+
+    assert responses.ActionBlock.model_fields["steps"].annotation == list[str]
+
+
 def test_lock_instruction_is_only_section_1_2(k, grades):
     out = screen.lock_instruction(k, *grades)
     assert set(out) == {"section", "title", "grade", "minutes", "steps"}

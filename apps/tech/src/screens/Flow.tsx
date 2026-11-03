@@ -131,6 +131,7 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
                 <GradeBadge grade={a.grade} />
                 {a.done_at ? <span className="ch green">완료</span> : null}
               </div>
+              {a.steps.length ? <Proc steps={a.steps} /> : null}
               {actionOpen && needs ? <Checks items={actionChecks} on={(x) => checked.includes(x)} onToggle={toggle} /> : null}
               {actionOpen ? (
                 needs ? (

@@ -1052,6 +1052,9 @@ def test_s03_action_restart_report_confirm(api, db, night):
     a = s["action"]
     assert s["step"]["kind"] == "action" and a["section"] == "4.3.2" and a["grade"] == "A" and a["done_at"] is None
     assert a["cause_name"] == "냉각 필터 막힘" and a["title"] == "흡기 필터 교체"
+    from c1a15.api import deps, screen as scr  # D-530 답장 001-zzy: 조치 절차 = 매뉴얼 4.3.2 번호 줄 그대로
+
+    assert a["steps"] == scr.procedure_steps(deps.manual(), "4.3.2") and len(a["steps"]) == 3
     assert ev(tech, s, type="restart", checked=[]).status_code == 409  # 조치 전 재가동 없음
     s = ok(tech, s, type="action_done", section="4.3.2")  # AC-32-C1: A 조치는 바로 · 완료 시각
     assert s["action"]["done_at"] and s["step"]["kind"] == "restart_check" and s["step"]["section"] == "6.1"

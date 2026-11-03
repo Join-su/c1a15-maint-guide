@@ -212,6 +212,7 @@ class ActionBlock(_Out):
     done_at: str | None
     checklist: list[str]
     checklist_done: bool
+    steps: list[str]  # 조치 절의 절차(매뉴얼 번호 줄 그대로 · D-530 답장 001-zzy)
 
 
 class RestartValue(_Out):

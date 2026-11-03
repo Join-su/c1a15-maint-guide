@@ -282,6 +282,11 @@
   "minutes": 10,
   "done_at": null,
   "checklist": [],
-  "checklist_done": false
+  "checklist_done": false,
+  "steps": [
+   "흡기구 덮개를 열고 필터를 빼낸다.",
+   "새 필터를 화살표 방향(공기 흐름 방향)에 맞춰 넣는다.",
+   "덮개를 닫고 고정 나사를 조인다."
+  ]
  }
 }

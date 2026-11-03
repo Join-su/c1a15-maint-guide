@@ -35,6 +35,7 @@ describe("T08 조치 · 재가동", () => {
     expect(cause.querySelector(".cd-h .ch")?.className).toContain("red");
     expect(texts(cause, ".kvr > *")).toEqual(["근거 사례", s.action!.evidence_record_ids.join(" · ")]);
     expect(texts(act, ".act-h > *")).toEqual(["조치 · 4.3.2 흡기 필터 교체", "A단독 가능"]);
+    expect(texts(act, ".proc li")).toEqual(s.action!.steps.map((t, i) => `${i + 1}${t}`)); // 답장 001-zzy: 절차 1 ~ 3(매뉴얼 그대로)
     expect(texts(act, ".btn")).toEqual(["조치 완료"]);
     expect(container.querySelector(".done-h")).toBeNull();
     fireEvent.click(btn(container, "조치 완료"));
@@ -72,6 +73,7 @@ describe("T08 조치 · 재가동", () => {
     const [, act, rs] = cards(r.container);
     expect(texts(act, ".act-h > *")).toEqual(["조치 · 4.3.2 흡기 필터 교체", "A단독 가능", "완료"]);
     expect(act.querySelector(".btn")).toBeNull();
+    expect(act.querySelectorAll(".proc li").length).toBe(s.action!.steps.length); // 조치 끝난 뒤에도 절차는 그대로(가이드 15쪽)
     expect(texts(rs, ".act-h > *")).toEqual(["재가동 · 6.1절", "B확인 후"]);
     expect(texts(rs, ".ck.on")).toEqual(items.slice(0, 2));
     const locked = btn(rs, "재가동"); // 잠긴 동안도 이름 '재가동'

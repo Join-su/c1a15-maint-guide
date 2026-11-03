@@ -569,6 +569,8 @@ export interface components {
             minutes: number | null;
             /** Section */
             section: string;
+            /** Steps */
+            steps: string[];
             /** Title */
             title: string;
             /** Verb */

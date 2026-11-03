@@ -918,6 +918,7 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
             "done_at": (done_e or {}).get("_at"),
             "checklist": checklist_of(k, c, ac) if needs else [],
             "checklist_done": ac in state.b_checklist_done,
+            "steps": screen.procedure_steps(k, ac),  # D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 — 매뉴얼 번호 줄 그대로
         }
     if kind in {"restart_check", "restart_value", "monitor_close", "report"} or state.restarted:
         restart_e, result_e = _restart_events(events)
