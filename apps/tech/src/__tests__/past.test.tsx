@@ -268,18 +268,16 @@ describe("진행 표시 · 세션 연결(AC-41 · 생성자 해석 ①)", () => 
 });
 
 describe("T10 / summary_corrected — 조치 뒤 정정 호출(AC-47-C1 · 결정 019 ①)", () => {
-  it("머리 '정정한 점검 뒤에 조치를 이미 마쳐 다시 판정하지 않습니다' · 정정 · 조치 칩 · 지금까지 점검 · 조치 · 순위 다시 계산 안 함 · 파트장 호출 / 대기", () => {
+  it("머리(가이드 24쪽 — 답장 001-zzx 사): 작은 줄 '파트장 확인이 필요합니다' · 제목 '정정 확인 · 절 이름' · 칩 '이상 → 정상' · 지금까지 점검 · 안내 문장 0 · 파트장 호출 / 대기", () => {
     const s = load("s05-session-correction-call");
     const send = vi.fn();
     const { container } = render(<CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />);
-    expect(container.querySelector(".warn-h .sm")?.textContent).toBe("정정한 점검 뒤에 조치를 이미 마쳐 다시 판정하지 않습니다");
-    expect(container.querySelector(".warn-h h3")?.textContent).toBe("파트장 확인이 필요합니다");
-    expect(texts(container, ".warn-h .tags .ch")[0]).toMatch(/^정정 · 4\.3 이상 → 정상 · \d\d:\d\d$/);
-    expect(texts(container, ".warn-h .tags .ch")[1]).toMatch(/^조치 완료 4\.3\.2 · \d\d:\d\d$/);
-    expect(texts(container, ".sub")).toEqual(["지금까지 점검 · 조치", "남은 후보"]);
-    expect(texts(container, ".dn2 span")[0]).toBe("흡기 필터 육안 점검 · 정상(정정 1회, 원래 이상)");
-    expect(texts(container, ".dn2 span")[1]).toMatch(/^흡기 필터 교체\(4\.3\.2\) · 완료 \d\d:\d\d$/);
-    expect(container.querySelector(".hint")?.textContent).toBe("조치 뒤라 순위를 다시 계산하지 않았습니다. 파트장이 확인합니다.");
+    expect(container.querySelector(".warn-h .sm")?.textContent).toBe("파트장 확인이 필요합니다");
+    expect(container.querySelector(".warn-h h3")?.textContent).toBe("정정 확인 · 4.3 흡기 필터 육안 점검");
+    expect(texts(container, ".warn-h .tags .ch")).toEqual(["이상 → 정상"]);
+    expect(texts(container, ".sub")).toEqual(["지금까지 점검"]);
+    expect(texts(container, ".dn2 span")).toEqual(["흡기 필터 육안 점검 · 정상(정정 1회, 원래 이상)"]);
+    expect(container.querySelector(".hint")).toBeNull();
     expect(container.querySelector(".pv p")?.textContent).toContain("결과를 이상 → 정상으로 정정");
     fireEvent.click(btn(container, "파트장 호출"));
     expect(send).toHaveBeenCalledWith({ type: "call_send" });

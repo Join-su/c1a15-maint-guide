@@ -397,22 +397,18 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
       <div className="g64">
         <div className="cd">
           {cor ? (
+            // 답장 001-zzx 사(가이드 24쪽): 작은 줄 · 제목 '정정 확인 · 절 이름' · 칩 '이상 → 정상'
             <div className="warn-h">
-              <Icon name="pencil" />
+              <Icon name="hand" />
               <div>
-                <span className="sm">정정한 점검 뒤에 조치를 이미 마쳐 다시 판정하지 않습니다</span>
-                <h3>파트장 확인이 필요합니다</h3>
+                <span className="sm">파트장 확인이 필요합니다</span>
+                <h3>
+                  정정 확인 · {cor.section} {cor.title}
+                </h3>
                 <div className="tags">
-                  <span className="ch amber">
-                    정정 · {cor.section} {cor.before} → {cor.after}
-                    {cor.at ? ` · ${hhmm(cor.at)}` : ""}
+                  <span className="ch gray">
+                    {cor.before} → {cor.after}
                   </span>
-                  {call.actions_done?.map((a) => (
-                    <span className="ch green" key={a.section}>
-                      조치 완료 {a.section}
-                      {a.at ? ` · ${hhmm(a.at)}` : ""}
-                    </span>
-                  ))}
                 </div>
               </div>
             </div>
@@ -430,7 +426,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
               </div>
             </div>
           )}
-          <div className="sub">{cor ? "지금까지 점검 · 조치" : "지금까지 점검"}</div>
+          <div className="sub">지금까지 점검</div>
           <div className="dn2">
             {call.checks_done.length ? (
               call.checks_done.map((d) => (
@@ -443,29 +439,18 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             ) : (
               <span>점검 전</span>
             )}
-            {cor
-              ? call.actions_done?.map((a) => (
-                  <span key={`a${a.section}`}>
-                    <Icon name="circle-check" className="ok" />
-                    {a.title}({a.section}) · 완료{a.at ? ` ${hhmm(a.at)}` : ""}
-                  </span>
-                ))
-              : null}
           </div>
-          <div className="sub">남은 후보</div>
-          {cor ? (
-            <div className="hint">
-              <Icon name="info" />
-              조치 뒤라 순위를 다시 계산하지 않았습니다. 파트장이 확인합니다.
-            </div>
-          ) : (
-            <div className="tags">
-              {call.candidates.map((c) => (
-                <span className="ch gray" key={c.code}>
-                  {c.name} {c.pct}%
-                </span>
-              ))}
-            </div>
+          {cor ? null : ( // 정정 확인은 조치 뒤라 남은 후보 칸 없음(가이드 24쪽)
+            <>
+              <div className="sub">남은 후보</div>
+              <div className="tags">
+                {call.candidates.map((c) => (
+                  <span className="ch gray" key={c.code}>
+                    {c.name} {c.pct}%
+                  </span>
+                ))}
+              </div>
+            </>
           )}
         </div>
         {right}

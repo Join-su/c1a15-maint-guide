@@ -283,9 +283,10 @@ test("AC-47-C1 · 결정 012 ② · 019 ⑧: 조치 뒤 정정 → 정정 호출
   await modal.getByLabel("정정 사유").fill("다시 보니 깨끗함");
   await modal.locator(".btn", { hasText: "정정 저장" }).click();
   await toNow(page);
-  await expect(page.locator(".warn-h .sm")).toHaveText("정정한 점검 뒤에 조치를 이미 마쳐 다시 판정하지 않습니다"); // T10 / summary_corrected
-  await expect(page.locator(".warn-h h3")).toHaveText("파트장 확인이 필요합니다");
-  await expect(page.locator(".hint")).toHaveText("조치 뒤라 순위를 다시 계산하지 않았습니다. 파트장이 확인합니다.");
+  await expect(page.locator(".warn-h .sm")).toHaveText("파트장 확인이 필요합니다"); // T10 / summary_corrected · 답장 001-zzx 사(가이드 24쪽)
+  await expect(page.locator(".warn-h h3")).toHaveText("정정 확인 · 4.3 흡기 필터 육안 점검");
+  await expect(page.locator(".warn-h .tags .ch")).toHaveText(["이상 → 정상"]);
+  await expect(page.locator(".hint")).toHaveCount(0);
   await shot(page, info, "T10-summary_corrected");
   await page.getByText("파트장 호출").click();
   const lead = await leadPage(browser);
