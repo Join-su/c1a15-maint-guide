@@ -74,17 +74,21 @@ export function StepBar({
   view,
   onPick,
   currentPickable,
+  done,
 }: {
   current: number;
   view?: number | null;
   onPick?: (n: number) => void;
   currentPickable?: boolean;
+  /** 지금 단계도 끝남(확정한 보고서 — 가이드 19쪽): 초록 ✓로 그림(누르기는 currentPickable 그대로). */
+  done?: boolean;
 }) {
   const out: ReactNode[] = [];
   STEPS.forEach((label, i) => {
     const n = i + 1;
     const pick = onPick && n < current ? " pick" : "";
-    const cls = n < current ? `sp done${pick}${view === n ? " view" : ""}` : n === current ? "sp on" : "sp ";
+    const cls =
+      n < current ? `sp done${pick}${view === n ? " view" : ""}` : n === current ? (done ? "sp done" : "sp on") : "sp ";
     const clickable = onPick && (n < current || (n === current && currentPickable));
     if (i > 0) out.push(<span key={`l${n}`} className={`spl ${n <= current ? "done" : ""}`} />);
     out.push(
@@ -93,7 +97,7 @@ export function StepBar({
         className={cls}
         {...(clickable ? { role: "button", tabIndex: 0, onClick: () => onPick(n), "aria-label": `${label} 지난 화면` } : {})}
       >
-        <span className="spn">{n < current ? <Icon name="check" /> : n}</span>
+        <span className="spn">{n < current || (done && n === current) ? <Icon name="check" /> : n}</span>
         {label}
       </div>,
     );

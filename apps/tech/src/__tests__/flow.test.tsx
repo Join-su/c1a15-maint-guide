@@ -405,6 +405,17 @@ describe("세션 화면 넘김(기기 표시)", () => {
     );
   };
 
+  it("확정한 보고서: 단계 띠 '보고서'도 끝남(초록 ✓ · 다섯 모두 done) — 답장 001-zzx 라(가이드 19쪽), 초안은 지금(on)", async () => {
+    const done = mount(load("s03-report-confirmed"));
+    await waitFor(() => expect(done.container.querySelector(".banner.ok")).not.toBeNull());
+    expect([...done.container.querySelectorAll(".ap-step .sp")].map((e) => e.className.split(" ")[1])).toEqual(["done", "done", "done", "done", "done"]);
+    expect(done.container.querySelectorAll(".ap-step .sp .spn svg").length).toBe(5);
+    cleanup();
+    const draft = mount(load("s03-report-draft"));
+    await waitFor(() => expect(draft.container.querySelector(".cta2")).not.toBeNull());
+    expect(draft.container.querySelector(".sp.on")?.textContent).toBe("5보고서");
+  });
+
   it("승인 답: 승인 화면 → '점검 시작' → 그 C 점검 지시 · 결과 입력(T10 / ans_approved → T06)", async () => {
     const { container } = mount(load("s03-ans-approved"));
     await waitFor(() => expect(container.querySelector(".banner.ok")).not.toBeNull());
