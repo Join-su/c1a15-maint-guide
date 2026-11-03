@@ -51,6 +51,11 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await page.getByText("진단 보기").click();
   // 정비자 4 진단
   await expect(page.locator(".rk").first()).toHaveClass(/on/);
+  { // 답장 001-zzx-2 3(가이드 6쪽): 두 칸 폭 = 약 1.25 : 1(과거 기록 카드가 왼쪽 칸을 밀어 넓히지 않음)
+    const cols = await page.locator(".ap-body > .g64 > *").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
+    expect.soft(cols[0] / cols[1], "두 칸 폭 비율").toBeGreaterThan(1.1);
+    expect.soft(cols[0] / cols[1], "두 칸 폭 비율").toBeLessThan(1.4);
+  }
   await expect(page.locator(".hint")).toHaveCount(0);
   await snap(page, info, "T4-diagnosis");
   await pause(page);
@@ -73,6 +78,9 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(page.locator(".ins-h .sm")).toHaveText("사전 확인");
   await expect(page.locator(".res .note")).toHaveCount(0);
   await expect(page.locator(".res .btn")).toHaveClass(/dis/);
+  // 답장 001-zzx-2 3(가이드 9 · 15 · 34쪽): 잠긴 버튼 표시 = 선 자물쇠 아이콘(이모지 0)
+  expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").content), "잠금 표시 이모지 0").not.toContain("🔒");
+  expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").maskImage || getComputedStyle(el, "::before").webkitMaskImage), "잠금 표시 선 아이콘").toContain("svg");
   await snap(page, info, "T5-precheck");
   await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
@@ -169,7 +177,8 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await pause(page);
   await page.locator(".tb-home").click();
   await expect(page.locator(".banner.bad div")).toContainText("4.3 메모를 더 자세히 적어 다시 확정");
-  await expect(page.locator(".banner.bad div")).not.toContainText("이어서 하기");
+  await expect(page.locator(".banner.bad div")).not.toContainText('"이어서 하기"로'); // 설명 문장 0
+  await expect(page.locator(".banner.bad .btn")).toHaveText("이어서 하기"); // 답장 001-zzx 다(가이드 33쪽): 버튼은 사유 상자 안
   await snap(page, info, "T33-home-rejected");
   await pause(page);
   await page.locator(".btn.full", { hasText: "이어서 하기" }).click();
@@ -198,7 +207,7 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   lg.check(info);
 });
 
-test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴얼 원문 창은 가운데 · 단계 띠 밝게(가이드 10 · 12쪽, D-530 답장 001-zzt 1 · 3)", async ({ page }, info) => {
+test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴얼 원문 창은 가운데 · 단계 띠도 어둡게(가이드 10 · 12쪽, D-530 답장 001-zzt 1 · 3 · 001-zzx-2 1)", async ({ page }, info) => {
   const g = guard(page);
   await login(page, undefined, undefined, false);
   alarm("DEMO-02");
@@ -216,7 +225,7 @@ test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴
   await pause(page);
   await page.getByText("사전 확인 완료").click();
   await expect(page.locator(".rbtns")).toBeVisible();
-  // 매뉴얼 원문 창: 가운데 · 640px 안팎 · 단계 띠는 창 뒤 어둠 위(밝게)
+  // 매뉴얼 원문 창: 가운데 · 640px 안팎 · 단계 띠도 창 뒤 어둠 아래(답장 001-zzx-2 1 — 앞 '밝게' 바로잡음)
   await pause(page);
   await page.locator(".refs .lk", { hasText: "매뉴얼 원문" }).click();
   const box = (await page.locator('.modal.wide[aria-label^="매뉴얼 원문"]').boundingBox())!;
@@ -224,7 +233,7 @@ test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴
   expect(Math.abs(box.x + box.width / 2 - 640)).toBeLessThanOrEqual(20);
   const step = (await page.locator(".ap-step").boundingBox())!;
   const top = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest(".ap-step") !== null, [step.x + 40, step.y + step.height / 2]);
-  expect(top).toBe(true);
+  expect.soft(top, "단계 띠도 어둠 아래").toBe(false); // 창이 떠 있는 동안 누를 수 있는 것은 창 안뿐
   await snap(page, info, "T10-manual");
   await pause(page);
   await page.locator(".modal.wide .btn", { hasText: "닫기" }).click();
