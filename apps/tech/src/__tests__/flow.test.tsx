@@ -148,12 +148,18 @@ describe("T10 파트장 호출", () => {
   const exceptionCall = () => {
     const s = load("s03-call-summary");
     Object.assign(s.call!, {
-      section: "X-0012",
+      section: "EX-R-0012",
       title: "필터 덮개 고정 나사 확인",
       minutes: null,
-      exception: {
-        record_id: "R-0012",
-        guide_text: "덮개 고정 나사 네 개가 다 있는지 먼저 본다.",
+      exception_guide: {
+        section: "EX-R-0012",
+        relation_id: "EX-R-0012",
+        grade: "C",
+        title: "필터 덮개 고정 나사 확인",
+        text: "덮개 고정 나사 네 개가 다 있는지 먼저 본다.",
+        steps: ["덮개 나사 확인"],
+        criteria: "나사 네 개 모두 체결 = 정상",
+        basis: ["R-0012"],
         next: { section: "4.5", title: "냉각수 수위 확인" },
         source: { record_id: "R-0012", equipment_id: "M-01", occurred_at: "2026-10-28T01:10:00Z", situation: "나사 하나가 빠져 있었음" },
       },
@@ -208,7 +214,7 @@ describe("T10 파트장 호출", () => {
 
   it("예외 안내 출처가 앱 원본에 없으면 기록 번호만 · 다음 없으면 그 줄 없음 · 보통 호출엔 등록 버튼 없음", () => {
     const s = exceptionCall();
-    s.call!.exception = { ...s.call!.exception!, source: null, next: null };
+    s.call!.exception_guide = { ...s.call!.exception_guide!, source: null, next: null };
     const { container } = render(
       <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={() => {}} />,
     );

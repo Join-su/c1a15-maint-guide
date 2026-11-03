@@ -309,7 +309,8 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
   const call = s.call!;
   const cor = call.correction; // T10 / summary_corrected: 조치 뒤 정정 → 다시 판정 대신 확인 요청(AC-47-C1)
   const [text, setText] = useState<string | null>(null);
-  const ex = cor ? null : call.exception; // D-543 예외 안내(예외 기록에서 온 매뉴얼 밖 점검)
+  const ex = cor ? null : call.exception_guide; // D-543 예외 안내(약속 v8 · 예외 기록에서 온 매뉴얼 밖 점검)
+  const exRec = ex ? (ex.source?.record_id ?? ex.basis[0] ?? "") : ""; // 근거 예외 기록 번호
   const [kf, setKf] = useState<{ situation: string; action: string } | null>(null); // 「노하우 등록」 두 칸(열림)
   const ans = call.answer;
   const ins: Instruction | null | undefined = s.instruction;
@@ -440,7 +441,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                 <h3>{call.title}</h3>
                 <div className="tags">
                   <GradeBadge grade={call.grade} />
-                  <span className="ch blue">{ex ? `예외 기록 ${ex.record_id ?? ""}` : `매뉴얼 ${call.section}절`}</span>
+                  <span className="ch blue">{ex ? `예외 기록 ${exRec}` : `매뉴얼 ${call.section}절`}</span>
                   {call.minutes != null ? <span className="ch gray">약 {call.minutes}분</span> : null}
                 </div>
               </div>
@@ -451,9 +452,9 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             <>
               <div className="sub">노하우</div>
               <div className="pv xkh">
-                <p>{ex.guide_text}</p>
+                <p>{ex.text}</p>
                 <span className="xsrc">
-                  출처 · 예외 기록 {ex.record_id}
+                  출처 · 예외 기록 {exRec}
                   {ex.source
                     ? ` · ${ex.source.equipment_id} · ${dateTime(ex.source.occurred_at).slice(5, 10)} — 상황 '${ex.source.situation}'`
                     : ""}

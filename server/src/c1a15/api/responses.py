@@ -294,12 +294,18 @@ class ExceptionGuideSource(_Out):
 
 
 class ExceptionGuide(_Out):
-    """D-543 예외 안내(호출 단계): 노하우 글 + 출처 + 원래 순서 다음. Pack 응답 칸 이름은 v7과 함께 정함(임시)."""
+    """D-543 예외 안내(호출 단계) = 약속 v8 결과 exception_guide 칸 그대로 + 출처(앱 원본) · 원래 순서 다음(null)."""
 
-    record_id: str | None
-    guide_text: str
-    next: ExceptionGuideNext | None
+    section: str
+    relation_id: str
+    grade: str | None
+    title: str | None
+    text: str | None
+    steps: list[str]
+    criteria: str | None
+    basis: list[str]
     source: ExceptionGuideSource | None
+    next: ExceptionGuideNext | None
 
 
 class CallBlock(_Out):
@@ -319,7 +325,7 @@ class CallBlock(_Out):
     answer: CallAnswer | None
     correction: CallCorrection | None = None
     actions_done: list[ActionDone] = []
-    exception: ExceptionGuide | None = None
+    exception_guide: ExceptionGuide | None = None
 
 
 class ReportField(_Out):

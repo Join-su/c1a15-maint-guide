@@ -142,11 +142,18 @@ def _store(c: Connection, sid: int, seq: int, etype: str, payload: dict, actor: 
 
 
 def _deploy_decision(
-    c: Connection, row: m.DiagSession, inputs: list[dict], manual_support: dict | None = None
+    c: Connection,
+    row: m.DiagSession,
+    inputs: list[dict],
+    manual_support: dict | None = None,
+    eg: dict | None = None,
 ) -> tuple[dict, dict]:
     """다음 단계 = 배포 서버 judge Run(EV-001 ES-07, C1A15_JUDGE=deploy). 판정 하나 = Run 하나 — checkpoint 안 씀."""
     g, minutes = deps.grades(c)
-    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, manual_support)
+    rel, g = flow.with_exception(eg, g)
+    res = runs.judge(
+        row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, manual_support, exception_relation=rel
+    )
     return res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
 
 
@@ -160,7 +167,8 @@ def _open_step(
     """
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
     ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)  # start가 준 매뉴얼 몫
-    decision, ref = decided if decided is not None else _deploy_decision(c, row, inputs, ms)
+    eg = flow.exception_guide_of(events)  # 약속 v8: start가 준 예외 안내
+    decision, ref = decided if decided is not None else _deploy_decision(c, row, inputs, ms, eg)
     seq = (events[-1]["seq"] if events else 0) + 1
     _store(c, sid, seq, "step_opened", {"decision": decision, **ref}, actor)
     if decision["kind"] in {
@@ -254,6 +262,8 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
     ref = {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
     if res.output.get("manual_support") is not None:  # 약속 v5(EV-011 CH-07) — judge 요청마다 다시 담음
         ref["manual_support"] = res.output["manual_support"]
+    if res.output.get("exception_guide") is not None:  # 약속 v8(D-545 덧 2) — relation_id를 judge 요청마다 다시 담음
+        ref["exception_guide"] = res.output["exception_guide"]
     decided = (res.output["decision"], ref)
     pack_preview = res.output.get("preview")  # 약속 v5 덧칸(EV-011 CH-03) — 없으면 앱 decide
     sid = c.execute(
@@ -717,7 +727,10 @@ def _trial_decision(c: Connection, row: m.DiagSession, events: list[dict]) -> di
     g, minutes = deps.grades(c)
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
     ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)
-    res = runs.judge(row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, ms, purpose="trial")
+    rel, g = flow.with_exception(flow.exception_guide_of(events), g)
+    res = runs.judge(
+        row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, ms, purpose="trial", exception_relation=rel
+    )
     return res.output["decision"]
 
 

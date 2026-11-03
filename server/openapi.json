@@ -906,7 +906,7 @@
        }
       ]
      },
-     "exception": {
+     "exception_guide": {
       "anyOf": [
        {
         "$ref": "#/components/schemas/ExceptionGuide"
@@ -1835,11 +1835,36 @@
    },
    "ExceptionGuide": {
     "additionalProperties": false,
-    "description": "D-543 예외 안내(호출 단계): 노하우 글 + 출처 + 원래 순서 다음. Pack 응답 칸 이름은 v7과 함께 정함(임시).",
+    "description": "D-543 예외 안내(호출 단계) = 약속 v8 결과 exception_guide 칸 그대로 + 출처(앱 원본) · 원래 순서 다음(null).",
     "properties": {
-     "guide_text": {
-      "title": "Guide Text",
-      "type": "string"
+     "basis": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Basis",
+      "type": "array"
+     },
+     "criteria": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Criteria"
+     },
+     "grade": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade"
      },
      "next": {
       "anyOf": [
@@ -1851,16 +1876,13 @@
        }
       ]
      },
-     "record_id": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Record Id"
+     "relation_id": {
+      "title": "Relation Id",
+      "type": "string"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
      },
      "source": {
       "anyOf": [
@@ -1871,13 +1893,48 @@
         "type": "null"
        }
       ]
+     },
+     "steps": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Steps",
+      "type": "array"
+     },
+     "text": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Text"
+     },
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
      }
     },
     "required": [
-     "record_id",
-     "guide_text",
-     "next",
-     "source"
+     "section",
+     "relation_id",
+     "grade",
+     "title",
+     "text",
+     "steps",
+     "criteria",
+     "basis",
+     "source",
+     "next"
     ],
     "title": "ExceptionGuide",
     "type": "object"

@@ -308,7 +308,8 @@ def call_summary(
         sections = {d["section"] for d in done}
     else:
         sec = step["section"]
-        ex = step.get("exception") or {}  # D-543 예외 안내: 매뉴얼 밖 새 점검 — 이름은 Pack 답에서
+        eg = exception_guide_of(events) or {}
+        ex = eg if eg.get("section") == sec else {}  # D-543 예외 안내: 매뉴얼 밖 예외 절 — 이름은 Pack 답에서
         title = k.sections[sec]["title"] if sec in k.sections else ex.get("title") or sec
         top = cands[0] if cands else None
         done_text = (
@@ -317,7 +318,7 @@ def call_summary(
             else "점검 전"
         )
         need = (
-            f"예외 기록 {ex.get('record_id')}와 같은 조건 — {title}({step.get('grade')}등급) 확인 필요"
+            f"예외 기록 {(ex.get('basis') or [''])[0]}와 같은 조건 — {title}({step.get('grade')}등급) 확인 필요"
             if ex
             else f"확인에 {title}({sec}절, {step.get('grade')}등급) 필요"
         )
@@ -656,25 +657,36 @@ def exception_notes(c: Connection, alarm: m.Alarm, limit: int = 3) -> list[dict]
     ]
 
 
-def exception_guide(c: Connection, k: ManualKnowledge, ex: dict | None) -> dict | None:
-    """D-543 예외 안내 카드: Pack 답의 노하우 글 + 출처(앱 원본의 승인 예외 기록) + 원래 순서 다음.
+def exception_guide_of(events: list[dict]) -> dict | None:
+    """약속 v8(D-545 덧 2): start 결과 exception_guide(세션 시작 step_opened에 저장) — 없으면 None."""
+    return next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
 
-    Pack 응답 칸 이름은 v7과 함께 정해짐(임시). 원본에 없는 기록 · 다음 없음은 None(지어내기 0).
+
+def with_exception(eg: dict | None, grades: dict) -> tuple[str | None, dict]:
+    """judge 요청 덧칸: 예외 관계 id + 등급표 EX 줄(표에 줄이 없으면 안내 등급 = 처음 값 · 표 값이 이김 R13)."""
+    if not eg:
+        return None, grades
+    return eg["relation_id"], {**grades, eg["section"]: grades.get(eg["section"], eg["grade"])}
+
+
+def exception_guide_view(c: Connection, eg: dict) -> dict:
+    """D-543 예외 안내 카드: v8 칸 그대로 + 출처(근거 이력 중 앱 원본에 승인 예외 기록이 있는 첫 건).
+
+    원래 순서 다음(next)은 v8에 칸이 없어 None(질문 001-zzz17). 원본에 없는 기록은 None(지어내기 0).
     """
-    if not ex:
-        return None
+    basis = list(eg.get("basis") or [])
     row = c.execute(
         text(
             "select record_id, equipment_id, occurred_at, record->'exception_record'->>'situation' as situation "
-            "from knowledge.history_records where record_id = :i and record->'exception_record' is not null"
+            "from knowledge.history_records where record_id = any(:ids) and record->'exception_record' is not null "
+            "order by array_position(:ids, record_id) limit 1"
         ),
-        {"i": ex.get("record_id")},
+        {"ids": basis},
     ).first()
-    nxt = ex.get("next_section")
     return {
-        "record_id": ex.get("record_id"),
-        "guide_text": ex.get("guide_text") or "",
-        "next": {"section": nxt, "title": k.sections[nxt]["title"]} if nxt in k.sections else None,
+        **{f: eg.get(f) for f in ("section", "relation_id", "grade", "title", "text", "criteria")},
+        "steps": list(eg.get("steps") or []),
+        "basis": basis,
         "source": {
             "record_id": row.record_id,
             "equipment_id": row.equipment_id,
@@ -683,6 +695,7 @@ def exception_guide(c: Connection, k: ManualKnowledge, ex: dict | None) -> dict 
         }
         if row
         else None,
+        "next": None,
     }
 
 
@@ -1088,6 +1101,7 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
         elif call_e and ans_e and ans_e.get("call_id") != call_e.get("call_id"):
             ans_e = None  # 답은 그 호출 것만
         sec = step.get("section") or (call_e or {}).get("section")
+        eg = exception_guide_of(events) or {}  # 약속 v8 예외 안내(호출 절이 예외 절일 때만 카드)
         summary = {"text": call_e["summary"], "fallback": False, "label": None} if call_e else None
         if kind in {"call", "handover"} or summary is None:
             gen = call_summary(
@@ -1112,7 +1126,9 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
             "reason": step.get("reason"),
             "head": handover_head(step, state, k) if kind == "handover" else None,
             "section": sec,
-            "title": k.sections[sec]["title"] if sec in k.sections else (step.get("exception") or {}).get("title"),
+            "title": k.sections[sec]["title"]
+            if sec in k.sections
+            else (eg if eg.get("section") == sec else {}).get("title"),
             "grade": (call_e or {}).get("grade")
             if approved_open
             else step.get("grade") or (call_e or {}).get("grade") or (g.get(sec) if sec else None),
@@ -1133,7 +1149,9 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
                 if ans_e
                 else None
             ),
-            "exception": exception_guide(c, k, step.get("exception")) if kind == "call" and not cor else None,
+            "exception_guide": exception_guide_view(c, eg)
+            if kind == "call" and not cor and eg.get("section") == sec
+            else None,
         }
         if cor:  # T10 / summary_corrected: 정정 · 조치 칩, 지금까지 점검 · 조치, 남은 후보는 다시 계산하지 않음
             out["call"].update(

@@ -135,6 +135,7 @@ def judge_body(
     grades: dict,
     minutes: dict,
     manual_support: dict | None = None,
+    exception_relation: str | None = None,
 ) -> dict:
     body = {
         "kind": "judge",
@@ -149,6 +150,8 @@ def judge_body(
         manual_support is not None
     ):  # 약속 v5(EV-011 CH-07): start가 준 매뉴얼 몫을 그대로 다시 담음 — 없으면 지금 바이트
         body["manual_support"] = manual_support
+    if exception_relation is not None:  # 약속 v8(D-545 덧 2): start가 준 예외 관계 id — 없으면 지금 바이트
+        body["exception_relation"] = exception_relation
     return body
 
 
@@ -180,9 +183,10 @@ def judge(
     minutes: dict,
     manual_support: dict | None = None,
     purpose: str | None = None,
+    exception_relation: str | None = None,
 ) -> RunResult:
     """purpose = 'trial'이면 정정 확인 창의 시험 판정(EV-011 CH-06) — 머리글 X-Run-Purpose · 키 따로(본문 같음)."""
-    body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support)
+    body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support, exception_relation)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
     signals = [_signal_fields(e["signal"]) for e in inputs if isinstance(e.get("signal"), dict)]
     audit_names("judge", session_ident(alarm_id), redact.redact_obj(signals)[1])

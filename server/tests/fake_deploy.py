@@ -111,6 +111,11 @@ class FakeDeploy:
                 if self.path == "/_plan":  # 단독 실행 때 시험 스크립트가 다음 실행 동작을 넣음(화면 한 바퀴 VC-42)
                     fake.plan = list(body)
                     return self._send(200, {"plan": len(fake.plan)})
+                if (
+                    self.path == "/_answer"
+                ):  # 단독 실행 때 Pack 옵션 흉내 바꿈(pack_answer 칸) · 빈 본문 = 기본(engine_answer)
+                    fake.default = pack_answer(**body) if body else engine_answer
+                    return self._send(200, {"answer": sorted(body)})
                 fake.requests.append({"method": "POST", "path": self.path, "headers": dict(self.headers), "body": body})
                 if not key:
                     return self._send(400, {"error": {"code": "idempotency_key_missing", "run_id": None}})
@@ -352,20 +357,16 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 
     out = {"decision": decide(body["events"])}
-    ex = opts.get("exception")
-    if ex and body["kind"] == "judge" and _exception_turn(body["events"]):
-        # D-543 예외 안내 흉내(앱 임시 칸 — Pack 응답 칸은 v7과 함께 c1a15-pack이 정함)
-        # : 첫 결과 뒤 매뉴얼 밖 새 점검 호출
-        sent = [
-            e for e in body["events"] if e["type"] in ("call_sent", "call_wait") and e.get("section") == ex["section"]
-        ]
-        out["decision"] = {
-            **{x: out["decision"][x] for x in ("probabilities", "evidence", "low_evidence") if x in out["decision"]},
-            "kind": "call",
-            "section": ex["section"],
-            "grade": ex.get("grade", "C"),
-            "exception": {x: ex[x] for x in ("record_id", "title", "guide_text", "next_section")},
-        } | ({"call_status": "sent" if sent[-1]["type"] == "call_sent" else "waiting"} if sent else {})
+    eg = opts.get("exception_guide")  # 약속 v8 흉내(D-545 덧 2 · 그래프 꼴 4절): start 결과 · judge는 다시 담긴 관계로
+    if eg and body["kind"] == "start":
+        out["exception_guide"] = eg
+    if eg and body["kind"] == "judge" and body.get("exception_relation") == eg["relation_id"]:
+        d = _exception_step(body["events"], eg, body["grades"])
+        if d:
+            keep = {
+                x: out["decision"][x] for x in ("probabilities", "evidence", "low_evidence") if x in out["decision"]
+            }
+            out["decision"] = {**keep, **d}
     if row:
         out["similar"], out["retrieval"] = row["similar"], row["retrieval"]
         if opts.get("preview"):  # 약속 v5 덧칸: 잠금 · 사전 확인을 했다고 놓은 판정(start에만)
@@ -375,10 +376,19 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
     return out
 
 
-def _exception_turn(events: list[dict]) -> bool:
-    """예외 안내 흉내가 나서는 때: 점검 결과가 하나라도 있고 아직 파트장 답 · 조치가 없을 때."""
+def _exception_step(events: list[dict], eg: dict, grades: dict) -> dict | None:
+    """잠금 · 사전 확인 뒤 첫 점검 차례에 예외 절 먼저: 등급 C면 호출(승인 전까지). 승인 뒤 길은 engine 사본 갱신 뒤."""
+    sec = eg["section"]
     types = {e["type"] for e in events}
-    return "result" in types and not types & {"call_answer", "action_done"}
+    if "precheck_done" not in types or any(
+        e.get("section") == sec for e in events if e["type"] in ("result", "call_answer")
+    ):
+        return None
+    if grades.get(sec, eg["grade"]) not in ("C", "D"):
+        return None
+    sent = [e for e in events if e["type"] in ("call_sent", "call_wait") and e.get("section") == sec]
+    status = {"call_status": "sent" if sent[-1]["type"] == "call_sent" else "waiting"} if sent else {}
+    return {"kind": "call", "section": sec, "grade": grades.get(sec, eg["grade"])} | status
 
 
 def pack_answer(**opts):
