@@ -3,7 +3,7 @@
 // EV-001 ES-20(CH-42): E2E_MODE=compose = compose 길(scripts/verify-e2e-compose) — 앱 쪽 조작은 api 컨테이너 안에서.
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, type Page, type TestInfo } from "@playwright/test";
 
@@ -152,6 +152,14 @@ export async function login(page: Page, user = "tech.kim", pw = TECH_PW, guardOf
 export async function shot(page: Page, info: TestInfo, name: string): Promise<void> {
   const root = (await page.locator(".ap").count()) ? ".ap" : (await page.locator(".L").count()) ? ".L" : ".wb"; // 정비자 앱 · 파트장 앱(D-528 .L) 화면 틀
   await info.attach(name, { body: await page.locator(root).first().screenshot(), contentType: "image/png" });
+}
+
+/** SHOT_DIR이면 화면 전체 PNG(1280 × 800) — 설계 대조용 그림. */
+export async function snapTo(page: Page, name: string): Promise<void> {
+  const dir = process.env.SHOT_DIR;
+  if (!dir) return;
+  mkdirSync(dir, { recursive: true });
+  await page.screenshot({ path: path.join(dir, `${name}.png`) });
 }
 
 // ---------------- 정비자 앱 조작(S-03 · S-04 E2E 공통)

@@ -571,6 +571,14 @@ def progress(c: Connection, row: m.DiagSession) -> dict:
     return screen.check_progress(events, k, row.symptom_group, deps.grades(c)[0], state.approvals)
 
 
+def call_sent(c: Connection, row: m.DiagSession) -> str | None:
+    """G3 왼쪽 칸 '진행 중 · 파트장 호출': 지금 단계가 보낸 호출(답 전)이면 approval · handover, 아니면 None."""
+    step = current_step(events_of(c, row.session_id)) or {}
+    if step.get("kind") in {"call", "handover"} and step.get("call_status") == "sent":
+        return "handover" if step["kind"] == "handover" else "approval"
+    return None
+
+
 def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dict:
     """입력 하나를 업무 기록에 덧붙인다. seq = 클라이언트가 본 마지막 seq + 1(같은 seq · 같은 내용 재전송은 한 번만)."""
     etype = body.get("type")

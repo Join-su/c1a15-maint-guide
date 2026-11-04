@@ -386,6 +386,17 @@
       "title": "Alarm Id",
       "type": "integer"
      },
+     "call_sent": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Call Sent"
+     },
      "change_seq": {
       "title": "Change Seq",
       "type": "integer"

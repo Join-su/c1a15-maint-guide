@@ -63,6 +63,7 @@ class AlarmRow(_Out):
     report_status: str | None
     report_session_id: int | None
     ml: AlarmMl | None = None
+    call_sent: str | None = None  # G3: 보낸 호출 답 전(approval · handover)
 
 
 class RecentReport(_Out):

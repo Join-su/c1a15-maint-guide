@@ -116,3 +116,18 @@ describe("D-546 U5 ML 알람 카드(꼴 01)", () => {
     if (other) expect(container.querySelector(`.al[data-alarm="${other.alarm_id}"] .n-vals`)?.className).toBe("n-vals");
   });
 });
+
+describe("G3 대조: 왼쪽 칸 상태 줄", () => {
+  it("보낸 호출 답 전이면 '진행 중 · 파트장 호출' · 숙련자 인계면 '진행 중 · 숙련자 인계'", () => {
+    const h = load<Home>("home-in-progress");
+    const live = h.alarms.filter((x) => x.status === "in_progress");
+    live[0].call_sent = "approval";
+    const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);
+    const ls = (id: number) => container.querySelector(`button.n-li[data-alarm="${id}"] .n-ls`)?.textContent ?? "";
+    expect(ls(live[0].alarm_id)).toMatch(/진행 중 · 파트장 호출$/);
+    cleanup();
+    live[0].call_sent = "handover";
+    const r = render(<TodayPanel home={h} current={null} onOpen={() => {}} />).container;
+    expect(r.querySelector(`button.n-li[data-alarm="${live[0].alarm_id}"] .n-ls`)?.textContent).toMatch(/진행 중 · 숙련자 인계$/);
+  });
+});

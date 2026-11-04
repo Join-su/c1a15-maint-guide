@@ -2,7 +2,7 @@
 // 파트장 답 · 정정 기록은 시험 DB 시뮬레이션(S-04 P-11 · S-05 P-14 전, PBC-4 v10 실행 해석 ③). fixture 모드, 외부 요청 0.
 
 import { expect, test, type Page } from "@playwright/test";
-import { alarm, guard, login, psql, resetOps, restartWithin, result, shot, apiCorrection, simLeadAnswer, simLlmFailure, simR5Example, toFirstCheck, confirmReportModal } from "./helpers";
+import { alarm, guard, login, psql, resetOps, restartWithin, result, shot, apiCorrection, simLeadAnswer, simLlmFailure, simR5Example, toFirstCheck, confirmReportModal, snapTo } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -95,7 +95,10 @@ test("AC-03 L3 · AC-30 · AC-08 · AC-37: R5 계산 예시 → 4.3 → 정상 �
   await page.getByText("파트장 호출").click();
   await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
   expect(psql(`select summary from ops.calls where session_id = ${sid}`)).toBe(text);
+  await expect(page.locator(".ap .sml")).toHaveText("보낸 요약"); // 이름표 칸 밖 위(답장 g3-audit-fix)
+  await expect(page.locator("button.n-li .n-ls").first()).toHaveText(/진행 중 · 파트장 호출$/, { timeout: 10000 }); // 왼쪽 알람 칸
   await shot(page, info, "T10-sent");
+  await snapTo(page, "G3b-call-sent-4.4");
   simLeadAnswer(sid, "approved");
   await page.locator(".tb-home").click();
   await page.locator(".tb-bell").click();
@@ -158,6 +161,8 @@ test("AC-19-C3 · AC-20 · AC-21-C3: 확인 불가 반복 · 맞지 않는 소�
   await shot(page, info, "T11-unable_repeat");
   await page.locator(".btn.warnb", { hasText: "숙련자 인계" }).click();
   await expect(page.locator(".wait b")).toHaveText(/^숙련자 인계 보냄 · \d\d:\d\d$/); // 결정 018 ④: 답 대기
+  await expect(page.locator("button.n-li .n-ls").first()).toHaveText(/진행 중 · 숙련자 인계$/, { timeout: 10000 }); // 왼쪽 알람 칸(답장 g3-audit-fix)
+  await snapTo(page, "G3a-handover-sent");
   simLeadAnswer(sid, "assign");
   await page.reload();
   await page.locator(".btn", { hasText: "보고서 작성" }).click();

@@ -253,7 +253,9 @@ describe("T10 파트장 호출", () => {
     // 답장 u4-audit-fix: '보낸 요약'(읽기만 · 연필 0) → 아래 '파트장 호출 보냄 · 시각 / 답 기다림' · 위 띠 · 설명 문장 0
     expect(v.c.querySelector(".banner")).toBeNull();
     expect(v.c.querySelector(".cd:nth-child(2) > .pv")?.className).toBe("pv ro");
-    expect(v.c.querySelector(".pv .sm")?.textContent).toBe("보낸 요약");
+    expect(v.c.querySelector(".cd:nth-child(2) > .pv")?.previousElementSibling?.className).toBe("sml"); // 이름표는 칸 밖 위(덧 4)
+    expect(v.c.querySelector(".sml")?.textContent).toBe("보낸 요약");
+    expect(v.c.querySelector(".pv.ro .sm")).toBeNull();
     expect(v.c.querySelector(".cd:nth-child(2) > .pv")?.nextElementSibling?.className).toBe("wait");
     expect(texts(v.c, ".wait > *")[1]).toBe("답 기다림");
     expect(v.c.querySelector(".wait b")?.textContent).toMatch(/^파트장 호출 보냄 · \d\d:\d\d$/);
@@ -650,7 +652,8 @@ describe("S-04 정비자 쪽: 반려 · 숙련자 인계 답 · 직접 확인(�
     const sent = load("s04-handover-sent");
     let r = render(<HandoverScreen s={sent} busy={false} send={() => {}} />);
     expect(r.container.querySelector(".banner")).toBeNull(); // 호출과 같은 꼴(답장 u4-audit-fix)
-    expect(r.container.querySelector(".pv.ro .sm")?.textContent).toBe("보낸 요약");
+    expect(r.container.querySelector(".sml")?.textContent).toBe("보낸 요약");
+    expect(r.container.querySelector(".pv.ro .sm")).toBeNull();
     expect(texts(r.container, ".wait > *")).toEqual([expect.stringMatching(/^숙련자 인계 보냄 · \d\d:\d\d$/), "답 기다림"]);
     expect([...r.container.querySelectorAll(".btn")].length).toBe(0);
     cleanup();

@@ -704,6 +704,8 @@ export interface components {
             alarm: components["schemas"]["AlarmValue"];
             /** Alarm Id */
             alarm_id: number;
+            /** Call Sent */
+            call_sent?: string | null;
             /** Change Seq */
             change_seq: number;
             /** Equipment Id */

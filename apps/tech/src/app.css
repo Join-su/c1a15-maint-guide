@@ -176,3 +176,5 @@
 .ap .pv.ro .sm::after { content: none; }
 .ap .wait { display: flex; flex-direction: column; gap: 2px; background: var(--warn-s); border-radius: 12px; padding: 14px 16px; margin-top: 12px; color: #7a4a00; }
 .ap .wait span { font-size: 14px; color: var(--sub); }
+.ap .sml { display: block; font-size: 13px; color: var(--mut); font-weight: 600; margin-bottom: 6px; }
+.ap .pv.ro { background: #f6f8fb; border-color: transparent; min-height: 0; }

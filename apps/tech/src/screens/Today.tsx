@@ -15,6 +15,7 @@ const REPORT: Record<string, { label: string; chip: string }> = {
 
 function stage(a: Row): { e: string; text: string } {
   if (a.status === "new") return { e: "🚨", text: "새 알람" };
+  if (a.call_sent) return { e: "🔧", text: `진행 중 · ${a.call_sent === "handover" ? "숙련자 인계" : "파트장 호출"}` }; // G3 대조
   const p = a.progress;
   return { e: "🔧", text: p && p.check_no > 0 ? `진행 중 · 점검 ${p.check_no}/${p.check_max}` : "진행 중" };
 }

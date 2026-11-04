@@ -278,6 +278,16 @@ function Summary({
   onText: (t: string | null) => void;
   ro?: boolean; // 보낸 뒤 '보낸 요약'(읽기만 · 연필 표시 뺌)
 }) {
+  if (ro)
+    // G3 대조(덧 4 T10b): 이름표는 칸 밖 위 · 글은 테두리 없는 회색 칸(읽기만)
+    return (
+      <>
+        <span className="sml">{label}</span>
+        <div className="pv ro">
+          <p>{call.summary.text}</p>
+        </div>
+      </>
+    );
   return (
     <div className={ro ? "pv ro" : "pv"}>
       <span className="sm">{label}</span>

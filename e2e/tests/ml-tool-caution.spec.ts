@@ -72,6 +72,8 @@ test("U6 공구 교체 주의: 주황 줄 · 「확인」(두 번째 누름 · �
   await reading("M-03", { tool_wear_min: 150 }); // 공구 교체
   await reading("M-03", { tool_wear_min: 205 });
   await expect(row).toHaveCount(1, { timeout: 15000 }); // 교체 뒤 다시 200 ~ 246 → 다시 뜸
+  await expect(page.locator(".al")).toHaveCount(1); // 공구 마모 알람과 함께
+  await snap(page, info, "G3c-home-tool-and-alarm");
   await pause(page);
   await row.locator(".btn", { hasText: "확인" }).click();
   await row.locator(".btn", { hasText: "확인" }).click({ timeout: 2000 }).catch(() => {}); // 같은 줄 두 번째 누름(사라졌으면 누를 곳 없음)
