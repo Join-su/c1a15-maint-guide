@@ -7,6 +7,7 @@
 """
 
 import secrets
+from datetime import UTC
 from functools import lru_cache
 
 from c1a15 import config, redact
@@ -108,9 +109,22 @@ def alarm(event_id: str, body: dict) -> RunResult:
     return client().run("alarm", event_id, 0, body)
 
 
+def alarm_context(alarm) -> dict:
+    """약속 v7(D-546 덧 27): 알람 난 설비 · 알람 시각(초까지 · 시간대) — Pack 그래프 '같은 설비' 범위 · 설비 조건 예외 ·
+    앞선 기록만. 값이 없으면 칸을 빼고(v6과 같은 판정), line_id는 앱에 값이 없어 싣지 않음."""
+    out = {}
+    if alarm.equipment_id:
+        out["equipment_id"] = alarm.equipment_id
+    if alarm.occurred_at:
+        at = alarm.occurred_at if alarm.occurred_at.tzinfo else alarm.occurred_at.replace(tzinfo=UTC)
+        out["occurred_at"] = at.replace(microsecond=0).isoformat()
+    return out
+
+
 def start_body(alarm, grades: dict, minutes: dict) -> dict:
     """약속 v4: 상위 10건은 Pack 리트리버(retrieve_history)가 고름 — similar 칸은 보내지 않음(EV-001 CH-29)."""
     return {
+        **alarm_context(alarm),
         "kind": "start",
         "session_id": session_ident(alarm.alarm_id),
         "event_id": start_event_id(alarm),
@@ -136,8 +150,10 @@ def judge_body(
     minutes: dict,
     manual_support: dict | None = None,
     exception_relation: str | None = None,
+    context: dict | None = None,
 ) -> dict:
     body = {
+        **(context or {}),  # 약속 v7 equipment_id · occurred_at(alarm_context) — 없으면 지금 바이트
         "kind": "judge",
         "session_id": session_ident(alarm_id),
         "group": group,
@@ -184,9 +200,10 @@ def judge(
     manual_support: dict | None = None,
     purpose: str | None = None,
     exception_relation: str | None = None,
+    context: dict | None = None,
 ) -> RunResult:
     """purpose = 'trial'이면 정정 확인 창의 시험 판정(EV-011 CH-06) — 머리글 X-Run-Purpose · 키 따로(본문 같음)."""
-    body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support, exception_relation)
+    body = judge_body(alarm_id, group, similar, inputs, grades, minutes, manual_support, exception_relation, context)
     seq = inputs[-1]["seq"] if inputs else 0  # 그 판정을 부른 마지막 입력 기록
     signals = [_signal_fields(e["signal"]) for e in inputs if isinstance(e.get("signal"), dict)]
     audit_names("judge", session_ident(alarm_id), redact.redact_obj(signals)[1])

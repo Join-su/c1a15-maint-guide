@@ -158,7 +158,15 @@ def _deploy_decision(
     g, minutes = deps.grades(c)
     rel, g, minutes = flow.with_exception(eg, g, minutes)
     res = runs.judge(
-        row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, manual_support, exception_relation=rel
+        row.alarm_id,
+        row.symptom_group,
+        row.similar,
+        inputs,
+        g,
+        minutes,
+        manual_support,
+        exception_relation=rel,
+        context=runs.alarm_context(alarm_of(c, row.alarm_id)),
     )
     return res.output["decision"], {"via": "deploy", "run_id": res.run_id, "deployment_id": res.deployment_id}
 
@@ -742,7 +750,16 @@ def _trial_decision(c: Connection, row: m.DiagSession, events: list[dict]) -> di
     ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)
     rel, g, minutes = flow.with_exception(flow.exception_guide_of(events), g, minutes)
     res = runs.judge(
-        row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, ms, purpose="trial", exception_relation=rel
+        row.alarm_id,
+        row.symptom_group,
+        row.similar,
+        inputs,
+        g,
+        minutes,
+        ms,
+        purpose="trial",
+        exception_relation=rel,
+        context=runs.alarm_context(alarm_of(c, row.alarm_id)),
     )
     return res.output["decision"]
 
