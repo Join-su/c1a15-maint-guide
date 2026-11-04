@@ -137,6 +137,7 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   await page.locator(".g64 > .cd").nth(1).locator(".btn", { hasText: "파트장 호출" }).click();
   await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
   await expect(left.locator(".xkh p")).toHaveText(TEXT); // 보낸 뒤에도 카드 그대로
+  await expect(page.locator("button.n-li .n-ls").first()).toHaveText(/진행 중 · 파트장 호출$/, { timeout: 2000 }); // 왼쪽 알람 칸 — 보낸 즉시(5초 주기 전 · 마지막 대조 025)
   await snap(page, info, "G3-call-sent");
   const ev = psql("select string_agg(type, ',' order by seq) from ops.session_events where type in ('exception_draft', 'call_sent')");
   expect(ev).toBe("exception_draft,call_sent");
@@ -190,4 +191,31 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   expect(ev).toBe(`call_sent:EX-${rid},call_answer:EX-${rid},result:EX-${rid},action_done:EX-${rid}`);
   g.check(info);
   lg.check(info);
+});
+
+test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 시작」 → 진단 '다음 점검' = 예외 절 호출 → 잠금 · 사전 확인 → 예외 카드(F1 걷기 결함 덧 33)", async ({ page }, info) => {
+  const g = guard(page);
+  await answer({ exception_guide: guide({ minutes: 5, next_section: "4.3" }), preview: true }); // Pack처럼 start 결과에 preview = call EX-…
+  await login(page);
+  alarm("DEMO-01");
+  const started = page.waitForResponse((r) => /\/api\/tech\/alarms\/\d+\/session$/.test(r.url()) && r.request().method() === "POST");
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  expect((await started).status()).toBe(200); // 고치기 전: 500(KeyError EX-…)
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  const nx = page.locator(".nx");
+  await expect(nx.locator("h3")).toHaveText("파트장 호출 필요");
+  await expect(nx.locator(".tags > *")).toHaveText(["C승인 필요", `예외 기록 ${rid}`, "필터 덮개 고정 나사 확인 · 약 5분"]); // '매뉴얼 EX-…절' 0
+  await snap(page, info, "G0-diagnosis-exception-preview");
+  await pause(page);
+  await nx.locator(".btn").click();
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
+  await pause(page);
+  await page.getByText("사전 확인 완료").click();
+  const left = page.locator(".g64 > .cd").first();
+  await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인"); // 같은 예외 절 호출
+  await page.reload(); // 같은 화면 한 번 더(D-503 1) — 서버 기록으로 다시 열려도 같은 카드
+  await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
+  g.check(info);
 });

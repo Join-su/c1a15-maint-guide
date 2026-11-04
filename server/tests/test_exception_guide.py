@@ -186,3 +186,43 @@ def test_exception_after_approval_normal_returns_to_original_order(api, db, depl
     assert s["step"]["section"] == "4.3"  # 원래 순서 다음 점검(= next_section)
     s2 = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
     assert s2["step"] == s["step"]  # 같은 화면 다시 열어도 그대로
+
+
+def test_exception_call_sent_shows_on_home_row(api, db, deploy):
+    """마지막 대조(final-audit 025): 예외 카드 길에서 호출을 보낸 뒤 왼쪽 알람 칸 '진행 중 · 파트장 호출' — 보통 호출 길과 같음."""
+    reset_ops(db)
+    eg = _guide(_approved_exception(api, db))
+    deploy.default = pack_answer(exception_guide=eg)
+    tech, s = start(api, db, equipment="M-01")
+    s = to_instruct(tech, s)
+    assert s["step"]["kind"] == "call" and s["call"]["exception_guide"]
+    (a,) = tech.get("/api/tech/home").json()["alarms"]
+    assert a["call_sent"] is None  # 보내기 전
+    s = ok(tech, s, type="call_send")
+    assert s["call"]["status"] == "sent"
+    (a,) = tech.get("/api/tech/home").json()["alarms"]
+    assert a["call_sent"] == "approval"
+
+
+@pytest.mark.parametrize(("minutes", "cause"), [(5, "CL-1"), (None, None)])  # Pack 예시 꼴 · 원인 없는 관계
+def test_start_with_real_pack_exception_preview(api, db, deploy, minutes, cause):
+    """F1 걷기 결함(D-546 덧 33): 실제 Pack start는 예외가 맞으면 preview = call EX-…(contracts v8 start-exception.result)
+    — 앱 등급표 · 분 표 · 매뉴얼에 없는 절이어도 세션이 열리고 미리보기 카드 값은 예외 안내에서(분 없으면 None)."""
+    reset_ops(db)
+    eg = {**_guide(_approved_exception(api, db)), "minutes": minutes, "next_section": "4.3"}
+    deploy.default = pack_answer(
+        exception_guide=eg, preview=True, exception_cause=cause
+    )  # Pack 꼴: preview = 예외 절 호출
+    tech, s = start(api, db, equipment="M-01")
+    assert "session_id" in s, s  # 고치기 전: 500(KeyError EX-…)
+    start_body = _bodies(deploy, "start")[-1]
+    pv = s["preview"]
+    assert (pv["kind"], pv["section"], pv["grade"]) == ("call", eg["section"], "C")
+    assert (pv["title"], pv["minutes"]) == (eg["title"], minutes)
+    assert eg["section"] in pv["reason"] and f"{eg['section']}절" not in pv["reason"]  # 예외 절에 '절' 붙이지 않음
+    assert pv["reason_fallback"] is False and pv["reason"].startswith(
+        "예외 기록과 같은 조건"
+    )  # 근거 검사 통과(원문 대체 0)
+    assert start_body["kind"] == "start"
+    s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 같은 예외 절 호출
+    assert s["step"]["kind"] == "call" and s["step"]["section"] == eg["section"]

@@ -362,6 +362,8 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
         state = session.fold(k, row.symptom_group, similar_of(row), [{"type": "lock"}, {"type": "precheck_done"}])
         d = session.decide(state, k, g, minutes)
     out = {"kind": d["kind"], "section": d.get("section"), "grade": d.get("grade"), "cause": d.get("cause")}
+    # 분: 분 표 → 없으면 그 절의 분(예외 절 = exception_guide.minutes · knowledge_of) → 없으면 None(덧 33)
+    mins = minutes.get(d.get("section"), (k.sections.get(d.get("section")) or {}).get("minutes"))
     if d["kind"] in {"instruct", "instruct_after_checklist"}:
         sec = k.sections[d["section"]]
         order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
@@ -381,33 +383,42 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
                 "alternatives": d["reason_facts"]["alternatives"],
             },
         )
-        out.update(title=sec["title"], minutes=minutes[d["section"]], **_checked_reason(row, d, facts))
+        out.update(title=sec["title"], minutes=mins, **_checked_reason(row, d, facts))
     elif d["kind"] == "call":  # P-18: 첫 판정이 호출(T04 / first_call)이어도 카드 값은 서버가 낸다
         sec = k.sections[d["section"]]
-        p = d["probabilities"].get(d["cause"], 0)
+        p = d["probabilities"].get(d.get("cause"), 0)
+        cause_name = (
+            k.cause(d["cause"]).name if d.get("cause") else "예외 기록"
+        )  # 예외 관계에 원인이 없을 수 있음(Pack v8)
         facts = Facts(
             "call_reason",
             d["section"],
             {
-                "cause_name": k.cause(d["cause"]).name,
+                "cause_name": cause_name,
                 "probability": p,
                 "check_title": sec["title"],
                 "grade": d["grade"],
                 "reason": d["reason"],
             },
         )
+        eg = flow.exception_guide_of(events_of(c, row.session_id)) or {}
+        ex_ids = (
+            {*(eg.get("basis") or []), d["section"][len(exception.PREFIX) :]}
+            if eg.get("section") == d["section"]
+            else set()
+        )
         g = grounding.Grounding(
             allowed_sections=frozenset([d["section"]]),
             source_numbers=frozenset([str(p), "1"]),  # '1순위'의 1은 순위 사실
-            top_record_ids=frozenset(s["record_id"] for s in row.similar),
+            top_record_ids=frozenset(s["record_id"] for s in row.similar)
+            | ex_ids,  # 예외 절 = 근거 예외 기록(EX-<기록>)
         )
-        template = (
-            f"{k.cause(d['cause']).name} {p}% · {d['section']}절 {sec['title']} · {d['grade']}등급 · 파트장 호출 필요"
-        )
+        who = f"{cause_name} {p}%" if d.get("cause") else cause_name
+        template = f"{who} · {flow.sec_text(d['section'])} {sec['title']} · {d['grade']}등급 · 파트장 호출 필요"
         r = grounding.checked(lambda: adapter_for_mode().write(facts), g, template)
         out.update(
             title=sec["title"],
-            minutes=minutes[d["section"]],
+            minutes=mins,
             call_reason=d["reason"],
             reason=r.text,
             reason_fallback=r.fallback,

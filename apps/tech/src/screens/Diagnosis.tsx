@@ -3,6 +3,7 @@
 // D-528(가이드 정비자 4): 순위 아래 「근거 n = …」 설명 · 과거 기록 아래 안내 문장 뺌.
 
 import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
+import { SecChip } from "./Lock";
 
 type Diag = Pick<SessionWithPreview, "probabilities" | "evidence" | "cause_names" | "similar_cards" | "low_evidence" | "preview">;
 
@@ -22,7 +23,7 @@ export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; p
         <h3>{call ? "파트장 호출 필요" : p.title}</h3>
         <div className="tags">
           <GradeBadge grade={p.grade} />
-          {p.section ? <span className="ch blue">매뉴얼 {p.section}절</span> : null}
+          {p.section ? <SecChip section={p.section} /> : null}
           {p.minutes != null ? (
             <span className="ch gray">{call ? `${p.title} · 약 ${p.minutes}분` : `약 ${p.minutes}분`}</span>
           ) : null}
