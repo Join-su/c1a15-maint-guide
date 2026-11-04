@@ -31,6 +31,9 @@ class Checked:
 _NUM = re.compile(r"\d+(?:\.\d+)?")
 _SECTION = re.compile(r"(?<![\d.])\d\.\d(?:\.\d)?(?![\d.])")  # "4.3절"처럼 한글이 붙어도 절 번호
 _RECORD = re.compile(r"\b[HR]-\d{4}\b")
+_EXCEPTION = re.compile(
+    r"\bEX-[HR]-\d+\b"
+)  # 예외 절 번호(약속 v8 EX-<기록>) — 안의 기록 번호는 근거 기록이 아니라 절(덧 37)
 
 
 def is_section_like(token: str) -> bool:
@@ -43,13 +46,14 @@ def numbers_in(*texts: str) -> frozenset[str]:
 
 
 def is_grounded(draft: Draft, g: Grounding) -> bool:
-    sections = set(_SECTION.findall(draft.text)) | set(draft.sections)
+    text = _EXCEPTION.sub(" ", draft.text)
+    sections = set(_SECTION.findall(text)) | set(_EXCEPTION.findall(draft.text)) | set(draft.sections)
     if not sections <= g.allowed_sections:
         return False
-    records = set(_RECORD.findall(draft.text)) | set(draft.record_ids)
+    records = set(_RECORD.findall(text)) | set(draft.record_ids)
     if not records <= g.top_record_ids:
         return False
-    text_wo = _RECORD.sub(" ", _SECTION.sub(" ", draft.text))
+    text_wo = _RECORD.sub(" ", _SECTION.sub(" ", text))
     return set(_NUM.findall(text_wo)) <= g.source_numbers
 
 

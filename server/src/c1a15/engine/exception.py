@@ -41,7 +41,7 @@ def find(graph, rel_id):
 
 def match(graph, group, sensors, equipment_id=None):
     """알람 → 맞는 안내 관계 하나(증상군 · 센서 구간 · 같은 설비 모두 맞을 때). mode 참고는 판단에 안 씀.
-    여럿 맞으면 좁은 것 먼저(D-546 덧 15): ① 설비 조건 있는 줄 → ② 센서 조건 줄 수 많은 줄 → ③ 근거 수 n 큰 줄 → ④ id 차례."""
+    여럿 맞으면 좁은 것 먼저(D-546 덧 15): ① 설비 조건 있는 줄 → ② 센서 조건 줄 수 많은 줄 → ③ 근거 수 n 큰 줄 → ④ id 큰 줄(나중 관계 · D-546 덧 36)."""
     sec, names = _parts(graph)
     name = next(g["name"] for g in graph["groups"] if g["code"] == group)
     hits = []
@@ -56,7 +56,7 @@ def match(graph, group, sensors, equipment_id=None):
             hits.append(x)
     if not hits:
         return None
-    x = sorted(hits, key=lambda x: (not x["when"].get("equipment_id"), -len(x["when"].get("sensors") or []), -(x.get("n") or 0), x["id"]))[0]
+    x = min(sorted(hits, key=lambda x: x["id"], reverse=True), key=lambda x: (not x["when"].get("equipment_id"), -len(x["when"].get("sensors") or []), -(x.get("n") or 0)))
     return x, sec[x["step"]]
 
 

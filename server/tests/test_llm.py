@@ -123,3 +123,20 @@ def _wrap(fn, facts):
         return fn(facts)
     except OSError as exc:
         raise AdapterError(str(exc)) from exc
+
+
+def test_exception_section_record_id_is_a_section_not_a_record():
+    """F2 go ②(D-546 덧 37): 예외 절 번호 'EX-R-0001' 안의 R-0001은 근거 기록이 아니라 절 번호 — 허용 절이면 통과,
+    허용 밖 예외 절이면 거름(R8). 맨 R-0001(기록 ID)은 지금처럼 상위 기록만."""
+    from c1a15.llm.base import Draft
+    from c1a15.llm.grounding import Grounding, is_grounded
+
+    g = Grounding(
+        allowed_sections=frozenset({"EX-R-0001", "4.3"}), source_numbers=frozenset(), top_record_ids=frozenset()
+    )
+    assert is_grounded(Draft("필터 덮개 고정 나사 확인(EX-R-0001, C) · 4.3절 흡기 필터", sections=()), g)
+    assert not is_grounded(Draft("필터 덮개 고정 나사 확인(EX-R-0009, C)", sections=()), g)  # 허용 밖 예외 절
+    assert not is_grounded(Draft("근거 R-0001", sections=()), g)  # 맨 기록 ID는 상위 기록에 없으면 거름
+    assert is_grounded(
+        Draft("예외 절 EX-R-11050930", sections=()), Grounding(frozenset({"EX-R-11050930"}), frozenset(), frozenset())
+    )
