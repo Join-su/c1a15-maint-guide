@@ -18,6 +18,7 @@ case "${1:-}" in
   *) echo "스택 이름은 real | copy | view"; exit 1 ;;
 esac
 ST=${TMPDIR:-/tmp}/$COMPOSE_PROJECT_NAME
-ALARM_MODE=boundary; KG_INBOX_DIR=  # real · copy = 시연 길 그대로(경계 · 받은 편지함 0)
-if [ "$1" = view ]; then ALARM_MODE=ml; KG_INBOX_DIR=$ST/kg-inbox; fi
+ALARM_MODE=boundary; KG_INBOX_DIR=; REPORT_START=; CHECKS=deploy  # real · copy = 시연 길 그대로(경계 · 받은 편지함 0 · 번호 월일시분)
+# view: 승인 이력 번호 = 시작 그래프 예외 기록(R-0001) 뒤 R-0002부터(D-546 덧 37) · 사람 체크 보내기 끔(첫 상태로 되돌린 뒤 기록 키 겹침 0)
+if [ "$1" = view ]; then ALARM_MODE=ml; KG_INBOX_DIR=$ST/kg-inbox; REPORT_START=${VIEW_REPORT_START:-2}; CHECKS=off; fi
 PORT=$TECH_PORT

@@ -42,7 +42,7 @@ case "${2:-}" in
     curl -fsS -m 5 "http://127.0.0.1:$DP/info" >/dev/null || { echo "배포 서버 $DP이 응답하지 않음 — 멈춤"; exit 1; }
     mkdir -p "$ST"; chmod 700 "$ST"
     gen() { python3 -c 'import secrets; print(secrets.token_urlsafe(12))'; }
-    (umask 077; printf 'POSTGRES_PASSWORD=%s\nC1A15_TECH_PASSWORD=%s\nC1A15_LEAD_PASSWORD=%s\nC1A15_INTERNAL_TOKEN=%s\nAPP_MODE=fixture\nC1A15_ALARM=%s\nC1A15_R12_INBOX=\nC1A15_DEPLOY_URL=http://host.docker.internal:%s\nC1A15_DEPLOY_HOST=host.docker.internal\nC1A15_CHECKS=deploy\n' "$(gen)" "$(gen)" "$(gen)" "$(gen)" "$ALARM_MODE" "$DP" > "$ST/stack.env")
+    (umask 077; printf 'POSTGRES_PASSWORD=%s\nC1A15_TECH_PASSWORD=%s\nC1A15_LEAD_PASSWORD=%s\nC1A15_INTERNAL_TOKEN=%s\nAPP_MODE=fixture\nC1A15_ALARM=%s\nC1A15_R12_INBOX=\nC1A15_DEPLOY_URL=http://host.docker.internal:%s\nC1A15_DEPLOY_HOST=host.docker.internal\nC1A15_CHECKS=%s\n' "$(gen)" "$(gen)" "$(gen)" "$(gen)" "$ALARM_MODE" "$DP" "$CHECKS" > "$ST/stack.env")
     if [ -n "$KG_INBOX_DIR" ]; then  # view: 승인 commit 뒤 편지 한 통 = 이 폴더 파일 하나(deploy 감시가 kg_apply)
       mkdir -p "$KG_INBOX_DIR"; printf 'C1A15_KG_INBOX=/inbox/kg\nVIEW_KG_INBOX=%s\n' "$KG_INBOX_DIR" >> "$ST/stack.env"
     fi
@@ -51,7 +51,7 @@ case "${2:-}" in
     docker compose up -d --pull never --no-build >/dev/null 2>&1
     wait_health
     # 보고서 번호 시작 = 월일시분: 체크 기록 키 CR-<번호>가 맥 공유 기록의 앞 바퀴(CR-000001 등)와 겹치지 않게(001-v · 공유 UNIQUE record_key)
-    BASE=$(/bin/date +%m%d%H%M | sed 's/^0*//')
+    BASE=${REPORT_START:-$(/bin/date +%m%d%H%M | sed 's/^0*//')}  # view = 2(R-0002부터 · 덧 37)
     docker compose exec -T db psql -U c1a15 -d c1a15 -q -c "alter table ops.reports alter column report_id restart with $BASE"
     echo "REPORT_BASE=$BASE" >> "$ST/stack.env"
     git -C "$R" rev-parse --short HEAD > "$ST/app_rev"

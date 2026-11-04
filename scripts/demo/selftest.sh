@@ -39,8 +39,8 @@ done
 awk '/^  up\)/,/;;/' "$S" | grep -q 'app_rev' && ok "up → app_rev" || no "up이 app_rev를 남기지 않음"
 # 6 view(D-546 F2) = ML만 · 받은 편지함 묶음 · 28181 · 28182 · DB 55453, real · copy = 경계 · 받은 편지함 0
 for k in real copy view; do
-  got=$(TMPDIR="$FAKE/" bash -c '. "$1" "$2"; echo "$ALARM_MODE|${KG_INBOX_DIR:+inbox}|$TECH_PORT|$LEAD_PORT|$DB_HOST_PORT"' _ "$H/stack-env.sh" "$k")
-  case $k in real) want="boundary||8081|8082|55437" ;; copy) want="boundary||18181|18182|55440" ;; view) want="ml|inbox|28181|28182|55453" ;; esac
+  got=$(TMPDIR="$FAKE/" bash -c '. "$1" "$2"; echo "$ALARM_MODE|${KG_INBOX_DIR:+inbox}|$TECH_PORT|$LEAD_PORT|$DB_HOST_PORT|$REPORT_START|$CHECKS"' _ "$H/stack-env.sh" "$k")
+  case $k in real) want="boundary||8081|8082|55437||deploy" ;; copy) want="boundary||18181|18182|55440||deploy" ;; view) want="ml|inbox|28181|28182|55453|2|off" ;; esac
   [ "$got" = "$want" ] && ok "$k 칸 $got" || no "$k 칸 '$got' ≠ '$want'"
 done
 grep -q '/inbox/kg' "$H/ports-view.yml" && grep -q '28181:8081' "$H/ports-view.yml" && ok "ports-view 받은 편지함 · 포트" || no "ports-view 칸 빠짐"
