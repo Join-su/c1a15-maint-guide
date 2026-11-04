@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 시연 네 장면 스택(D-412 · D-416 · D-418 · D-446 덧 10 · D-480 덧 5): stack.sh <real | copy | view> <명령> — 사람이 화면을 직접 누름.
 #   up            스택 띄움(build 캐시 층만 · --pull never) → 정비자 · 파트장 화면 · 앱 → 배포 서버(real 8796 · copy DEPLOY_PORT)
+#   deps          빌드 전 검사만: server pyproject · uv.lock · .python-version이 같은 로컬 앱 이미지가 있는가(없으면 멈춤)
 #   info          컨테이너 안에서 배포 서버 /info 읽기(배포 id · Pack · revision — Run 아님)
 #   pw            로그인 비밀번호 파일 경로만 알림(값은 그 파일에만)
 #   alarm DEMO-01 시연 알람 하나(정비자가 로그인한 뒤에)
@@ -30,7 +31,17 @@ wait_health() {
   for _ in $(seq 1 90); do curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null 2>&1 && break; sleep 1; done
   curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null || { echo "앱이 안 뜸"; exit 1; }
 }
+deps_check() {  # 빌드 전(D-546 덧 38): 의존 세 파일이 같은 로컬 앱 이미지가 없으면 uv sync가 패키지를 내려받음 → 빌드 전에 멈춤(설치 0 · D-333)
+  local want img got
+  want=$(cat "$R/server/pyproject.toml" "$R/server/uv.lock" "$R/server/.python-version" | shasum -a 256 | cut -c1-64)
+  for img in $(docker images --format '{{.Repository}}:{{.Tag}}' | grep -E '^c1a15-[a-z0-9-]+-api:'); do
+    got=$(docker run --rm --pull never --network none --entrypoint sh "$img" -c 'cat /app/pyproject.toml /app/uv.lock /app/.python-version' 2>/dev/null | shasum -a 256 | cut -c1-64)
+    [ "$got" = "$want" ] && { echo "의존 같음: $img"; return 0; }
+  done
+  echo "빌드 전 멈춤: server pyproject · uv.lock이 같은 로컬 앱 이미지 없음 — 빌드하면 패키지를 내려받음(D-333 · 설치 0)"; exit 1
+}
 build_images() {
+  deps_check
   npm run --silent build >/dev/null
   docker compose build --progress plain > "$ST/build.log" 2>&1
   cache_check "$ST/build.log"
@@ -57,6 +68,7 @@ case "${2:-}" in
     git -C "$R" rev-parse --short HEAD > "$ST/app_rev"
     echo "떴음 — 정비자 http://127.0.0.1:$TECH_PORT (tech.kim) · 파트장 http://127.0.0.1:$LEAD_PORT (lead.park) · 비밀번호: $0 $1 pw${KG_INBOX_DIR:+ · 받은 편지함 $KG_INBOX_DIR}"
     ;;
+  deps) deps_check ;;
   info)
     load
     docker compose exec -T api python -c 'import json, os, urllib.request; d = json.load(urllib.request.urlopen(os.environ["C1A15_DEPLOY_URL"] + "/info", timeout=5)); p = d.get("pack") or {}; print(d.get("deployment_id"), p.get("tag"), (p.get("pack_revision") or "")[:15])'

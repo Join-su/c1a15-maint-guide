@@ -19,7 +19,7 @@ run() { TMPDIR="$FAKE/" bash "$S" "$@" 2>&1; }
 
 [ -f "$S" ] || { echo "× stack.sh 없음"; echo "demo selftest: FAIL"; exit 1; }
 u=$(run 2>&1 || true)
-for c in up backup rebuild rollback down; do echo "$u" | grep -q "^#   $c" && ok "쓰임에 $c" || no "쓰임에 $c 없음"; done
+for c in up deps backup rebuild rollback down; do echo "$u" | grep -q "^#   $c" && ok "쓰임에 $c" || no "쓰임에 $c 없음"; done
 out=$(run prod up); [ $? -ne 0 ] && echo "$out" | grep -q "스택 이름" && ok "모르는 스택 이름 → 멈춤" || no "모르는 스택 이름 '$out'"
 
 for k in real copy view; do
@@ -43,6 +43,19 @@ for k in real copy view; do
   case $k in real) want="boundary||8081|8082|55437||deploy" ;; copy) want="boundary||18181|18182|55440||deploy" ;; view) want="ml|inbox|28181|28182|55453|2|off" ;; esac
   [ "$got" = "$want" ] && ok "$k 칸 $got" || no "$k 칸 '$got' ≠ '$want'"
 done
+# 7 빌드 전 의존 검사(D-546 덧 38): 같은 로컬 앱 이미지 없으면 멈춤 · 있으면 통과 · build_images가 빌드 전에 부름(가짜 docker · 진짜 손 0)
+mkdir -p "$FAKE/bin"
+cat > "$FAKE/bin/docker" <<'DK'
+#!/bin/sh
+case "$1" in
+  images) echo "c1a15-demo-real-api:latest" ;;
+  run) [ -n "$FAKE_SAME" ] && cat "$FAKE_ROOT/server/pyproject.toml" "$FAKE_ROOT/server/uv.lock" "$FAKE_ROOT/server/.python-version" || echo old ;;
+esac
+DK
+chmod +x "$FAKE/bin/docker"
+out=$(PATH="$FAKE/bin:$PATH" FAKE_ROOT="$ROOT" run view deps); [ $? -ne 0 ] && echo "$out" | grep -q "빌드 전 멈춤" && ok "의존 다른 이미지만 → 빌드 전 멈춤" || no "의존 검사 멈춤 '$out'"
+out=$(PATH="$FAKE/bin:$PATH" FAKE_ROOT="$ROOT" FAKE_SAME=1 run view deps); [ $? -eq 0 ] && echo "$out" | grep -q "의존 같음" && ok "의존 같은 이미지 → 통과" || no "의존 검사 통과 '$out'"
+awk '/^build_images\(\) \{/,/^\}/' "$S" | head -3 | grep -q deps_check && ok "build_images가 빌드 전에 의존 검사" || no "build_images 의존 검사 빠짐"
 grep -q '/inbox/kg' "$H/ports-view.yml" && grep -q '28181:8081' "$H/ports-view.yml" && ok "ports-view 받은 편지함 · 포트" || no "ports-view 칸 빠짐"
 HOME_PAT='/U''sers/|/h''ome/'  # 이 파일 자신이 걸리지 않게 낱말을 나눠 씀
 hits=$(grep -rlE "$HOME_PAT" "$H" || true)
