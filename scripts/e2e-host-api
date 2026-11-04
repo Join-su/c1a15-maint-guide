@@ -6,7 +6,7 @@ set -euo pipefail
 R=$(cd "$(dirname "$0")/.." && pwd)
 RUN=${E2E_RUN_DIR:?E2E_RUN_DIR 가 필요합니다}
 PORT=${E2E_API_PORT:-18000}  # D-537: dev-2 e2e는 28000(dev e2e와 호스트 포트 겹침 0)
-NAMES=(DATABASE_URL DATA_DIR C1A15_TECH_PASSWORD C1A15_LEAD_PASSWORD C1A15_INTERNAL_TOKEN APP_MODE C1A15_JUDGE C1A15_DEPLOY_URL C1A15_ALARM C1A15_R12_INBOX C1A15_CHECKS)
+NAMES=(DATABASE_URL DATA_DIR C1A15_TECH_PASSWORD C1A15_LEAD_PASSWORD C1A15_INTERNAL_TOKEN APP_MODE C1A15_JUDGE C1A15_DEPLOY_URL C1A15_ALARM C1A15_R12_INBOX C1A15_KG_INBOX C1A15_CHECKS)
 up() { for _ in $(seq 1 60); do curl -fsS -o /dev/null http://127.0.0.1:$PORT/api/health 2>/dev/null && return 0; sleep 0.5; done; echo "host 앱 서버가 안 뜸" >&2; tail -20 "$RUN/api.log" >&2; return 1; }
 free() { ! lsof -nP -iTCP:$PORT -sTCP:LISTEN -t >/dev/null 2>&1; }
 start() {

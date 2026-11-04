@@ -425,6 +425,33 @@ def _to_inbox(c: Connection, rec: dict, approved_at: str, eval_mode: bool) -> No
     c.info["after_commit"].append(deliver)
 
 
+def _to_kg_inbox(c: Connection, rec: dict, approved_at: str, eval_mode: bool) -> None:
+    """그래프 적재기 받은 편지함(D-543 · inbox-fit): C1A15_KG_INBOX가 있으면 승인 commit 뒤 파일 하나
+    (일반 · 예외 같은 꼴) — 실패해도 승인 · 이력 그대로(감사) · 평가 모드 0.
+    적재기 부르기는 c1a15-pack 꼴이 오면(D-546 덧 5)."""
+    folder = config.kg_inbox()
+    if folder is None:
+        return
+    target = f"report:{rec['source']['report_id']}"
+
+    def deliver() -> None:
+        if eval_mode:
+            sessions.audit_rejection("system", "kg_inbox_skipped", target, {"reason": "eval_mode"})
+            return
+        try:
+            doc, n = inbox.kg_document(rec, approved_at)
+            done = inbox.write(folder, doc)
+        except Exception as e:  # noqa: BLE001 — 받은 편지 실패는 승인과 따로
+            sessions.audit_rejection("system", "kg_inbox_failed", target, {"error": type(e).__name__})
+            return
+        if done != "written":
+            sessions.audit_rejection("system", "kg_inbox_skipped", target, {"reason": done})
+        else:
+            runs.audit_names("kg_inbox", target, n)  # 거른 수만(001-63)
+
+    c.info["after_commit"].append(deliver)
+
+
 @router.post(
     "/reports/{report_id}/decision", response_model=responses.DecisionResult, response_model_exclude_unset=True
 )
@@ -487,6 +514,7 @@ def report_decision(
     rec = history_record(c, r, fields, approval)
     added = _add_history(c, rec, r.symptom_group, r.eval_mode)
     _to_inbox(c, rec, approval["at"], r.eval_mode)
+    _to_kg_inbox(c, rec, approval["at"], r.eval_mode)
     approval["history_record_id"] = rec["record_id"] if added else None
     c.execute(
         m.Report.__table__.update()

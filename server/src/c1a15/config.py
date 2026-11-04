@@ -18,6 +18,16 @@ def database_url() -> str:
     return require_env("DATABASE_URL")
 
 
+def kg_inbox(env=os.environ) -> str | None:
+    """그래프 적재기 받은 편지함(D-543 · c1a15-pack inbox-fit): C1A15_KG_INBOX — 없으면 None(쓰지 않음). 절대 경로만."""
+    folder = env.get("C1A15_KG_INBOX", "")
+    if not folder:
+        return None
+    if not os.path.isabs(folder):
+        raise ConfigError(f"C1A15_KG_INBOX 는 절대 경로: {folder!r}")
+    return folder
+
+
 def r12_inbox(env=os.environ) -> str | None:
     """R12 받은 편지 폴더(EV-001 CH-23): C1A15_R12_INBOX — 없으면 None(쓰지 않음 = 지금 동작). 절대 경로만."""
     folder = env.get("C1A15_R12_INBOX", "")
