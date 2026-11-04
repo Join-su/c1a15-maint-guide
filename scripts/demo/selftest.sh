@@ -22,12 +22,12 @@ u=$(run 2>&1 || true)
 for c in up backup rebuild rollback down; do echo "$u" | grep -q "^#   $c" && ok "쓰임에 $c" || no "쓰임에 $c 없음"; done
 out=$(run prod up); [ $? -ne 0 ] && echo "$out" | grep -q "스택 이름" && ok "모르는 스택 이름 → 멈춤" || no "모르는 스택 이름 '$out'"
 
-for k in real copy; do
+for k in real copy view; do
   for c in "backup $FAKE/b" rebuild "rollback 88e0d06" info check; do
     out=$(ROLLBACK_TREE="$ROOT" run $k $c); rc=$?
     [ $rc -ne 0 ] && echo "$out" | grep -q "스택 없음" && ok "$k $c → 스택 없음 멈춤" || no "$k $c → rc=$rc '$out'"
   done
-  st=c1a15-demo-$k
+  st=c1a15-demo-$k; [ $k = view ] && st=c1a15-dev2-view
   mkdir -p "$FAKE/$st"; printf 'POSTGRES_PASSWORD=x\n' > "$FAKE/$st/stack.env"
   out=$(run $k backup); [ $? -ne 0 ] && echo "$out" | grep -q "백업 폴더" && ok "$k backup 폴더 빠짐 → 멈춤" || no "$k backup 폴더 빠짐 '$out'"
   out=$(run $k rollback); [ $? -ne 0 ] && echo "$out" | grep -q "꼬리표" && ok "$k rollback 꼬리표 빠짐 → 멈춤" || no "$k rollback 꼬리표 빠짐 '$out'"
@@ -37,6 +37,13 @@ for k in real copy; do
 done
 
 awk '/^  up\)/,/;;/' "$S" | grep -q 'app_rev' && ok "up → app_rev" || no "up이 app_rev를 남기지 않음"
+# 6 view(D-546 F2) = ML만 · 받은 편지함 묶음 · 28181 · 28182 · DB 55453, real · copy = 경계 · 받은 편지함 0
+for k in real copy view; do
+  got=$(TMPDIR="$FAKE/" bash -c '. "$1" "$2"; echo "$ALARM_MODE|${KG_INBOX_DIR:+inbox}|$TECH_PORT|$LEAD_PORT|$DB_HOST_PORT"' _ "$H/stack-env.sh" "$k")
+  case $k in real) want="boundary||8081|8082|55437" ;; copy) want="boundary||18181|18182|55440" ;; view) want="ml|inbox|28181|28182|55453" ;; esac
+  [ "$got" = "$want" ] && ok "$k 칸 $got" || no "$k 칸 '$got' ≠ '$want'"
+done
+grep -q '/inbox/kg' "$H/ports-view.yml" && grep -q '28181:8081' "$H/ports-view.yml" && ok "ports-view 받은 편지함 · 포트" || no "ports-view 칸 빠짐"
 HOME_PAT='/U''sers/|/h''ome/'  # 이 파일 자신이 걸리지 않게 낱말을 나눠 씀
 hits=$(grep -rlE "$HOME_PAT" "$H" || true)
 [ -z "$hits" ] && ok "scripts/demo 맥 절대 경로 0" || no "맥 절대 경로: $hits"

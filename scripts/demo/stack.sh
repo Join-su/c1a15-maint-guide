@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 시연 네 장면 스택(D-412 · D-416 · D-418 · D-446 덧 10 · D-480 덧 5): stack.sh <real | copy> <명령> — 사람이 화면을 직접 누름.
+# 시연 네 장면 스택(D-412 · D-416 · D-418 · D-446 덧 10 · D-480 덧 5): stack.sh <real | copy | view> <명령> — 사람이 화면을 직접 누름.
 #   up            스택 띄움(build 캐시 층만 · --pull never) → 정비자 · 파트장 화면 · 앱 → 배포 서버(real 8796 · copy DEPLOY_PORT)
 #   info          컨테이너 안에서 배포 서버 /info 읽기(배포 id · Pack · revision — Run 아님)
 #   pw            로그인 비밀번호 파일 경로만 알림(값은 그 파일에만)
@@ -42,7 +42,10 @@ case "${2:-}" in
     curl -fsS -m 5 "http://127.0.0.1:$DP/info" >/dev/null || { echo "배포 서버 $DP이 응답하지 않음 — 멈춤"; exit 1; }
     mkdir -p "$ST"; chmod 700 "$ST"
     gen() { python3 -c 'import secrets; print(secrets.token_urlsafe(12))'; }
-    (umask 077; printf 'POSTGRES_PASSWORD=%s\nC1A15_TECH_PASSWORD=%s\nC1A15_LEAD_PASSWORD=%s\nC1A15_INTERNAL_TOKEN=%s\nAPP_MODE=fixture\nC1A15_ALARM=boundary\nC1A15_R12_INBOX=\nC1A15_DEPLOY_URL=http://host.docker.internal:%s\nC1A15_DEPLOY_HOST=host.docker.internal\nC1A15_CHECKS=deploy\n' "$(gen)" "$(gen)" "$(gen)" "$(gen)" "$DP" > "$ST/stack.env")
+    (umask 077; printf 'POSTGRES_PASSWORD=%s\nC1A15_TECH_PASSWORD=%s\nC1A15_LEAD_PASSWORD=%s\nC1A15_INTERNAL_TOKEN=%s\nAPP_MODE=fixture\nC1A15_ALARM=%s\nC1A15_R12_INBOX=\nC1A15_DEPLOY_URL=http://host.docker.internal:%s\nC1A15_DEPLOY_HOST=host.docker.internal\nC1A15_CHECKS=deploy\n' "$(gen)" "$(gen)" "$(gen)" "$(gen)" "$ALARM_MODE" "$DP" > "$ST/stack.env")
+    if [ -n "$KG_INBOX_DIR" ]; then  # view: 승인 commit 뒤 편지 한 통 = 이 폴더 파일 하나(deploy 감시가 kg_apply)
+      mkdir -p "$KG_INBOX_DIR"; printf 'C1A15_KG_INBOX=/inbox/kg\nVIEW_KG_INBOX=%s\n' "$KG_INBOX_DIR" >> "$ST/stack.env"
+    fi
     load
     build_images
     docker compose up -d --pull never --no-build >/dev/null 2>&1
@@ -52,7 +55,7 @@ case "${2:-}" in
     docker compose exec -T db psql -U c1a15 -d c1a15 -q -c "alter table ops.reports alter column report_id restart with $BASE"
     echo "REPORT_BASE=$BASE" >> "$ST/stack.env"
     git -C "$R" rev-parse --short HEAD > "$ST/app_rev"
-    echo "떴음 — 정비자 http://127.0.0.1:$TECH_PORT (tech.kim) · 파트장 http://127.0.0.1:$LEAD_PORT (lead.park) · 비밀번호: $0 $1 pw"
+    echo "떴음 — 정비자 http://127.0.0.1:$TECH_PORT (tech.kim) · 파트장 http://127.0.0.1:$LEAD_PORT (lead.park) · 비밀번호: $0 $1 pw${KG_INBOX_DIR:+ · 받은 편지함 $KG_INBOX_DIR}"
     ;;
   info)
     load
