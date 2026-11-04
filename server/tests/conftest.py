@@ -31,6 +31,8 @@ def pytest_configure(config):
     fake = FakeDeploy().__enter__()
     fake.default = engine_answer
     os.environ["C1A15_JUDGE"], os.environ["C1A15_DEPLOY_URL"] = "deploy", fake.url
+    # 시험 기본 알람 길 = 경계(시연 각본 · 흐름 시험은 경계 행으로 만듦) — ML 길 시험은 fixture가 ml로(앱 기본 ml D-546)
+    os.environ["C1A15_ALARM"] = "boundary"
     _FAKE["fake"] = fake
 
 

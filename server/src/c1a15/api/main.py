@@ -19,7 +19,7 @@ from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, N
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import rules
+from c1a15.engine import alarm_rules, rules
 
 PACK = config.pack_settings()  # Pack을 부르는 길 · 배포 서버 주소 — 어긋나면 서버 시작 거절(EV-001 CH-15)
 config.r12_inbox()  # R12 받은 편지 폴더 — 절대 경로가 아니면 시작 거절(EV-001 CH-23)
@@ -184,17 +184,19 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
             e.code == "run_failed" and e.where == "run.predict_failure"
         ):  # D-275: 예측 실패 = Run 실패 → 알람 없음 model_failure
             refs = {"event_id": event_id, "run_id": e.run_id}
-            return None, {}, _reject_candidate(c, body, "model_failure", refs, {})
+            no = _reject_candidate(c, body, "model_failure", refs, {})
+            return _tool_wear_alarm(body, lineage, ptype, None) or (None, {}, no)
         raise
     out = res.output["alarm"]
     refs = {"event_id": event_id, "run_id": res.run_id, "deployment_id": res.deployment_id}
     # D-530 덧 3: 새 꼴 no_alarm_reason(약속 v6) · 옛 꼴 candidate.reason(약속 v5 — 지금 떠 있는 Pack) 둘 다
     reason = out.get("no_alarm_reason") or (out.get("candidate") or {}).get("reason")
     if reason:
-        return None, {}, _reject_candidate(c, body, reason, refs, out)
+        no = _reject_candidate(c, body, reason, refs, out)
+        return (mode == "ml_predicted" and _tool_wear_alarm(body, lineage, ptype, (out, refs))) or (None, {}, no)
     if not out["alarm"]:
         if mode == "ml_predicted":  # CH-24: ML 길 알람 없음(위험도 < 문턱) = 정상 결과 · 저장 0(D-237)
-            return None, {}, _no_alarm("below_threshold", out)
+            return _tool_wear_alarm(body, lineage, ptype, (out, refs)) or (None, {}, _no_alarm("below_threshold", out))
         raise HTTPException(status_code=422, detail="no_boundary_crossed")  # 지금 기본 길과 같은 응답 · 저장 0
     snapshot = {**req["event_card"]["sensor_snapshot"], **out["sensor_derived"]}  # 화면 · 리트리버 센서 7칸
     if out.get("ml") is not None:  # 없으면 칸을 빼 SQL NULL(JSON null로 저장하지 않음)
@@ -205,6 +207,28 @@ def _alarm_via_pack(c: Connection, body: AlarmBody) -> tuple[dict | None, dict, 
     ):  # D-546 U5(CH-25를 바꿈): ML 유형으로 정한 알람도 등록 — 알람 꼴은 그 증상군 센서로(origin ml_type)
         block = screen.ml_type_alarm(out["group"], snapshot, deps.alarm_table())
     return {"group": out["group"], "alarm": block}, snapshot, refs
+
+
+def _tool_wear_alarm(
+    body: AlarmBody, lineage: dict, ptype: str | None, ml_run: tuple[dict, dict] | None
+) -> tuple[dict, dict, dict] | None:
+    """D-546 ML만: ML 길이 알람을 내지 않아도 공구 마모는 센서 경계(표 TW 215분 초과)로 알람 — v2 모델은 TWF를 모름.
+    출력 · 온도 차 · 토크 경계 알람은 dev-2 ml에서 끔(표의 TW 한 줄만 봄). 센서 7칸 · ML 값 = 그 ML Run,
+    예측 실패로 계산 칸이 없으면 경계 Run 하나를 더 부른다(계산은 Pack 한 곳)."""
+    hit = alarm_rules.detect(body.sensor_snapshot, {**deps.alarm_table(), "priority": ["TW"]})
+    if hit is None:
+        return None
+    if ml_run is None:
+        req = runs.alarm_body(
+            runs.new_event_id(), body.equipment_id, body.sensor_snapshot, "sensor_boundary", lineage, ptype, None
+        )
+        res = runs.alarm(req["event_card"]["event_id"], req)
+        out = res.output["alarm"]
+        refs = {"event_id": req["event_card"]["event_id"], "run_id": res.run_id, "deployment_id": res.deployment_id}
+    else:
+        out, refs = ml_run
+        refs = {**refs, **({"ml": out["ml"]} if out.get("ml") is not None else {})}
+    return hit, {**runs.sensors5(body.sensor_snapshot), **out["sensor_derived"]}, refs
 
 
 TOOL_CAUTION = (200, 246)  # D-546 U6 공구 교체 주의 범위(분) — 알람 아님(공구 마모 알람 경계 215는 그대로)

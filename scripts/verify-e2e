@@ -11,6 +11,7 @@ gen() { python3 -c 'import secrets; print(secrets.token_urlsafe(16))'; }
 export POSTGRES_PASSWORD="$(gen)" C1A15_TECH_PASSWORD="$(gen)" C1A15_LEAD_PASSWORD="$(gen)" C1A15_INTERNAL_TOKEN="$(gen)" APP_MODE=fixture
 export DATABASE_URL="postgresql+psycopg://c1a15:${POSTGRES_PASSWORD}@127.0.0.1:${DB_HOST_PORT}/c1a15" DATA_DIR="$R/data"
 export C1A15_JUDGE=deploy C1A15_DEPLOY_URL=http://127.0.0.1:18796 C1A15_API_URL=http://127.0.0.1:18000
+export C1A15_ALARM="${C1A15_ALARM:-boundary}"  # 흐름 장면은 경계 행으로 만듦 — ML 길 장면(@ml)은 C1A15_ALARM=ml로 따로(D-546)
 export E2E_RUN_DIR; E2E_RUN_DIR=$(mktemp -d)
 PIDS=()
 cleanup() {

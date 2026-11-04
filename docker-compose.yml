@@ -56,7 +56,7 @@ services:
       # 배포 서버 한 곳(EV-001 CH-38 · CH-41): 컨테이너는 내부망 이름 — 값은 .env(비면 앱 서버가 시작을 거절)
       C1A15_DEPLOY_URL: ${C1A15_DEPLOY_URL:-}
       C1A15_DEPLOY_HOST: ${C1A15_DEPLOY_HOST:-}
-      C1A15_ALARM: ${C1A15_ALARM:-boundary}
+      C1A15_ALARM: ${C1A15_ALARM:-ml}  # D-546 dev-2 = ML만(공구 마모만 센서 경계)
       C1A15_R12_INBOX: ${C1A15_R12_INBOX:-}
       C1A15_CHECKS: ${C1A15_CHECKS:-off}  # EV-006 사람 체크 기록 보내기: off(기본) | deploy
     # 경계 판정 표 · 시연 각본(읽기만). 알람 발생: docker compose exec api python -m c1a15.alarms DEMO-01

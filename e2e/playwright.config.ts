@@ -8,6 +8,8 @@ export default defineConfig({
   fullyParallel: false,
   timeout: 90_000,
   expect: { timeout: 8_000 },
+  grep: process.env.C1A15_ALARM === "ml" ? /@ml/ : undefined, // D-546 ML 길 장면은 앱 서버가 ml일 때만 · 경계 길이면 뺌
+  grepInvert: process.env.C1A15_ALARM === "ml" ? undefined : /@ml/,
   reporter: [["list"], ["json", { outputFile: process.env.E2E_REPORT ?? "test-results/report.json" }]],
   use: {
     baseURL: process.env.BASE_URL ?? "http://127.0.0.1:8081",

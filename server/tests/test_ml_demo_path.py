@@ -23,11 +23,16 @@ pytestmark = pytest.mark.db
 
 def kinds(path=None):
     """자료 행(udi) → 앱 결과 갈래(preview v14 O 표)."""
+    lines = (path or fake_deploy.ML_ALARM_DATA).read_text(encoding="utf-8").splitlines()
+    rows = [json.loads(x) for x in lines if x.strip()]
+    wear = {str(r["row_id"]): r["request"]["event_card"]["sensor_snapshot"]["tool_wear_min"] for r in rows}
     out = {}
     for udi, a in fake_deploy.ml_alarm_outputs(path).items():
         reason = a.get("no_alarm_reason") or (a.get("candidate") or {}).get("reason")  # D-530 덧 3: 새 꼴 · 약속 v5 꼴
         if reason:  # D-529: Pack 알람 없음 + 사유 그대로 + 감사 한 줄
             out[udi] = reason
+        elif not a["alarm"] and wear[udi] > 215:  # D-546 ML만: ML 알람 없음이어도 공구 마모 경계(215분 초과)는 알람
+            out[udi] = "alarm"
         elif not a["alarm"]:
             out[udi] = "below_threshold"
         else:  # D-546 U5: ML 유형으로 정한 알람(alarm_block 없음)도 등록

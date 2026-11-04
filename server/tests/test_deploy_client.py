@@ -428,10 +428,10 @@ def test_vc38_defaults_and_ok(tmp_path):
     none = str(tmp_path / "none")
     assert pack_settings({"C1A15_DEPLOY_URL": "http://127.0.0.1:8796"}, dockerenv=none) == {
         "judge": "deploy",
-        "alarm": "boundary",
+        "alarm": "ml",
         "deploy_url": "http://127.0.0.1:8796",
         "deploy_host": None,
-    }  # 기본 = deploy(EV-001 CH-30)
+    }  # 기본 = deploy(EV-001 CH-30) · 알람 ml(dev-2 D-546 ML만)
     ok = pack_settings(
         {"C1A15_JUDGE": "deploy", "C1A15_ALARM": "ml", "C1A15_DEPLOY_URL": "http://127.0.0.1:8796/"}, dockerenv=none
     )

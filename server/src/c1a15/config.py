@@ -39,7 +39,7 @@ def checks(env=os.environ) -> str:
 
 def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
     """Pack을 부르는 길(EV-001 CH-15 · CH-30): 판정 C1A15_JUDGE = deploy(기본이자 하나뿐),
-    알람 C1A15_ALARM = boundary(기본) | ml.
+    알람 C1A15_ALARM = ml(dev-2 기본 — D-546 ML만 · 공구 마모만 센서 경계) | boundary.
 
     배포 서버 주소 C1A15_DEPLOY_URL 한 곳(EV-001 CH-38): 맥 host 직접 = http://127.0.0.1:<port>,
     컨테이너(compose · VPS) = http://<C1A15_DEPLOY_HOST>:<port>(내부망 이름 하나).
@@ -49,7 +49,7 @@ def pack_settings(env=os.environ, dockerenv: str = "/.dockerenv") -> dict:
     from c1a15.deploy.client import check_url, is_loopback  # 주소 규칙 한 곳
 
     judge = env.get("C1A15_JUDGE", "") or "deploy"
-    alarm = env.get("C1A15_ALARM", "") or "boundary"
+    alarm = env.get("C1A15_ALARM", "") or "ml"
     if judge == "inproc":
         raise ConfigError("C1A15_JUDGE=inproc 은 3단계(EV-001 ES-16)에서 빠짐 — deploy만")
     if judge != "deploy":
