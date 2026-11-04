@@ -123,6 +123,7 @@ def overview(user: User = Depends(lead_user), c: Connection = Depends(conn, scop
         )
     calls_open = c.execute(text("select count(*) from ops.calls where answer is null")).scalar()
     return {
+        "held": held_rows(c),  # D-554 ① 그래프 반영 보류(신호 폴더가 있을 때만)
         "now": datetime.now(UTC).isoformat(),
         "tiles": {
             "awaiting": len(rows),
@@ -131,6 +132,25 @@ def overview(user: User = Depends(lead_user), c: Connection = Depends(conn, scop
         },
         "rows": rows,
     }
+
+
+def held_rows(c: Connection) -> list[dict]:
+    """D-554 ① 승인했지만 LLMOps 관문이 보류한 보고서(deploy 신호 held) — 승인된 보고서만, 보류 시각 늦은 순."""
+    held = inbox.held(config.kg_status())
+    if not held:
+        return []
+    rows = [r for r in _report_rows(c, "approved") if r.report_id in held]
+    out = [
+        {
+            "report_id": r.report_id,
+            "equipment_id": r.equipment_id,
+            "group_name": deps.group_names()[r.symptom_group],
+            "cause": _field(r, "cause"),
+            "held_at": held[r.report_id]["at"],
+        }
+        for r in rows
+    ]
+    return sorted(out, key=lambda x: x["held_at"] or "", reverse=True)
 
 
 def _report(c: Connection, report_id: int):

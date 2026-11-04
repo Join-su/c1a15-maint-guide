@@ -213,13 +213,41 @@ function instr(s: SessionView, over: Partial<Parameters<typeof InstructionScreen
 }
 
 describe("T06 점검 지시 · 결과 입력", () => {
+  it("[점검 바꾸기](D-556): 후보가 있으면 근거 줄 끝 링크 → 창(후보 줄: 제목 · 등급 · 절) → 고르면 onSwitch · 취소면 그대로 · 후보 0이면 링크 0", () => {
+    const s = load<SessionView>("event-instruct");
+    const cands = [
+      { section: "4.4", title: "냉각 팬 회전 확인", grade: "B" },
+      { section: "4.6", title: "냉각 설정값 확인", grade: "C" },
+    ];
+    const onSwitch = vi.fn();
+    const { container } = instr({ ...s, switch_candidates: cands }, { onSwitch });
+    const link = [...container.querySelectorAll(".refs .lk")].find((x) => x.textContent === "점검 바꾸기")!;
+    expect(link).toBeTruthy();
+    fireEvent.click(link);
+    const dlg = container.querySelector('.modal[aria-label="점검 바꾸기"]')!;
+    expect(texts(dlg, ".swc > b")).toEqual(["냉각 팬 회전 확인", "냉각 설정값 확인"]);
+    expect([...dlg.querySelectorAll(".swc")].map((x) => x.getAttribute("data-section"))).toEqual(["4.4", "4.6"]);
+    expect(dlg.querySelector(".note, p")).toBeNull(); // 설명 문장 0
+    fireEvent.click([...dlg.querySelectorAll(".mb .btn")].find((x) => x.textContent === "취소")!);
+    expect(container.querySelector(".modal")).toBeNull();
+    expect(onSwitch).not.toHaveBeenCalled();
+    fireEvent.click(link); // 같은 화면 한 번 더
+    fireEvent.click(container.querySelector('.swc[data-section="4.6"]')!);
+    expect(onSwitch).toHaveBeenCalledWith("4.6");
+    expect(container.querySelector(".modal")).toBeNull();
+    cleanup();
+    const none = instr({ ...s, switch_candidates: [] }, { onSwitch }).container;
+    expect([...none.querySelectorAll(".refs .lk")].map((x) => x.textContent)).not.toContain("점검 바꾸기");
+  });
+
   it("참고 알림(D-543 · 답장 001-zzz9 다 = A): 같은 설비 · 같은 증상군 승인 예외 기록이 있으면 잠금 줄 아래 한 줄(순서 그대로) · 없으면 0", () => {
     const s = load<SessionView>("event-instruct");
-    const note = { record_id: "R-0012", occurred_at: "2026-10-28T01:10:00+00:00", situation: "바닥에 절삭유가 고여 있었음", action: "바닥을 닦음" };
+    // D-554 ④: 보일 한 줄은 서버 text(칸 기록 = 칸을 이은 글 · 전 기록 = 상황 글)
+    const note = { record_id: "R-0012", occurred_at: "2026-10-28T01:10:00+00:00", situation: "M-01 · 온도 차 저하 · 14:50 ~ 15:20", action: "점검 덮개 나사 · 5분. 조치 나사 새로 끼움", text: "점검 덮개 나사 · 5분. 조치 나사 새로 끼움" };
     const withNote = instr({ ...s, exception_notes: [note] }).container;
     const b = withNote.querySelector(".banner.info.xref")!;
     expect(b.querySelector("b")?.textContent).toBe(`이전 예외 기록 · ${s.alarm.equipment_id} · ${s.alarm.group_name}`);
-    expect(b.querySelector("div")?.textContent).toBe(`이전 예외 기록 · ${s.alarm.equipment_id} · ${s.alarm.group_name}${note.situation}`);
+    expect(b.querySelector("div")?.textContent).toBe(`이전 예외 기록 · ${s.alarm.equipment_id} · ${s.alarm.group_name}${note.text}`);
     expect(b.previousElementSibling?.className).toBe("lockok"); // 잠금 줄 바로 아래 · 점검 머리 위
     expect(b.nextElementSibling?.className).toBe("ins-h");
     cleanup();

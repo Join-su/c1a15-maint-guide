@@ -226,3 +226,21 @@ def report(alarm_id: int, group: str, similar: list[dict], draft: dict, sections
     """seq = 보고서 단계를 연 기록 — 초안이 바뀌면 본문 hash가 달라 기본 키도 달라짐(CH-20 초안 열쇠)."""
     audit_names("report", session_ident(alarm_id), redact.redact_obj(dict(draft))[1])
     return client().run("report", session_ident(alarm_id), seq, report_body(alarm_id, group, similar, draft, sections))
+
+
+def split_body(alarm, group: str, text: str) -> dict:
+    """D-556 1단계 임시 kind exception_split(Pack 약속 v9 전 · 앱 임시 이름): 정비자 예외 글 하나 →
+    점검 1 + 조치 1 × n(check · action = c1a15-pack fields-gate 1절 꼴) + 줄마다 KG 비슷한 것. 글 속 이름은 거름."""
+    return {
+        "kind": "exception_split",
+        "session_id": session_ident(alarm.alarm_id),
+        "group": group,
+        "text": redact.redact(text)[0],
+        **alarm_context(alarm),
+    }
+
+
+def split(alarm, group: str, text: str, seq: int) -> RunResult:
+    """seq = 「AI 나눔」을 누른 기록 — 같은 글을 다시 눌러도 새 Run(seq가 다름)."""
+    audit_names("exception_split", session_ident(alarm.alarm_id), redact.redact(text)[1])
+    return client().run("exception_split", session_ident(alarm.alarm_id), seq, split_body(alarm, group, text))

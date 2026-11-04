@@ -1,6 +1,6 @@
 // D-543 구현 2 예외 안내(파트장 승인 전)를 사람 손 순서로 · 약속 v8(D-545 덧 2): 세션 시작(start 결과 exception_guide)
 // → 잠금 · 사전 확인 뒤 예외 절 먼저(가짜 배포 서버가 Pack 흉내) → 호출 화면 '예외 기록에서 온 점검' · 노하우 글 + 출처(앱 원본)
-// → 「노하우 등록」 → 「취소」 → 다시 「노하우 등록」(D-503 1) → 두 칸 → 「등록」 → 다시 열면 서버 초안으로 채워짐
+// → 「노하우 등록」 → 「취소」 → 다시 「노하우 등록」(D-503 1) → 글 하나(D-556) → 「등록」 → 다시 열면 서버 초안으로 채워짐
 // → 「파트장 호출」(호출과 따로) → 보냄 배너 뒤에도 카드 그대로.
 // 승인 뒤 길(engine/exception 사본 = c1a15-pack 50b2d74 · d05a64d): 파트장 앱 「승인 후 진행」 → 예외 절 지시(응답 절차 그대로)
 // → 이상 → 같은 예외 절 조치 → 재가동 → 경계 이내 → 보고서.
@@ -31,6 +31,7 @@ async function snap(page: Page, info: TestInfo, name: string) {
 }
 
 let rid = "";
+const KF = "점검 흡기 덕트 이음매를 손으로 눌러 봄. 조치 덕트 이음매를 다시 끼우고 밴드를 조임";
 test.beforeEach(async () => {
   resetOps();
   // 출처 = 앱 원본의 예외 기록 한 건(같은 설비 · 같은 증상군 생성 이력 하나에 예외 기록 칸을 잠시 붙임 — 끝나면 뺌)
@@ -112,13 +113,11 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   await expect(left.locator(".sub")).toHaveText(["노하우", "지금까지 점검"]);
   await pause(page);
   await left.locator(".xkr .btn", { hasText: "노하우 등록" }).click();
-  const sit = left.getByLabel("어떤 상황이었나");
-  const act = left.getByLabel("무엇을 했나");
-  await sit.click();
-  await sit.fill("덮개 고정 나사는 다 있었고, 필터 뒤 흡기 덕트 이음매가 빠져 바람이 새고 있었음");
-  await pause(page);
-  await act.click();
-  await act.fill("덕트 이음매를 다시 끼우고 밴드를 조임");
+  // D-556 글 하나(자리글 = 안내 문구)
+  const kf = left.getByLabel("예외 글", { exact: true });
+  await expect(kf).toHaveAttribute("placeholder", "점검한 것과 조치한 것을 모두 적어 주세요");
+  await kf.click();
+  await kf.fill(KF);
   await snap(page, info, "G2-knowhow-form");
   await pause(page);
   const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
@@ -129,8 +128,7 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검");
   await pause(page);
   await left.locator(".xkr .btn", { hasText: "노하우 등록" }).click();
-  await expect(left.getByLabel("어떤 상황이었나")).toHaveValue("덮개 고정 나사는 다 있었고, 필터 뒤 흡기 덕트 이음매가 빠져 바람이 새고 있었음");
-  await expect(left.getByLabel("무엇을 했나")).toHaveValue("덕트 이음매를 다시 끼우고 밴드를 조임");
+  await expect(left.getByLabel("예외 글", { exact: true })).toHaveValue(KF);
   await pause(page);
   await left.locator(".xkf .btn", { hasText: "취소" }).click();
   await pause(page);

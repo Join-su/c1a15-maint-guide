@@ -178,3 +178,22 @@
 .ap .wait span { font-size: 14px; color: var(--sub); }
 .ap .sml { display: block; font-size: 13px; color: var(--mut); font-weight: 600; margin-bottom: 6px; }
 .ap .pv.ro { background: #f6f8fb; border-color: transparent; min-height: 0; }
+/* D-556 예외 글 → 「AI 나눔」 줄(점검 · 조치 · 비슷한 예외 기록 같음 / 아님) */
+.ap .kh .exa { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
+.ap .kh .exa .btn { height: 40px; padding: 0 16px; }
+.ap .kh .exi { border: 1px solid var(--ln); border-radius: 10px; padding: 10px 12px; }
+.ap .kh .exi + .exi { margin-top: 8px; }
+.ap .kh .exl { font-size: 15px; line-height: 1.6; }
+.ap .kh .exl .ch { margin-right: 8px; }
+.ap .kh .exs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.ap .kh .exb { display: inline-flex; gap: 6px; margin-left: auto; }
+.ap .kh .exb .btn { height: 36px; padding: 0 14px; }
+.ap .xkf .memo { min-height: 96px; }
+/* D-556 [점검 바꾸기]: 점검 안내 아래 링크 · 창(지금 추천 후보 줄) */
+.ap .refs .lk.sw { margin-left: auto; }
+.ap .swm { width: min(560px, calc(100vw - 32px)); }
+.ap .swm .swl { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 4px; }
+.ap .swm .swc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--ln); border-radius: 10px; cursor: pointer; background: #fff; }
+.ap .swm .swc:hover { border-color: var(--pri); }
+.ap .swm .swc.dis { opacity: .5; cursor: default; }
+.ap .swm .swc .tags { display: inline-flex; gap: 6px; }

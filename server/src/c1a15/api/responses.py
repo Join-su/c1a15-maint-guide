@@ -403,11 +403,68 @@ class ExceptionContext(_Out):
     report_id: int | None
 
 
+class ExceptionCheckFields(_Out):
+    """D-554 ④ 한 점검(c1a15-pack 꼴 정본 fields-gate 1절)."""
+
+    what: str
+    how: str
+    criteria: str
+    minutes: int | None
+
+
+class ExceptionActionFields(_Out):
+    """D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절)."""
+
+    what: str
+    parts: list[str]
+    minutes: int | None
+
+
 class ExceptionDraft(_Out):
-    """D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐."""
+    """D-543 「노하우 등록」 초안(D-556: 글 하나) — 보고서 '예외 상황 기록' 칸에 채워짐."""
+
+    text: str
+
+
+class ExceptionSimilar(_Out):
+    """D-556 KG 비슷한 것(등록된 예외 관계 · 그 절)."""
+
+    relation_id: str
+    section: str
+    title: str
+
+
+class ExceptionItem(_Out):
+    """D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님)."""
+
+    check: ExceptionCheckFields
+    action: ExceptionActionFields
+    similar: list[ExceptionSimilar]
+    same: str | None = None  # 확정 뒤: 같음 = relation_id(놓침) · 아님 = null(새 예외)
+    kind: str | None = None  # 확정 뒤: miss | new
+
+
+class ExceptionSplit(_Out):
+    """D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함."""
+
+    text: str
+    items: list[ExceptionItem]
+    error: str | None
+
+
+class ExceptionAuto(_Out):
+    """D-554 ④ 자동 두 칸(입력 0): 상황 = 설비 · 알람 + 센서 근거, 결과 = 재가동 판정."""
 
     situation: str
-    action: str
+    result: str
+
+
+class SwitchCandidate(_Out):
+    """D-556 [점검 바꾸기] 후보 한 줄(판정 reason_facts.alternatives)."""
+
+    section: str
+    title: str
+    grade: str | None
 
 
 class ExceptionNote(_Out):
@@ -417,12 +474,16 @@ class ExceptionNote(_Out):
     occurred_at: str
     situation: str
     action: str
+    text: str  # 알림에 보일 한 줄(D-554 ④ 칸 기록 = 칸을 이은 글 · 전 기록 = 상황 글)
 
 
 class ExceptionRecord(_Out):
-    situation: str  # 어떤 상황이었나
-    action: str  # 무엇을 했나
+    situation: str  # 상황(D-556 = 자동 · 전 기록 = 정비자 글)
     context: ExceptionContext
+    action: str | None = None  # 전 기록 = 무엇을 했나 글(D-556 기록은 없음)
+    text: str | None = None  # D-556 정비자 글 그대로
+    items: list[ExceptionItem] | None = None  # D-556 AI 나눔 줄 + 같음 / 아님
+    result: str | None = None  # D-556 자동(재가동 판정)
 
 
 class ReportBlock(_Out):
@@ -436,6 +497,8 @@ class ReportBlock(_Out):
     confirmed_at: str | None
     exception_record: ExceptionRecord | None = None  # D-538: 마지막 확정 때 함께 보낸 예외 상황 기록
     exception_draft: ExceptionDraft | None = None  # D-543: 「노하우 등록」 초안(마지막 확정 뒤)
+    exception_auto: ExceptionAuto | None = None  # 확정 전 칸에 보일 상황 · 결과
+    exception_split: ExceptionSplit | None = None  # D-556 「AI 나눔」 마지막 결과(확정 전)
     low_evidence: bool
 
 
@@ -524,6 +587,7 @@ class SessionView(_Out):
     correction: Correction | None = None
     exception_draft: ExceptionDraft | None = None  # D-543 「노하우 등록」 초안
     exception_notes: list[ExceptionNote] = []  # D-543 참고 알림(같은 설비 · 같은 증상군 승인 예외 기록)
+    switch_candidates: list[SwitchCandidate] = []  # D-556 [점검 바꾸기] 지금 추천 후보(점검 안내 중만)
 
 
 class SessionWithPreview(SessionView):
@@ -585,10 +649,21 @@ class LeadReportRow(_Out):
     violations: int
 
 
+class LeadHeldRow(_Out):
+    """D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄."""
+
+    report_id: int
+    equipment_id: str
+    group_name: str
+    cause: str
+    held_at: str | None
+
+
 class LeadOverview(_Out):
     now: str
     tiles: LeadTiles
     rows: list[LeadReportRow]
+    held: list[LeadHeldRow] = []  # D-554 ① 신호 폴더(C1A15_KG_STATUS)가 없으면 빈 목록
 
 
 class LeadField(_Out):

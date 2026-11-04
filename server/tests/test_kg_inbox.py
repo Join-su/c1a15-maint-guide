@@ -14,7 +14,7 @@ from sqlalchemy import text
 
 from test_api import LEAD_PW, login, ok, start, to_instruct  # noqa: F401
 from test_deploy_path import api, count, db, reset_ops  # noqa: F401
-from test_exception_record import ACT, SIT
+from test_exception_record import TEXT
 from test_r12_inbox import approve, audits, confirmed_report
 
 pytestmark = pytest.mark.db
@@ -84,14 +84,25 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
     s = ok(tech, s, type="action_done", section="4.3.2")
     s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
     s = ok(tech, s, type="restart_result", outcome="within")
-    s = ok(tech, s, type="report_confirm", exception_record={"situation": SIT, "action": ACT})
+    s = ok(tech, s, type="exception_split", exception_text=TEXT)  # D-556 AI 나눔(가짜 배포 서버)
+    s = ok(
+        tech,
+        s,
+        type="report_confirm",
+        exception_record={"text": TEXT, "choices": [{"same": "EX-R-0001"}, {"same": None}]},
+    )
     lc, _ = login(api, "lead", "lead.park", LEAD_PW)
     rid = count(db, "select report_id from ops.reports where session_id = :s", s=s["session_id"])
     approve(lc, rid)
     doc = json.loads((tmp_path / f"RPT-{rid:06d}.json").read_text(encoding="utf-8"))
     rec = doc["record"]
     assert set(rec) == RECORD_KEYS | {"exception_record"}
-    assert (rec["exception_record"]["situation"], rec["exception_record"]["action"]) == (SIT, ACT)
+    ex = rec[
+        "exception_record"
+    ]  # D-556: 글 · 나눔 줄(check · action = Pack fields-gate 꼴) · 같음/아님 · 자동 상황 · 결과
+    assert ex["text"] == TEXT and [it["kind"] for it in ex["items"]] == ["miss", "new"]
+    assert set(ex["items"][0]) == {"check", "action", "similar", "same", "kind"}
+    assert ex["situation"].startswith("M-01 · ") and ex["result"] == "재가동 정상(경계 이내)"
     assert set(rec["exception_record"]["context"]) >= {"equipment_id", "sensor_values", "symptom_group"}
     note = next(x["note"] for x in rec["steps"] if x.get("section") == "4.3")
     assert note == "[이름]이 본 기름때"  # 글 칸 이름 거름(R12와 같은 규칙)
@@ -127,3 +138,59 @@ def test_relative_kg_inbox_path_refused():
     with pytest.raises(config.ConfigError):
         config.kg_inbox({"C1A15_KG_INBOX": "inbox"})
     assert config.kg_inbox({}) is None
+
+
+def _signal(folder: Path, rid: int, status: str, at: str = "2026-11-05T14:02:11+09:00", fmt: str = "kg-apply/status@1"):
+    """deploy 신호 한 장(kg-apply/status@1 · 배포 쪽 gate-signal.md 3절 꼴)."""
+    doc = {"format": fmt, "report_id": f"RPT-{rid:06d}", "record_id": f"R-{rid:04d}", "status": status, "at": at}
+    doc |= {
+        "graph": {"running_tag": "g1", "new_tag": None},
+        "rounds": 4,
+        "fixed": [],
+        "reason": "no_break",
+        "checks": {},
+    }
+    (folder / f"RPT-{rid:06d}.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_held_signal_shows_on_lead_overview_only_for_approved_held(api, db, tmp_path, monkeypatch):
+    """D-554 ① 파트장 '보류됨': deploy 신호 폴더의 `<report_id>.json`이 status held인 승인 보고서만 한 줄.
+    applied · checking · 다른 꼴 · 깨진 파일 · 승인 전 보고서는 줄 0, 폴더 설정이 없으면 지금 동작(줄 0)."""
+    monkeypatch.delenv("C1A15_KG_INBOX", raising=False)
+    monkeypatch.delenv("C1A15_KG_STATUS", raising=False)
+    reset_ops(db)
+    held, lc, _ = confirmed_report(api, db)
+    approve(lc, held)
+    applied, _, _ = confirmed_report(api, db)
+    approve(lc, applied)
+    waiting, _, _ = confirmed_report(api, db)  # 승인 전
+    old_fmt, _, _ = confirmed_report(api, db)
+    approve(lc, old_fmt)
+    for rid, status in ((held, "held"), (applied, "applied"), (waiting, "held")):
+        _signal(tmp_path, rid, status)
+    _signal(tmp_path, old_fmt, "held", fmt="kg-apply/status@0")
+    (tmp_path / "RPT-999999.json").write_text("{반쯤", encoding="utf-8")  # 깨진 파일은 건너뜀
+    assert lc.get("/api/lead/overview").json()["held"] == []  # 설정 없음 = 지금 동작
+    monkeypatch.setenv("C1A15_KG_STATUS", str(tmp_path))
+    ov = lc.get("/api/lead/overview").json()
+    assert ov["held"] == [
+        {
+            "report_id": held,
+            "equipment_id": "M-01",
+            "group_name": "온도 차 저하",
+            "cause": "냉각 필터 막힘",
+            "held_at": "2026-11-05T14:02:11+09:00",
+        }
+    ]
+    assert [r["report_id"] for r in ov["rows"]] == [waiting]  # 승인 대기 줄은 그대로
+    assert {p.name for p in tmp_path.iterdir()} >= {f"RPT-{held:06d}.json"}  # 앱은 읽기만(신호 파일 그대로)
+    monkeypatch.setenv("C1A15_KG_STATUS", str(tmp_path / "없는-폴더"))
+    assert lc.get("/api/lead/overview").json()["held"] == []
+
+
+def test_relative_kg_status_path_refused():
+    from c1a15 import config
+
+    with pytest.raises(config.ConfigError):
+        config.kg_status({"C1A15_KG_STATUS": "status"})
+    assert config.kg_status({}) is None

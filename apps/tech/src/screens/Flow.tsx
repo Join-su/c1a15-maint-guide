@@ -104,6 +104,61 @@ function Btn({
   );
 }
 
+// D-556 1단계 예외 기록: 자유 글(자리글 = 안내 문구) → 「AI 나눔」(점검 1 + 조치 1 × n) → 줄마다 KG 비슷한 것 같음 / 아님
+export const EX_HINT = "점검한 것과 조치한 것을 모두 적어 주세요";
+type ExItem = Schemas["ExceptionItem"];
+
+/** 나눔 한 줄: 점검 · 조치 · (비슷한 예외 기록 + 같음 / 아님 | 확정 뒤 같음 · 새 예외). */
+function ExItemRow({
+  it,
+  i,
+  pick,
+  onPick,
+}: {
+  it: ExItem;
+  i: number;
+  pick?: string | null; // 고른 값(undefined = 아직)
+  onPick?: (v: string | null) => void; // 없으면 보기만
+}) {
+  const sim = it.similar[0];
+  const done = it.kind ?? (onPick ? undefined : null);
+  return (
+    <div className="exi" data-item={i}>
+      <div className="exl">
+        <span className="ch gray">점검</span>
+        {[it.check.what, it.check.how !== it.check.what ? it.check.how : "", it.check.criteria && `기준 ${it.check.criteria}`]
+          .filter(Boolean)
+          .join(" · ")}
+      </div>
+      <div className="exl">
+        <span className="ch gray">조치</span>
+        {[it.action.what, it.action.parts.length ? `부품 ${it.action.parts.join(", ")}` : ""].filter(Boolean).join(" · ") || "-"}
+      </div>
+      {done ? (
+        <div className="exs">
+          <span className={`ch ${done === "miss" ? "gray" : "blue"}`}>{done === "miss" ? `같음 · ${it.same}` : "새 예외"}</span>
+        </div>
+      ) : sim ? (
+        <div className="exs">
+          <span className="ch amber">
+            비슷한 예외 기록 · {sim.relation_id} {sim.title}
+          </span>
+          {onPick ? (
+            <span className="exb">
+              <Btn cls={pick === sim.relation_id ? "on" : "ghost"} label="같음" onClick={() => onPick(sim.relation_id)} />
+              <Btn cls={pick === null ? "on" : "ghost"} label="아님" onClick={() => onPick(null)} />
+            </span>
+          ) : null}
+        </div>
+      ) : (
+        <div className="exs">
+          <span className="ch blue">새 예외</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export interface ActionProps {
   s: SessionView;
   busy: boolean;
@@ -323,7 +378,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
   const [text, setText] = useState<string | null>(null);
   const ex = cor ? null : call.exception_guide; // D-543 예외 안내(약속 v8 · 예외 기록에서 온 매뉴얼 밖 점검)
   const exRec = ex ? (ex.source?.record_id ?? ex.basis[0] ?? "") : ""; // 근거 예외 기록 번호
-  const [kf, setKf] = useState<{ situation: string; action: string } | null>(null); // 「노하우 등록」 두 칸(열림)
+  const [kf, setKf] = useState<string | null>(null); // 「노하우 등록」 글(열림 · D-556 글 하나)
   const ans = call.answer;
   const ins: Instruction | null | undefined = s.instruction;
   const editable = call.status === "none" || call.status === "waiting";
@@ -473,28 +528,20 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
               </div>
             </>
           ) : null}
-          {kf ? (
-            // 「노하우 등록」: 같은 카드 자리에 예외 상황 기록 두 칸(보고서 칸과 같은 꼴) · 열린 동안 목록 둘은 접음
+          {kf !== null ? (
+            // 「노하우 등록」: 같은 카드 자리에 예외 글 하나(보고서 칸과 같은 꼴) · 열린 동안 목록 둘은 접음
             <div className="xkf">
               <div className="cd-h">
                 <b>노하우 등록</b>
                 <span className="ch gray">보고서와 함께 승인</span>
               </div>
-              <span className="sm">어떤 상황이었나</span>
               <textarea
                 className="memo"
-                aria-label="어떤 상황이었나"
-                maxLength={1000}
-                value={kf.situation}
-                onChange={(e) => setKf({ ...kf, situation: e.target.value })}
-              />
-              <span className="sm">무엇을 했나</span>
-              <textarea
-                className="memo"
-                aria-label="무엇을 했나"
-                maxLength={1000}
-                value={kf.action}
-                onChange={(e) => setKf({ ...kf, action: e.target.value })}
+                aria-label="예외 글"
+                placeholder={EX_HINT}
+                maxLength={2000}
+                value={kf}
+                onChange={(e) => setKf(e.target.value)}
               />
               <div className="mb">
                 <Btn cls="ghost" label="취소" onClick={() => setKf(null)} />
@@ -503,10 +550,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                   label="등록"
                   off={busy}
                   onClick={() => {
-                    void send({
-                      type: "exception_draft",
-                      exception_record: { situation: kf.situation.trim(), action: kf.action.trim() },
-                    });
+                    void send({ type: "exception_draft", exception_record: { text: kf.trim() } });
                     setKf(null);
                   }}
                 />
@@ -553,12 +597,12 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             )}
             </>
           )}
-          {ex && !kf ? ( // 답장 001-zzz10(사용자): 왼쪽 카드 오른쪽 아래 — 호출과 따로
+          {ex && kf === null ? ( // 답장 001-zzz10(사용자): 왼쪽 카드 오른쪽 아래 — 호출과 따로
             <div className="xkr">
               <Btn
                 cls="ghost"
                 label="노하우 등록"
-                onClick={() => setKf({ situation: s.exception_draft?.situation ?? "", action: s.exception_draft?.action ?? "" })}
+                onClick={() => setKf(s.exception_draft?.text ?? "")}
               />
             </div>
           ) : null}
@@ -676,9 +720,16 @@ export interface ReportProps {
 export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProps) {
   const [edit, setEdit] = useState<{ key: string; text: string } | null>(null);
   const [asking, setAsking] = useState(false);
-  // D-538 예외 상황 기록(선택): 정비자가 예외라고 판단할 때만 적는 두 글 — 자동 정보는 서버가 확정 때 붙임
-  const pre = report.exception_record ?? report.exception_draft; // D-543: 「노하우 등록」 초안이 있으면 칸에 미리 채움
-  const [ex, setEx] = useState({ situation: pre?.situation ?? "", action: pre?.action ?? "" });
+  // D-538 · D-554 ④ 예외 상황 기록(선택): 정비자가 예외라고 판단할 때만 적는 칸 — 상황 · 결과 · 자동 정보는 서버가 붙임
+  const rec = report.exception_record;
+  // D-543: 「노하우 등록」 초안 · 반려로 다시 열린 기록이 있으면 글을 미리 채움
+  const [ex, setEx] = useState(rec?.text ?? report.exception_draft?.text ?? "");
+  const split = report.exception_split; // D-556 「AI 나눔」 마지막 결과(확정 전)
+  const fresh = split && !split.error && split.text === ex.trim() ? split.items : null; // 글이 바뀌면 다시 나눔
+  const splitKey = JSON.stringify(fresh);
+  const [picks, setPicks] = useState<{ key: string; v: (string | null | undefined)[] }>({ key: "", v: [] });
+  const chosen = (fresh ?? []).map((it, i) => (it.similar.length ? (picks.key === splitKey ? picks.v[i] : undefined) : null));
+  const exReady = !ex.trim() || (fresh !== null && fresh.length > 0 && chosen.every((v) => v !== undefined)); // 확정 가능
   const rej = report.rejection;
   const draft = report.status === "draft";
   const save = () => {
@@ -760,27 +811,100 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 <b>예외 상황 기록</b>
                 <span className="ch gray">선택</span>
               </div>
-              {(
-                [
-                  ["situation", "어떤 상황이었나"],
-                  ["action", "무엇을 했나"],
-                ] as const
-              ).map(([k2, label]) => (
-                <div className="khf" key={k2}>
-                  <span className="sm">{label}</span>
-                  {draft ? (
+              {draft ? (
+                <>
+                  <div className="khf">
+                    <span className="sm">
+                      상황 <span className="ch gray">자동</span>
+                    </span>
+                    <div className="khv" data-part="ex-situation">
+                      {report.exception_auto?.situation}
+                    </div>
+                  </div>
+                  <div className="khf">
                     <textarea
                       className="memo"
-                      aria-label={label}
-                      maxLength={1000}
-                      value={ex[k2]}
-                      onChange={(e) => setEx({ ...ex, [k2]: e.target.value })}
+                      aria-label="예외 글"
+                      placeholder={EX_HINT}
+                      maxLength={2000}
+                      value={ex}
+                      onChange={(e) => setEx(e.target.value)}
                     />
-                  ) : (
-                    <div className="khv">{report.exception_record?.[k2]}</div>
-                  )}
-                </div>
-              ))}
+                    <div className="exa">
+                      {split?.error && split.text === ex.trim() ? <span className="ch fb">나누지 못함</span> : null}
+                      <Btn
+                        cls="ghost"
+                        label="AI 나눔"
+                        icon="sparkles"
+                        off={busy || !ex.trim()}
+                        onClick={() => void send({ type: "exception_split", exception_text: ex.trim() })}
+                      />
+                    </div>
+                  </div>
+                  {fresh?.length ? (
+                    <div className="khf" data-part="ex-items">
+                      {fresh.map((it, i) => (
+                        <ExItemRow
+                          key={i}
+                          it={it}
+                          i={i}
+                          pick={chosen[i]}
+                          onPick={(v) => {
+                            const next = [...chosen];
+                            next[i] = v;
+                            setPicks({ key: splitKey, v: next });
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="khf">
+                    <span className="sm">
+                      결과 <span className="ch gray">자동</span>
+                    </span>
+                    <div className="khv" data-part="ex-result">
+                      {report.exception_auto?.result}
+                    </div>
+                  </div>
+                </>
+              ) : rec?.items ? (
+                <>
+                  <div className="khf">
+                    <span className="sm">상황</span>
+                    <div className="khv" data-part="ex-situation">
+                      {rec.situation}
+                    </div>
+                  </div>
+                  <div className="khf">
+                    <span className="sm">적은 글</span>
+                    <div className="khv">{rec.text}</div>
+                  </div>
+                  <div className="khf" data-part="ex-items">
+                    {rec.items.map((it, i) => (
+                      <ExItemRow key={i} it={it} i={i} />
+                    ))}
+                  </div>
+                  <div className="khf">
+                    <span className="sm">결과</span>
+                    <div className="khv" data-part="ex-result">
+                      {rec.result}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // D-556 전 기록(두 글) — 보기만
+                (
+                  [
+                    ["situation", "어떤 상황이었나"],
+                    ["action", "무엇을 했나"],
+                  ] as const
+                ).map(([k2, label]) => (
+                  <div className="khf" key={k2}>
+                    <span className="sm">{label}</span>
+                    <div className="khv">{rec?.[k2]}</div>
+                  </div>
+                ))
+              )}
             </div>
           ) : null}
           <div className="cd ">
@@ -813,7 +937,7 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 <Btn
                   label="보고서 확정"
                   icon="file-check-2"
-                  off={busy || !report.can_confirm || edit !== null}
+                  off={busy || !report.can_confirm || edit !== null || !exReady}
                   onClick={() => setAsking(true)}
                 />
               </div>
@@ -850,15 +974,17 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                 취소
               </span>
               <span
-                className={`btn${busy || !report.can_confirm ? " dis" : ""}`}
+                className={`btn${busy || !report.can_confirm || !exReady ? " dis" : ""}`}
                 role="button"
                 tabIndex={0}
                 onClick={() => {
-                  if (busy || !report.can_confirm) return;
+                  if (busy || !report.can_confirm || !exReady) return;
                   setAsking(false);
-                  const situation = ex.situation.trim();
-                  const action = ex.action.trim();
-                  void send({ type: "report_confirm", ...(situation || action ? { exception_record: { situation, action } } : {}) });
+                  const text = ex.trim();
+                  void send({
+                    type: "report_confirm",
+                    ...(text ? { exception_record: { text, choices: chosen.map((v) => ({ same: v ?? null })) } } : {}),
+                  });
                 }}
               >
                 확정

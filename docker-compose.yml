@@ -59,6 +59,7 @@ services:
       C1A15_ALARM: ${C1A15_ALARM:-ml}  # D-546 dev-2 = ML만(공구 마모만 센서 경계)
       C1A15_R12_INBOX: ${C1A15_R12_INBOX:-}
       C1A15_KG_INBOX: ${C1A15_KG_INBOX:-}  # D-543 그래프 적재기 받은 편지함(절대 경로 · 비면 쓰지 않음)
+      C1A15_KG_STATUS: ${C1A15_KG_STATUS:-}  # D-554 ① 그래프 반영 신호 폴더(deploy KG_SIGNAL_DIR · 읽기만 · 비면 보류 줄 0)
       C1A15_CHECKS: ${C1A15_CHECKS:-off}  # EV-006 사람 체크 기록 보내기: off(기본) | deploy
     # 경계 판정 표 · 시연 각본(읽기만). 알람 발생: docker compose exec api python -m c1a15.alarms DEMO-01
     volumes:

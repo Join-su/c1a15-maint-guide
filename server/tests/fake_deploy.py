@@ -34,12 +34,14 @@ REQUIRED = {
     "start": {"session_id", "event_id", "group", "query", "events", "grades", "minutes"},
     "judge": {"session_id", "group", "similar", "events", "grades", "minutes"},
     "report": {"session_id", "group", "similar", "report_draft", "allowed_sections"},  # 약속 v3(EV-001 ES-10)
+    "exception_split": {"session_id", "group", "text"},  # D-556 1단계 임시 kind(Pack 약속 v9 전)
 }
 FORBIDDEN = {
     "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query"},
     "start": {"event_card", "settings"},
     "judge": {"event_card", "settings", "event_id", "query"},
     "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes"},
+    "exception_split": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "similar"},
 }
 
 
@@ -327,7 +329,36 @@ def engine_answer(body: dict) -> dict:
                 }
             }
         }
+    if body["kind"] == "exception_split":
+        return {"output": split_answer(body["text"])}
     return {"output": _judge_output(body)}
+
+
+# D-556 1단계 가짜 AI 나눔(Pack 약속 v9 전): 글 줄(마침표 · 줄바꿈)의 '점검 …' · '조치 …'를 짝지어
+# 점검 1 + 조치 1 × n.
+# 줄에 '나사'가 있으면 KG 비슷한 것 하나(시험 · e2e가 같음 / 아님 둘 다 걷게) — 실제 AI · 그래프 호출 0
+SPLIT_SIMILAR = {"relation_id": "EX-R-0001", "section": "EX-R-0001", "title": "필터 덮개 고정 나사 확인"}
+
+
+def split_answer(text: str) -> dict:
+    import re
+
+    lines = [x.strip() for x in re.split(r"[.\n]+", text) if x.strip()]
+    checks = [x.removeprefix("점검").strip() for x in lines if x.startswith("점검")]
+    actions = [x.removeprefix("조치").strip() for x in lines if x.startswith("조치")]
+    if not checks and not actions:  # 머리말 없는 글 = 앞 줄 점검 · 뒤 줄 조치(한 예외)
+        checks, actions = lines[:1], lines[1:2]
+    items = []
+    for i in range(max(len(checks), len(actions))):
+        ck, ac = (checks[i] if i < len(checks) else ""), (actions[i] if i < len(actions) else "")
+        items.append(
+            {
+                "check": {"what": ck[:40], "how": ck, "criteria": "정상 범위", "minutes": None},
+                "action": {"what": ac[:40], "parts": [], "minutes": None},
+                "similar": [SPLIT_SIMILAR] if "나사" in ck + ac else [],
+            }
+        )
+    return {"exception_split": {"items": items}}
 
 
 def _judge_output(body: dict, opts: dict | None = None) -> dict:

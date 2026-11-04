@@ -1046,6 +1046,8 @@ export interface components {
             /** Equipment Id */
             equipment_id?: string | null;
             exception_record?: components["schemas"]["ExceptionInput"] | null;
+            /** Exception Text */
+            exception_text?: string | null;
             /** Field */
             field?: string | null;
             /** Memo */
@@ -1064,7 +1066,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft";
+            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft" | "exception_split" | "check_switch";
             /** Value */
             value?: ("정상" | "이상" | "확인 불가") | null;
             /** Values */
@@ -1074,12 +1076,56 @@ export interface components {
             /** Yes */
             yes?: boolean | null;
         };
+        /**
+         * ExceptionActionFields
+         * @description D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절).
+         */
+        ExceptionActionFields: {
+            /** Minutes */
+            minutes: number | null;
+            /** Parts */
+            parts: string[];
+            /** What */
+            what: string;
+        };
+        /**
+         * ExceptionAuto
+         * @description D-554 ④ 자동 두 칸(입력 0): 상황 = 설비 · 알람 + 센서 근거, 결과 = 재가동 판정.
+         */
+        ExceptionAuto: {
+            /** Result */
+            result: string;
+            /** Situation */
+            situation: string;
+        };
         /** ExceptionCheck */
         ExceptionCheck: {
             /** Section */
             section: string;
             /** Title */
             title: string;
+        };
+        /**
+         * ExceptionCheckFields
+         * @description D-554 ④ 한 점검(c1a15-pack 꼴 정본 fields-gate 1절).
+         */
+        ExceptionCheckFields: {
+            /** Criteria */
+            criteria: string;
+            /** How */
+            how: string;
+            /** Minutes */
+            minutes: number | null;
+            /** What */
+            what: string;
+        };
+        /**
+         * ExceptionChoice
+         * @description D-556 1단계: AI 나눔 한 줄 — 같음 = 그 줄 KG 비슷한 것의 relation_id(놓침) · 아님 = null(새 예외).
+         */
+        ExceptionChoice: {
+            /** Same */
+            same?: string | null;
         };
         /**
          * ExceptionContext
@@ -1107,13 +1153,11 @@ export interface components {
         };
         /**
          * ExceptionDraft
-         * @description D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐.
+         * @description D-543 「노하우 등록」 초안(D-556: 글 하나) — 보고서 '예외 상황 기록' 칸에 채워짐.
          */
         ExceptionDraft: {
-            /** Action */
-            action: string;
-            /** Situation */
-            situation: string;
+            /** Text */
+            text: string;
         };
         /**
          * ExceptionGuide
@@ -1162,19 +1206,34 @@ export interface components {
         };
         /**
          * ExceptionInput
-         * @description D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).
+         * @description D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.
+         *     확정 때는 그 글의 「AI 나눔」 줄마다 같음 / 아님(choices) — 상황 · 결과 · 자동 정보는 서버가 붙임.
          */
         ExceptionInput: {
             /**
-             * Action
-             * @default
+             * Choices
+             * @default []
              */
-            action: string;
+            choices: components["schemas"]["ExceptionChoice"][];
             /**
-             * Situation
+             * Text
              * @default
              */
-            situation: string;
+            text: string;
+        };
+        /**
+         * ExceptionItem
+         * @description D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님).
+         */
+        ExceptionItem: {
+            action: components["schemas"]["ExceptionActionFields"];
+            check: components["schemas"]["ExceptionCheckFields"];
+            /** Kind */
+            kind?: string | null;
+            /** Same */
+            same?: string | null;
+            /** Similar */
+            similar: components["schemas"]["ExceptionSimilar"][];
         };
         /**
          * ExceptionNote
@@ -1189,6 +1248,8 @@ export interface components {
             record_id: string;
             /** Situation */
             situation: string;
+            /** Text */
+            text: string;
         };
         /** ExceptionPrev */
         ExceptionPrev: {
@@ -1204,10 +1265,16 @@ export interface components {
         /** ExceptionRecord */
         ExceptionRecord: {
             /** Action */
-            action: string;
+            action?: string | null;
             context: components["schemas"]["ExceptionContext"];
+            /** Items */
+            items?: components["schemas"]["ExceptionItem"][] | null;
+            /** Result */
+            result?: string | null;
             /** Situation */
             situation: string;
+            /** Text */
+            text?: string | null;
         };
         /** ExceptionRecordItem */
         ExceptionRecordItem: {
@@ -1226,6 +1293,30 @@ export interface components {
         ExceptionRecordList: {
             /** Items */
             items: components["schemas"]["ExceptionRecordItem"][];
+        };
+        /**
+         * ExceptionSimilar
+         * @description D-556 KG 비슷한 것(등록된 예외 관계 · 그 절).
+         */
+        ExceptionSimilar: {
+            /** Relation Id */
+            relation_id: string;
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * ExceptionSplit
+         * @description D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함.
+         */
+        ExceptionSplit: {
+            /** Error */
+            error: string | null;
+            /** Items */
+            items: components["schemas"]["ExceptionItem"][];
+            /** Text */
+            text: string;
         };
         /** FinalCause */
         FinalCause: {
@@ -1569,8 +1660,29 @@ export interface components {
             /** Total */
             total: number;
         };
+        /**
+         * LeadHeldRow
+         * @description D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄.
+         */
+        LeadHeldRow: {
+            /** Cause */
+            cause: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Group Name */
+            group_name: string;
+            /** Held At */
+            held_at: string | null;
+            /** Report Id */
+            report_id: number;
+        };
         /** LeadOverview */
         LeadOverview: {
+            /**
+             * Held
+             * @default []
+             */
+            held: components["schemas"]["LeadHeldRow"][];
             /** Now */
             now: string;
             /** Rows */
@@ -2106,8 +2218,10 @@ export interface components {
             checks: components["schemas"]["ReportCheck"][];
             /** Confirmed At */
             confirmed_at: string | null;
+            exception_auto?: components["schemas"]["ExceptionAuto"] | null;
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
             exception_record?: components["schemas"]["ExceptionRecord"] | null;
+            exception_split?: components["schemas"]["ExceptionSplit"] | null;
             /** Fields */
             fields: components["schemas"]["ReportField"][];
             /** Low Evidence */
@@ -2283,6 +2397,11 @@ export interface components {
             /** Status */
             status: string;
             step: components["schemas"]["Step"];
+            /**
+             * Switch Candidates
+             * @default []
+             */
+            switch_candidates: components["schemas"]["SwitchCandidate"][];
             /** Top Records */
             top_records: string[];
         };
@@ -2346,6 +2465,11 @@ export interface components {
             /** Status */
             status: string;
             step: components["schemas"]["Step"];
+            /**
+             * Switch Candidates
+             * @default []
+             */
+            switch_candidates: components["schemas"]["SwitchCandidate"][];
             /** Top Records */
             top_records: string[];
         };
@@ -2392,6 +2516,18 @@ export interface components {
             section: string | null;
             /** Unable Before */
             unable_before: number | null;
+        };
+        /**
+         * SwitchCandidate
+         * @description D-556 [점검 바꾸기] 후보 한 줄(판정 reason_facts.alternatives).
+         */
+        SwitchCandidate: {
+            /** Grade */
+            grade: string | null;
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
         };
         /**
          * ToolCaution

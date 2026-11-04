@@ -27,6 +27,7 @@ from typing import Protocol
 from urllib.parse import urlsplit
 
 TIMEOUT = {"alarm": 90.0, "start": 90.0, "judge": 30.0, "report": 90.0}  # report = Q-19 답 전 제안값(LLM 다시 쓰기까지)
+TIMEOUT["exception_split"] = 90.0  # D-556 1단계 임시 kind(Pack 약속 v9 전) — AI 나눔 · KG 비슷한 것 찾기
 BACKOFF = (2.0, 5.0, 10.0)  # 같은 키 다시 보내기 간격(3번)
 NO_RUN_ID_WAIT = 2.0  # 409인데 run_id 없음 — 2초 뒤 같은 키(3번 안, deploy 답 R6-5)
 POLL_EVERY, POLL_LIMIT = 2.0, 120.0

@@ -263,6 +263,9 @@ export function Session(p: SessionProps) {
             onRecord={p.onRecord}
             onContinueOriginal={() => setRepeatDismissed(true)}
             onHandover={() => void send({ type: "handover_request" })}
+            onSwitch={(section) => {
+              void send({ type: "check_switch", section }).then((ok) => ok && setDraft({ ...emptyDraft(), section }));
+            }}
           />
         ) : null}
         {pending ? (

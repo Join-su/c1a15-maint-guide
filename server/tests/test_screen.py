@@ -182,21 +182,33 @@ def test_final_report_carries_cause_basis_and_author_role():
 
 
 def test_exception_record_input_and_blocks():
-    """D-538: 예외 상황 기록 = 두 글(상황 · 조치, 각 1000자) + 자동 정보 — 확정 입력 · 보고서 · 최종본 · 목록 꼴."""
+    """D-538 · D-556: 예외 상황 기록 = 글 하나(2000자) + 줄마다 같음 / 아님 · 「AI 나눔」 · 자동 상황 · 결과 · 자동 정보
+    — 확정 입력 · 보고서 · 최종본 · 목록 꼴."""
     from c1a15.api import responses, schemas
 
-    body = schemas.EventBody(seq=1, type="report_confirm", exception_record={"situation": "가", "action": "나"})
-    assert (body.exception_record.situation, body.exception_record.action) == ("가", "나")
+    body = schemas.EventBody(
+        seq=1, type="report_confirm", exception_record={"text": "가", "choices": [{"same": "EX-R-1"}, {}]}
+    )
+    assert (body.exception_record.text, [c.same for c in body.exception_record.choices]) == ("가", ["EX-R-1", None])
     with pytest.raises(ValueError):
-        schemas.ExceptionInput(situation="가" * 1001)
+        schemas.ExceptionInput(text="가" * 2001)
+    with pytest.raises(ValueError):
+        schemas.ExceptionInput(situation="가")  # D-556 전 두 글 · 칸은 받지 않음
+    assert schemas.EventBody(seq=1, type="exception_split", exception_text="가").exception_text == "가"
+    with pytest.raises(ValueError):
+        schemas.EventBody(seq=1, type="exception_split")  # 나눌 글 없으면 422
+    assert set(responses.ExceptionDraft.model_fields) == {"text"}
+    assert {"situation", "text", "items", "result", "action", "context"} <= set(responses.ExceptionRecord.model_fields)
+    assert set(responses.ExceptionItem.model_fields) == {"check", "action", "similar", "same", "kind"}
+    assert {"exception_auto", "exception_split"} <= set(responses.ReportBlock.model_fields)
     assert (
         "exception_record" in responses.ReportBlock.model_fields
         and "exception_record" in responses.FinalReport.model_fields
     )
-    draft = schemas.EventBody(seq=1, type="exception_draft", exception_record={"situation": "가"})
-    assert draft.exception_record.situation == "가"
+    draft = schemas.EventBody(seq=1, type="exception_draft", exception_record={"text": "가"})
+    assert draft.exception_record.text == "가"
     with pytest.raises(ValueError):
-        schemas.EventBody(seq=1, type="exception_draft")  # D-543 「노하우 등록」: 두 글 칸 없으면 422
+        schemas.EventBody(seq=1, type="exception_draft")  # D-543 「노하우 등록」: 글 칸 없으면 422
     assert (
         "exception_notes" in responses.SessionView.model_fields
         and "exception_draft" in responses.ReportBlock.model_fields

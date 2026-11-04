@@ -17,7 +17,8 @@ from sqlalchemy import text
 from fake_deploy import pack_answer
 from test_api import ok, reset_ops, start, to_instruct  # noqa: F401
 from test_deploy_path import api, db, deploy  # noqa: F401
-from test_exception_record import ACT, SIT, _rid, _to_report
+from test_exception_record import TEXT as EX_TEXT
+from test_exception_record import _rid, _to_report
 from test_lead import lead
 
 pytestmark = pytest.mark.db
@@ -27,7 +28,10 @@ TEXT = "흡기 필터를 교체한 뒤 사흘 안에 같은 알람이 다시 울
 
 def _approved_exception(api, db):
     tech, s = _to_report(api, db)
-    s = ok(tech, s, type="report_confirm", exception_record={"situation": SIT, "action": ACT})
+    s = ok(tech, s, type="exception_split", exception_text=EX_TEXT)
+    s = ok(
+        tech, s, type="report_confirm", exception_record={"text": EX_TEXT, "choices": [{"same": None}, {"same": None}]}
+    )
     rid = _rid(db, s["session_id"])
     return lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).json()["history_record_id"]
 
@@ -44,6 +48,10 @@ def _guide(hid: str) -> dict:
         "criteria": "나사 네 개 모두 체결 = 정상",
         "basis": [hid],
     }
+
+
+def _home_row(tech, s) -> dict:
+    return next(a for a in tech.get("/api/tech/home").json()["alarms"] if a["alarm_id"] == s["alarm_id"])
 
 
 def _bodies(deploy, kind):
@@ -73,10 +81,15 @@ def test_exception_guide_v8_start_relation_call_block_and_send(api, db, deploy):
     g = call["exception_guide"]
     assert {k: g[k] for k in eg} == eg  # v8 칸 그대로
     with db.connect() as c:
-        at = c.execute(
-            text("select occurred_at from knowledge.history_records where record_id = :i"), {"i": hid}
-        ).scalar()
-    assert g["source"] == {"record_id": hid, "equipment_id": "M-01", "occurred_at": at.isoformat(), "situation": SIT}
+        at, sit = c.execute(
+            text(
+                "select occurred_at, record->'exception_record'->>'situation' from knowledge.history_records "
+                "where record_id = :i"
+            ),
+            {"i": hid},
+        ).one()
+    assert sit.startswith("M-01 · ")  # D-556: 상황 = 자동 글
+    assert g["source"] == {"record_id": hid, "equipment_id": "M-01", "occurred_at": at.isoformat(), "situation": sit}
     assert g["next"] is None  # 원래 순서 다음 = v8에 칸 없음(질문 001-zzz17)
     assert f"예외 기록 {hid}" in call["summary"]["text"] and "필터 덮개 고정 나사 확인" in call["summary"]["text"]
     if os.environ.get("EXCEPTION_GUIDE_OUT"):  # D-503 2: 바뀐 응답 꼴 실제 한 건(시험 DB 값 그대로)
@@ -84,8 +97,8 @@ def test_exception_guide_v8_start_relation_call_block_and_send(api, db, deploy):
             json.dump(call, fp, ensure_ascii=False, indent=1)
     # 「노하우 등록」은 호출과 따로 — 단계 · 호출 상태 그대로, 판정 Run을 다시 부르지 않음(판정 입력 아님)
     runs_before = len(deploy.posts())
-    s = ok(tech, s, type="exception_draft", exception_record={"situation": "덕트 이음매 빠짐", "action": "다시 끼움"})
-    assert s["exception_draft"]["situation"] == "덕트 이음매 빠짐" and s["call"]["status"] == "none"
+    s = ok(tech, s, type="exception_draft", exception_record={"text": "덕트 이음매 빠짐 · 다시 끼움"})
+    assert s["exception_draft"] == {"text": "덕트 이음매 빠짐 · 다시 끼움"} and s["call"]["status"] == "none"
     assert len(deploy.posts()) == runs_before
     s = ok(tech, s, type="call_wait")
     assert s["call"]["status"] == "waiting" and s["call"]["exception_guide"]["relation_id"] == eg["relation_id"]
@@ -196,11 +209,11 @@ def test_exception_call_sent_shows_on_home_row(api, db, deploy):
     tech, s = start(api, db, equipment="M-01")
     s = to_instruct(tech, s)
     assert s["step"]["kind"] == "call" and s["call"]["exception_guide"]
-    (a,) = tech.get("/api/tech/home").json()["alarms"]
+    a = _home_row(tech, s)  # 야간 교대 중엔 앞 승인 보고서 알람도 완료 행으로 함께 보임
     assert a["call_sent"] is None  # 보내기 전
     s = ok(tech, s, type="call_send")
     assert s["call"]["status"] == "sent"
-    (a,) = tech.get("/api/tech/home").json()["alarms"]
+    a = _home_row(tech, s)
     assert a["call_sent"] == "approval"
 
 

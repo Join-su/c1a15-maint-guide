@@ -116,6 +116,21 @@ describe("파트장 2 승인 대기", () => {
     expect(container.querySelector(".lempty")?.textContent).toBe("승인 대기 보고서가 없습니다");
     expect(texts(container, ".lnone")).toEqual(["기록이 없습니다", "처리할 호출이 없습니다"]);
   });
+
+  it("그래프 반영 보류(D-554 ①): deploy 신호 held 보고서가 있으면 확정된 보고서 아래 한 구역 · 줄마다 '보류됨' · 없으면 구역 없음", () => {
+    const o = load<Schemas["LeadOverview"]>("overview-list");
+    const none = render(<ApprovalList data={o} audit={null} calls={null} {...props} />).container;
+    expect(none.querySelector('[data-part="held"]')).toBeNull(); // 신호 없음 = 지금 화면 그대로
+    cleanup();
+    const held = [{ report_id: 2, equipment_id: "M-05", group_name: "온도 차 저하", cause: "흡기 덕트 이음매 빠짐", held_at: "2026-11-05T05:02:11+00:00" }];
+    const { container } = render(<ApprovalList data={{ ...o, held }} audit={null} calls={null} {...props} />);
+    const sec = container.querySelector('[data-part="held"]')!;
+    expect(sec.previousElementSibling?.querySelector(".lsect-h")?.textContent).toBe(`확정된 보고서${o.rows.length}건`);
+    expect(sec.querySelector(".lsect-h")?.textContent).toBe("그래프 반영 보류1건");
+    expect(texts(sec, "th")).toEqual(["설비 · 알람", "확정 원인", "보류", ""]);
+    expect(texts(sec, "tr[data-held] td")).toEqual(["M-05온도 차 저하", "흡기 덕트 이음매 빠짐", "14:02", "보류됨"]);
+    expect(sec.querySelector("button, .lbtn")).toBeNull(); // 보기만(누를 것 0)
+  });
 });
 
 describe("파트장 2 보고서 검토 = 최종본 문서", () => {
@@ -162,6 +177,28 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     cleanup();
     const none = render(<Review api={{} as Api} report={{ ...report(), exception_record: null }} onBack={noop} onDone={noop} />).container;
     expect(texts(none, "h2")).not.toContain("6. 예외 상황 기록");
+    cleanup();
+    // D-556 기록: 상황(자동) · 적은 글 · 나눔 줄(점검 · 조치 · 같음 EX-… / 새 예외) · 결과(자동)
+    const split = {
+      ...xr,
+      action: null,
+      situation: "M-01 · 온도 차 저하 · 14:50 ~ 15:20 · 온도 차 7.8 K(경계 8.2 K 미만)",
+      text: "점검 덮개 나사. 조치 나사 새로 끼움. 점검 덕트 이음매. 조치 밴드 조임",
+      items: [
+        { check: { what: "덮개 나사", how: "", criteria: "", minutes: null }, action: { what: "나사 새로 끼움", parts: [], minutes: null }, similar: [], same: "EX-R-0001", kind: "miss" },
+        { check: { what: "덕트 이음매", how: "", criteria: "", minutes: null }, action: { what: "", parts: [], minutes: null }, similar: [], same: null, kind: "new" },
+      ],
+      result: "재가동 정상(경계 이내)",
+    };
+    const s2 = render(<Review api={{} as Api} report={{ ...report(), exception_record: split }} onBack={noop} onDone={noop} />).container;
+    expect(texts(s2, ".fd-ex th").slice(0, 5)).toEqual(["상황", "적은 글", "나눔 1", "나눔 2", "결과"]);
+    expect(texts(s2, ".fd-ex td").slice(0, 5)).toEqual([
+      split.situation,
+      split.text,
+      "점검 덮개 나사 · 조치 나사 새로 끼움 같음 · EX-R-0001",
+      "점검 덕트 이음매 새 예외",
+      "재가동 정상(경계 이내)",
+    ]);
   });
 
   it("4 조치 결과 '파트장 승인'(D-546 덧 34): 승인된 호출이 있으면 권한 사용 아래 한 줄 · 없으면 줄 없음", () => {

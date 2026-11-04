@@ -21,6 +21,9 @@ function alarmText(v: { [key: string]: unknown }): string {
   return a ? `${a.sensor} ${a.value} ${a.unit} · 경계 ${a.boundary} ${a.unit} ${a.direction ?? ""}`.trim() : "—";
 }
 
+/** 한 줄로 이음(빈 칸 뺌 · 모두 비면 '-'). */
+const join = (xs: (string | false | null | undefined)[]) => xs.filter((x): x is string => !!x).join(" · ") || "-";
+
 export function FinalReport({ data }: { data: Final }) {
   const approved = data.status === "approved";
   const rejected = data.status === "rejected";
@@ -185,7 +188,7 @@ export function FinalReport({ data }: { data: Final }) {
           <div className="fd-open">{data.unresolved}</div>
         </section>
       </div>
-      {xr ? ( // D-538: 예외 상황 기록 — 정비자 두 글 + 서버가 붙인 자동 정보(보기만)
+      {xr ? ( // D-538: 예외 상황 기록 — 정비자 글 · AI 나눔 줄 · 같음/아님(D-556 · 전 기록은 두 글) + 자동 정보(보기만)
         <section>
           <h2>6. 예외 상황 기록</h2>
           <table className="fd-kv fd-ex">
@@ -194,10 +197,34 @@ export function FinalReport({ data }: { data: Final }) {
                 <th>상황</th>
                 <td>{xr.situation}</td>
               </tr>
-              <tr>
-                <th>조치</th>
-                <td>{xr.action}</td>
-              </tr>
+              {xr.items ? (
+                <>
+                  <tr>
+                    <th>적은 글</th>
+                    <td>{xr.text}</td>
+                  </tr>
+                  {xr.items.map((it, i) => (
+                    <tr key={i} data-item={i}>
+                      <th>나눔 {i + 1}</th>
+                      <td>
+                        {join([`점검 ${it.check.what}`, it.action.what && `조치 ${it.action.what}`])}{" "}
+                        <span className={`fd-xk ${it.kind === "miss" ? "miss" : "new"}`}>
+                          {it.kind === "miss" ? `같음 · ${it.same}` : "새 예외"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <th>결과</th>
+                    <td>{xr.result}</td>
+                  </tr>
+                </>
+              ) : (
+                <tr>
+                  <th>조치</th>
+                  <td>{xr.action}</td>
+                </tr>
+              )}
               <tr>
                 <th>설비 · 증상</th>
                 <td>

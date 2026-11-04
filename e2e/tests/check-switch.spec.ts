@@ -1,0 +1,72 @@
+// D-556 1단계 [점검 바꾸기]를 사람 손 순서로: 첫 점검 안내(4.3) → 근거 줄 끝 「점검 바꾸기」 → 창(지금 추천 후보) → 「취소」
+// → 같은 화면 한 번 더(D-503 1) → 후보 하나 고름 → 그 점검 안내 · 다시 읽어도 그대로 → 결과 보내기 → 다음 판정.
+// 업무 기록 check_switch{from 4.3, to 고른 절, kind detour}(헛걸음). 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 PNG.
+
+import { mkdirSync } from "node:fs";
+import path from "node:path";
+import { expect, test, type Page, type TestInfo } from "@playwright/test";
+import { guard, login, psql, resetOps, shot, toFirstCheck } from "./helpers";
+
+test.beforeEach(() => resetOps());
+
+async function snap(page: Page, info: TestInfo, name: string) {
+  await shot(page, info, name);
+  const dir = process.env.SHOT_DIR;
+  if (dir) {
+    mkdirSync(dir, { recursive: true });
+    await page.screenshot({ path: path.join(dir, `${name}.png`) });
+  }
+}
+
+const pause = (p: Page) => p.waitForTimeout(800);
+
+test("점검 바꾸기: 후보 창 → 취소 → 다시 → 고름 → 그 점검 안내(다시 읽어도 그대로) → 결과 → 다음 판정 · 헛걸음 기록", async ({ page }, info) => {
+  const g = guard(page);
+  await login(page);
+  await toFirstCheck(page, "DEMO-01");
+  await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검");
+  const link = page.locator(".refs .lk", { hasText: "점검 바꾸기" });
+  await expect(link).toBeVisible();
+  await pause(page);
+  await link.click();
+  const dlg = page.locator('.modal[aria-label="점검 바꾸기"]');
+  await expect(dlg.locator(".swc").first()).toBeVisible();
+  const n = await dlg.locator(".swc").count();
+  expect(n).toBeGreaterThan(0);
+  await snap(page, info, "S1-switch-window");
+  await pause(page);
+  await dlg.locator(".mb .btn", { hasText: "취소" }).click(); // 같은 화면에서 취소 → 다시(D-503 1)
+  await expect(dlg).toHaveCount(0);
+  await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검");
+  await pause(page);
+  await link.click();
+  // A · B 후보 하나(바로 점검 안내가 열리는 것)
+  const pick = dlg.locator(".swc", { has: page.locator(".tags b", { hasText: /^[AB]$/ }) }).first();
+  const section = (await pick.getAttribute("data-section")) ?? "";
+  const title = ((await pick.locator(":scope > b").textContent()) ?? "").trim();
+  await pause(page);
+  const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
+  await pick.click();
+  expect((await sent).status()).toBe(200);
+  await expect(page.locator(".ins-h h3")).toHaveText(title);
+  await snap(page, info, "S2-switched");
+  await page.reload(); // 다시 읽어도 고른 점검 그대로
+  await expect(page.locator(".ins-h h3")).toHaveText(title);
+  expect(psql("select payload->>'from' || '>' || (payload->>'to') || ':' || (payload->>'kind') from ops.session_events where type = 'check_switch'")).toBe(
+    `4.3>${section}:detour`,
+  );
+  // 고른 점검 결과 → 다음 판정(체크리스트가 있으면 먼저)
+  const cks = page.locator(".act.pre .ck");
+  for (let i = 0; i < (await cks.count()); i++) {
+    await pause(page);
+    await cks.nth(i).click();
+  }
+  await pause(page);
+  await page.locator(".rbtn", { hasText: "정상" }).click();
+  await pause(page);
+  const res = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
+  await page.getByText("결과 보내기").click();
+  expect((await res).status()).toBe(200);
+  await expect(page.locator(".ins-h h3")).not.toHaveText(title);
+  g.check(info);
+});

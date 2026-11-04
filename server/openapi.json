@@ -1648,6 +1648,18 @@
        }
       ]
      },
+     "exception_text": {
+      "anyOf": [
+       {
+        "maxLength": 2000,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Text"
+     },
      "field": {
       "anyOf": [
        {
@@ -1741,7 +1753,9 @@
        "report_edit",
        "report_confirm",
        "handover_request",
-       "exception_draft"
+       "exception_draft",
+       "exception_split",
+       "check_switch"
       ],
       "title": "Type",
       "type": "string"
@@ -1798,6 +1812,61 @@
     "title": "EventBody",
     "type": "object"
    },
+   "ExceptionActionFields": {
+    "additionalProperties": false,
+    "description": "D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절).",
+    "properties": {
+     "minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minutes"
+     },
+     "parts": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Parts",
+      "type": "array"
+     },
+     "what": {
+      "title": "What",
+      "type": "string"
+     }
+    },
+    "required": [
+     "what",
+     "parts",
+     "minutes"
+    ],
+    "title": "ExceptionActionFields",
+    "type": "object"
+   },
+   "ExceptionAuto": {
+    "additionalProperties": false,
+    "description": "D-554 ④ 자동 두 칸(입력 0): 상황 = 설비 · 알람 + 센서 근거, 결과 = 재가동 판정.",
+    "properties": {
+     "result": {
+      "title": "Result",
+      "type": "string"
+     },
+     "situation": {
+      "title": "Situation",
+      "type": "string"
+     }
+    },
+    "required": [
+     "situation",
+     "result"
+    ],
+    "title": "ExceptionAuto",
+    "type": "object"
+   },
    "ExceptionCheck": {
     "additionalProperties": false,
     "properties": {
@@ -1815,6 +1884,62 @@
      "title"
     ],
     "title": "ExceptionCheck",
+    "type": "object"
+   },
+   "ExceptionCheckFields": {
+    "additionalProperties": false,
+    "description": "D-554 ④ 한 점검(c1a15-pack 꼴 정본 fields-gate 1절).",
+    "properties": {
+     "criteria": {
+      "title": "Criteria",
+      "type": "string"
+     },
+     "how": {
+      "title": "How",
+      "type": "string"
+     },
+     "minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minutes"
+     },
+     "what": {
+      "title": "What",
+      "type": "string"
+     }
+    },
+    "required": [
+     "what",
+     "how",
+     "criteria",
+     "minutes"
+    ],
+    "title": "ExceptionCheckFields",
+    "type": "object"
+   },
+   "ExceptionChoice": {
+    "additionalProperties": false,
+    "description": "D-556 1단계: AI 나눔 한 줄 — 같음 = 그 줄 KG 비슷한 것의 relation_id(놓침) · 아님 = null(새 예외).",
+    "properties": {
+     "same": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Same"
+     }
+    },
+    "title": "ExceptionChoice",
     "type": "object"
    },
    "ExceptionContext": {
@@ -1892,20 +2017,15 @@
    },
    "ExceptionDraft": {
     "additionalProperties": false,
-    "description": "D-543 「노하우 등록」 초안 — 보고서 '예외 상황 기록' 칸에 채워짐.",
+    "description": "D-543 「노하우 등록」 초안(D-556: 글 하나) — 보고서 '예외 상황 기록' 칸에 채워짐.",
     "properties": {
-     "action": {
-      "title": "Action",
-      "type": "string"
-     },
-     "situation": {
-      "title": "Situation",
+     "text": {
+      "title": "Text",
       "type": "string"
      }
     },
     "required": [
-     "situation",
-     "action"
+     "text"
     ],
     "title": "ExceptionDraft",
     "type": "object"
@@ -2067,22 +2187,73 @@
    },
    "ExceptionInput": {
     "additionalProperties": false,
-    "description": "D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임).",
+    "description": "D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.\n확정 때는 그 글의 「AI 나눔」 줄마다 같음 / 아님(choices) — 상황 · 결과 · 자동 정보는 서버가 붙임.",
     "properties": {
-     "action": {
-      "default": "",
-      "maxLength": 1000,
-      "title": "Action",
-      "type": "string"
+     "choices": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionChoice"
+      },
+      "maxItems": 20,
+      "title": "Choices",
+      "type": "array"
      },
-     "situation": {
+     "text": {
       "default": "",
-      "maxLength": 1000,
-      "title": "Situation",
+      "maxLength": 2000,
+      "title": "Text",
       "type": "string"
      }
     },
     "title": "ExceptionInput",
+    "type": "object"
+   },
+   "ExceptionItem": {
+    "additionalProperties": false,
+    "description": "D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님).",
+    "properties": {
+     "action": {
+      "$ref": "#/components/schemas/ExceptionActionFields"
+     },
+     "check": {
+      "$ref": "#/components/schemas/ExceptionCheckFields"
+     },
+     "kind": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Kind"
+     },
+     "same": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Same"
+     },
+     "similar": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionSimilar"
+      },
+      "title": "Similar",
+      "type": "array"
+     }
+    },
+    "required": [
+     "check",
+     "action",
+     "similar"
+    ],
+    "title": "ExceptionItem",
     "type": "object"
    },
    "ExceptionNote": {
@@ -2104,13 +2275,18 @@
      "situation": {
       "title": "Situation",
       "type": "string"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
      }
     },
     "required": [
      "record_id",
      "occurred_at",
      "situation",
-     "action"
+     "action",
+     "text"
     ],
     "title": "ExceptionNote",
     "type": "object"
@@ -2162,20 +2338,62 @@
     "additionalProperties": false,
     "properties": {
      "action": {
-      "title": "Action",
-      "type": "string"
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Action"
      },
      "context": {
       "$ref": "#/components/schemas/ExceptionContext"
      },
+     "items": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionItem"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Items"
+     },
+     "result": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Result"
+     },
      "situation": {
       "title": "Situation",
       "type": "string"
+     },
+     "text": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Text"
      }
     },
     "required": [
      "situation",
-     "action",
      "context"
     ],
     "title": "ExceptionRecord",
@@ -2232,6 +2450,66 @@
      "items"
     ],
     "title": "ExceptionRecordList",
+    "type": "object"
+   },
+   "ExceptionSimilar": {
+    "additionalProperties": false,
+    "description": "D-556 KG 비슷한 것(등록된 예외 관계 · 그 절).",
+    "properties": {
+     "relation_id": {
+      "title": "Relation Id",
+      "type": "string"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "relation_id",
+     "section",
+     "title"
+    ],
+    "title": "ExceptionSimilar",
+    "type": "object"
+   },
+   "ExceptionSplit": {
+    "additionalProperties": false,
+    "description": "D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함.",
+    "properties": {
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "text",
+     "items",
+     "error"
+    ],
+    "title": "ExceptionSplit",
     "type": "object"
    },
    "FinalCause": {
@@ -3303,9 +3581,59 @@
     "title": "LeadGrades",
     "type": "object"
    },
+   "LeadHeldRow": {
+    "additionalProperties": false,
+    "description": "D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄.",
+    "properties": {
+     "cause": {
+      "title": "Cause",
+      "type": "string"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "group_name": {
+      "title": "Group Name",
+      "type": "string"
+     },
+     "held_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Held At"
+     },
+     "report_id": {
+      "title": "Report Id",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "report_id",
+     "equipment_id",
+     "group_name",
+     "cause",
+     "held_at"
+    ],
+    "title": "LeadHeldRow",
+    "type": "object"
+   },
    "LeadOverview": {
     "additionalProperties": false,
     "properties": {
+     "held": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/LeadHeldRow"
+      },
+      "title": "Held",
+      "type": "array"
+     },
      "now": {
       "title": "Now",
       "type": "string"
@@ -5365,6 +5693,16 @@
       ],
       "title": "Confirmed At"
      },
+     "exception_auto": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionAuto"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "exception_draft": {
       "anyOf": [
        {
@@ -5379,6 +5717,16 @@
       "anyOf": [
        {
         "$ref": "#/components/schemas/ExceptionRecord"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "exception_split": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionSplit"
        },
        {
         "type": "null"
@@ -6015,6 +6363,14 @@
      "step": {
       "$ref": "#/components/schemas/Step"
      },
+     "switch_candidates": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/SwitchCandidate"
+      },
+      "title": "Switch Candidates",
+      "type": "array"
+     },
      "top_records": {
       "items": {
        "type": "string"
@@ -6252,6 +6608,14 @@
      "step": {
       "$ref": "#/components/schemas/Step"
      },
+     "switch_candidates": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/SwitchCandidate"
+      },
+      "title": "Switch Candidates",
+      "type": "array"
+     },
      "top_records": {
       "items": {
        "type": "string"
@@ -6470,6 +6834,38 @@
      "call_status"
     ],
     "title": "Step",
+    "type": "object"
+   },
+   "SwitchCandidate": {
+    "additionalProperties": false,
+    "description": "D-556 [점검 바꾸기] 후보 한 줄(판정 reason_facts.alternatives).",
+    "properties": {
+     "grade": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "section",
+     "title",
+     "grade"
+    ],
+    "title": "SwitchCandidate",
     "type": "object"
    },
    "ToolCaution": {

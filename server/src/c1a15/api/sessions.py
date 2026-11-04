@@ -37,9 +37,10 @@ CLIENT_TYPES = {
     "result",
     "confirm_answer",
     "out_of_scope_choice",
+    "check_switch",  # D-556 1단계 [점검 바꾸기](후보 고름) — 판정 입력 아님(Pack 약속 v9 전 · 앱이 고른 점검을 엶)
 } | flow.CLIENT_TYPES
 INPUT_TYPES = (
-    CLIENT_TYPES - flow.CLIENT_TYPES - {"alarm_ack"}  # 알람 확인은 판정 입력이 아님(EV-007)
+    CLIENT_TYPES - flow.CLIENT_TYPES - {"alarm_ack", "check_switch"}  # 알람 확인 · 점검 바꾸기는 판정 입력이 아님
     | {  # 판정 엔진이 접는 업무 기록(S-03 · 파트장 답 포함)
         "lock",
         "equipment_change",
@@ -581,6 +582,8 @@ def view(c: Connection, row: m.DiagSession) -> dict:
                 {"section": s, "title": k.sections[s]["title"], "count": n} for s, n in sorted(state.unable.items())
             ],
         }
+    if state.locked:  # D-556 [점검 바꾸기] 후보(점검 안내 중만 · 그 밖엔 빈 목록)
+        out["switch_candidates"] = switch_candidates(k, step)
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
     out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「노하우 등록」 초안
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
@@ -678,6 +681,11 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         deny("precheck_values_required")  # D-422: 사전 확인 값 없이 다음으로 가지 않음
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
+    elif etype == "check_switch":  # D-556 1단계 [점검 바꾸기]: 지금 추천 후보 중 하나 → 그 점검을 엶 · 기록 헛걸음
+        cands = {x["section"] for x in switch_candidates(k, step)}
+        if step.get("kind") not in SWITCHABLE or payload.get("section") not in cands:
+            deny("not_switchable")
+        return _switch(c, row, actor, k, state, step, last, payload["section"])
     elif etype in flow.CLIENT_TYPES:  # S-03: 조치 · 재가동 · 마감 · 호출 · 보고서(P-09)
         try:
             stype, spayload = flow.accept(c, row, actor, step, state, events, etype, payload)
@@ -686,7 +694,7 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
             raise
         _store(c, row.session_id, last + 1, stype, {**spayload, "_client_type": etype, "_client": payload}, actor)
         audit(c, actor, etype, f"session:{row.session_id}", {"seq": last + 1, **spayload})
-        if etype != "exception_draft":  # D-543 「노하우 등록」은 판정 입력이 아님 — 판정 Run을 다시 부르지 않음
+        if etype not in flow.NOT_JUDGED:  # D-543 「노하우 등록」 · D-556 「AI 나눔」은 판정 입력이 아님 — 판정 Run 0
             _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
         return view(c, _row(c, row.session_id))
     if etype == "lock":
@@ -703,6 +711,45 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
     )
     _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
     return view(c, row)
+
+
+SWITCHABLE = {"instruct", "instruct_after_checklist"}  # 점검 안내 중(사전 확인 · 조치 · 호출 · 보고서 단계는 0)
+
+
+def switch_candidates(k, step: dict) -> list[dict]:
+    """[점검 바꾸기] 후보 = 판정이 낸 지금 점검 밖 후보(decision.reason_facts.alternatives) — 제목 · 등급표 등급."""
+    if step.get("kind") not in SWITCHABLE:
+        return []
+    alts = (step.get("reason_facts") or {}).get("alternatives") or []
+    return [
+        {"section": a["section"], "title": k.sections[a["section"]]["title"], "grade": a.get("grade")}
+        for a in alts
+        if a.get("section") in k.sections
+    ]
+
+
+def _switch(c: Connection, row: m.DiagSession, actor: str, k, state, step: dict, last: int, section: str) -> dict:
+    """고른 점검을 앱이 엶(판정 Run 0 · Pack 약속 v9 전) — 등급 그대로(A 지시 · B 체크리스트 뒤 · C · D 호출).
+    업무 기록 check_switch{from, to, kind: detour} = 헛걸음(바꾸기 전 점검 · 사람이 고른 점검)."""
+    grades, _ = deps.grades(c)
+    grade = rules.effective_grade(section, grades, state.approvals)
+    kind = {"A": "instruct", "B": "instruct_after_checklist"}.get(grade, "call")
+    _store(
+        c, row.session_id, last + 1, "check_switch", {"from": step["section"], "to": section, "kind": "detour"}, actor
+    )
+    audit(c, actor, "check_switch", f"session:{row.session_id}", {"from": step["section"], "to": section})
+    base = {x: step[x] for x in ("probabilities", "evidence", "low_evidence") if x in step}
+    decision = {
+        **base,
+        "kind": kind,
+        "section": section,
+        "cause": k.check(section).cause,
+        "grade": grades[section],
+        "switched_from": step["section"],
+        **({"reason": "switched"} if kind == "call" else {}),
+    }
+    _open_step(c, row.session_id, row, events_of(c, row.session_id), actor, decided=(decision, {"via": "switch"}))
+    return view(c, _row(c, row.session_id))
 
 
 def open_alarm_counts(c: Connection) -> dict[str, int]:

@@ -1,4 +1,4 @@
-// 파트장 2 승인 대기(가이드 30쪽): 요약 셋 → 확정된 보고서 → 오늘 기록(감사 기록 최근 5줄) · 처리할 호출.
+// 파트장 2 승인 대기(가이드 30쪽): 요약 셋 → 확정된 보고서 → (그래프 반영 보류 · D-554 ①) → 오늘 기록(감사 기록 최근 5줄) · 처리할 호출.
 // 값은 지금 API 그대로(/api/lead/overview · /api/lead/audit · /api/lead/calls, 부록 4 — 새 API 0). 보고서 검토는 Review.tsx.
 
 import { hhmm, type Schemas } from "@c1a15/ui";
@@ -31,6 +31,7 @@ export function ApprovalList({
   const t = data.tiles;
   const logs = (audit?.rows ?? []).slice(0, 5);
   const open = calls?.rows ?? [];
+  const held = data.held ?? [];
   return (
     <>
       <Bar title="승인 대기" date={headDate(data.now)} />
@@ -87,6 +88,36 @@ export function ApprovalList({
         </table>
         {data.rows.length === 0 ? <div className="lempty">승인 대기 보고서가 없습니다</div> : null}
       </div>
+      {held.length ? ( // D-554 ①: 승인했지만 LLMOps 관문이 그래프 반영을 보류한 보고서(deploy 신호 held) — 있을 때만
+        <div className="lsect" data-part="held">
+          <div className="lsect-h">
+            그래프 반영 보류<span className="c">{held.length}건</span>
+          </div>
+          <table className="lt">
+            <tbody>
+              <tr>
+                <th>설비 · 알람</th>
+                <th>확정 원인</th>
+                <th className="n">보류</th>
+                <th />
+              </tr>
+              {held.map((r) => (
+                <tr key={r.report_id} data-held={r.report_id}>
+                  <td>
+                    <b>{r.equipment_id}</b>
+                    <div className="m">{r.group_name}</div>
+                  </td>
+                  <td>{r.cause}</td>
+                  <td className="n">{r.held_at ? hhmm(r.held_at) : ""}</td>
+                  <td className="r">
+                    <span className="tx warn">보류됨</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
       <div className="lgrid32">
         <div className="lsect" data-part="today">
           <div className="lsect-h">

@@ -306,7 +306,13 @@ def test_vc36_bad_2xx_body_is_pack_unavailable_with_audit():
 
 
 def test_vc36_timeouts_by_kind():
-    assert TIMEOUT == {"alarm": 90.0, "start": 90.0, "judge": 30.0, "report": 90.0} and BACKOFF == (
+    assert TIMEOUT == {
+        "alarm": 90.0,
+        "start": 90.0,
+        "judge": 30.0,
+        "report": 90.0,
+        "exception_split": 90.0,  # D-556 1단계 임시 kind
+    } and BACKOFF == (
         2.0,
         5.0,
         10.0,

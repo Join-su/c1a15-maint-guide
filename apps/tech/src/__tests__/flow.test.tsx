@@ -196,9 +196,9 @@ describe("T10 파트장 호출", () => {
     expect(send).toHaveBeenLastCalledWith({ type: "call_send" });
   });
 
-  it("「노하우 등록」: 같은 카드에 두 칸 · 목록 접힘 → 등록이면 exception_draft · 취소면 그대로", () => {
+  it("「노하우 등록」(D-556): 같은 카드에 글 하나(자리글 = 안내 문구) · 목록 접힘 → 등록이면 exception_draft · 취소면 그대로", () => {
     const s = exceptionCall();
-    s.exception_draft = { situation: "앞서 적은 상황", action: "" };
+    s.exception_draft = { text: "덮개 나사 확인" };
     const send = vi.fn();
     const { container } = render(
       <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />,
@@ -207,20 +207,29 @@ describe("T10 파트장 호출", () => {
     expect(container.querySelector(".xkr")).toBeNull();
     expect(texts(container, ".sub")).toEqual(["노하우"]); // 등록 칸이 열린 동안 목록 둘은 접음
     expect(texts(container, ".xkf .cd-h > *")).toEqual(["노하우 등록", "보고서와 함께 승인"]);
-    const [sit, act] = [...container.querySelectorAll(".xkf textarea")] as HTMLTextAreaElement[];
-    expect([sit.getAttribute("aria-label"), act.getAttribute("aria-label")]).toEqual(["어떤 상황이었나", "무엇을 했나"]);
-    expect(sit.value).toBe("앞서 적은 상황"); // 초안이 있으면 채움
+    const ta = container.querySelector('.xkf textarea[aria-label="예외 글"]') as HTMLTextAreaElement;
+    expect([ta.value, ta.placeholder, ta.maxLength]).toEqual(["덮개 나사 확인", "점검한 것과 조치한 것을 모두 적어 주세요", 2000]); // 초안이 있으면 채움
     fireEvent.click(btn(container, "취소"));
     expect(container.querySelector(".xkf")).toBeNull();
     expect(texts(container, ".sub")).toEqual(["노하우", "지금까지 점검", "원래 순서 다음"]);
     expect(send).not.toHaveBeenCalled();
     fireEvent.click(btn(container, "노하우 등록"));
-    const [sit2, act2] = [...container.querySelectorAll(".xkf textarea")] as HTMLTextAreaElement[];
-    fireEvent.change(sit2, { target: { value: " 덕트 이음매 빠짐 " } });
-    fireEvent.change(act2, { target: { value: "다시 끼움" } });
+    fireEvent.change(container.querySelector('.xkf textarea[aria-label="예외 글"]')!, { target: { value: " 점검 덕트 이음매. 조치 다시 끼움 " } });
     fireEvent.click(btn(container, "등록"));
-    expect(send).toHaveBeenCalledWith({ type: "exception_draft", exception_record: { situation: "덕트 이음매 빠짐", action: "다시 끼움" } });
+    expect(send).toHaveBeenCalledWith({ type: "exception_draft", exception_record: { text: "점검 덕트 이음매. 조치 다시 끼움" } });
     expect(container.querySelector(".xkf")).toBeNull();
+  });
+
+  it("「노하우 등록」 초안이 없어도 빈 글 칸이 열림(e2e 사람 손 길)", () => {
+    const s = exceptionCall();
+    s.exception_draft = null;
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={vi.fn()} />,
+    );
+    fireEvent.click(btn(container, "노하우 등록"));
+    const ta = container.querySelector('.xkf textarea[aria-label="예외 글"]') as HTMLTextAreaElement;
+    expect(ta.value).toBe("");
+    expect(container.querySelector(".xkr")).toBeNull();
   });
 
   it("예외 안내 출처가 앱 원본에 없으면 기록 번호만 · 다음 없으면 그 줄 없음 · 보통 호출엔 등록 버튼 없음", () => {
@@ -363,7 +372,7 @@ describe("T09 보고서", () => {
     expect(container.querySelectorAll(".rf .ed svg").length).toBe(8);
     expect(texts(container, ".ckl .ck.on")).toEqual(["근거 없는 문장 없음", "권한 등급 위반 없음", "필수 8항목 모두 채워짐"]);
     expect(container.querySelector(".cta2 .note")).toBeNull(); // 버튼 아래 안내 문장 뺌
-    expect(texts(container, ".g73 > div:last-child > .cd .btn")).toEqual(["보고서 확정"]); // 답장 001-zzx 다(가이드 17쪽): 확정 전 확인 카드 안
+    expect(texts(container, ".g73 > div:last-child > .cd:not(.kh) .btn")).toEqual(["보고서 확정"]); // 답장 001-zzx 다(가이드 17쪽): 확정 전 확인 카드 안(예외 칸 「AI 나눔」은 따로)
     fireEvent.click(btn(container, "보고서 확정"));
     expect(send).not.toHaveBeenCalled(); // 바로 확정하지 않고 확인 창(가이드 정비자 12)
     const dlg = container.querySelector('.modal[aria-label="보고서 확정"]')!;
@@ -379,50 +388,83 @@ describe("T09 보고서", () => {
     expect(container.querySelector(".modal")).toBeNull();
   });
 
-  it("예외 상황 기록 칸(D-538): 확정 전 확인 위 · 선택 · 두 글(어떤 상황이었나 · 무엇을 했나) · 적은 글만 「확정」과 함께 · 확정 뒤 읽기만 · 비면 칸 없음", () => {
-    const SIT = "바닥에 절삭유가 고여 있었고 필터 덮개 고정 나사 하나가 빠져 있었음";
-    const ACT = "나사를 새로 끼우고 필터를 교체한 뒤 바닥을 닦음";
+  it("예외 상황 기록 칸(D-556): 확정 전 확인 위 · 선택 · 상황(자동) · 글(자리글 = 안내 문구) · 「AI 나눔」 · 줄마다 같음 / 아님 · 결과(자동) · 다 고르면 「확정」과 함께 · 확정 뒤 읽기만 · 비면 칸 없음", () => {
+    const AUTO = { situation: "M-01 · 온도 차 저하 · 14:50 ~ 15:20 · 온도 차 7.8 K(경계 8.2 K 미만)", result: "재가동 정상(경계 이내)" };
+    const TEXT = "점검 덮개 나사. 조치 나사 새로 끼움. 점검 덕트 이음매. 조치 밴드 조임";
+    const SIM = { relation_id: "EX-R-0001", section: "EX-R-0001", title: "필터 덮개 고정 나사 확인" };
+    const ITEMS = [
+      { check: { what: "덮개 나사", how: "덮개 나사", criteria: "정상 범위", minutes: null }, action: { what: "나사 새로 끼움", parts: ["M6 나사"], minutes: null }, similar: [SIM] },
+      { check: { what: "덕트 이음매", how: "덕트 이음매", criteria: "정상 범위", minutes: null }, action: { what: "밴드 조임", parts: [], minutes: null }, similar: [] },
+    ];
     const s = load("s03-report-draft");
     const send = vi.fn();
-    const r = render(<ReportScreen report={s.report!} busy={false} send={send} onHome={() => {}} />);
+    const base = { ...s.report!, exception_auto: AUTO };
+    const r = render(<ReportScreen report={base} busy={false} send={send} onHome={() => {}} />);
     const cards = [...r.container.querySelectorAll(".g73 > div:last-child > .cd")];
     expect(cards.map((c) => c.querySelector(".cd-h b")?.textContent)).toEqual(["예외 상황 기록", "확정 전 확인"]);
-    expect(texts(cards[0], ".khf > .sm")).toEqual(["어떤 상황이었나", "무엇을 했나"]);
-    expect(cards[0].querySelector(".note, p")).toBeNull(); // 설명 문장 0 · 앱이 묻거나 띄우는 조건 0
-    const sit = r.container.querySelector('textarea[aria-label="어떤 상황이었나"]') as HTMLTextAreaElement;
-    const act = r.container.querySelector('textarea[aria-label="무엇을 했나"]') as HTMLTextAreaElement;
-    expect([sit.value, act.value, sit.maxLength, act.maxLength]).toEqual(["", "", 1000, 1000]);
+    expect(cards[0].querySelector('[data-part="ex-situation"]')?.textContent).toBe(AUTO.situation);
+    expect(cards[0].querySelector('[data-part="ex-result"]')?.textContent).toBe(AUTO.result);
+    expect(cards[0].querySelector(".note, p")).toBeNull(); // 설명 문장 0 · 안내 문구는 글 칸 자리글
+    const ta = r.container.querySelector('textarea[aria-label="예외 글"]') as HTMLTextAreaElement;
+    expect([ta.value, ta.placeholder, ta.maxLength]).toEqual(["", "점검한 것과 조치한 것을 모두 적어 주세요", 2000]);
+    expect(btn(r.container, "AI 나눔").className).toContain("dis"); // 글이 비면 나눔 0
     fireEvent.click(btn(r.container, "보고서 확정")); // 비어도 확정(선택)
     fireEvent.click(btn(r.container.querySelector(".modal")!, "확정"));
     expect(send).toHaveBeenLastCalledWith({ type: "report_confirm" });
-    fireEvent.change(sit, { target: { value: ` ${SIT} ` } });
-    fireEvent.change(act, { target: { value: ACT } });
+    fireEvent.change(ta, { target: { value: ` ${TEXT} ` } });
+    expect(btn(r.container, "보고서 확정").className).toContain("dis"); // 글을 적었으면 나눔 · 고름까지
+    fireEvent.click(btn(r.container, "AI 나눔"));
+    expect(send).toHaveBeenLastCalledWith({ type: "exception_split", exception_text: TEXT });
+    // 서버 응답 = 나눔 결과(같은 글)
+    r.rerender(<ReportScreen report={{ ...base, exception_split: { text: TEXT, items: ITEMS, error: null } }} busy={false} send={send} onHome={() => {}} />);
+    const rows = [...r.container.querySelectorAll('[data-part="ex-items"] .exi')];
+    expect(rows.map((x) => texts(x, ".exl"))).toEqual([
+      ["점검덮개 나사 · 기준 정상 범위", "조치나사 새로 끼움 · 부품 M6 나사"],
+      ["점검덕트 이음매 · 기준 정상 범위", "조치밴드 조임"],
+    ]);
+    expect(texts(rows[0], ".exs .ch")).toEqual(["비슷한 예외 기록 · EX-R-0001 필터 덮개 고정 나사 확인"]);
+    expect(texts(rows[0], ".exb .btn")).toEqual(["같음", "아님"]);
+    expect(texts(rows[1], ".exs .ch")).toEqual(["새 예외"]); // 비슷한 것 없으면 고를 것 0
+    expect(btn(r.container, "보고서 확정").className).toContain("dis"); // 첫 줄 아직 안 고름
+    fireEvent.click(btn(rows[0], "아님"));
+    fireEvent.click(btn(rows[0], "같음")); // 같은 화면에서 다시 고름 — 마지막이 이김
+    expect(btn(rows[0], "같음").className).not.toContain("ghost");
+    expect(btn(r.container, "보고서 확정").className).not.toContain("dis");
     fireEvent.click(btn(r.container, "보고서 확정"));
     fireEvent.click(btn(r.container.querySelector(".modal")!, "확정"));
-    expect(send).toHaveBeenLastCalledWith({ type: "report_confirm", exception_record: { situation: SIT, action: ACT } });
+    expect(send).toHaveBeenLastCalledWith({
+      type: "report_confirm",
+      exception_record: { text: TEXT, choices: [{ same: "EX-R-0001" }, { same: null }] },
+    });
+    fireEvent.change(ta, { target: { value: TEXT + " 더" } }); // 글이 바뀌면 나눔 줄 숨김 · 다시 나눔까지 확정 잠금
+    expect(r.container.querySelector('[data-part="ex-items"]')).toBeNull();
+    expect(btn(r.container, "보고서 확정").className).toContain("dis");
     r.unmount();
+    const fail = render(<ReportScreen report={{ ...base, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: [], error: "pack_unavailable" } }} busy={false} send={send} onHome={() => {}} />);
+    expect(texts(fail.container, ".exa .ch")).toEqual(["나누지 못함"]); // 초안 글 그대로 · 다시 누를 수 있음
+    expect(btn(fail.container, "AI 나눔").className).not.toContain("dis");
+    fail.unmount();
     const c = load("s03-report-confirmed");
     const CTX = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": {"record_id": "H-0279", "occurred_at": "2026-10-28T01:10:00+09:00", "outcome": "냉각수 부족", "action": "냉각수 보충(4.5.2)"}, "ai_first_check": {"section": "4.3", "title": "흡기 필터 육안 점검"}, "confirmed_cause": "냉각 필터 막힘", "report_id": 1};
-    const done = render(
-      <ReportScreen report={{ ...c.report!, exception_record: { situation: SIT, action: ACT, context: CTX } }} busy={false} send={() => {}} onHome={() => {}} />,
-    );
-    expect(done.container.querySelector(".kh textarea")).toBeNull();
-    expect(texts(done.container, ".kh .khv")).toEqual([SIT, ACT]);
+    const REC = { ...AUTO, text: TEXT, context: CTX, items: [{ ...ITEMS[0], same: "EX-R-0001", kind: "miss" }, { ...ITEMS[1], same: null, kind: "new" }] };
+    const done = render(<ReportScreen report={{ ...c.report!, exception_record: REC }} busy={false} send={() => {}} onHome={() => {}} />);
+    expect(done.container.querySelector(".kh textarea, .kh .exb")).toBeNull(); // 읽기만
+    expect(texts(done.container, ".kh .khf > .sm")).toEqual(["상황", "적은 글", "결과"]);
+    expect(texts(done.container, ".kh .exs .ch")).toEqual(["같음 · EX-R-0001", "새 예외"]);
     done.unmount();
+    const OLD = { situation: "바닥에 절삭유가 고여 있었음", action: "나사를 새로 끼움", context: CTX }; // D-556 전 기록(두 글)
+    const old = render(<ReportScreen report={{ ...c.report!, exception_record: OLD }} busy={false} send={() => {}} onHome={() => {}} />);
+    expect(texts(old.container, ".kh .khf > .sm")).toEqual(["어떤 상황이었나", "무엇을 했나"]);
+    expect(texts(old.container, ".kh .khv")).toEqual([OLD.situation, OLD.action]);
+    old.unmount();
     const none = render(<ReportScreen report={{ ...c.report!, exception_record: null }} busy={false} send={() => {}} onHome={() => {}} />);
     expect(none.container.querySelector(".kh")).toBeNull();
   });
 
-  it("「노하우 등록」 초안(D-543)이 있으면 보고서 예외 상황 기록 칸에 미리 채움 → 그대로 「확정」과 함께", () => {
+  it("「노하우 등록」 초안(D-543)이 있으면 보고서 예외 글 칸에 미리 채움", () => {
     const s = load("s03-report-draft");
-    const send = vi.fn();
-    const draft = { situation: "덮개 고정 나사가 빠져 있었음", action: "나사를 새로 끼움" };
-    const { container } = render(<ReportScreen report={{ ...s.report!, exception_draft: draft }} busy={false} send={send} onHome={() => {}} />);
-    expect((container.querySelector('textarea[aria-label="어떤 상황이었나"]') as HTMLTextAreaElement).value).toBe(draft.situation);
-    expect((container.querySelector('textarea[aria-label="무엇을 했나"]') as HTMLTextAreaElement).value).toBe(draft.action);
-    fireEvent.click(btn(container, "보고서 확정"));
-    fireEvent.click(btn(container.querySelector(".modal")!, "확정"));
-    expect(send).toHaveBeenCalledWith({ type: "report_confirm", exception_record: draft });
+    const { container } = render(<ReportScreen report={{ ...s.report!, exception_draft: { text: "덮개 고정 나사 · 새로 끼움" } }} busy={false} send={() => {}} onHome={() => {}} />);
+    expect((container.querySelector('textarea[aria-label="예외 글"]') as HTMLTextAreaElement).value).toBe("덮개 고정 나사 · 새로 끼움");
   });
 
   it("고치기: 연필 → 글 상자 → 벗어나면 report_edit(바뀐 경우만)", () => {

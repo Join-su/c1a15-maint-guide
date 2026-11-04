@@ -35,11 +35,18 @@ class AlarmBody(_Strict):
     product_type: Literal["L", "M", "H"] | None = None
 
 
-class ExceptionInput(_Strict):
-    """D-538 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 두 글(자동 정보는 서버가 붙임)."""
+class ExceptionChoice(_Strict):
+    """D-556 1단계: AI 나눔 한 줄 — 같음 = 그 줄 KG 비슷한 것의 relation_id(놓침) · 아님 = null(새 예외)."""
 
-    situation: str = Field(default="", max_length=1000)  # 어떤 상황이었나
-    action: str = Field(default="", max_length=1000)  # 무엇을 했나
+    same: str | None = None
+
+
+class ExceptionInput(_Strict):
+    """D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.
+    확정 때는 그 글의 「AI 나눔」 줄마다 같음 / 아님(choices) — 상황 · 결과 · 자동 정보는 서버가 붙임."""
+
+    text: str = Field(default="", max_length=2000)
+    choices: list[ExceptionChoice] = Field(default=[], max_length=20)
 
 
 class EventBody(_Strict):
@@ -65,6 +72,8 @@ class EventBody(_Strict):
         "report_confirm",
         "handover_request",
         "exception_draft",
+        "exception_split",
+        "check_switch",
     ]
     section: str | None = None
     value: Literal["정상", "이상", "확인 불가"] | None = None
@@ -79,6 +88,7 @@ class EventBody(_Strict):
     field: str | None = None  # 보고서 항목 키(R10)
     text: str | None = None  # 보고서 항목 문장(고친 문장, R8 검사)
     exception_record: ExceptionInput | None = None  # D-538: 예외 상황 기록(선택) — 보고서 확정과 함께
+    exception_text: str | None = Field(default=None, max_length=2000)  # D-556 「AI 나눔」할 예외 글
 
     @model_validator(mode="after")
     def _required_by_type(self):
@@ -93,6 +103,8 @@ class EventBody(_Strict):
             "restart_result": ("outcome",),
             "report_edit": ("field", "text"),
             "exception_draft": ("exception_record",),
+            "exception_split": ("exception_text",),
+            "check_switch": ("section",),
         }.get(self.type, ())
         missing = [f for f in need if getattr(self, f) is None]
         if self.type == "result" and self.value is None and not self.memo:

@@ -2,6 +2,7 @@
 // 값은 세션 응답의 instruction(P-06 · P-19 ⑥). 확인 질문 동안은 직전에 받은 지시를 뒤 화면에 흐리게 보인다.
 // D-528(가이드 정비자 6 · 7): 메모 이름표 괄호 · 버튼 아래 안내 문장 · 입력 내용 확인 창 둘째 줄 뺌.
 
+import { useState } from "react";
 import { GradeBadge, Icon, type Instruction, type SessionView } from "@c1a15/ui";
 import type { Draft } from "../device";
 import { isException, LockOk, Proc, SecChip } from "./Lock";
@@ -25,10 +26,13 @@ export interface InstructionProps {
   onRecord: (id: string) => void;
   onContinueOriginal: () => void;
   onHandover: () => void;
+  onSwitch?: (section: string) => void; // D-556 [점검 바꾸기] 후보 고름
 }
 
 export function InstructionScreen(p: InstructionProps) {
   const { ins, draft } = p;
+  const [switching, setSwitching] = useState(false); // D-556 [점검 바꾸기] 창
+  const cands = p.s.switch_candidates ?? [];
   const needsChecklist = ins.checklist.length > 0 && !ins.checklist_done;
   const ready = !needsChecklist && !p.busy && (draft.value !== null || draft.memo.trim() !== "");
   const unable = ins.unable.filter((u) => u.section !== ins.section); // 앞에서 확인 불가였던 다른 점검
@@ -44,7 +48,7 @@ export function InstructionScreen(p: InstructionProps) {
                 <b>
                   이전 예외 기록 · {p.s.alarm.equipment_id} · {p.s.alarm.group_name}
                 </b>
-                {p.s.exception_notes[0].situation}
+                {p.s.exception_notes[0].text}
               </div>
             </div>
           ) : null}
@@ -151,6 +155,12 @@ export function InstructionScreen(p: InstructionProps) {
                 ))}
               </span>
             ) : null}
+            {cands.length && p.onSwitch ? ( // D-556: 점검 안내 중 아무 때나 — 지금 추천 후보로 바꿈
+              <span className="lk sw" role="button" tabIndex={0} onClick={() => !p.busy && setSwitching(true)}>
+                <Icon name="arrow-left-right" />
+                점검 바꾸기
+              </span>
+            ) : null}
           </div>
         </div>
         <div className="cd">
@@ -185,6 +195,44 @@ export function InstructionScreen(p: InstructionProps) {
           </div>
         </div>
       </div>
+      {switching ? (
+        <>
+          <div className="dim" />
+          <div className="modal swm" role="dialog" aria-label="점검 바꾸기">
+            <div className="mh">
+              <Icon name="arrow-left-right" />
+              <b>점검 바꾸기</b>
+            </div>
+            <div className="swl">
+              {cands.map((c) => (
+                <span
+                  key={c.section}
+                  className={`swc${p.busy ? " dis" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  data-section={c.section}
+                  onClick={() => {
+                    if (p.busy || !p.onSwitch) return;
+                    setSwitching(false);
+                    p.onSwitch(c.section);
+                  }}
+                >
+                  <b>{c.title}</b>
+                  <span className="tags">
+                    {c.grade ? <GradeBadge grade={c.grade} /> : null}
+                    <SecChip section={c.section} />
+                  </span>
+                </span>
+              ))}
+            </div>
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSwitching(false)}>
+                취소
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
