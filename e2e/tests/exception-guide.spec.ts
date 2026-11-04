@@ -9,7 +9,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Browser, type Page, type TestInfo } from "@playwright/test";
-import { alarm, confirmReportModal, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
+import { alarm, confirmReportModal, freshGuardOff, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
 
 const DEPLOY = process.env.C1A15_DEPLOY_URL ?? "http://127.0.0.1:18796";
 const SIT = "바닥에 절삭유가 고여 있었고 덮개 고정 나사 하나가 빠져 있었음";
@@ -228,4 +228,60 @@ test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 �
   await page.reload(); // 같은 화면 한 번 더(D-503 1) — 서버 기록으로 다시 열려도 같은 카드
   await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
   g.check(info);
+});
+
+test("F3 가이드 그림 일곱(DEMO-04 길): 로그인 · 잠금 창 · 사전 확인 칸 · 파트장 답 창 · 재가동 체크 · 보고서 확정 확인 창 · 파트장 검토 '승인' 자리", async ({ page, browser }, info) => {
+  await answer({ exception_guide: guide({ minutes: 5, next_section: "4.3" }), preview: true }); // 실제 Pack 꼴(preview = 예외 절 호출)
+  const g = guard(page);
+  await freshGuardOff(page);
+  await page.goto("/");
+  await expect(page.getByLabel("ID")).toBeVisible();
+  await snap(page, info, "F3-01-login");
+  await login(page);
+  alarm("DEMO-04");
+  const card = page.locator(".al", { hasText: "M-05" }).filter({ has: page.locator(".btn", { hasText: "점검 시작" }) });
+  await card.locator(".btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  await page.locator(".nx .btn").click();
+  await expect(page.getByText("잠금 완료", { exact: true })).toBeVisible();
+  await snap(page, info, "F3-02-lock");
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 41 °C · 공기 302.6 K · 공정 310.4 K");
+  await snap(page, info, "F3-03-precheck");
+  await page.getByText("사전 확인 완료").click();
+  await page.locator(".g64 > .cd").nth(1).locator(".btn", { hasText: "파트장 호출" }).click();
+  await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
+  const lead = await leadPage(browser);
+  const lg = guard(lead);
+  await lead.locator(".lnav a", { hasText: "호출" }).click();
+  await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+  await lead.locator(".lopts button", { hasText: "승인 후 진행" }).click();
+  await lead.getByLabel("처리 메모").fill("덮개 나사 확인 승인");
+  await expect(lead.locator("button.lbtn", { hasText: "답 저장" })).toBeVisible();
+  await snap(lead, info, "F3-04-lead-answer");
+  await lead.locator("button.lbtn", { hasText: "답 저장" }).click();
+  await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
+  await page.reload();
+  await expect(page.locator(".g64 > .cd").first().locator(".warn-h .tags")).toContainText(`예외 기록 ${rid}`); // W06 칩(고침)
+  await page.getByText("점검 시작").click();
+  await result(page, "정상", "덮개 고정 나사 네 개 모두 체결");
+  await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검"); // 원래 순서 다음 4.3
+  await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
+  await expect(page.locator(".act .ck").first()).toBeVisible();
+  await snap(page, info, "F3-05-restart-check");
+  await restartWithin(page);
+  await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
+  await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
+  const dlg = page.locator('.modal[aria-label="보고서 확정"]');
+  await expect(dlg.locator(".btn")).toHaveText(["취소", "확정"]);
+  await snap(page, info, "F3-06-report-confirm-modal");
+  await dlg.locator(".btn").filter({ hasText: /^확정$/ }).click();
+  await lead.locator(".lnav a", { hasText: "승인 대기" }).click();
+  await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
+  await expect(lead.locator(".lbar button.lbtn", { hasText: "승인" })).toBeVisible();
+  await snap(lead, info, "F3-07-lead-review-approve");
+  g.check(info);
+  lg.check(info);
 });

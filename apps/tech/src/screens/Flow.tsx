@@ -452,7 +452,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                 <h3>{call.title}</h3>
                 <div className="tags">
                   <GradeBadge grade={call.grade} />
-                  <span className="ch blue">{ex ? `예외 기록 ${exRec}` : `매뉴얼 ${call.section}절`}</span>
+                  {ex ? <span className="ch blue">예외 기록 {exRec}</span> : <SecChip section={call.section ?? ""} />}
                   {call.minutes != null ? <span className="ch gray">약 {call.minutes}분</span> : null}
                 </div>
               </div>

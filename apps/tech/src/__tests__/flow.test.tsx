@@ -166,6 +166,17 @@ describe("T10 파트장 호출", () => {
     });
     return s;
   };
+  it("파트장 답 뒤 왼쪽 카드 칩(F3 W06): 예외 절이면 '예외 기록 …' — 답 뒤 call에 예외 안내가 없어도 '매뉴얼 EX-…절' 0", () => {
+    const s = load("s03-ans-approved");
+    Object.assign(s.call!, { section: "EX-R-0012", exception_guide: null });
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={vi.fn()} />,
+    );
+    const chips = texts(container.querySelector(".g64 > .cd")!, ".warn-h .tags > *");
+    expect(chips).toContain("예외 기록 R-0012");
+    expect(chips.join(" ")).not.toContain("매뉴얼 EX-");
+  });
+
   it("예외 안내: 머리 · 노하우 글 + 출처 · 원래 순서 다음 · 호출 버튼 그대로", () => {
     const s = exceptionCall();
     const send = vi.fn();
