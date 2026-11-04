@@ -1,6 +1,6 @@
 // D-546 M3 dev-2 ML 방식(ML만)을 사람 손 순서로 — 앱 서버가 C1A15_ALARM=ml일 때만(실행기 -g @ml, 경계 길 전체는 --grep-invert @ml).
 // 가짜 배포 서버 답 = 시험 자료 세 행(ml-mode-cases.json · task10-pack d546 ml-alarm-cases, 모델 release v2 · Pack 알람 길 규칙):
-// 공구 마모 217분 · ML 정상(Pack은 알람 없음) → 홈 공구 마모 알람 + 공구 교체 주의 줄 → 온도 차 경계만 넘음 · ML 정상 → 알람 없음
+// 공구 마모 217분 · ML 정상(Pack이 공구 마모 경계로 알람 TW — c1a15-pack d05a64d) → 홈 공구 마모 알람 + 공구 교체 주의 줄 → 온도 차 경계만 넘음 · ML 정상 → 알람 없음
 // → ML 유형(HDF)만 → ML 알람 카드 → 주의 「확인」(두 번째 누름) → 알람 둘 그대로.
 // SHOT_DIR이면 화면마다 PNG(1280 × 800).
 
@@ -42,7 +42,7 @@ test.afterEach(async () => {
 test("@ml M3 ML만: 공구 마모 217분(ML 정상) → 공구 마모 알람 + 주의 줄 · 온도 차 경계만 넘음 → 알람 없음 · ML 유형만 → ML 알람 · 주의 「확인」", async ({ page }, info) => {
   const g = guard(page);
   await login(page);
-  expect((await reading("M3-18", "M-03")).symptom_group).toBe("TW"); // Pack 알람 없음 + 공구 마모 경계 = 알람 TW
+  expect((await reading("M3-18", "M-03")).symptom_group).toBe("TW"); // ML 정상 + 공구 마모 경계 = Pack 알람 TW
   const al = page.locator(".al");
   await expect(al).toHaveCount(1, { timeout: 15000 });
   await expect(al.first().locator(".al-m > b")).toHaveText("M-03 · 공구 마모 경고");

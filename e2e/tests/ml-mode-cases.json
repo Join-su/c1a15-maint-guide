@@ -13,9 +13,9 @@
   "output": {
    "alarm": {
     "event_id": "x",
-    "alarm": false,
-    "group": null,
-    "group_source": null,
+    "alarm": true,
+    "group": "TW",
+    "group_source": "sensor_boundary",
     "alarm_block": {
      "sensor": "공구 마모 시간",
      "value": 217.0,

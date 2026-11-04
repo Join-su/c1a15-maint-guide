@@ -3,7 +3,7 @@
 가짜 배포 서버 답(c1a15-pack alarm_route와 같은 규칙 = 앱 alarms.ml.route)으로 걸어 앱 결과를 기대와 대조.
 - ML 유형만으로 알람(HDF → CL · OSF → LD) · 경계 + ML(증상군 = 경계) · 문턱 아래 = 알람 없음
 - 온도 차 경계만 넘고 ML 정상 = 알람 없음(출력 · 온도 차 · 토크 경계 알람은 dev-2 ml에서 끔)
-- 공구 마모 215분 경계 = ML 정상이어도 알람 TW(Pack은 알람 없음을 냄 — 앱이 경계 한 줄로 등록)
+- 공구 마모 215분 경계 = ML 정상이어도 알람 TW(Pack alarm.py d05a64d가 냄 — 앱은 받은 대로 등록)
 - 공구 교체 주의 200 ~ 246분(알람과 따로)
 """
 
@@ -35,7 +35,8 @@ def ml(deploy, monkeypatch):
 
 
 def pack_out(case: dict) -> dict:
-    """Pack alarm Run 출력(약속 v6 꼴) — 경계 판정 · ML 규칙은 Pack과 같은 식(앱 engine · alarms.ml 사본)."""
+    """Pack alarm Run 출력(약속 v6 꼴) — 경계 판정 · ML 규칙 = Pack과 같은 식(앱 engine · alarms.ml 사본),
+    공구 마모 = Pack custom/alarm.py(d05a64d): ML 알람 없음 + 마모 > TW 경계면 알람 TW · sensor_boundary."""
     from c1a15.alarms import ml as rule
     from c1a15.api import deps
     from c1a15.engine import alarm_rules
@@ -49,6 +50,8 @@ def pack_out(case: dict) -> dict:
         "model_release": "mr-ai4i-lgbm-large-v2",
     }
     r = rule.route(pred, hit, 0.5)
+    if not r["alarm"] and case["sensor_snapshot"]["tool_wear_min"] > 215:
+        r = {**r, "alarm": True, "group": "TW", "group_source": "sensor_boundary", "no_alarm_reason": None}
     return {
         "output": {
             "alarm": {
@@ -100,34 +103,18 @@ def test_m3_case_matches_expectation(api, db, ml, case):
         assert r.json()["alarm_id"] is None and rows == []
     caution = count(db, "select count(*) from ops.audit_log where action = 'tool_caution'")
     assert caution == int(e["tool_wear_caution"])
-    assert len(alarm_runs(ml)) == 1  # ML Run 하나로 끝(공구 마모 알람도 그 Run 센서 값)
+    assert len(alarm_runs(ml)) == 1  # ML Run 하나(공구 마모 알람도 그 Run이 냄)
 
 
-def test_tool_wear_alarm_after_predict_failure_uses_boundary_run_for_seven_sensors(api, db, ml):
-    """예측 실패(D-275) + 공구 마모 217분: 감사 model_failure 한 줄 + 경계 Run 하나 더(센서 7칸 계산은 Pack 한 곳) → 알람 TW."""
+def test_predict_failure_is_no_alarm_and_one_audit_even_with_tool_wear(api, db, ml):
+    """예측 실패(D-275 · Run 실패)는 Pack이 공구 마모를 볼 차례 전 — 알람 없음 + 감사 한 줄(앱은 판정 0)."""
     reset_ops(db)
     case = next(c for c in CASES if c["case"] == "M3-18")
-    ml.plan = [
-        {"status": 500, "code": "run_failed", "where": "run.predict_failure", "node_code": "feature_not_number"}
-    ]  # 다음 Run = 기본 계산(경계 길)
+    ml.plan = [{"status": 500, "code": "run_failed", "where": "run.predict_failure", "node_code": "feature_not_number"}]
     r = reading(api, case)
-    assert r.status_code == 200 and r.json()["symptom_group"] == "TW"
-    (row,) = alarm_rows(db)
-    assert row["ml"] is None and row["sensor_snapshot"]["power_w"] == case["sensor_derived"]["power_w"]
+    assert r.status_code == 200 and r.json()["alarm_id"] is None and alarm_rows(db) == []
     assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") == 1
-    assert [b["event_card"]["source_mode"] for b in alarm_runs(ml)] == ["ml_predicted", "sensor_boundary"]
-
-
-def test_low_confidence_with_tool_wear_keeps_audit_and_alarm(api, db, ml):
-    """확신 낮음 · RNF 사유 + 공구 마모 경계: 감사 한 줄은 그대로 · 알람은 공구 마모(TW)."""
-    reset_ops(db)
-    case = next(c for c in CASES if c["case"] == "M3-19")
-    out = pack_out(case)
-    out["output"]["alarm"]["no_alarm_reason"] = "low_confidence"
-    ml.plan = [out]
-    r = reading(api, case)
-    assert r.status_code == 200 and r.json()["symptom_group"] == "TW"
-    assert count(db, "select count(*) from ops.audit_log where action = 'alarm_rejected'") == 1
+    assert len(alarm_runs(ml)) == 1
 
 
 def test_low_confidence_without_tool_wear_is_no_alarm_and_one_audit(api, db, ml):
