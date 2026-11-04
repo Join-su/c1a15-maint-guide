@@ -164,6 +164,24 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     expect(texts(none, "h2")).not.toContain("6. 예외 상황 기록");
   });
 
+  it("4 조치 결과 '파트장 승인'(D-546 덧 34): 승인된 호출이 있으면 권한 사용 아래 한 줄 · 없으면 줄 없음", () => {
+    const call = "필터 덮개 고정 나사 확인(EX-R-0001, C등급) · 승인 후 진행";
+    const c = render(<Review api={{} as Api} report={{ ...report(), approved_calls: [call] }} onBack={noop} onDone={noop} />).container;
+    const sec4 = (root: HTMLElement) => [...root.querySelectorAll("section")].find((x) => x.querySelector("h2")?.textContent === "4. 조치 결과")!;
+    expect(texts(sec4(c), "tr").at(-1)).toBe(`파트장 승인${call}`);
+    cleanup();
+    const none = render(<Review api={{} as Api} report={{ ...report(), approved_calls: [] }} onBack={noop} onDone={noop} />).container;
+    expect(texts(sec4(none), "th")).not.toContain("파트장 승인");
+  });
+
+  it("3 조치 경과 매뉴얼 칸: 예외 절(EX-…)은 번호 그대로 · 매뉴얼 절은 'n.n절'(덧 34 그림)", () => {
+    const f = report();
+    const tl = [{ ...f.timeline[0], section: "EX-R-0001" }, { ...f.timeline[0], section: "4.3" }];
+    const c = render(<Review api={{} as Api} report={{ ...f, timeline: tl }} onBack={noop} onDone={noop} />).container;
+    const sec3 = [...c.querySelectorAll("section")].find((x) => x.querySelector("h2")?.textContent === "3. 조치 경과")!;
+    expect(texts(sec3, "tbody tr td:nth-child(4)")).toEqual(["EX-R-0001", "4.3절"]);
+  });
+
   it("승인: 확인 창(메모 고를 수 있음) → 결정 요청 approve · 「출력」은 요청 0", async () => {
     const f = report();
     const api = { POST: vi.fn(() => ok({ status: "approved", history_record_id: "R-0001" })) } as unknown as Api;

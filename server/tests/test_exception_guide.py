@@ -226,3 +226,26 @@ def test_start_with_real_pack_exception_preview(api, db, deploy, minutes, cause)
     assert start_body["kind"] == "start"
     s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 같은 예외 절 호출
     assert s["step"]["kind"] == "call" and s["step"]["section"] == eg["section"]
+
+
+def test_exception_counts_as_check_grade_use_and_approved_call_row(api, db, deploy):
+    """F2 전 작은 셋(D-546 덧 34 · packrt-1 146 그림): 예외 절 = 정비자가 한 점검 — 지시 머리 '점검 n / 최대 m'에 셈 ·
+    최종본 '4. 조치 결과' 권한 사용 C에 셈 · 승인된 호출은 '5. 미확인 · 주간 요청'이 아니라 4의 '파트장 승인' 줄."""
+    tech, s, eg, lc, _ = _to_ex_instruct(api, db, deploy)
+    sec = eg["section"]
+    assert (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (
+        1,
+        4,
+    )  # 예외 절 = 첫 점검(매뉴얼 셋 + 예외 하나)
+    s = ok(tech, s, type="result", section=sec, value="정상")
+    assert s["step"]["section"] == "4.3" and (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (2, 4)
+    s = ok(tech, s, type="result", section="4.3", value="이상", memo="기름때")
+    s = ok(tech, s, type="action_done", section="4.3.2")
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    s = ok(tech, s, type="restart_result", outcome="within")
+    assert s["step"]["kind"] == "report"
+    s = ok(tech, s, type="report_confirm")
+    f = lc.get(f"/api/lead/reports/{_rid(db, s['session_id'])}/final").json()
+    assert f["grade_use"]["C"] >= 1  # 승인받은 예외 절(C) 점검이 권한 사용에
+    assert eg["title"] not in f["unresolved"]  # 승인된 호출은 미확인 · 주간 요청 아님
+    assert f["approved_calls"] == [f"{eg['title']}({sec}, C등급) · 승인 후 진행"]

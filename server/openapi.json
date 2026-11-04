@@ -2354,6 +2354,14 @@
       "title": "Action",
       "type": "string"
      },
+     "approved_calls": {
+      "default": [],
+      "items": {
+       "type": "string"
+      },
+      "title": "Approved Calls",
+      "type": "array"
+     },
      "author_name": {
       "title": "Author Name",
       "type": "string"

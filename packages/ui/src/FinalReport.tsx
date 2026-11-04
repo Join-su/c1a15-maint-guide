@@ -139,7 +139,7 @@ export function FinalReport({ data }: { data: Final }) {
                 <td className="n">{t(x.at)}</td>
                 <td>{x.who}</td>
                 <td>{x.text}</td>
-                <td>{x.section ? `${x.section}절` : "—"}</td>
+                <td>{x.section ? (x.section.startsWith("EX-") ? x.section : `${x.section}절`) : "—"}</td>
                 <td>{x.grade ? <span className="fd-g">{x.grade}</span> : "—"}</td>
               </tr>
             ))}
@@ -171,6 +171,12 @@ export function FinalReport({ data }: { data: Final }) {
                   A {g.A ?? 0} · B {g.B ?? 0} · C {g.C ?? 0}
                 </td>
               </tr>
+              {data.approved_calls?.length ? (
+                <tr>
+                  <th>파트장 승인</th>
+                  <td>{data.approved_calls.join(" / ")}</td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </section>

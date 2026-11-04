@@ -11,7 +11,7 @@ from sqlalchemy import Connection, select
 
 from c1a15.api import deps
 from c1a15.db import models as m
-from c1a15.engine import rules
+from c1a15.engine import exception, rules
 from c1a15.engine.alarm_rules import SNAPSHOT_KEY
 from c1a15.engine.knowledge import ManualKnowledge
 from c1a15.llm import adapter_for_mode, grounding
@@ -324,14 +324,17 @@ def lock_instruction(k: ManualKnowledge, grades: dict, minutes: dict) -> dict:
 
 
 def instructed_checks(events: list[dict], k: ManualKnowledge, group: str) -> list[str]:
-    """이 세션에서 지시로 열린 점검 절(처음 열린 순서)."""
+    """이 세션에서 지시로 열린 점검 절(처음 열린 순서) — 예외 절(EX-…)도 정비자가 한 점검이라 셈(D-546 덧 34)."""
     checks = {c.section_id for c in k.checks.get(group, [])}
     seen: list[str] = []
     for e in events:
         if e["type"] != "step_opened" or e.get("void"):  # 정정으로 무효가 된 지시는 세지 않음(S-05)
             continue
         d = e["decision"]
-        opened = d.get("kind") in {"instruct", "instruct_after_checklist"} and d["section"] in checks
+        sec = d.get("section") or ""
+        opened = d.get("kind") in {"instruct", "instruct_after_checklist"} and (
+            sec in checks or sec.startswith(exception.PREFIX)
+        )
         if opened and d["section"] not in seen:
             seen.append(d["section"])
     return seen

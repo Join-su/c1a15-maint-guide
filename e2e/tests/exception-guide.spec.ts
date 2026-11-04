@@ -9,7 +9,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Browser, type Page, type TestInfo } from "@playwright/test";
-import { alarm, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
+import { alarm, confirmReportModal, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
 
 const DEPLOY = process.env.C1A15_DEPLOY_URL ?? "http://127.0.0.1:18796";
 const SIT = "바닥에 절삭유가 고여 있었고 덮개 고정 나사 하나가 빠져 있었음";
@@ -171,6 +171,7 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   await page.getByText("점검 시작").click();
   await expect(page.locator(".ins-h h3")).toHaveText("필터 덮개 고정 나사 확인"); // 예외 절 지시
   await expect(page.locator(".proc li")).toHaveText(["1덮개 나사 확인", "2빠졌으면 새로 끼움"]); // 응답 절차 그대로
+  await expect(page.locator(".ins-h .sm")).toHaveText(/^점검 1 \/ 최대 4/); // 예외 절도 정비자가 한 점검(덧 34)
   await snap(page, info, "G5-exception-instruct");
   await page.reload(); // 같은 화면 다시 열어도 그대로
   await expect(page.locator(".ins-h h3")).toHaveText("필터 덮개 고정 나사 확인");
@@ -184,6 +185,15 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   await page.locator(".btn", { hasText: "경계 이내" }).click();
   await expect(page.locator(".btn", { hasText: "보고서 확정" })).toBeVisible();
   await snap(page, info, "G7-exception-report");
+  await confirmReportModal(page);
+  await lead.locator(".lnav a", { hasText: "승인 대기" }).click();
+  await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
+  const sec4 = lead.locator(".fdoc section", { has: lead.locator("h2", { hasText: "4. 조치 결과" }) });
+  await expect(sec4.locator("tr", { hasText: "권한 사용" }).locator("td")).toHaveText(/C [1-9]/); // 승인받은 예외 절 점검(덧 34)
+  await expect(sec4.locator("tr", { hasText: "파트장 승인" }).locator("td")).toHaveText(`필터 덮개 고정 나사 확인(EX-${rid}, C등급) · 승인 후 진행`);
+  await expect(lead.locator(".fd-open")).not.toContainText("필터 덮개 고정 나사 확인"); // 5 미확인 · 주간 요청 아님
+  await sec4.scrollIntoViewIfNeeded();
+  await snap(lead, info, "G8-lead-final-approved-call");
   const ev = psql(
     `select string_agg(type || ':' || coalesce(payload->>'section', ''), ',' order by seq) from ops.session_events ` +
       `where type in ('call_sent', 'call_answer', 'result', 'action_done') and payload->>'section' like 'EX-%'`,

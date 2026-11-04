@@ -321,7 +321,7 @@ export function NextStageScreen({ s }: { s: SessionView }) {
             <Icon name="info" />
             <div>
               <b>다음: {label[st.kind ?? ""] ?? st.kind}</b>
-              {st.section ? `${st.section}절` : ""}
+              {st.section ? (isException(st.section) ? st.section : `${st.section}절`) : ""}
               {st.grade ? ` · ${st.grade}등급` : ""}
             </div>
           </div>

@@ -128,6 +128,9 @@ def final_report(c: Connection, report_id: int) -> dict | None:
     alarm = flow.sessions_alarm(c, row)
     events = sessions.events_of(c, row.session_id)
     k = flow.knowledge_of(events)
+    _, grades, _ = flow.with_exception(
+        flow.exception_guide_of(events), grades, {}
+    )  # 예외 절 등급(C) — 3 · 4 권한 사용(덧 34)
     state = session.fold(k, row.symptom_group, sessions.similar_of(row), sessions.fold_inputs(events))
     names = {u: n for u, n in c.execute(select(m.Account.user_id, m.Account.display_name)).all()}
     lock = next((e for e in events if e["type"] == "lock" and not e.get("void")), None)
@@ -184,6 +187,7 @@ def final_report(c: Connection, report_id: int) -> dict | None:
         "restart": restart_text,
         "downtime": _field(f, "downtime"),
         "grade_use": use,
+        "approved_calls": flow.approved_calls(k, events, grades),
         "unresolved": _field(f, "unresolved"),
         "exception_record": flow.exception_of(events),
     }

@@ -434,6 +434,8 @@ def unresolved(
                 f"{ANSWER_LABEL.get(e['answer'], e['answer'])}{note}"
             )
             continue
+        if e["type"] == "call_answer" and not e.get("void") and e.get("answer") == "approved":
+            continue  # 승인된 호출은 미확인 · 요청이 아님 — 최종본 4 '파트장 승인' 줄(approved_calls · D-546 덧 34)
         if e["type"] == "call_answer" and not e.get("void"):  # 호출 처리 결과(결정 015 ④ · 018 ③ ④)
             sec = e.get("section")
             what = f"{k.sections[sec]['title']}({sec}) " if sec in k.sections else "숙련자 인계 답 · "
@@ -442,6 +444,22 @@ def unresolved(
         if e["type"] == "call_sent" and e.get("kind") == "handover" and not e.get("void"):
             items.append("숙련자 인계")
     return " / ".join(dict.fromkeys(items)) or "없음"
+
+
+def approved_calls(k: ManualKnowledge, events: list[dict], grades: dict) -> list[str]:
+    """최종본 4 조치 결과 '파트장 승인': 승인 후 진행 호출(정정 호출은 5 그대로) — '이름(절, 등급) · 승인 후 진행'."""
+    out = []
+    for e in events:
+        if (
+            e["type"] == "call_answer"
+            and not e.get("void")
+            and e.get("answer") == "approved"
+            and not e.get("corrected")
+        ):
+            sec = e.get("section")
+            title = k.sections[sec]["title"] if sec in k.sections else sec
+            out.append(f"{title}({sec}, {grades.get(sec) or '?'}등급) · {ANSWER_LABEL['approved']}")
+    return list(dict.fromkeys(out))
 
 
 def report_draft(

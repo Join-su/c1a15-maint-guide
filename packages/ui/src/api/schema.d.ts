@@ -1269,6 +1269,11 @@ export interface components {
         FinalReport: {
             /** Action */
             action: string;
+            /**
+             * Approved Calls
+             * @default []
+             */
+            approved_calls: string[];
             /** Author Name */
             author_name: string;
             /** Author Role */

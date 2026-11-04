@@ -676,6 +676,7 @@ class FinalReport(_Out):
     restart: str | None
     downtime: str
     grade_use: dict[str, int]
+    approved_calls: list[str] = []  # 4 조치 결과 '파트장 승인'(승인 후 진행 호출 · D-546 덧 34)
     unresolved: str
     exception_record: ExceptionRecord | None  # D-538: 6. 예외 상황 기록(보기만)
 
