@@ -65,8 +65,8 @@ def test_tool_caution_range_latest_ack_twice_and_again(api, db):
 def test_tool_caution_replaced_before_ack_disappears(api, db):
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
-    register(api, "M-02", {**QUIET, "tool_wear_min": 240})
-    assert [c["tool_wear_min"] for c in _cautions(tech)] == [240]
+    register(api, "M-02", {**QUIET, "tool_wear_min": 210})  # 215 아래 = 주의만(넘으면 알람이 이김 — 덧 25)
+    assert [c["tool_wear_min"] for c in _cautions(tech)] == [210]
     register(api, "M-02", {**QUIET, "tool_wear_min": 10})  # 확인 전에 공구 교체 → 사라짐
     register(api, "M-02", {**QUIET, "tool_wear_min": 12})
     assert _cautions(tech) == []
@@ -79,7 +79,7 @@ def test_tool_caution_ack_unknown_and_needs_login(api, db):
     reset_ops(db)
     tech, _ = login(api, "tech", "tech.kim", TECH_PW)
     assert tech.post("/api/tech/cautions/999999/ack").status_code == 404
-    register(api, "M-02", {**QUIET, "tool_wear_min": 230})
+    register(api, "M-02", {**QUIET, "tool_wear_min": 212})
     (c1,) = _cautions(tech)
     assert TestClient(api).post(f"/api/tech/cautions/{c1['caution_id']}/ack").status_code in {
         401,
