@@ -4,7 +4,8 @@ judge 요청마다 exception_relation(relation_id)을 다시 담고 등급표에
 Pack이 잠금 · 사전 확인 뒤 예외 절(C)을 호출 단계로 내면 호출 화면 칸 call.exception_guide
 = 안내 글 · 절차 · 판정 기준 · 근거 이력 · 출처(앱 원본의 승인 예외 기록).
 
-승인 뒤 예외 절 지시 · 결과 · 조치는 engine 사본 갱신(c1a15-pack handoff) 뒤 — 여기선 호출 · 대기 · 「노하우 등록」까지.
+승인 뒤 길(약속 v8 · engine/exception 사본 = c1a15-pack 50b2d74 · d05a64d): 파트장 승인 → 예외 절 지시(매뉴얼 밖 절 —
+응답 글 그대로) → 결과 정상이면 원래 순서 다음 · 이상이면 조치 → 재가동 → 재가동 값 → 보고서. 분 표 EX 줄 · 원래 순서 다음.
 """
 
 import json
@@ -112,3 +113,76 @@ def test_exception_guide_unknown_record_has_no_source(api, db, deploy):
     s = to_instruct(tech, s)
     g = s["call"]["exception_guide"]
     assert g["source"] is None and g["steps"] == [] and g["criteria"] is None  # 원본에 없는 기록 — 지어내기 0
+
+
+def _approve_call(api, eg):
+    lc = lead(api)
+    (row,) = lc.get("/api/lead/calls").json()["rows"]
+    assert row["need"] == f"{eg['title']}({eg['section']}, C)"  # 파트장 표 '필요한 작업' — 예외 절 이름(절, 등급)
+    assert lc.post(f"/api/lead/calls/{row['call_id']}/answer", json={"answer": "approved"}).status_code == 200
+    return lc, row["call_id"]
+
+
+def _to_ex_instruct(api, db, deploy, **extra):
+    reset_ops(db)
+    hid = _approved_exception(api, db)
+    eg = {**_guide(hid), "minutes": 15, "next_section": "4.3", **extra}
+    deploy.default = pack_answer(exception_guide=eg)
+    tech, s = start(api, db, equipment="M-01")
+    s = to_instruct(tech, s)
+    assert s["step"]["kind"] == "call" and s["call"]["exception_guide"]["next"] == {
+        "section": "4.3",
+        "title": "흡기 필터 육안 점검",
+    }  # 원래 순서 다음(v8 next_section)
+    s = ok(tech, s, type="call_send")
+    lc, cid = _approve_call(api, eg)
+    s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
+    return tech, s, eg, lc, cid
+
+
+def test_exception_after_approval_instruct_then_abnormal_action_restart_report(api, db, deploy):
+    tech, s, eg, lc, cid = _to_ex_instruct(api, db, deploy)
+    sec = eg["section"]
+    assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", sec)  # 승인 뒤 예외 절 지시
+    ins = s["instruction"]
+    assert (ins["section"], ins["title"]) == (sec, eg["title"])
+    assert ins["steps"] == eg["steps"]  # 매뉴얼 밖 절 — 응답 글(절차)을 그대로
+    assert ins["criterion"] == eg["criteria"]
+    j = _bodies(deploy, "judge")[-1]
+    assert (j["grades"][sec], j["minutes"][sec]) == ("C", 15)  # 등급표 · 분 표 EX 줄(D-545 덧 2)
+    s = ok(tech, s, type="result", section=sec, value="이상", memo="나사 하나 빠짐")
+    assert (s["step"]["kind"], s["step"]["section"]) == ("action", sec)
+    assert s["action"]["steps"] == eg["steps"] and s["action"]["section"] == sec
+    s = ok(tech, s, type="action_done", section=sec)
+    assert s["step"]["kind"] == "restart_check"
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    s = ok(tech, s, type="restart_result", outcome="within")
+    assert s["step"]["kind"] == "report" and s["step"]["outcome"] == "unknown"  # 관계 원인 없음 → 원인 미상
+    assert eg["title"] in [p["title"] for p in s["path"]]  # 지금까지 점검 · 조치 — 예외 절 이름
+    assert f"{eg['title']} · {sec}" in [f"{p['title']} · {p['detail']}" for p in s["path"]]  # 'EX-…절' 아님
+    f = {x["key"]: x["text"] for x in s["report"]["fields"]}
+    assert f"{eg['title']}({sec}, C)" in f["action"]  # 조치 칸 등급 = 등급표 EX 줄(None 아님)
+    assert f["check_path"].count(eg["title"]) == 1 and f"({sec}, 이상: 나사 하나 빠짐)" in f["check_path"]
+    assert f["cause"] == "원인 미상"  # 관계 원인 없음
+    assert eg["title"] in lc.get(f"/api/lead/calls/{cid}").json()["need"]  # 파트장 호출 답 화면
+    s = ok(tech, s, type="report_confirm")
+    rid = _rid(db, s["session_id"])
+    assert eg["title"] in json.dumps(lc.get(f"/api/lead/reports/{rid}").json(), ensure_ascii=False)  # 파트장 보고서
+    r = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
+    assert r.status_code == 200
+    with db.connect() as c:
+        rec = c.execute(
+            text("select record from knowledge.history_records where record_id = :i"),
+            {"i": r.json()["history_record_id"]},
+        ).scalar()
+    assert eg["title"] in json.dumps(rec, ensure_ascii=False)  # 승인 → 정비 이력 한 건(예외 절 단계 포함)
+
+
+def test_exception_after_approval_normal_returns_to_original_order(api, db, deploy):
+    tech, s, eg, _, _ = _to_ex_instruct(api, db, deploy)
+    sec = eg["section"]
+    s = ok(tech, s, type="result", section=sec, value="정상")
+    assert s["step"]["kind"] in ("instruct", "instruct_after_checklist", "call")
+    assert s["step"]["section"] == "4.3"  # 원래 순서 다음 점검(= next_section)
+    s2 = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
+    assert s2["step"] == s["step"]  # 같은 화면 다시 열어도 그대로

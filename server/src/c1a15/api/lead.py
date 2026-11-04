@@ -195,7 +195,7 @@ def _edit_grounding(c: Connection, r) -> grounding.Grounding:
     """
     row = sessions._row(c, r.session_id)
     events = sessions.events_of(c, r.session_id)
-    k = deps.manual()
+    k = flow.knowledge_of(events)
     facts = {f["key"]: f["text"] for f in r.fields}
     g = flow._report_grounding(row, events, facts)
     secs = set(g.allowed_sections)
@@ -247,8 +247,8 @@ def report_check(
 
 def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict:
     """결정 018 ⑤ · R12: 승인 보고서 → 정비 이력 한 건(기록 번호 'R-' + 보고서 번호)."""
-    k = deps.manual()
     events = sessions.events_of(c, r.session_id)
+    k = flow.knowledge_of(events)
     alarm = flow.sessions_alarm(c, sessions._row(c, r.session_id))
     names = _names(c)
     f = {x["key"]: x["text"] for x in fields}
@@ -256,7 +256,7 @@ def history_record(c: Connection, r, fields: list[dict], approval: dict) -> dict
         k,
         alarm.symptom_group,
         sessions.similar_of(sessions._row(c, r.session_id)),
-        [e for e in events if e["type"] in sessions.INPUT_TYPES],
+        sessions.fold_inputs(events),
     )
     steps = []
     for e in events:
@@ -528,13 +528,13 @@ def _call(c: Connection, call_id: int):
 
 def _need(c: Connection, r) -> str:
     """L04 표 '필요한 작업': 파트장 호출 = 점검(절, 등급), 숙련자 인계 = 인계 사유, 정정 호출 = 정정 확인(019 ⑧)."""
-    k = deps.manual()
+    events = sessions.events_of(c, r.session_id)
+    k = flow.knowledge_of(events)  # 예외 절(EX-…) 호출도 '이름(절, 등급)'
     if r.correction:
         cor = r.correction
         return f"정정 확인 · {cor.get('section')} {cor.get('title')}({cor.get('before')} → {cor.get('after')})"
     if r.kind == "approval" and r.section in k.sections:
         return f"{k.sections[r.section]['title']}({r.section}, {r.grade})"
-    events = sessions.events_of(c, r.session_id)
     reason = next(
         (
             e["decision"].get("reason")
@@ -638,7 +638,6 @@ def in_progress_sessions(user: User = Depends(lead_user), c: Connection = Depend
     """진행 중 건: 세션마다 지금 단계 · 절 · 정지점 대기 · 시각(운영 기록만, D-227). 판정 · 기록은 읽기만."""
     now = datetime.now(UTC)
     names = _names(c)
-    k = deps.manual()
     grades = deps.grades(c)[0]
     sessions_rows = c.execute(
         select(m.DiagSession.__table__, m.Alarm.equipment_id, m.Alarm.occurred_at)
@@ -648,9 +647,8 @@ def in_progress_sessions(user: User = Depends(lead_user), c: Connection = Depend
     rows = []
     for r in sessions_rows:
         events = sessions.events_of(c, r.session_id)
-        state = session_engine.fold(
-            k, r.symptom_group, sessions.similar_of(r), [e for e in events if e["type"] in sessions.INPUT_TYPES]
-        )
+        k = flow.knowledge_of(events)  # 약속 v8 예외 절 이름까지
+        state = session_engine.fold(k, r.symptom_group, sessions.similar_of(r), sessions.fold_inputs(events))
         step = sessions.current_step(events) or {}
         stage = lead_stage(state.locked, step.get("kind") or "", bool(state.actions_done))
         sec = step.get("section")

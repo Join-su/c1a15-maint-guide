@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
-import { Proc } from "./Lock";
+import { Proc, SecChip } from "./Lock";
 
 type Call = Schemas["CallBlock"];
 type Report = Schemas["ReportBlock"];
@@ -353,7 +353,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
           <div className="tags">
             <GradeBadge grade={ins.grade} />
             <span className="ch green">승인됨</span>
-            <span className="ch blue">매뉴얼 {ins.section}절</span>
+            <SecChip section={ins.section} />
           </div>
         </div>
         <Proc steps={ins.steps} />

@@ -3,6 +3,14 @@
 
 import { GradeBadge, hhmm, Icon, type SessionWithPreview } from "@c1a15/ui";
 
+/** 약속 v8 예외 절(EX-<이력 번호>) — 매뉴얼 밖 절. */
+export const isException = (section: string) => section.startsWith("EX-");
+
+/** 지시 머리 절 칩: 매뉴얼 절은 '매뉴얼 4.3절', 예외 절은 '예외 기록 H-0244'(호출 카드 칩과 같은 이름). */
+export function SecChip({ section }: { section: string }) {
+  return <span className="ch blue">{isException(section) ? `예외 기록 ${section.slice(3)}` : `매뉴얼 ${section}절`}</span>;
+}
+
 export function Proc({ steps }: { steps: string[] }) {
   return (
     <ol className="proc">

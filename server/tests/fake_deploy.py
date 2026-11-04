@@ -336,7 +336,7 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
     opts가 없으면 지금 그대로(약속 v4 — preview · manual_support 칸 없음).
     """
     from c1a15.api import deps
-    from c1a15.engine import rules, session
+    from c1a15.engine import exception, rules, session
 
     opts = opts or {}
     k = deps.manual()
@@ -351,22 +351,23 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         sc = opts["scoring"]
         kw["scoring"] = dataclasses.replace(sc, manual=ms) if opts.get("use_manual") else sc
 
+    # 약속 v8 흉내 = Pack custom/judge.py 차례(engine/exception 사본 · D-545 handoff README):
+    # start는 관계를 맞춰(여기선 opts로 줌) 결과에 exception_guide, judge는 다시 담긴 exception_relation으로 같은 관계
+    eg = opts.get("exception_guide")
+    ex = _ex_of(eg, opts) if eg else None
+    if ex and body["kind"] == "judge" and body.get("exception_relation") != eg["relation_id"]:
+        ex = None  # 관계 id가 다르면(그래프 버전이 바뀜) 예외 안내 없이 원래 판정
+
     def decide(events):
-        state = session.fold(k, body["group"], similar, events)
+        state = session.fold(k, body["group"], similar, exception.without(events))
         d = session.decide(state, k, body["grades"], body["minutes"], **kw)
+        if ex:
+            d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"))
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 
     out = {"decision": decide(body["events"])}
-    eg = opts.get("exception_guide")  # 약속 v8 흉내(D-545 덧 2 · 그래프 꼴 4절): start 결과 · judge는 다시 담긴 관계로
-    if eg and body["kind"] == "start":
+    if ex and body["kind"] == "start":
         out["exception_guide"] = eg
-    if eg and body["kind"] == "judge" and body.get("exception_relation") == eg["relation_id"]:
-        d = _exception_step(body["events"], eg, body["grades"])
-        if d:
-            keep = {
-                x: out["decision"][x] for x in ("probabilities", "evidence", "low_evidence") if x in out["decision"]
-            }
-            out["decision"] = {**keep, **d}
     if row:
         out["similar"], out["retrieval"] = row["similar"], row["retrieval"]
         if opts.get("preview"):  # 약속 v5 덧칸: 잠금 · 사전 확인을 했다고 놓은 판정(start에만)
@@ -376,19 +377,28 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
     return out
 
 
-def _exception_step(events: list[dict], eg: dict, grades: dict) -> dict | None:
-    """잠금 · 사전 확인 뒤 첫 점검 차례에 예외 절 먼저: 등급 C면 호출(승인 전까지). 승인 뒤 길은 engine 사본 갱신 뒤."""
-    sec = eg["section"]
-    types = {e["type"] for e in events}
-    if "precheck_done" not in types or any(
-        e.get("section") == sec for e in events if e["type"] in ("result", "call_answer")
-    ):
-        return None
-    if grades.get(sec, eg["grade"]) not in ("C", "D"):
-        return None
-    sent = [e for e in events if e["type"] in ("call_sent", "call_wait") and e.get("section") == sec]
-    status = {"call_status": "sent" if sent[-1]["type"] == "call_sent" else "waiting"} if sent else {}
-    return {"kind": "call", "section": sec, "grade": grades.get(sec, eg["grade"])} | status
+def _ex_of(eg: dict, opts: dict) -> tuple[dict, dict]:
+    """그래프 꼴(d545 graph-shape 3 · 4절) 줄 흉내: (예외 관계 줄, 예외 절 줄) — exception_guide 칸에서 거꾸로 채움.
+    관계 원인은 opts exception_cause(없으면 보고서 outcome unknown)."""
+    x = {
+        "id": eg["relation_id"],
+        "step": eg["section"],
+        "mode": "안내",
+        "records": list(eg.get("basis") or []),
+        "cause": opts.get("exception_cause"),
+    }
+    sec = {
+        "no": eg["section"],
+        "kind": "예외",
+        "grade": eg.get("grade"),
+        "name": eg.get("title"),
+        "guide": eg.get("text"),
+        "steps": list(eg.get("steps") or []),
+        "criteria": eg.get("criteria"),
+        "minutes": eg.get("minutes"),
+        "records": list(eg.get("basis") or []),
+    }
+    return x, sec
 
 
 def pack_answer(**opts):

@@ -66,9 +66,9 @@ def _shown_before(events: list[dict], e: dict, section: str) -> dict | None:
 
 
 def history(c: Connection, row: m.DiagSession) -> dict:
-    k = deps.manual()
     g, minutes = deps.grades(c)
     events = sessions.events_of(c, row.session_id)
+    k = flow.knowledge_of(events)
     alarm = sessions.alarm_of(c, row.alarm_id)
     closed = row.status == "reported"
     rep = c.execute(select(m.Report.confirmed_at).where(m.Report.session_id == row.session_id)).scalar()
@@ -167,9 +167,7 @@ def history(c: Connection, row: m.DiagSession) -> dict:
             d = _opened_before(events, e, sec)
             shown = _shown_before(events, e, sec)
             upto = [x for x in events if x["seq"] < e["seq"]]
-            state = session.fold(
-                k, row.symptom_group, sessions.similar_of(row), [x for x in upto if x["type"] in sessions.INPUT_TYPES]
-            )
+            state = session.fold(k, row.symptom_group, sessions.similar_of(row), sessions.fold_inputs(upto))
             bd = b_done.get(sec)
             steps[2].append(
                 {

@@ -123,14 +123,12 @@ def final_report(c: Connection, report_id: int) -> dict | None:
     rep = c.execute(select(m.Report.__table__).where(m.Report.report_id == report_id)).first()
     if rep is None:
         return None
-    k = deps.manual()
     grades, _ = deps.grades(c)
     row = sessions._row(c, rep.session_id)
     alarm = flow.sessions_alarm(c, row)
     events = sessions.events_of(c, row.session_id)
-    state = session.fold(
-        k, row.symptom_group, sessions.similar_of(row), [e for e in events if e["type"] in sessions.INPUT_TYPES]
-    )
+    k = flow.knowledge_of(events)
+    state = session.fold(k, row.symptom_group, sessions.similar_of(row), sessions.fold_inputs(events))
     names = {u: n for u, n in c.execute(select(m.Account.user_id, m.Account.display_name)).all()}
     lock = next((e for e in events if e["type"] == "lock" and not e.get("void")), None)
     timeline = _timeline(c, k, rep, row, grades)

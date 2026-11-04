@@ -5,6 +5,7 @@
 보고서 8항목 = 명세 R10, 계산 세부 = 사용자 결정 015(sources/intent/015.md).
 """
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -17,7 +18,7 @@ from c1a15.api import deps, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import rules, session
+from c1a15.engine import exception, rules, session
 from c1a15.engine.knowledge import ManualKnowledge
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Draft, Facts
@@ -161,7 +162,7 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
                 {
                     "at": at,
                     "title": k.sections[e["section"]]["title"],
-                    "detail": f"{e['section']}절",
+                    "detail": sec_text(e["section"]),
                     "status": "void" if void else "ok",
                 }
             )
@@ -195,13 +196,18 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
     return out
 
 
+def sec_text(sec: str) -> str:
+    """경로 글의 절 표시 — 매뉴얼 절은 '4.3절', 예외 절(약속 v8 EX-…)은 번호 그대로(매뉴얼 절이 아님)."""
+    return sec if sec.startswith(exception.PREFIX) else f"{sec}절"
+
+
 def _now_entry(step: dict, k: ManualKnowledge) -> dict | None:
     kind = step.get("kind")
     if kind in {"action", "action_after_checklist"}:
         return {
             "at": None,
             "title": k.sections[step["section"]]["title"],
-            "detail": f"{step['section']}절",
+            "detail": sec_text(step["section"]),
             "status": "now",
         }
     if kind == "restart_check":
@@ -344,7 +350,7 @@ def correction_of(events: list[dict], step: dict) -> dict | None:
     )
     if e is None:
         return None
-    k = deps.manual()
+    k = knowledge_of(events)
     sec = e.get("section")
     return {
         "seq": e["seq"],
@@ -453,8 +459,8 @@ def report_draft(
 
     grades = {}면 등급 글 없이(초안 열쇠용). for_pack = Pack report 본문용 — 미확인 칸에서 파트장 답 메모를 뺀다(D-294).
     """
-    k = deps.manual()
-    g = deps.grades(c)[0] if grades is None else grades
+    k = knowledge_of(events)
+    g = with_exception(exception_guide_of(events), deps.grades(c)[0], {})[1] if grades is None else grades
     group = deps.group_names()[alarm.symptom_group]
     system = deps.group_systems()[alarm.symptom_group]
     end = confirmed_at or datetime.now(UTC)
@@ -488,7 +494,9 @@ def report_draft(
         sec = next((s for s in k.sections if k.sections[s]["title"] == p["title"]), "")
         if k.sections.get(sec, {}).get("kind") == "action":
             continue
-        detail = p["detail"].replace(f"{sec}절", "").strip(" ·")
+        detail = p["detail"].replace(sec_text(sec), "").strip(" ·") if sec else p["detail"]
+        if sec.startswith(exception.PREFIX) and not detail:  # 예외 절 조치 완료 줄 — 조치 칸에 따로 적음
+            continue
         parts.append(f"{p['title']}({sec}{', ' + detail.replace(' · ', ': ', 1) if detail else ''})")
     outcome = step.get("outcome") or ("confirmed" if state.confirmed else "unknown")
     cause = (
@@ -662,19 +670,78 @@ def exception_guide_of(events: list[dict]) -> dict | None:
     return next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
 
 
-def with_exception(eg: dict | None, grades: dict) -> tuple[str | None, dict]:
-    """judge 요청 덧칸: 예외 관계 id + 등급표 EX 줄(표에 줄이 없으면 안내 등급 = 처음 값 · 표 값이 이김 R13)."""
+def with_exception(eg: dict | None, grades: dict, minutes: dict) -> tuple[str | None, dict, dict]:
+    """judge 요청 덧칸: 예외 관계 id + 등급표 · 분 표 EX 줄(표에 줄이 없으면 안내 값 = 처음 값 · 표 값이 이김 R13).
+    분은 v8 exception_guide.minutes(없으면 줄 없음)."""
     if not eg:
-        return None, grades
-    return eg["relation_id"], {**grades, eg["section"]: grades.get(eg["section"], eg["grade"])}
+        return None, grades, minutes
+    sec = eg["section"]
+    if eg.get("minutes") is not None:
+        minutes = {**minutes, sec: minutes.get(sec, eg["minutes"])}
+    return eg["relation_id"], {**grades, sec: grades.get(sec, eg["grade"])}, minutes
+
+
+def knowledge_of(events: list[dict]) -> ManualKnowledge:
+    """약속 v8: 세션에 예외 안내가 있으면 매뉴얼 밖 예외 절(EX-…)을 이 세션 지식에 덧붙임 — 지시 · 조치 · 경로 ·
+    보고서 · 파트장 화면이 매뉴얼 절과 같은 길로 읽음(본문 = Pack 응답 글 그대로 · 매뉴얼 표는 손 0)."""
+    k = deps.manual()
+    eg = exception_guide_of(events)
+    if not eg:
+        return k
+    sec = eg["section"]
+    steps = "\n".join(f"{i}. {x}" for i, x in enumerate(eg.get("steps") or [], 1))
+    crit = f"\n\n**판정 기준** {eg['criteria']}" if eg.get("criteria") else ""
+    row = {
+        "id": sec,
+        "title": eg.get("title") or sec,
+        "kind": "exception",
+        "chapter": None,
+        "group": None,
+        "grade": eg.get("grade"),
+        "minutes": eg.get("minutes"),
+        "parent": None,
+        "text": f"#### {sec} 점검 방법\n{eg.get('text') or ''}\n\n{steps}{crit}",
+    }
+    return dataclasses.replace(k, sections={**k.sections, sec: row})
+
+
+def exception_action(c: Connection, events: list[dict], g: dict, minutes: dict) -> dict | None:
+    """예외 절 조치 카드(약속 v8: 결과 이상 → 같은 예외 절 조치) — 원인 칩 = 근거 예외 기록, 절차 = 응답 절차 그대로."""
+    eg = exception_guide_of(events)
+    if not eg:
+        return None
+    sec = eg["section"]
+    mine = [e for e in events if e.get("section") == sec and not e.get("void")]
+    results = [e.get("value") for e in mine if e["type"] == "result"]
+    if not results or results[-1] != "이상":
+        return None
+    done_e = next((e for e in mine if e["type"] == "action_done"), None)
+    basis = list(eg.get("basis") or [])
+    return {
+        "cause_code": "",
+        "cause_name": f"예외 기록 {basis[0]}" if basis else "예외 기록",
+        "evidence_record_ids": basis,
+        "section": sec,
+        "title": eg.get("title") or sec,
+        "verb": "조치",
+        "grade": g.get(sec, eg.get("grade")),
+        "minutes": minutes.get(sec),
+        "done_at": (done_e or {}).get("_at"),
+        "checklist": [],
+        "checklist_done": False,
+        "steps": list(eg.get("steps") or []),
+    }
 
 
 def exception_guide_view(c: Connection, eg: dict) -> dict:
     """D-543 예외 안내 카드: v8 칸 그대로 + 출처(근거 이력 중 앱 원본에 승인 예외 기록이 있는 첫 건).
 
-    원래 순서 다음(next)은 v8에 칸이 없어 None(질문 001-zzz17). 원본에 없는 기록은 None(지어내기 0).
+    원래 순서 다음(next) = v8 next_section(c1a15-pack d05a64d) · 매뉴얼에 없는 절이면 None.
+    원본에 없는 기록은 None(지어내기 0).
     """
     basis = list(eg.get("basis") or [])
+    nxt = eg.get("next_section")
+    titles = {s: v["title"] for s, v in deps.manual().sections.items()} if nxt else {}
     row = c.execute(
         text(
             "select record_id, equipment_id, occurred_at, record->'exception_record'->>'situation' as situation "
@@ -695,7 +762,7 @@ def exception_guide_view(c: Connection, eg: dict) -> dict:
         }
         if row
         else None,
-        "next": None,
+        "next": {"section": nxt, "title": titles[nxt]} if nxt in titles else None,  # 원래 순서 다음(v8 next_section)
     }
 
 
@@ -738,7 +805,7 @@ def report_view(
     c: Connection, row: m.DiagSession, alarm: m.Alarm, state: session.SessionState, step: dict, events: list[dict]
 ) -> dict:
     stored = c.execute(select(m.Report.__table__).where(m.Report.session_id == row.session_id)).first()
-    k = deps.manual()
+    k = knowledge_of(events)
     reopened = stored is not None and stored.status == "rejected" and not state.report_confirmed
     if stored and not reopened:
         fields = stored.fields
@@ -873,7 +940,7 @@ def accept(
     payload: dict,
 ) -> tuple[str, dict]:
     """S-03 입력을 검사하고 (저장할 업무 기록 type, payload)를 돌려준다. 거부는 409."""
-    k = deps.manual()
+    k = knowledge_of(events)
     kind = step.get("kind")
 
     def reject(reason: str):
@@ -1020,8 +1087,9 @@ def sessions_alarm(c: Connection, row: m.DiagSession) -> m.Alarm:
 
 
 def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, step: dict, events: list[dict]) -> dict:
-    k = deps.manual()
+    k = knowledge_of(events)
     g, minutes = deps.grades(c)
+    _, g, minutes = with_exception(exception_guide_of(events), g, minutes)
     alarm = sessions_alarm(c, row)
     kind = step.get("kind")
     out: dict = {"path": path(events, k, step, alarm)}
@@ -1061,6 +1129,8 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
                 k, ac
             ),  # D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 — 매뉴얼 번호 줄 그대로
         }
+    elif (ex_act := exception_action(c, events, g, minutes)) is not None:  # 약속 v8 예외 절 이상 → 조치
+        out["action"] = ex_act
     if kind in {"restart_check", "restart_value", "monitor_close", "report"} or state.restarted:
         restart_e, result_e = _restart_events(events)
         out["restart"] = {
@@ -1079,7 +1149,17 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
             "grade": g.get(session.MONITOR_SECTION),
             "closed": state.monitor_closed,
         }
-    answer = state.call_answer or {}
+    ex_answer = next(  # 예외 절 호출의 답(로컬 접기는 예외 절 사건을 뺌 — 약속 v8)
+        (
+            e
+            for e in reversed(events)
+            if e["type"] == "call_answer"
+            and not e.get("void")
+            and str(e.get("section") or "").startswith(exception.PREFIX)
+        ),
+        None,
+    )
+    answer = state.call_answer or ex_answer or {}
     approved_open = answer.get("answer") == "approved" and step.get("section") == answer.get("section")
     # T10 ans_approved: 승인 배너와 그 C 점검 지시가 호출 카드에 함께 열린다
     if (

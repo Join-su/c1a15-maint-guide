@@ -284,6 +284,14 @@ describe("T06 점검 지시 · 결과 입력", () => {
     expect(texts(container, ".refs .lk")[0]).toBe("매뉴얼 원문 보기");
   });
 
+  it("약속 v8 예외 절 지시(승인 뒤): 칩 '예외 기록 H-0244' · 매뉴얼 원문 보기 없음(매뉴얼 밖 절)", () => {
+    const s = load<SessionView>("event-instruct");
+    s.instruction = { ...s.instruction!, section: "EX-H-0244", title: "필터 덮개 고정 나사 확인" };
+    const { container } = instr(s);
+    expect(texts(container, ".ins-h .ch.blue")).toEqual(["예외 기록 H-0244"]);
+    expect(texts(container, ".refs .lk")).not.toContain("매뉴얼 원문 보기");
+  });
+
   it("3회 연속 실패(T06 / llm_repeat): 실제 응답에서 인계 권함 배너 · 두 선택 · 원문", () => {
     const s = load<SessionView>("session-llm-repeat");
     expect(s.recommend_handover).toBe(true);

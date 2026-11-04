@@ -4,7 +4,7 @@
 
 import { GradeBadge, Icon, type Instruction, type SessionView } from "@c1a15/ui";
 import type { Draft } from "../device";
-import { LockOk, Proc } from "./Lock";
+import { isException, LockOk, Proc, SecChip } from "./Lock";
 
 const RESULT: { v: "정상" | "이상" | "확인 불가"; icon: string; cls: string }[] = [
   { v: "정상", icon: "circle-check", cls: "ok" },
@@ -55,7 +55,7 @@ export function InstructionScreen(p: InstructionProps) {
             <h3>{ins.title}</h3>
             <div className="tags">
               <GradeBadge grade={ins.grade} />
-              <span className="ch blue">매뉴얼 {ins.section}절</span>
+              <SecChip section={ins.section} />
               {ins.minutes != null ? <span className="ch gray">약 {ins.minutes}분</span> : null}
               {ins.fallback ? <span className="ch fb">{ins.fallback_label}</span> : null}
             </div>
@@ -131,10 +131,12 @@ export function InstructionScreen(p: InstructionProps) {
             </div>
           ) : null}
           <div className="refs">
-            <span className="lk" role="button" tabIndex={0} onClick={p.onManual}>
-              <Icon name="book-open" />
-              매뉴얼 원문 보기
-            </span>
+            {isException(ins.section) ? null : ( // 약속 v8 예외 절은 매뉴얼 밖 — 원문 없음
+              <span className="lk" role="button" tabIndex={0} onClick={p.onManual}>
+                <Icon name="book-open" />
+                매뉴얼 원문 보기
+              </span>
+            )}
             {ins.evidence_record_ids.length ? (
               <span className="lk">
                 <Icon name="history" />

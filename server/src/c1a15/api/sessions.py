@@ -13,7 +13,7 @@ from c1a15.api import deps, flow, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import rules, session
+from c1a15.engine import exception, rules, session
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
 
@@ -129,6 +129,12 @@ def events_of(c: Connection, sid: int) -> list[dict]:
     return logical(raw_events_of(c, sid))
 
 
+def fold_inputs(events: list[dict]) -> list[dict]:
+    """앱 안 접기(화면 · 검사용 상태)에 넣는 업무 기록 — 예외 절 사건은 뺌(engine 사본은 예외 절을 모름, 약속 v8).
+    Pack judge 요청 입력은 예외 절 사건까지 그대로."""
+    return exception.without([e for e in events if e["type"] in INPUT_TYPES])
+
+
 def similar_of(row: m.DiagSession) -> list[rules.Similar]:
     return [rules.Similar(s["record_id"], s["cause"], s["score"]) for s in row.similar]
 
@@ -150,7 +156,7 @@ def _deploy_decision(
 ) -> tuple[dict, dict]:
     """다음 단계 = 배포 서버 judge Run(EV-001 ES-07, C1A15_JUDGE=deploy). 판정 하나 = Run 하나 — checkpoint 안 씀."""
     g, minutes = deps.grades(c)
-    rel, g = flow.with_exception(eg, g)
+    rel, g, minutes = flow.with_exception(eg, g, minutes)
     res = runs.judge(
         row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, manual_support, exception_relation=rel
     )
@@ -191,16 +197,14 @@ def _open_step(
     if (
         decision["kind"] in INSTRUCTION_KINDS
     ):  # R8 '지시문': 열 때 한 번 쓰고 근거 검사 결과를 남긴다(주기 조회마다 다시 쓰지 않음)
-        guide = screen.instruction_guide(deps.manual(), decision["section"], row.similar)
+        guide = screen.instruction_guide(flow.knowledge_of(events_of(c, sid)), decision["section"], row.similar)
         payload = {k2: guide[k2] for k2 in ("section", "steps", "label", "original")} | {
             "llm_fallback": guide["fallback"]
         }
         _store(c, sid, seq + 1, "instruction_shown", payload, actor)
     if decision["kind"] == "report":  # CH-20: 보고서 원인 · 조치 문장은 초안 열쇠마다 한 번(화면 조회는 쓰지 않음)
         evs = events_of(c, sid)
-        state = session.fold(
-            deps.manual(), row.symptom_group, similar_of(row), [e for e in evs if e["type"] in INPUT_TYPES]
-        )
+        state = session.fold(flow.knowledge_of(evs), row.symptom_group, similar_of(row), fold_inputs(evs))
         written = flow.report_written_payload(c, row, state, decision, evs, seq)
         if written is not None:
             _store(c, sid, seq + 1, "report_written", written, actor)
@@ -339,7 +343,7 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
     판정 = Pack start 결과 preview(EV-011 CH-03 · 세션 시작 때 preview_shown에 저장), 없으면 앱 decide.
     절차 · 판정 기준은 넣지 않는다(R1).
     """
-    k = deps.manual()
+    k = flow.knowledge_of(events_of(c, row.session_id))
     g, minutes = deps.grades(c)
     if decided is None:
         shown = (e for e in events_of(c, row.session_id) if e["type"] == "preview_shown" and "decision" in e)
@@ -475,9 +479,10 @@ def _guide_of(events: list[dict], k, section: str) -> dict:
 
 def view(c: Connection, row: m.DiagSession) -> dict:
     events = events_of(c, row.session_id)
-    k = deps.manual()
+    k = flow.knowledge_of(events)
     g, minutes = deps.grades(c)
-    state = session.fold(k, row.symptom_group, similar_of(row), [e for e in events if e["type"] in INPUT_TYPES])
+    _, g, minutes = flow.with_exception(flow.exception_guide_of(events), g, minutes)
+    state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
     step = current_step(events) or {}
     order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
     probs, evidence = screen.decided_numbers(step, order) or (  # EV-011 CH-02: 화면 숫자 = Pack 판정 출력
@@ -565,9 +570,9 @@ def view(c: Connection, row: m.DiagSession) -> dict:
 
 def progress(c: Connection, row: m.DiagSession) -> dict:
     """홈 · 종 목록의 '점검 n / 최대 m'(P-19 ① · ②, 결정 014 ②)."""
-    k = deps.manual()
     events = events_of(c, row.session_id)
-    state = session.fold(k, row.symptom_group, similar_of(row), [e for e in events if e["type"] in INPUT_TYPES])
+    k = flow.knowledge_of(events)
+    state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
     return screen.check_progress(events, k, row.symptom_group, deps.grades(c)[0], state.approvals)
 
 
@@ -614,8 +619,8 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         _store(c, row.session_id, last + 1, etype, {"at": datetime.now(UTC).isoformat()}, actor)
         audit(c, actor, etype, f"session:{row.session_id}", {"seq": last + 1})
         return view(c, row)
-    k = deps.manual()
-    state = session.fold(k, row.symptom_group, similar_of(row), [e for e in events if e["type"] in INPUT_TYPES])
+    k = flow.knowledge_of(events)
+    state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
     step = current_step(events) or {}
     if etype == "result":
         if payload.get("memo") and step.get("section"):
@@ -735,7 +740,7 @@ def _trial_decision(c: Connection, row: m.DiagSession, events: list[dict]) -> di
     g, minutes = deps.grades(c)
     inputs = [e for e in events if e["type"] in INPUT_TYPES]
     ms = next((e.get("manual_support") for e in events if e["type"] == "step_opened"), None)
-    rel, g = flow.with_exception(flow.exception_guide_of(events), g)
+    rel, g, minutes = flow.with_exception(flow.exception_guide_of(events), g, minutes)
     res = runs.judge(
         row.alarm_id, row.symptom_group, row.similar, inputs, g, minutes, ms, purpose="trial", exception_relation=rel
     )
@@ -784,7 +789,7 @@ def post_correction(c: Connection, row: m.DiagSession, actor: str, body: dict) -
         plan = session.correction_mode(events, idx, value_changed=changed)
     except session.EventRejected as exc:
         deny(str(exc))
-    k = deps.manual()
+    k = flow.knowledge_of(events)
     seq = events[-1]["seq"] + 1
     at = datetime.now(UTC).isoformat()
     payload = {

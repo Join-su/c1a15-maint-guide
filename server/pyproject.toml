@@ -28,6 +28,8 @@ markers = ["db: 실제 PostgreSQL(DATABASE_URL)이 필요한 통합 시험"]
 line-length = 120
 target-version = "py312"
 src = ["src", "tests"]
+# c1a15-pack custom/exception.py 사본(D-545 handoff) — Pack 원본과 import 줄만 다르게 그대로 둠(줄 길이 · 형식 검사 밖)
+extend-exclude = ["src/c1a15/engine/exception.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
