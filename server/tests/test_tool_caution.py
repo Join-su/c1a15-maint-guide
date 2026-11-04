@@ -55,6 +55,9 @@ def test_tool_caution_range_latest_ack_twice_and_again(api, db):
     register(api, "M-02", {**QUIET, "tool_wear_min": 150})  # 공구 교체(200 아래)
     assert _cautions(tech) == []
     register(api, "M-02", {**QUIET, "tool_wear_min": 205})  # 교체 뒤 다시 200 ~ 246 → 다시 뜸(답장 zzz19 · 꼴 02)
+    assert _cautions(tech) == []  # 220 공구 마모 알람이 아직 떠 있음 = 알람이 이김(덧 25)
+    with db.begin() as c:
+        c.execute(text("update ops.alarms set status = 'done' where equipment_id = 'M-02'"))
     (c3,) = _cautions(tech)
     assert c3["tool_wear_min"] == 205 and c3["caution_id"] > c2["caution_id"]
 
@@ -83,3 +86,19 @@ def test_tool_caution_ack_unknown_and_needs_login(api, db):
         403,
     }  # 로그인 없으면 거부
     assert [c["caution_id"] for c in _cautions(tech)] == [c1["caution_id"]]
+
+
+def test_tool_caution_hidden_while_tool_wear_alarm_open(api, db):
+    """D-546 덧 25: 같은 설비에 공구 마모 경계 알람(> 215분)이 떠 있으면 주의 줄 0(알람이 이김) — 알람이 끝나면 지금 규칙대로."""
+    reset_ops(db)
+    tech, _ = login(api, "tech", "tech.kim", TECH_PW)
+    register(api, "M-03", {**QUIET, "tool_wear_min": 205})  # 다른 설비 주의(알람 없음)
+    assert register(api, "M-02", {**QUIET, "tool_wear_min": 220}).status_code == 200  # 주의 범위 · 215 넘음 = 알람
+    assert _alarms(db) == 1
+    assert [(c["equipment_id"], c["tool_wear_min"]) for c in _cautions(tech)] == [("M-03", 205)]  # M-02 주의 0
+    with db.begin() as c:  # 보고서 확정 = 알람 끝(status done)
+        c.execute(text("update ops.alarms set status = 'done' where equipment_id = 'M-02'"))
+    assert [c["equipment_id"] for c in _cautions(tech)] == [
+        "M-02",
+        "M-03",
+    ]  # 알람 끝 → 지금 규칙(확인 전 주의 다시 보임)

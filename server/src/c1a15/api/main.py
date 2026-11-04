@@ -238,7 +238,8 @@ def _tool_caution(body: AlarmBody) -> None:
 
 
 def tool_cautions(c: Connection) -> list[dict]:
-    """설비마다 마지막 교체 뒤 최근 주의 하나 — 교체 뒤 확인이 있으면 없음. 정비자 모두에게 · 최근 먼저."""
+    """설비마다 마지막 교체 뒤 최근 주의 하나 — 교체 뒤 확인이 있으면 없음. 정비자 모두에게 · 최근 먼저.
+    같은 설비에 공구 마모 경계 알람(TW)이 떠 있으면 없음 — 알람이 이김, 끝나면(done) 다시 이 규칙(D-546 덧 25)."""
     last_reset = _LAST_RESET.format(eq="a.equipment_id")
     rows = c.execute(
         text(
@@ -246,6 +247,8 @@ def tool_cautions(c: Connection) -> list[dict]:
             f"where a.action = 'tool_caution' and a.audit_id > {last_reset} "
             "and not exists(select 1 from ops.audit_log k where k.action = 'tool_caution_ack' "
             f"and k.equipment_id = a.equipment_id and k.audit_id > {last_reset}) "
+            "and not exists(select 1 from ops.alarms al where al.equipment_id = a.equipment_id "
+            "and al.symptom_group = 'TW' and al.status in ('new', 'in_progress')) "
             "order by a.equipment_id, a.audit_id desc"
         )
     ).all()
