@@ -1,15 +1,14 @@
-// D-538 · D-556 예외 상황 기록을 사람 손 순서로: 정비자 보고서 화면 '예외 상황 기록'(선택) 글 하나(자리글 = 안내 문구)
-// → 「AI 나눔」(가짜 배포 서버 — 점검 1 + 조치 1 × 2 · 약속 v9 exception_similar 비슷한 것 상위 3) → 「AI 나눔」 한 번 더
-// (같은 화면 · D-503 1) → item마다 비슷한 것 하나 「같음」(놓침 missed) / 「아님」(새 예외 new_exception)
-// → 「보고서 확정」 → 확인 창 「취소」(글 · 고름 그대로) → 다시 확정 → 확정 뒤 칸은 읽기만
-// → 파트장 최종본 '6. 예외 상황 기록'(글 · 나눔 줄 + 자동 정보 · 보기만) → 승인
-// → 정비 이력 원본 층(record.exception_record)에 같이 저장.
+// D-538 · D-556 · 정답지 고침A 18 · 19쪽 예외 상황 기록을 사람 손 순서로: [예외] 바로 조치 → 조치 → 재가동 → 보고서 전 팝업
+// '예외 상황 기록'(자동) — 글 하나(자리글 = 안내 문구) → 「AI 나눔」(가짜 배포 서버 — 점검 1 + 조치 1 × 2 · item마다 주제 ·
+// 비슷한 것 상위 3) → 「AI 나눔」 한 번 더(같은 창 · D-503 1) → item마다 「같음」 / 「아님」 → 「보고서에 적용」
+// → 보고서 초안 안 '예외 상황' 구역 → [예외 상황 수정](앞 내용 채운 팝업) → 「취소」 → 「보고서 확정」 → 확인 창 「취소」 → 다시 확정
+// → 확정 뒤 구역은 읽기만 → 파트장 최종본 '6. 예외 상황 기록' → 승인 → 정비 이력 원본 층(record.exception_record)에 같이 저장.
 // 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 화면마다 PNG(1280 × 800).
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
-import { guard, LEAD_PW, LEAD_URL, login, psql, resetOps, restartWithin, result, shot, toFirstCheck } from "./helpers";
+import { guard, LEAD_PW, LEAD_URL, login, psql, resetOps, restartWithin, shot, toFirstCheck } from "./helpers";
 
 test.beforeEach(() => resetOps());
 
@@ -27,69 +26,81 @@ async function snap(page: Page, info: TestInfo, name: string) {
 
 const pause = (p: Page) => p.waitForTimeout(800);
 
-test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6번 구역 → 승인 → 이력 원본 층(사람 손 순서)", async ({ page, browser }, info) => {
+test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 적용 → 보고서 안 구역 → 확정 → 파트장 최종본 6번 → 승인 → 이력 원본 층(사람 손 순서)", async ({ page, browser }, info) => {
   const g = guard(page);
-  await login(page); // 진단 · 잠금까지는 도우미(다른 시험과 같음) — 이 시험의 사람 손 순서는 보고서 화면부터
+  await login(page); // 진단 · 잠금까지는 도우미 — 이 시험의 사람 손 순서는 [예외]부터
   await toFirstCheck(page, "DEMO-01");
   await pause(page);
-  await result(page, "이상", "기름때가 필터 표면 절반 넘게 덮음");
+  await page.locator(".refs .lk", { hasText: "점검 바꾸기" }).click();
+  const sw = page.locator('.modal[aria-label="점검 바꾸기"]');
+  await pause(page);
+  await sw.locator(".swc.swx").click();
+  await pause(page);
+  await sw.locator(".swc", { hasText: "바로 조치" }).click();
   await pause(page);
   await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   await restartWithin(page);
   await pause(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
-  // 보고서 화면: 확정 전 확인 위 '예외 상황 기록' 칸(선택 · 상황 · 결과 자동 · 설명 문장 0)
-  const kh = page.locator(".kh");
-  await expect(kh.locator(".cd-h b")).toHaveText("예외 상황 기록");
-  await expect(kh.locator(".khf > .sm")).toHaveText(["상황 자동", "결과 자동"]);
-  await expect(kh.locator('[data-part="ex-situation"]')).toHaveText(/^M-01 · 온도 차 저하 · .+ · 온도 차 /);
-  await expect(kh.locator('[data-part="ex-result"]')).toHaveText(RESULT);
-  const ta = kh.getByLabel("예외 글", { exact: true });
+  // 고침A 18쪽: 예외 진행 세션 = 보고서 전 팝업(자동) · 상황 · 결과 자동 · 설명 문장 0
+  const dlg = page.locator('.modal[aria-label="예외 상황 기록"]');
+  await expect(dlg.locator(".mh b")).toHaveText("예외 상황 기록");
+  await expect(dlg.locator('[data-part="ex-situation"]')).toHaveText(/^M-01 · 온도 차 저하 · .+ · 온도 차 /);
+  await expect(dlg.locator('[data-part="ex-result"]')).toHaveText(RESULT);
+  const ta = dlg.getByLabel("예외 글", { exact: true });
   await expect(ta).toHaveAttribute("placeholder", "점검한 것과 조치한 것을 모두 적어 주세요");
+  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 빈 글 = 적용 잠김
   await pause(page);
   await ta.click();
   await ta.fill(TEXT);
-  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).toHaveClass(/dis/); // 나눔 · 고름까지 잠금
-  const rows = kh.locator('[data-part="ex-items"] .exi');
+  const rows = dlg.locator('[data-part="ex-items"] .exi');
   for (let n = 0; n < 2; n++) {
-    // 같은 화면에서 「AI 나눔」 두 번(D-503 1) — 같은 결과
+    // 같은 창에서 「AI 나눔」 두 번(D-503 1) — 같은 결과
     await pause(page);
     const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
-    await kh.locator(".exa .btn", { hasText: "AI 나눔" }).click();
+    await dlg.locator(".exa .btn", { hasText: "AI 나눔" }).click();
     expect((await sent).status()).toBe(200);
     await expect(rows).toHaveCount(2);
   }
-  await expect(rows.nth(0).locator(".exl")).toHaveText(["점검필터 덮개 고정 나사를 손으로 확인 · 기준 정상 범위", "조치나사를 새로 끼움"]);
+  await expect(rows.locator(".exn0")).toHaveText(["예외상황-필터 덮개 고정", "예외상황-흡기 덕트 이음매"]); // 주제(가짜 = 앞 세 낱말)
   const sim0 = rows.nth(0).locator(".exr");
-  await expect(sim0.first()).toHaveText("예외EX-R-0001 필터 덮개 고정 나사 확인같음"); // 나사 item = 등록 예외가 맨 위
-  expect(await sim0.count()).toBeLessThanOrEqual(3);
-  await expect(rows.nth(1).locator(".exs .ch")).toHaveText("새 예외"); // 비슷한 것 0 → 같음 / 아님 없이(D-556 덧 5)
-  await expect(rows.nth(1).locator(".exr, .btn")).toHaveCount(0);
+  await expect(sim0.first()).toHaveText("예외예외상황-필터 덮개 고정 나사 확인같음"); // 나사 item = 등록 예외가 맨 위
+  await expect(rows.nth(1).locator(".exs .ch")).toHaveText("새 예외 · 비슷한 것 없음"); // 비슷한 것 0(D-556 덧 5)
+  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 다 고르기 전 잠김
   await pause(page);
   await rows.nth(0).locator(".exb .btn", { hasText: "아님" }).click();
   await pause(page);
   await sim0.first().locator(".btn", { hasText: "같음" }).click(); // 다시 고름 — 마지막이 이김
-  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).not.toHaveClass(/dis/); // 둘째 item은 고를 것 0
-  await snap(page, info, "X1-report-exception");
+  await snap(page, info, "X1-exception-popup");
+  await pause(page);
+  await dlg.locator(".mb .btn", { hasText: "보고서에 적용" }).click();
+  await expect(dlg).toHaveCount(0);
+  // 고침A 19쪽: 보고서 초안 안 '예외 상황' 구역 · 칩 이름
+  const sec = page.locator('.g73 > .cd').first().locator('[data-part="ex-section"]');
+  await expect(sec.locator(".rxr > span:first-child")).toHaveText(["상황", "적은 글", "나눔 1", "나눔 2", "결과"]);
+  await expect(sec.locator(".rxr .ch")).toHaveText(["같음 · 예외상황-필터 덮개 고정 나사 확인", "새 예외 · 예외상황-흡기 덕트 이음매"]);
+  await snap(page, info, "X2-report-section");
+  await pause(page);
+  await sec.locator(".btn", { hasText: "예외 상황 수정" }).click(); // 같은 화면 한 번 더: 앞 내용 채운 팝업
+  await expect(dlg.getByLabel("예외 글", { exact: true })).toHaveValue(TEXT);
+  await expect(dlg.locator('.exi[data-item="0"] .exr').first().locator(".btn")).not.toHaveClass(/ghost/);
+  await pause(page);
+  await dlg.locator(".mb .btn", { hasText: "취소" }).click();
+  await expect(dlg).toHaveCount(0);
   await pause(page);
   await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
-  const dlg = page.locator('.modal[aria-label="보고서 확정"]');
+  const conf = page.locator('.modal[aria-label="보고서 확정"]');
   await pause(page);
-  await dlg.locator(".btn", { hasText: "취소" }).click(); // 같은 화면에서 취소 → 다시(D-503 1)
-  await expect(ta).toHaveValue(TEXT); // 취소해도 글 · 고름 그대로
-  await expect(sim0.first().locator(".btn", { hasText: "같음" })).not.toHaveClass(/ghost/);
+  await conf.locator(".btn", { hasText: "취소" }).click();
   await pause(page);
   await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
   await pause(page);
-  await dlg.locator(".btn").filter({ hasText: /^확정$/ }).click();
+  await conf.locator(".btn").filter({ hasText: /^확정$/ }).click();
   await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다/);
-  await expect(kh.locator("textarea, .exb")).toHaveCount(0); // 확정 뒤엔 읽기만
-  // 상황의 끝 시각 = 확정 시각(확정 전엔 지금 시각) — 확정 뒤 값으로 대조
-  const situation = (await kh.locator('[data-part="ex-situation"]').textContent()) ?? "";
+  await expect(sec.locator(".btn")).toHaveCount(0); // 확정 뒤엔 읽기만
+  const situation = (await sec.locator('[data-part="ex-situation"]').textContent()) ?? "";
   expect(situation).toMatch(/^M-01 · 온도 차 저하 · .+ · 온도 차 /);
-  await expect(kh.locator(".khf > .sm")).toHaveText(["상황", "적은 글", "결과"]);
-  await expect(kh.locator(".exs .ch")).toHaveText(["같음 · 예외 EX-R-0001", "새 예외"]);
-  await snap(page, info, "X2-confirmed");
+  await snap(page, info, "X3-confirmed");
 
   const lead = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   const lg = guard(lead);
@@ -105,13 +116,13 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
   await expect(lead.locator(".fd-ex th")).toHaveText(["상황", "적은 글", "나눔 1", "나눔 2", "결과", "설비 · 증상", "센서값", "직전 정비", "AI 첫 안내", "확정 원인"]);
   await expect(lead.locator(".fd-ex td").nth(0)).toHaveText(situation);
   await expect(lead.locator(".fd-ex td").nth(1)).toHaveText(TEXT);
-  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText("점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움 같음 · 예외 EX-R-0001");
-  await expect(lead.locator(".fd-ex td").nth(3)).toHaveText("점검 흡기 덕트 이음매 · 조치 밴드를 다시 조임 새 예외");
+  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText("점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움 같음 · 예외상황-필터 덮개 고정 나사 확인");
+  await expect(lead.locator(".fd-ex td").nth(3)).toHaveText("점검 흡기 덕트 이음매 · 조치 밴드를 다시 조임 새 예외 · 예외상황-흡기 덕트 이음매");
   await expect(lead.locator(".fd-ex td").nth(4)).toHaveText(RESULT);
   await expect(lead.locator(".fd-ex td").nth(8)).toHaveText("4.3 흡기 필터 육안 점검"); // 자동: AI 첫 안내
-  await expect(lead.locator(".fd-ex td").nth(9)).toHaveText("냉각 필터 막힘"); // 자동: 확정 원인
+  await expect(lead.locator(".fd-ex td").nth(9)).toHaveText("원인 미상"); // 자동: 확정 원인(예외 진행 = 원인은 예외 칸)
   await lead.locator(".fd-ex").scrollIntoViewIfNeeded();
-  await snap(lead, info, "X3-lead-final-exception");
+  await snap(lead, info, "X4-lead-final-exception");
   await pause(lead);
   await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
   await pause(lead);

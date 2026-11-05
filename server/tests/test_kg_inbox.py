@@ -102,7 +102,7 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
         "exception_record"
     ]  # D-556: 글 · 나눔 줄(check · action = Pack fields-gate 꼴) · 같음/아님 · 자동 상황 · 결과
     assert ex["text"] == TEXT and [it["kind"] for it in ex["items"]] == ["missed", "new_exception"]  # 약속 v9 3절
-    assert set(ex["items"][0]) == {"check", "action", "matches", "decision", "match", "kind"}
+    assert set(ex["items"][0]) == {"topic", "check", "action", "matches", "decision", "match", "kind"}
     assert ex["exception_review"] == list(REVIEW)  # 편지 칸 이름(D-556 덧 4 · deploy 848449d)
     assert ex["situation"].startswith("M-01 · ") and ex["result"] == "재가동 정상(경계 이내)"
     assert set(rec["exception_record"]["context"]) >= {"equipment_id", "sensor_values", "symptom_group"}

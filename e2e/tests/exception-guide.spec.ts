@@ -1,6 +1,6 @@
 // D-543 구현 2 예외 안내(파트장 승인 전)를 사람 손 순서로 · 약속 v8(D-545 덧 2): 세션 시작(start 결과 exception_guide)
-// → 잠금 · 사전 확인 뒤 예외 절 먼저(가짜 배포 서버가 Pack 흉내) → 호출 화면 '예외 기록에서 온 점검' · 노하우 글 + 출처(앱 원본)
-// → 「노하우 등록」 → 「취소」 → 다시 「노하우 등록」(D-503 1) → 글 하나(D-556) → 「등록」 → 다시 열면 서버 초안으로 채워짐
+// → 잠금 · 사전 확인 뒤 예외 절 먼저(가짜 배포 서버가 Pack 흉내) → 호출 화면 '예외 기록에서 온 점검' · 점검방법 글 + 출처(앱 원본)
+// → 「점검방법 등록」 → 「취소」 → 다시 「점검방법 등록」(D-503 1) → 글 하나(D-556) → 「등록」 → 다시 열면 서버 초안으로 채워짐
 // → 「파트장 호출」(호출과 따로) → 보냄 배너 뒤에도 카드 그대로.
 // 승인 뒤 길(engine/exception 사본 = c1a15-pack 50b2d74 · d05a64d): 파트장 앱 「승인 후 진행」 → 예외 절 지시(응답 절차 그대로)
 // → 이상 → 같은 예외 절 조치 → 재가동 → 경계 이내 → 보고서.
@@ -51,6 +51,7 @@ const guide = (extra: Record<string, unknown> = {}) => ({
   relation_id: `EX-${rid}`,
   grade: "C",
   title: "필터 덮개 고정 나사 확인",
+  topic: "필터 덮개 나사", // 정답지 고침A '예외상황-{주제}'(Pack 칸 임시 이름)
   text: TEXT,
   steps: ["덮개 나사 확인", "빠졌으면 새로 끼움"],
   criteria: "나사 네 개 모두 체결 = 정상",
@@ -83,7 +84,7 @@ test.afterEach(async () => {
   await answer({}); // 다른 시험은 기본 답
 });
 
-test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 다시 · 등록 · 다시 열면 채워짐) · 「파트장 호출」 따로(사람 손 순서)", async ({ page }, info) => {
+test("예외 안내: 점검방법 글 + 출처 · 「점검방법 등록」(취소 · 다시 · 등록 · 다시 열면 채워짐) · 「파트장 호출」 따로(사람 손 순서)", async ({ page }, info) => {
   const g = guard(page);
   await login(page);
   alarm("DEMO-01");
@@ -98,21 +99,21 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   const left = page.locator(".g64 > .cd").first();
   await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검"); // 잠금 · 사전 확인 뒤 예외 절 먼저
   await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
-  await expect(left.locator(".warn-h .tags > *")).toHaveText(["C승인 필요", `예외 기록 ${rid}`]);
+  await expect(left.locator(".warn-h .tags > *")).toHaveText(["C승인 필요", "예외상황-필터 덮개 나사"]); // 고침A 26쪽
   await expect(left.locator(".xkh p")).toHaveText(TEXT);
-  await expect(left.locator(".xkh .xsrc")).toHaveText(new RegExp(`^출처 · 예외 기록 ${rid} · M-01 · \\d\\d-\\d\\d — 상황 '${SIT}'$`));
-  await expect(left.locator(".sub")).toHaveText(["노하우", "지금까지 점검"]); // 원래 순서 다음 = v8에 칸 없음(질문 001-zzz17)
+  await expect(left.locator(".xkh .xsrc")).toHaveText(new RegExp(`^출처 · 예외상황-필터 덮개 나사 · M-01 · \\d\\d-\\d\\d — 상황 '${SIT}'$`));
+  await expect(left.locator(".sub")).toHaveText(["점검방법", "지금까지 점검"]); // 원래 순서 다음 = v8에 칸 없음(질문 001-zzz17)
   await snap(page, info, "G1-exception-guide");
   await pause(page);
-  await left.locator(".xkr .btn", { hasText: "노하우 등록" }).click();
+  await left.locator(".xkr .btn", { hasText: "점검방법 등록" }).click();
   await expect(left.locator(".xkf")).toBeVisible();
-  await expect(left.locator(".sub")).toHaveText(["노하우"]);
+  await expect(left.locator(".sub")).toHaveText(["점검방법"]);
   await pause(page);
   await left.locator(".xkf .btn", { hasText: "취소" }).click(); // 같은 화면에서 취소 → 다시
   await expect(left.locator(".xkf")).toHaveCount(0);
-  await expect(left.locator(".sub")).toHaveText(["노하우", "지금까지 점검"]);
+  await expect(left.locator(".sub")).toHaveText(["점검방법", "지금까지 점검"]);
   await pause(page);
-  await left.locator(".xkr .btn", { hasText: "노하우 등록" }).click();
+  await left.locator(".xkr .btn", { hasText: "점검방법 등록" }).click();
   // D-556 글 하나(자리글 = 안내 문구)
   const kf = left.getByLabel("예외 글", { exact: true });
   await expect(kf).toHaveAttribute("placeholder", "점검한 것과 조치한 것을 모두 적어 주세요");
@@ -127,7 +128,7 @@ test("예외 안내: 노하우 글 + 출처 · 「노하우 등록」(취소 · 
   await page.reload(); // 서버에 남은 초안으로 다시 열림
   await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검");
   await pause(page);
-  await left.locator(".xkr .btn", { hasText: "노하우 등록" }).click();
+  await left.locator(".xkr .btn", { hasText: "점검방법 등록" }).click();
   await expect(left.getByLabel("예외 글", { exact: true })).toHaveValue(KF);
   await pause(page);
   await left.locator(".xkf .btn", { hasText: "취소" }).click();
@@ -148,7 +149,7 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   await toExceptionCall(page);
   const left = page.locator(".g64 > .cd").first();
   await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
-  await expect(left.locator(".sub")).toHaveText(["노하우", "지금까지 점검", "원래 순서 다음"]);
+  await expect(left.locator(".sub")).toHaveText(["점검방법", "지금까지 점검", "원래 순서 다음"]);
   await expect(left.locator(".xnext .ch")).toHaveText("4.3 흡기 필터 육안 점검"); // v8 next_section
   await expect(left.locator(".warn-h .tags > *")).toContainText(["약 15분"]); // 분 표 EX 줄
   await snap(page, info, "G4-exception-next");
@@ -213,7 +214,7 @@ test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 �
   await page.getByText("진단 보기").click();
   const nx = page.locator(".nx");
   await expect(nx.locator("h3")).toHaveText("파트장 호출 필요");
-  await expect(nx.locator(".tags > *")).toHaveText(["C승인 필요", `예외 기록 ${rid}`, "필터 덮개 고정 나사 확인 · 약 5분"]); // '매뉴얼 EX-…절' 0
+  await expect(nx.locator(".tags > *")).toHaveText(["C승인 필요", "예외상황-필터 덮개 나사", "필터 덮개 고정 나사 확인 · 약 5분"]); // 고침A 11쪽 이름
   await snap(page, info, "G0-diagnosis-exception-preview");
   await pause(page);
   await nx.locator(".btn").click();
@@ -261,7 +262,7 @@ test("F3 가이드 그림 일곱(DEMO-04 길): 로그인 · 잠금 창 · 사전
   await lead.locator("button.lbtn", { hasText: "답 저장" }).click();
   await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
   await page.reload();
-  await expect(page.locator(".g64 > .cd").first().locator(".warn-h .tags")).toContainText(`예외 기록 ${rid}`); // W06 칩(고침)
+  await expect(page.locator(".g64 > .cd").first().locator(".warn-h .tags")).toContainText("예외상황-필터 덮개 나사"); // W06 칩(고침 · 고침A 이름)
   await page.getByText("점검 시작").click();
   await result(page, "정상", "덮개 고정 나사 네 개 모두 체결");
   await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검"); // 원래 순서 다음 4.3

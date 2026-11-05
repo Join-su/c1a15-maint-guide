@@ -205,7 +205,15 @@ def test_exception_record_input_and_blocks():
         schemas.EventBody(seq=1, type="exception_split")  # 나눌 글 없으면 422
     assert set(responses.ExceptionDraft.model_fields) == {"text"}
     assert {"situation", "text", "items", "result", "action", "context"} <= set(responses.ExceptionRecord.model_fields)
-    assert set(responses.ExceptionItem.model_fields) == {"check", "action", "matches", "decision", "match", "kind"}
+    assert set(responses.ExceptionItem.model_fields) == {
+        "topic",
+        "check",
+        "action",
+        "matches",
+        "decision",
+        "match",
+        "kind",
+    }
     assert "exception_review" in responses.ExceptionRecord.model_fields  # 승인 편지 칸(D-556 덧 4)
     assert set(responses.ExceptionSimilar.model_fields) == {"kind", "no", "name", "score"}  # 약속 v9 5절
     assert set(responses.CheckRecord.model_fields) == {"kind", "session_id", "human_check", "relation_id", "at_seq"}

@@ -95,7 +95,10 @@ def test_exception_guide_v8_start_relation_call_block_and_send(api, db, deploy):
     assert sit.startswith("M-01 · ")  # D-556: 상황 = 자동 글
     assert g["source"] == {"record_id": hid, "equipment_id": "M-01", "occurred_at": at.isoformat(), "situation": sit}
     assert g["next"] is None  # 원래 순서 다음 = v8에 칸 없음(질문 001-zzz17)
-    assert f"예외 기록 {hid}" in call["summary"]["text"] and "필터 덮개 고정 나사 확인" in call["summary"]["text"]
+    assert (
+        "예외상황-필터 덮개 고정 나사 확인와 같은 조건" in call["summary"]["text"]
+    )  # 고침A 26쪽 이름(주제 칸 전 = 이름)
+    assert g["topic"] == "필터 덮개 고정 나사 확인"
     if os.environ.get("EXCEPTION_GUIDE_OUT"):  # D-503 2: 바뀐 응답 꼴 실제 한 건(시험 DB 값 그대로)
         with open(os.environ["EXCEPTION_GUIDE_OUT"], "w", encoding="utf-8") as fp:
             json.dump(call, fp, ensure_ascii=False, indent=1)
@@ -236,9 +239,9 @@ def test_start_with_real_pack_exception_preview(api, db, deploy, minutes, cause)
     pv = s["preview"]
     assert (pv["kind"], pv["section"], pv["grade"]) == ("call", eg["section"], "C")
     assert (pv["title"], pv["minutes"]) == (eg["title"], minutes)
-    assert eg["section"] in pv["reason"] and f"{eg['section']}절" not in pv["reason"]  # 예외 절에 '절' 붙이지 않음
+    assert eg["section"] not in pv["reason"]  # 정답지 고침A 11쪽: 기록 번호 대신 예외 이름
     assert pv["reason_fallback"] is False and pv["reason"].startswith(
-        "예외 기록과 같은 조건"
+        f"예외상황-{eg['title']}(C등급)와 같은 조건이라"
     )  # 근거 검사 통과(원문 대체 0)
     assert start_body["kind"] == "start"
     s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 같은 예외 절 호출

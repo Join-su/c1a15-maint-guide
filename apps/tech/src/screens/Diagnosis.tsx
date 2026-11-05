@@ -5,7 +5,7 @@
 import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
 import { SecChip } from "./Lock";
 
-type Diag = Pick<SessionWithPreview, "probabilities" | "evidence" | "cause_names" | "similar_cards" | "low_evidence" | "preview">;
+type Diag = Pick<SessionWithPreview, "probabilities" | "evidence" | "cause_names" | "similar_cards" | "low_evidence" | "preview" | "exception_topic">;
 
 export function rankRows(s: Diag): { code: string; name: string; pct: number; n: number }[] {
   return Object.entries(s.probabilities)
@@ -23,7 +23,7 @@ export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; p
         <h3>{call ? "파트장 호출 필요" : p.title}</h3>
         <div className="tags">
           <GradeBadge grade={p.grade} />
-          {p.section ? <SecChip section={p.section} /> : null}
+          {p.section ? <SecChip section={p.section} topic={s.exception_topic} /> : null}
           {p.minutes != null ? (
             <span className="ch gray">{call ? `${p.title} · 약 ${p.minutes}분` : `약 ${p.minutes}분`}</span>
           ) : null}

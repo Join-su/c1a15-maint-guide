@@ -1855,7 +1855,8 @@
        "exception_draft",
        "exception_split",
        "switch_check",
-       "exception_start"
+       "exception_start",
+       "exception_apply"
       ],
       "title": "Type",
       "type": "string"
@@ -1945,6 +1946,48 @@
      "minutes"
     ],
     "title": "ExceptionActionFields",
+    "type": "object"
+   },
+   "ExceptionApplied": {
+    "additionalProperties": false,
+    "description": "고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).",
+    "properties": {
+     "exception_review": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionReviewOut"
+      },
+      "title": "Exception Review",
+      "type": "array"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionItem"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "split_error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Split Error"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "text",
+     "items",
+     "exception_review"
+    ],
+    "title": "ExceptionApplied",
     "type": "object"
    },
    "ExceptionAuto": {
@@ -2200,6 +2243,17 @@
        }
       ],
       "title": "Title"
+     },
+     "topic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Topic"
      }
     },
     "required": [
@@ -2329,6 +2383,17 @@
       },
       "title": "Matches",
       "type": "array"
+     },
+     "topic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Topic"
      }
     },
     "required": [
@@ -2405,6 +2470,17 @@
      "text": {
       "title": "Text",
       "type": "string"
+     },
+     "topic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Topic"
      }
     },
     "required": [
@@ -5953,6 +6029,16 @@
       ],
       "title": "Confirmed At"
      },
+     "exception_applied": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionApplied"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "exception_auto": {
       "anyOf": [
        {
@@ -5982,6 +6068,11 @@
         "type": "null"
        }
       ]
+     },
+     "exception_session": {
+      "default": false,
+      "title": "Exception Session",
+      "type": "boolean"
      },
      "exception_split": {
       "anyOf": [
@@ -6502,6 +6593,17 @@
       "title": "Exception Notes",
       "type": "array"
      },
+     "exception_topic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Topic"
+     },
      "instruction": {
       "anyOf": [
        {
@@ -6743,6 +6845,17 @@
       },
       "title": "Exception Notes",
       "type": "array"
+     },
+     "exception_topic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Topic"
      },
      "instruction": {
       "anyOf": [
@@ -7114,6 +7227,17 @@
      "section": {
       "title": "Section",
       "type": "string"
+     },
+     "summary": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Summary"
      },
      "title": {
       "title": "Title",

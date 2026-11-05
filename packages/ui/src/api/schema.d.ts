@@ -1115,7 +1115,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft" | "exception_split" | "switch_check" | "exception_start";
+            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft" | "exception_split" | "switch_check" | "exception_start" | "exception_apply";
             /** Value */
             value?: ("정상" | "이상" | "확인 불가") | null;
             /** Values */
@@ -1136,6 +1136,20 @@ export interface components {
             parts: string[];
             /** What */
             what: string;
+        };
+        /**
+         * ExceptionApplied
+         * @description 고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).
+         */
+        ExceptionApplied: {
+            /** Exception Review */
+            exception_review: components["schemas"]["ExceptionReviewOut"][];
+            /** Items */
+            items: components["schemas"]["ExceptionItem"][];
+            /** Split Error */
+            split_error?: string | null;
+            /** Text */
+            text: string;
         };
         /**
          * ExceptionAuto
@@ -1223,6 +1237,8 @@ export interface components {
             text: string | null;
             /** Title */
             title: string | null;
+            /** Topic */
+            topic?: string | null;
         };
         /** ExceptionGuideNext */
         ExceptionGuideNext: {
@@ -1274,6 +1290,8 @@ export interface components {
              * @default []
              */
             matches: components["schemas"]["ExceptionSimilar"][];
+            /** Topic */
+            topic?: string | null;
         };
         /**
          * ExceptionMatch
@@ -1310,6 +1328,8 @@ export interface components {
             situation: string;
             /** Text */
             text: string;
+            /** Topic */
+            topic?: string | null;
         };
         /** ExceptionPrev */
         ExceptionPrev: {
@@ -2318,9 +2338,15 @@ export interface components {
             checks: components["schemas"]["ReportCheck"][];
             /** Confirmed At */
             confirmed_at: string | null;
+            exception_applied?: components["schemas"]["ExceptionApplied"] | null;
             exception_auto?: components["schemas"]["ExceptionAuto"] | null;
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
             exception_record?: components["schemas"]["ExceptionRecord"] | null;
+            /**
+             * Exception Session
+             * @default false
+             */
+            exception_session: boolean;
             exception_split?: components["schemas"]["ExceptionSplit"] | null;
             /** Fields */
             fields: components["schemas"]["ReportField"][];
@@ -2458,6 +2484,8 @@ export interface components {
              * @default []
              */
             exception_notes: components["schemas"]["ExceptionNote"][];
+            /** Exception Topic */
+            exception_topic?: string | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2525,6 +2553,8 @@ export interface components {
              * @default []
              */
             exception_notes: components["schemas"]["ExceptionNote"][];
+            /** Exception Topic */
+            exception_topic?: string | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2626,6 +2656,8 @@ export interface components {
             grade: string | null;
             /** Section */
             section: string;
+            /** Summary */
+            summary?: string | null;
             /** Title */
             title: string;
         };

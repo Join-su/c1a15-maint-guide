@@ -389,9 +389,11 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
     elif d["kind"] == "call":  # P-18: 첫 판정이 호출(T04 / first_call)이어도 카드 값은 서버가 낸다
         sec = k.sections[d["section"]]
         p = d["probabilities"].get(d.get("cause"), 0)
-        cause_name = (
-            k.cause(d["cause"]).name if d.get("cause") else "예외 기록"
-        )  # 예외 관계에 원인이 없을 수 있음(Pack v8)
+        eg = flow.exception_guide_of(events_of(c, row.session_id)) or {}
+        topic = (eg.get("topic") or eg.get("title")) if eg.get("section") == d["section"] else None
+        cause_name = (  # 예외 관계에 원인이 없을 수 있음(Pack v8) · 고침A 11쪽 이름 '예외상황-{주제}'
+            k.cause(d["cause"]).name if d.get("cause") else f"예외상황-{topic}" if topic else "예외 기록"
+        )
         facts = Facts(
             "call_reason",
             d["section"],
@@ -401,9 +403,9 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
                 "check_title": sec["title"],
                 "grade": d["grade"],
                 "reason": d["reason"],
+                **({"topic": topic} if topic else {}),
             },
         )
-        eg = flow.exception_guide_of(events_of(c, row.session_id)) or {}
         ex_ids = (
             {*(eg.get("basis") or []), d["section"][len(exception.PREFIX) :]}
             if eg.get("section") == d["section"]
@@ -416,7 +418,8 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
             | ex_ids,  # 예외 절 = 근거 예외 기록(EX-<기록>)
         )
         who = f"{cause_name} {p}%" if d.get("cause") else cause_name
-        template = f"{who} · {flow.sec_text(d['section'])} {sec['title']} · {d['grade']}등급 · 파트장 호출 필요"
+        where = "" if topic else f"{flow.sec_text(d['section'])} "  # 예외 이름이 있으면 기록 번호 0(고침A 11쪽)
+        template = f"{who} · {where}{sec['title']} · {d['grade']}등급 · 파트장 호출 필요"
         r = grounding.checked(lambda: adapter_for_mode().write(facts), g, template)
         out.update(
             title=sec["title"],
@@ -586,7 +589,9 @@ def view(c: Connection, row: m.DiagSession) -> dict:
     if state.locked:  # D-556 [점검 바꾸기] 후보(점검 안내 중만 · 그 밖엔 빈 목록)
         out["switch_candidates"] = switch_candidates(k, step, events)
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
-    out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「노하우 등록」 초안
+    out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「점검방법 등록」 초안
+    eg = flow.exception_guide_of(events) or {}
+    out["exception_topic"] = eg.get("topic") or eg.get("title")  # 고침A '예외상황-{주제}'(예외 절 칩 · 이름)
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
     return out
 
@@ -755,7 +760,13 @@ def switch_candidates(k, step: dict, events: list[dict] = ()) -> list[dict]:
             [],
         )
     return [
-        {"section": a["section"], "title": k.sections[a["section"]]["title"], "grade": a.get("grade")}
+        {
+            "section": a["section"],
+            "title": k.sections[a["section"]]["title"],
+            "grade": a.get("grade"),
+            # 고침A 13쪽 제목 아래 설명 = Pack 후보 desc(c1a15-pack 986eaff · 매뉴얼 판정 기준 첫 문장 · LLM 0)
+            "summary": a.get("desc"),
+        }
         for a in alts
         if a.get("section") in k.sections and a["section"] != step.get("section")
     ]
@@ -765,11 +776,15 @@ def check_records(sid: int, events: list[dict]) -> list[dict]:
     """약속 v9 3절 기록 줄: 헛걸음(switch_check) · 놓침 / 새 예외(마지막 확정 예외 칸 item) + 사람이 고른 점검.
     사람이 고른 점검 = 예외 진행이면 {EX-NEW, 그때 점검} · 아니면 마지막 바꾼 점검 · 없으면 None."""
     live = [e for e in events if not e.get("void")]
-    out, human = [], None
+    out, human, chain = [], None, None
     for e in live:
-        if e["type"] == "switch_check":
-            human = {"section": e["section"], "from_section": e.get("from_section")}
-            out.append({"kind": "wasted_step", "session_id": sid, "human_check": human, "at_seq": e["seq"]})
+        if e["type"] == "switch_check":  # 고침A 14쪽: 여러 번 바꾸면 마지막에 결과를 낸 점검만 헛걸음(중간 고름 기록 0)
+            start = chain["from_section"] if chain else e.get("from_section")
+            chain = {"section": e["section"], "from_section": start, "seq": e["seq"]}
+        elif e["type"] == "result" and chain and e.get("section") == chain["section"]:
+            human = {"section": chain["section"], "from_section": chain["from_section"]}
+            out.append({"kind": "wasted_step", "session_id": sid, "human_check": human, "at_seq": chain["seq"]})
+            chain = None
         elif e["type"] == "exception_start":
             before = current_step([x for x in live if x["seq"] < e["seq"]]) or {}
             human = {"section": switch.NEW, "from_section": before.get("section")}

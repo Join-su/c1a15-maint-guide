@@ -10,9 +10,11 @@ export const EX_NEW = "EX-NEW"; // 약속 v9 [예외] 진행 절(매뉴얼 · �
 /** 절 이름: 매뉴얼 절 '4.3절' · 예외 절 번호 그대로 · 예외 진행 '예외'. */
 export const secName = (section: string) => (section === EX_NEW ? "예외" : isException(section) ? section : `${section}절`);
 
-/** 지시 머리 절 칩: 매뉴얼 절은 '매뉴얼 4.3절', 예외 절은 '예외 기록 H-0244'(호출 카드 칩과 같은 이름), 예외 진행은 '예외'. */
-export function SecChip({ section }: { section: string }) {
-  const label = section === EX_NEW ? "예외" : isException(section) ? `예외 기록 ${section.slice(3)}` : `매뉴얼 ${section}절`;
+/** 지시 머리 절 칩: 매뉴얼 절은 '매뉴얼 4.3절', 예외 절은 '예외상황-{주제}'(정답지 고침A · 주제 없으면 '예외 기록 H-0244'),
+ *  예외 진행은 '예외'. */
+export function SecChip({ section, topic }: { section: string; topic?: string | null }) {
+  const ex = topic ? `예외상황-${topic}` : `예외 기록 ${section.slice(3)}`;
+  const label = section === EX_NEW ? "예외" : isException(section) ? ex : `매뉴얼 ${section}절`;
   return <span className="ch blue">{label}</span>;
 }
 

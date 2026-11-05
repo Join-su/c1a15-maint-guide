@@ -199,6 +199,17 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
       "재가동 정상(경계 이내)",
     ]);
     cleanup();
+    // 정답지 고침A 19 · 21쪽: 칩 이름 = 같음 · {비슷한 것 이름} / 새 예외 · 예외상황-{주제}
+    const named = {
+      ...split,
+      items: [
+        { ...split.items[0], topic: "필터 덮개 나사", matches: [{ kind: "예외", no: "EX-R-0001", name: "필터 덮개 나사", score: 0.7 }] },
+        { ...split.items[1], topic: "흡기 덕트 이음매" },
+      ],
+    };
+    const s4 = render(<Review api={{} as Api} report={{ ...report(), exception_record: named }} onBack={noop} onDone={noop} />).container;
+    expect(texts(s4, ".fd-ex .fd-xk")).toEqual(["같음 · 예외상황-필터 덮개 나사", "새 예외 · 예외상황-흡기 덕트 이음매"]);
+    cleanup();
     // 나누지 못한 기록(D-556 덧 7): 적은 글 그대로 새 예외 — '나눔' 한 줄
     const unsplit = { ...split, items: [], exception_review: [], split_error: "not_split" };
     const s3 = render(<Review api={{} as Api} report={{ ...report(), exception_record: unsplit }} onBack={noop} onDone={noop} />).container;

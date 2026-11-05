@@ -45,7 +45,8 @@ test("점검 바꾸기: 후보 창 → 취소 → 다시 → 고름 → 그 점�
   // A · B 후보 하나(바로 점검 안내가 열리는 것)
   const pick = dlg.locator(".swc", { has: page.locator(".tags b", { hasText: /^[AB]$/ }) }).first();
   const section = (await pick.getAttribute("data-section")) ?? "";
-  const title = ((await pick.locator(":scope > b").textContent()) ?? "").trim();
+  const title = ((await pick.locator(".swt > b").textContent()) ?? "").trim();
+  await expect(dlg.locator(".swc[data-section] .swt > .sws").first()).not.toBeEmpty(); // 고침A 13쪽 제목 아래 설명
   await pause(page);
   const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
   await pick.click();

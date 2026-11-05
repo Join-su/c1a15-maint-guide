@@ -83,6 +83,7 @@ class EventBody(_Strict):
         "exception_split",
         "switch_check",
         "exception_start",
+        "exception_apply",
     ]
     section: str | None = None
     value: Literal["정상", "이상", "확인 불가"] | None = None
@@ -117,6 +118,7 @@ class EventBody(_Strict):
             "exception_split": ("exception_text",),
             "switch_check": ("section",),
             "exception_start": ("mode",),
+            "exception_apply": ("exception_record",),
         }.get(self.type, ())
         missing = [f for f in need if getattr(self, f) is None]
         if self.type == "result" and self.value is None and not self.memo:

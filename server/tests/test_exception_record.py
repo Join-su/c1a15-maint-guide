@@ -335,14 +335,28 @@ def test_split_items_drop_malformed_lines():
     from c1a15.api import flow
 
     good = {"check": {"what": "가", "how": "나", "criteria": "다", "minutes": 3}, "action": {"what": "라"}}
-    blank = {"check": {"what": "가", "how": " ", "criteria": "다"}, "action": {"what": "라"}}  # 빈 글 칸 짝은 뺌
+    blank = {"check": {"what": " ", "how": "나", "criteria": "다"}, "action": {"what": "라"}}  # 점검 무엇이 빈 짝은 뺌
     out = flow.split_items({"exception_split": {"items": [good, {"check": "글"}, {"action": {}}, blank]}})
+    no_how = {
+        "check": {"what": "가", "how": "", "criteria": ""},
+        "action": {"what": "라"},
+    }  # 방법 · 기준 빈 글은 그대로(Pack 43025a5)
+    assert flow.split_items({"exception_split": {"items": [no_how]}})[0]["check"] == {
+        "what": "가",
+        "how": "",
+        "criteria": "",
+        "minutes": None,
+    }
     assert out == [
         {
+            "topic": "가",  # 주제 칸이 없으면 점검 무엇(고침A · Pack 칸 오기 전)
             "check": {"what": "가", "how": "나", "criteria": "다", "minutes": 3},
             "action": {"what": "라", "parts": [], "minutes": None},
         }
     ]
+    assert (
+        flow.split_items({"exception_split": {"items": [{**good, "topic": " 덮개 나사 "}]}})[0]["topic"] == "덮개 나사"
+    )
     assert flow.split_items({}) == [] and len(flow.split_items({"exception_split": {"items": [good] * 12}})) == 10
     assert [flow.split_reason(o) for o in ({}, {"exception_split": {"reason": "invalid_output"}})] == [
         "not_split",

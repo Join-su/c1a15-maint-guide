@@ -217,8 +217,8 @@ describe("T06 점검 지시 · 결과 입력", () => {
     const s = load<SessionView>("event-instruct");
     expect(s.step.kind).toBe("instruct");
     const cands = [
-      { section: "4.4", title: "냉각 팬 회전 확인", grade: "B" },
-      { section: "4.6", title: "냉각 설정값 확인", grade: "C" },
+      { section: "4.4", title: "냉각 팬 회전 확인", grade: "B", summary: "팬 모듈을 꺼내 축 유격을 본다" },
+      { section: "4.6", title: "냉각 설정값 확인", grade: "C", summary: null },
     ];
     const onSwitch = vi.fn();
     const onException = vi.fn();
@@ -227,7 +227,9 @@ describe("T06 점검 지시 · 결과 입력", () => {
     expect(link).toBeTruthy();
     fireEvent.click(link);
     const dlg = () => container.querySelector('.modal[aria-label="점검 바꾸기"]')!;
-    expect(texts(dlg(), ".swc > b")).toEqual(["냉각 팬 회전 확인", "냉각 설정값 확인", "예외"]);
+    expect(texts(dlg(), ".swt > b")).toEqual(["냉각 팬 회전 확인", "냉각 설정값 확인"]);
+    expect(texts(dlg(), ".swt > .sws")).toEqual(["팬 모듈을 꺼내 축 유격을 본다"]); // 고침A 13쪽 제목 아래 설명(있는 후보만)
+    expect(texts(dlg(), ".swc.swx > b")).toEqual(["예외"]);
     expect([...dlg().querySelectorAll(".swc[data-section]")].map((x) => x.getAttribute("data-section"))).toEqual(["4.4", "4.6"]);
     expect(dlg().querySelector(".note, p")).toBeNull(); // 설명 문장 0
     fireEvent.click([...dlg().querySelectorAll(".mb .btn")].find((x) => x.textContent === "취소")!);

@@ -54,7 +54,9 @@ export function InstructionScreen(p: InstructionProps) {
               <Icon name="info" />
               <div>
                 <b>
-                  이전 예외 기록 · {p.s.alarm.equipment_id} · {p.s.alarm.group_name}
+                  {p.s.exception_notes[0].topic // 고침A 12쪽: '이전 예외 기록 · 예외상황-{주제}'
+                    ? `이전 예외 기록 · 예외상황-${p.s.exception_notes[0].topic}`
+                    : `이전 예외 기록 · ${p.s.alarm.equipment_id} · ${p.s.alarm.group_name}`}
                 </b>
                 {p.s.exception_notes[0].text}
               </div>
@@ -67,7 +69,7 @@ export function InstructionScreen(p: InstructionProps) {
             <h3>{ins.title}</h3>
             <div className="tags">
               <GradeBadge grade={ins.grade} />
-              <SecChip section={ins.section} />
+              <SecChip section={ins.section} topic={p.s.exception_topic} />
               {ins.minutes != null ? <span className="ch gray">약 {ins.minutes}분</span> : null}
               {ins.fallback ? <span className="ch fb">{ins.fallback_label}</span> : null}
             </div>
@@ -226,7 +228,10 @@ export function InstructionScreen(p: InstructionProps) {
                       p.onSwitch(c.section);
                     }}
                   >
-                    <b>{c.title}</b>
+                    <span className="swt">
+                      <b>{c.title}</b>
+                      {c.summary ? <span className="sws">{c.summary}</span> : null}
+                    </span>
                     <span className="tags">
                       {c.grade ? <GradeBadge grade={c.grade} /> : null}
                       <SecChip section={c.section} />

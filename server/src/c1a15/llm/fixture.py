@@ -44,7 +44,12 @@ class FixtureAdapter:
                 facts.section if facts.section.startswith("EX-") else f"{facts.section}절"
             )  # 예외 절(약속 v8)은 절 번호 아님
             what = f"{v['check_title']}({label}, {v['grade']}등급)"
-            if v["reason"] == "exception_guide":  # 약속 v8: 예외 기록과 같은 조건 — 점검 전 그 노하우 먼저(파트장 승인)
+            if v["reason"] == "exception_guide" and v.get("topic"):  # 고침A 11쪽: '예외상황-{주제}(C등급)와 같은 조건'
+                head = (
+                    f"예외상황-{v['topic']}({v['grade']}등급)와 같은 조건이라 {v['check_title']}을 먼저 봅니다. "
+                    "파트장 승인이 필요합니다."
+                )
+            elif v["reason"] == "exception_guide":  # 약속 v8: 예외 기록과 같은 조건 — 점검방법 먼저(파트장 승인)
                 head = f"예외 기록과 같은 조건이라 {what}을 먼저 봅니다. 파트장 승인이 필요합니다."
             elif v["reason"] == "top_cause_cd_only":
                 head = f"1순위 {who}는 {what}으로만 확인할 수 있어 혼자 진행할 수 없습니다."

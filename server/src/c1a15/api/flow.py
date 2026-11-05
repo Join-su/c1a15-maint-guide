@@ -36,8 +36,9 @@ CLIENT_TYPES = {
     "handover_request",
     "exception_draft",  # D-543: 「노하우 등록」 — 판정에 쓰지 않음(접지 않음)
     "exception_split",  # D-556 1단계: 보고서 예외 글 「AI 나눔」 — 판정에 쓰지 않음(접지 않음)
+    "exception_apply",  # 정답지 고침A 18쪽: 예외 상황 팝업 「보고서에 적용」 — 판정에 쓰지 않음(접지 않음)
 }
-NOT_JUDGED = {"exception_draft", "exception_split"}  # 저장만 · 판정 Run을 다시 부르지 않음
+NOT_JUDGED = {"exception_draft", "exception_split", "exception_apply"}  # 저장만 · 판정 Run을 다시 부르지 않음
 # 판정 엔진이 접는 S-03 업무 기록(파트장 답 call_answer는 S-04 P-11이 쓴다)
 ENGINE_TYPES = {
     "action_done",
@@ -328,8 +329,8 @@ def call_summary(
             if done
             else "점검 전"
         )
-        need = (
-            f"예외 기록 {(ex.get('basis') or [''])[0]}와 같은 조건 — {title}({step.get('grade')}등급) 확인 필요"
+        need = (  # 고침A 26쪽: 예외 이름 '예외상황-{주제}'
+            f"예외상황-{ex.get('topic') or title}와 같은 조건 — {title}({step.get('grade')}등급) 확인 필요"
             if ex
             else f"확인에 {title}({sec}절, {step.get('grade')}등급) 필요"
         )
@@ -696,6 +697,8 @@ def split_items(output: dict) -> list[dict]:
         try:
             ck, ac = it["check"], it["action"]
             item = {
+                # 주제(정답지 고침A · '예외상황-{주제}') = Pack 결과 칸(임시 이름 topic) — 없으면 점검 무엇
+                "topic": str(it.get("topic") or ck.get("what") or "").strip(),
                 "check": {
                     k: ck.get(k) if k == "minutes" else str(ck.get(k) or "").strip()
                     for k in ("what", "how", "criteria", "minutes")
@@ -708,7 +711,7 @@ def split_items(output: dict) -> list[dict]:
             }
         except (KeyError, TypeError, AttributeError):
             continue
-        if all(item["check"][k] for k in ("what", "how", "criteria")) and item["action"]["what"]:
+        if item["check"]["what"] and item["action"]["what"]:  # 방법 · 기준은 빈 글 허용(Pack 43025a5 · 덧 11 · 12)
             out.append(item)
     return out[:10]
 
@@ -723,12 +726,8 @@ SIMILAR_KINDS = {"예외", "매뉴얼"}
 
 
 def similar_query(items: list[dict]) -> list[int]:
-    """비슷한 것 찾기에 보낼 item 번호 — 약속 v9 요청 꼴(점검 what · how · criteria · 조치 what 글 있음 · 10개까지)."""
-    ok = [
-        i
-        for i, it in enumerate(items)
-        if all(it["check"].get(k) for k in ("what", "how", "criteria")) and it["action"].get("what")
-    ]
+    """비슷한 것 찾기에 보낼 item 번호 — 약속 v9 요청 꼴(점검 · 조치 what 글 있음 · 방법 · 기준 빈 글 허용 · 10개)."""
+    ok = [i for i, it in enumerate(items) if it["check"].get("what") and it["action"].get("what")]
     return ok[:10]
 
 
@@ -795,6 +794,23 @@ def exception_text(ex: dict) -> str:
     )
 
 
+def exception_applied_of(events: list[dict]) -> dict | None:
+    """고침A 18 · 19쪽: 마지막 확정 뒤 마지막 「보고서에 적용」(글 · item · 고름 · 나누지 못함) — 없으면 None."""
+    last_confirm = max((e["seq"] for e in events if e["type"] == "report_confirm"), default=0)
+    hit = next((e for e in reversed(events) if e["type"] == "exception_apply" and e["seq"] > last_confirm), None)
+    if hit is None and any(e["type"] == "report_rejected" and e["seq"] > last_confirm for e in events):
+        hit = exception_of(events)  # 정답지 20쪽: 반려되면 앞 확정 기록이 구역에 다시 · [예외 상황 수정]
+    if not hit or not hit.get("items") and not hit.get("split_error"):
+        return None
+    return {k: hit.get(k) for k in ("text", "items", "exception_review", "split_error")} | {
+        "exception_review": hit.get("exception_review") or []
+    }
+
+
+def _review_of(items: list[dict]) -> list[dict]:
+    return [{"item": i, "decision": it["decision"], "match": it["match"]} for i, it in enumerate(items)]
+
+
 def exception_auto(fields: list[dict], events: list[dict]) -> dict:
     """자동 두 칸(D-554 · D-556): 상황 = 보고서 설비 · 알람 + 센서 근거, 결과 = 재가동 값 판정(입력 0)."""
     text_of = {f["key"]: f["text"] for f in fields}
@@ -833,6 +849,7 @@ def exception_notes(c: Connection, alarm: m.Alarm, limit: int = 3) -> list[dict]
             "action": exception_text(r.ex),
             # 알림에 보일 한 줄: D-556 나눈 기록은 줄을 이은 글(상황은 자동이라 머리와 겹침) · 전 기록은 상황 글
             "text": exception_text(r.ex) if r.ex.get("items") or r.ex.get("text") else r.ex.get("situation", ""),
+            "topic": next((it.get("topic") for it in r.ex.get("items") or [] if it.get("topic")), None),
         }
         for r in rows
     ]
@@ -977,6 +994,7 @@ def exception_guide_view(c: Connection, eg: dict) -> dict:
     ).first()
     return {
         **{f: eg.get(f) for f in ("section", "relation_id", "grade", "title", "text", "criteria")},
+        "topic": eg.get("topic") or eg.get("title"),  # 고침A '예외상황-{주제}'(Pack 칸 오기 전 = 이름)
         "steps": list(eg.get("steps") or []),
         "basis": basis,
         "source": {
@@ -1131,6 +1149,8 @@ def report_view(
         "exception_draft": exception_draft_of(events),
         "exception_auto": exception_auto(fields, events),  # 확정 전 칸에 보일 상황 · 결과
         "exception_split": exception_split_of(events),  # D-556 「AI 나눔」 마지막 결과(확정 전)
+        "exception_session": progress_of(events) is not None,  # 고침A 18쪽: 예외 진행 세션만 팝업 · 예외 구역
+        "exception_applied": exception_applied_of(events),  # 고침A 18 · 19쪽: 「보고서에 적용」한 것(확정 전)
         "low_evidence": rules.low_evidence(
             session.fold(k, row.symptom_group, [rules.Similar(**s) for s in row.similar], []).similar
         ),
@@ -1210,6 +1230,20 @@ def accept(
                 out["similar_error"], out["similar_run_id"] = "pack_unavailable", e.run_id
         out["items"] = [{**it, "matches": m_} for it, m_ in zip(items, found, strict=True)]
         return "exception_split", out
+    if etype == "exception_apply":  # 고침A 18쪽 「보고서에 적용」: 지금 글의 나눔 · 같음 / 아님을 확정 전 보고서에 붙임
+        if kind != "report" or state.report_confirmed:
+            reject("no_report_step")
+        text = ((payload.get("exception_record") or {}).get("text") or "").strip()
+        if not text:
+            reject("exception_text_required")  # 빈 글이면 적용 0(화면 단추 잠김과 같음)
+        split = exception_split_of(events)
+        items = exception_review(text, split, payload.get("exception_review") or [])
+        return "exception_apply", {
+            "text": text,
+            "items": items,
+            "exception_review": _review_of(items),
+            "split_error": split["error"] if split and split.get("error") else None,
+        }
     if etype == "handover_request":  # AC-31-C2 · S6: 문장 생성 3회 연속 실패로 인계를 권할 때만 정비자가 고른다
         from c1a15.api import sessions as svc
 
@@ -1293,7 +1327,14 @@ def accept(
         ex_text = (ex_in.get("text") or "").strip()
         review = payload.get("exception_review") or []
         split = exception_split_of(events)
-        items = exception_review(ex_text, split, review) if ex_text else []
+        applied = exception_applied_of(events)
+        if not ex_text and applied:  # 고침A 19쪽: 팝업에서 「보고서에 적용」한 것을 함께 확정
+            ex_text, split = applied["text"], {"error": applied.get("split_error")}
+            items = applied["items"]
+        else:
+            if not ex_text and progress_of(events):  # 예외 진행 세션은 예외 상황을 적용해야 확정(고침A 18쪽)
+                raise HTTPException(status_code=409, detail={"reason": "exception_apply_needed"})
+            items = exception_review(ex_text, split, review) if ex_text else []
         now = datetime.now(UTC)
         fields = view["fields"]
         for f in fields:  # 확정 때 정지 시간 · 시각을 확정 시각으로 고정
@@ -1332,9 +1373,7 @@ def accept(
                 "text": ex_text,  # 정비자 글 그대로
                 "items": items,  # AI 나눔 item + 비슷한 것 + 같음(missed) / 아님(new_exception) — 약속 v9 3 · 5절
                 # 승인 편지 칸 이름(D-556 덧 4 · deploy 848449d): exception_record.items · .exception_review
-                "exception_review": [
-                    {"item": i, "decision": it["decision"], "match": it["match"]} for i, it in enumerate(items)
-                ],
+                "exception_review": _review_of(items),
                 **({"split_error": split["error"]} if split and split.get("error") else {}),  # 나누지 못함 → 새 예외
                 "result": auto["result"],
                 "context": exception_context(c, alarm, events, cause, rid),

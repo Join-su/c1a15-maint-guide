@@ -134,11 +134,10 @@
 .ap .hc-t em { flex-basis: 100%; text-align: right; color: var(--ok); }
 .ap .sp.pick:not(.done) { cursor: pointer; } /* 지난 단계를 보는 동안 뒤 단계(회색)도 누름 — 지시 d530-p33 */
 /* D-538: 보고서 화면 예외 상황 기록 칸(선택 · 두 글 · 확정 뒤 읽기만) */
-.ap .kh .memo { min-height: 64px; margin: 0; width: 100%; resize: vertical; }
-.ap .kh .khv { font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
-.ap .g73 > div:last-child > .kh { margin-bottom: 14px; }
-.ap .kh .khf + .khf { margin-top: 10px; }
-.ap .kh .khf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
+.ap .exp .memo { min-height: 64px; margin: 0; width: 100%; resize: vertical; }
+.ap .exp .khv { font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+.ap .exp .khf + .khf { margin-top: 10px; }
+.ap .exp .khf .sm { display: block; font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 6px; }
 .ap .xref { margin-bottom: 12px; } /* D-543 참고 알림 */
 /* D-543 예외 안내(호출 화면): 노하우 글 + 출처 · 왼쪽 카드 오른쪽 아래 「노하우 등록」 · 같은 자리 두 칸 */
 .ap .g64 > .cd:has(.xkh) { position: relative; }
@@ -179,19 +178,19 @@
 .ap .sml { display: block; font-size: 13px; color: var(--mut); font-weight: 600; margin-bottom: 6px; }
 .ap .pv.ro { background: #f6f8fb; border-color: transparent; min-height: 0; }
 /* D-556 예외 글 → 「AI 나눔」 줄(점검 · 조치 · 비슷한 예외 기록 같음 / 아님) */
-.ap .kh .exa { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
-.ap .kh .exa .btn { height: 40px; padding: 0 16px; }
-.ap .kh .exi { border: 1px solid var(--ln); border-radius: 10px; padding: 10px 12px; }
-.ap .kh .exi + .exi { margin-top: 8px; }
-.ap .kh .exl { font-size: 15px; line-height: 1.6; }
-.ap .kh .exl .ch { margin-right: 8px; }
-.ap .kh .exs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
-.ap .kh .exb { display: inline-flex; gap: 6px; margin-left: auto; }
-.ap .kh .exb .btn { height: 36px; padding: 0 14px; }
-.ap .kh .exm { flex-direction: column; align-items: stretch; gap: 6px; }
-.ap .kh .exr { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-.ap .kh .exr .exn { flex: 1; min-width: 0; }
-.ap .kh .exr .btn { height: 32px; padding: 0 12px; }
+.ap .exp .exa { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 8px; }
+.ap .exp .exa .btn { height: 40px; padding: 0 16px; }
+.ap .exp .exi { border: 1px solid var(--ln); border-radius: 10px; padding: 10px 12px; }
+.ap .exp .exi + .exi { margin-top: 8px; }
+.ap .exp .exl { font-size: 15px; line-height: 1.6; }
+.ap .exp .exl .ch { margin-right: 8px; }
+.ap .exp .exs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
+.ap .exp .exb { display: inline-flex; gap: 6px; margin-left: auto; }
+.ap .exp .exb .btn { height: 36px; padding: 0 14px; }
+.ap .exp .exm { flex-direction: column; align-items: stretch; gap: 6px; }
+.ap .exp .exr { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.ap .exp .exr .exn { flex: 1; min-width: 0; }
+.ap .exp .exr .btn { height: 32px; padding: 0 12px; }
 .ap .xkf .memo { min-height: 96px; }
 /* D-556 [점검 바꾸기]: 점검 안내 아래 링크 · 창(지금 추천 후보 줄) */
 .ap .refs .lk.sw { margin-left: auto; }
@@ -200,5 +199,22 @@
 .ap .swm .swc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--ln); border-radius: 10px; cursor: pointer; background: #fff; }
 .ap .swm .swc:hover { border-color: var(--pri); }
 .ap .swm .swc.dis { opacity: .5; cursor: default; }
-.ap .swm .swc .tags { display: inline-flex; gap: 6px; }
+.ap .swm .swc .tags { display: inline-flex; gap: 6px; flex-shrink: 0; }
+.ap .swm .swc .swt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ap .swm .swc .sws { font-size: 13px; font-weight: 400; color: var(--sub); }
 .ap .swm .swc.swx { border-style: dashed; color: #7a4a00; background: var(--warn-s); }
+
+/* 정답지 고침A 18쪽 예외 상황 팝업 · 19쪽 보고서 안 '예외 상황' 구역(넘치면 이 구역만 스크롤) */
+.ap .modal.exp { left: 230px; top: 56px; width: 820px; max-height: 688px; }
+.ap .exp .mh { display: flex; align-items: center; justify-content: space-between; }
+.ap .exp .exp-b { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
+.ap .exp .exg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.ap .exp .exg .exi + .exi { margin-top: 0; }
+.ap .exp .exn0 { display: inline-block; margin-bottom: 6px; }
+.ap .rx { border: 1px solid var(--ln); border-radius: 12px; margin-top: 14px; }
+.ap .rx .rx-h { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--ln); }
+.ap .rx .rx-h .btn { height: 36px; padding: 0 14px; }
+.ap .rx .rxs { max-height: 220px; overflow-y: auto; padding: 4px 14px 8px; }
+.ap .rx .rxr { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 7px 0; font-size: 14px; line-height: 1.55; border-bottom: 1px solid var(--ln); }
+.ap .rx .rxr:last-child { border-bottom: 0; }
+.ap .rx .rxr > span:first-child { color: var(--sub); font-weight: 700; }

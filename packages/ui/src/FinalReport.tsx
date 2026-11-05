@@ -24,6 +24,18 @@ function alarmText(v: { [key: string]: unknown }): string {
 /** 한 줄로 이음(빈 칸 뺌 · 모두 비면 '-'). */
 const join = (xs: (string | false | null | undefined)[]) => xs.filter((x): x is string => !!x).join(" · ") || "-";
 
+type XItem = NonNullable<NonNullable<Schemas["FinalReport"]["exception_record"]>["items"]>[number];
+
+/** 6번 나눔 줄 칩(정답지 고침A 19 · 21쪽 — 정비자 보고서 구역과 같은 이름): 같음 · {비슷한 것 이름} / 새 예외 · 예외상황-{주제}. */
+function xkLabel(it: XItem): string {
+  if (it.kind === "missed" && it.match) {
+    const m = (it.matches ?? []).find((x) => x.kind === it.match!.kind && x.no === it.match!.no);
+    const name = m ? (m.kind === "예외" ? `예외상황-${m.name}` : `${m.no} ${m.name}`) : `${it.match.kind} ${it.match.no}`;
+    return `같음 · ${name}`;
+  }
+  return it.topic ? `새 예외 · 예외상황-${it.topic}` : "새 예외";
+}
+
 export function FinalReport({ data }: { data: Final }) {
   const approved = data.status === "approved";
   const rejected = data.status === "rejected";
@@ -191,6 +203,7 @@ export function FinalReport({ data }: { data: Final }) {
       {xr ? ( // D-538: 예외 상황 기록 — 정비자 글 · AI 나눔 줄 · 같음/아님(D-556 · 전 기록은 두 글) + 자동 정보(보기만)
         <section>
           <h2>6. 예외 상황 기록</h2>
+          <div className="fd-exs">{/* 정답지 고침A 21쪽: 넘치면 이 구역만 스크롤 */}
           <table className="fd-kv fd-ex">
             <tbody>
               <tr>
@@ -209,7 +222,7 @@ export function FinalReport({ data }: { data: Final }) {
                       <td>
                         {join([`점검 ${it.check.what}`, it.action.what && `조치 ${it.action.what}`])}{" "}
                         <span className={`fd-xk ${it.kind === "missed" ? "miss" : "new"}`}>
-                          {it.kind === "missed" && it.match ? `같음 · ${it.match.kind} ${it.match.no}` : "새 예외"}
+                          {xkLabel(it)}
                         </span>
                       </td>
                     </tr>
@@ -263,6 +276,7 @@ export function FinalReport({ data }: { data: Final }) {
               </tr>
             </tbody>
           </table>
+          </div>
         </section>
       ) : null}
       <footer className="fd-f">

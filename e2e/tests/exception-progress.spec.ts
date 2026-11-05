@@ -98,6 +98,7 @@ test("[예외] 호출 후 조치: EX-NEW 파트장 호출 → 승인 후 진행 
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
   await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).toBeVisible();
   await expect(page.locator('[data-field="cause"] .rv2')).toHaveText("원인 미상");
+  await expect(page.locator('.modal[aria-label="예외 상황 기록"]')).toBeVisible(); // 고침A 18쪽: 호출 후 조치도 예외 진행 = 팝업
   await snap(page, info, "E4-exception-report");
   const ev = psql(
     "select string_agg(type || ':' || coalesce(payload->>'mode', payload->>'section', ''), ',' order by seq) from ops.session_events " +
@@ -134,18 +135,18 @@ test("[예외] 바로 조치: 곧바로 예외 조치 · 파트장 승인 대기
   await restartWithin(page);
   await pause(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
-  const kh = page.locator(".kh");
-  const ta = kh.getByLabel("예외 글", { exact: true });
+  const dlg = page.locator('.modal[aria-label="예외 상황 기록"]'); // 고침A 18쪽: 예외 진행 세션 = 보고서 전 팝업
+  const ta = dlg.getByLabel("예외 글", { exact: true });
   await ta.click();
   await ta.fill("점검 바닥 배수구 거름망. 조치 거름망을 걸레로 닦음");
   await pause(page);
-  await kh.locator(".exa .btn", { hasText: "AI 나눔" }).click();
-  const row = kh.locator('[data-part="ex-items"] .exi');
+  await dlg.locator(".exa .btn", { hasText: "AI 나눔" }).click();
+  const row = dlg.locator('[data-part="ex-items"] .exi');
   await expect(row).toHaveCount(1);
-  await expect(row.locator(".exs .ch")).toHaveText("새 예외");
+  await expect(row.locator(".exs .ch")).toHaveText("새 예외 · 비슷한 것 없음");
   await expect(row.locator(".exr, .btn")).toHaveCount(0);
-  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).not.toHaveClass(/dis/);
-  await snap(page, info, "X4-empty-similar");
+  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).not.toHaveClass(/dis/);
+  await snap(page, info, "X5-empty-similar");
   g.check(info);
   lg.check(info);
 });

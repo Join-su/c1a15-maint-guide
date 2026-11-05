@@ -402,11 +402,32 @@ def split_answer(text: str) -> dict:
         if ck and ac:  # 빈 칸 짝은 뺌(Pack custom/split.py)
             items.append(
                 {
+                    "topic": " ".join(ck.split()[:3]),  # 고침A 주제(임시 칸 · Pack 몫)
                     "check": {"what": ck[:40], "how": ck, "criteria": "정상 범위", "minutes": None},
                     "action": {"what": ac[:40], "parts": [], "minutes": None},
                 }
             )
     return {"exception_split": {"items": items[:10], "reason": None if items else "not_split"}}
+
+
+def _with_desc(d: dict, k) -> dict:
+    """Pack 986eaff 흉내: reason_facts.alternatives[].desc = 그 점검 절 매뉴얼 '판정 기준' 첫 문장(없는 절은 칸 0)."""
+    import re
+
+    rf = d.get("reason_facts") or {}
+    alts = rf.get("alternatives")
+    if not alts:
+        return d
+
+    def desc(sec):
+        m = re.search(r"\*\*판정 기준\*\* (.+)", (k.sections.get(sec) or {}).get("text") or "")
+        if not m:
+            return None
+        first = re.match(r"(.+?[.])(\s|$)", m.group(1).strip())
+        return (first.group(1) if first else m.group(1)).strip()
+
+    out = [{**a, **({"desc": x} if (x := desc(a.get("section"))) else {})} for a in alts]
+    return {**d, "reason_facts": {**rf, "alternatives": out}}
 
 
 def _judge_output(body: dict, opts: dict | None = None) -> dict:
@@ -444,6 +465,7 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
             d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"))
         if body["kind"] == "judge":  # 약속 v9 = Pack custom/judge.py 차례: 판정 뒤 점검 바꾸기 · 예외 진행 덧층(사본)
             d = switch.apply(d, k, {"events": events, "grades": body["grades"], "group": body["group"]})
+        d = _with_desc(d, k)  # Pack 986eaff graph_query.with_desc: 후보마다 점검 설명(판정 기준 첫 문장)
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 
     out = {"decision": decide(body["events"])}

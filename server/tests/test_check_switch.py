@@ -52,7 +52,8 @@ def test_switch_to_candidate_is_a_judge_event_pack_opens_it_then_continues(api, 
     s = to_instruct(tech, s)
     assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", "4.3")
     cands = s["switch_candidates"]
-    assert cands and all(set(x) == {"section", "title", "grade"} for x in cands)
+    assert cands and all(set(x) == {"section", "title", "grade", "summary"} for x in cands)
+    assert all(x["summary"] for x in cands)  # 고침A 13쪽 제목 아래 설명(임시 = 매뉴얼 점검 방법 첫 줄)
     assert "4.3" not in {x["section"] for x in cands}  # 지금 점검은 후보 밖
     ab = next(x for x in cands if x["grade"] in {"A", "B"})
     runs_before = len(deploy.posts())
@@ -186,15 +187,72 @@ def test_exception_act_now_notices_lead_and_records_human_check(api, db, deploy)
     s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
     s = ok(tech, s, type="restart_result", outcome="within")
     assert s["step"]["kind"] == "report"
+    assert s["report"]["exception_session"] is True and s["report"]["exception_applied"] is None  # 고침A 18쪽 팝업
+    r = _post(tech, s, type="report_confirm")
+    assert r.json()["detail"]["reason"] == "exception_apply_needed"  # 예외 진행 세션은 적용해야 확정
+    r = _post(tech, s, type="exception_apply", exception_record={"text": " "}, exception_review=[])
+    assert (r.status_code, r.json()["detail"]) == (409, "exception_text_required")  # 빈 글 = 적용 0
     txt = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움"
     s = ok(tech, s, type="exception_split", exception_text=txt)
-    m0 = s["report"]["exception_split"]["items"][0]["matches"][0]
+    it0 = s["report"]["exception_split"]["items"][0]
+    m0 = it0["matches"][0]
+    assert it0["topic"] == "필터 덮개 고정"  # 고침A '예외상황-{주제}'(가짜 = 점검 앞 세 낱말)
     review = [{"item": 0, "decision": "same", "match": {"kind": m0["kind"], "no": m0["no"]}}]
-    s = ok(tech, s, type="report_confirm", exception_record={"text": txt}, exception_review=review)
+    runs_before = len(deploy.posts())
+    s = ok(
+        tech,
+        s,
+        type="exception_apply",
+        exception_record={"text": txt},
+        exception_review=[{**review[0], "decision": "not", "match": None}],
+    )
+    assert [it["kind"] for it in s["report"]["exception_applied"]["items"]] == ["new_exception"]
+    s = ok(
+        tech, s, type="exception_apply", exception_record={"text": txt}, exception_review=review
+    )  # [예외 상황 수정] → 다시 적용
+    ap = s["report"]["exception_applied"]
+    assert (ap["text"], [it["kind"] for it in ap["items"]], ap["exception_review"]) == (txt, ["missed"], review)
+    assert len(deploy.posts()) == runs_before and s["report"]["status"] == "draft"  # 적용 = 판정 Run 0 · 확정 전
+    s = ok(tech, s, type="report_confirm")  # 적용한 것을 함께 확정
+    assert s["report"]["exception_record"]["exception_review"] == review
     (rec,) = _records(api, s["session_id"])
     assert rec["kind"] == "missed" and rec["relation_id"] == m0["no"]
     assert rec["human_check"] == {"section": "EX-NEW", "from_section": "4.3"}  # 예외 진행 = EX-NEW · 그때 점검
     assert TestClient(api).get("/api/internal/check-records").status_code in {401, 403}  # 내부 토큰 없으면 거부
+    # 정답지 20쪽 '반려되면 다시 열림'은 Pack 덧층(switch.py · report_confirm 뒤 closed)이 반려를 아직 모름 — 앱 몫만 아래 순수 시험
+
+
+def test_rejected_report_reuses_last_confirmed_exception_as_applied():
+    """정답지 20쪽: 반려되면 앞 확정 기록이 '예외 상황' 구역에 다시(= 적용한 것) — 앱 몫(Pack 반려 길은 따로)."""
+    from c1a15.api import flow
+
+    rec = {"text": "글", "items": [{"kind": "missed"}], "exception_review": [{"item": 0, "decision": "same"}]}
+    events = [
+        {
+            "seq": 1,
+            "type": "exception_apply",
+            "text": "옛 글",
+            "items": [{}],
+            "exception_review": [],
+            "split_error": None,
+        },
+        {"seq": 2, "type": "report_confirm", "exception_record": rec},
+    ]
+    assert flow.exception_applied_of(events) is None  # 확정 뒤 = 적용 0
+    rejected = [*events, {"seq": 3, "type": "report_rejected"}]
+    assert flow.exception_applied_of(rejected) == {**{k: rec.get(k) for k in rec}, "split_error": None}
+    reapplied = [
+        *rejected,
+        {
+            "seq": 4,
+            "type": "exception_apply",
+            "text": "새 글",
+            "items": [{}],
+            "exception_review": [],
+            "split_error": None,
+        },
+    ]
+    assert flow.exception_applied_of(reapplied)["text"] == "새 글"  # 반려 뒤 다시 적용하면 그것
 
 
 def test_check_records_order_and_names():
@@ -213,6 +271,7 @@ def test_check_records_order_and_names():
             "void": True,
         },
         {"seq": 8, "type": "step_opened", "decision": {"kind": "instruct", "section": "4.5"}},
+        {"seq": 8.5, "type": "result", "section": "4.5", "value": "이상"},  # 고른 점검 결과 = 헛걸음 채택
         {
             "seq": 9,
             "type": "report_confirm",
@@ -231,3 +290,14 @@ def test_check_records_order_and_names():
         {"kind": "new_exception", "session_id": 3, "human_check": hc, "relation_id": None, "at_seq": 9},
     ]
     assert check_records(3, [*events[:1], {"seq": 6, "type": "exception_start", "mode": "act_now"}]) == []
+    # 고침A 14쪽: 여러 번 바꾸면 마지막에 결과를 낸 점검만(중간 고름 기록 0) · from = 처음 추천
+    chain = [
+        events[0],
+        {"seq": 6, "type": "switch_check", "section": "4.5", "from_section": "4.3", "choice": "candidate"},
+        {"seq": 7, "type": "switch_check", "section": "4.6", "from_section": "4.5", "choice": "candidate"},
+        {"seq": 8, "type": "result", "section": "4.6", "value": "정상"},
+    ]
+    assert check_records(3, chain) == [
+        {"kind": "wasted_step", "session_id": 3, "human_check": {"section": "4.6", "from_section": "4.3"}, "at_seq": 7}
+    ]
+    assert check_records(3, chain[:3]) == []  # 결과 전 = 기록 0

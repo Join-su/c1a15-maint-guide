@@ -333,6 +333,7 @@ class ExceptionGuide(_Out):
     basis: list[str]
     source: ExceptionGuideSource | None
     next: ExceptionGuideNext | None
+    topic: str | None = None  # 고침A '예외상황-{주제}'의 주제(Pack 결과 칸 임시 이름 · 없으면 title)
 
 
 class CallBlock(_Out):
@@ -452,6 +453,7 @@ class ExceptionReviewOut(_Out):
 class ExceptionItem(_Out):
     """AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님."""
 
+    topic: str | None = None  # 고침A '예외상황-{주제}'의 주제(Pack 결과 칸 임시 이름)
     check: ExceptionCheckFields
     action: ExceptionActionFields
     matches: list[ExceptionSimilar] = []
@@ -482,6 +484,16 @@ class SwitchCandidate(_Out):
     section: str
     title: str
     grade: str | None
+    summary: str | None = None  # 고침A 13쪽 제목 아래 설명(임시 = 매뉴얼 점검 방법 첫 줄 · Pack 출력 오면 그 칸)
+
+
+class ExceptionApplied(_Out):
+    """고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전)."""
+
+    text: str
+    items: list[ExceptionItem]
+    exception_review: list[ExceptionReviewOut]
+    split_error: str | None = None
 
 
 class ExceptionNote(_Out):
@@ -492,6 +504,7 @@ class ExceptionNote(_Out):
     situation: str
     action: str
     text: str  # 알림에 보일 한 줄(D-554 ④ 칸 기록 = 칸을 이은 글 · 전 기록 = 상황 글)
+    topic: str | None = None  # 고침A 12쪽 '이전 예외 기록 · 예외상황-{주제}'(첫 나눔 item 주제 · 없으면 None)
 
 
 class ExceptionRecord(_Out):
@@ -518,6 +531,8 @@ class ReportBlock(_Out):
     exception_draft: ExceptionDraft | None = None  # D-543: 「노하우 등록」 초안(마지막 확정 뒤)
     exception_auto: ExceptionAuto | None = None  # 확정 전 칸에 보일 상황 · 결과
     exception_split: ExceptionSplit | None = None  # D-556 「AI 나눔」 마지막 결과(확정 전)
+    exception_session: bool = False  # 고침A 18쪽: 예외 진행을 거친 세션만 팝업 · 예외 구역
+    exception_applied: ExceptionApplied | None = None  # 고침A 18 · 19쪽: 「보고서에 적용」한 것(확정 전)
     low_evidence: bool
 
 
@@ -607,6 +622,7 @@ class SessionView(_Out):
     exception_draft: ExceptionDraft | None = None  # D-543 「노하우 등록」 초안
     exception_notes: list[ExceptionNote] = []  # D-543 참고 알림(같은 설비 · 같은 증상군 승인 예외 기록)
     switch_candidates: list[SwitchCandidate] = []  # D-556 [점검 바꾸기] 지금 추천 후보(점검 안내 중만)
+    exception_topic: str | None = None  # 고침A '예외상황-{주제}' — 이 세션 예외 안내(v8)의 주제(없으면 None)
 
 
 class SessionWithPreview(SessionView):
