@@ -87,6 +87,40 @@ def test_recent_window_equipment_order_and_fields(api, db, capsys):
     assert left == 0
 
 
+def test_add_line_carries_what_the_graph_loader_reads(api, db, capsys):
+    """리허설 RPT-000501: 적재기(build_v3 graph_rows)는 이력 줄마다 approval.status · 센서 일곱을 읽음 — 빠지면 KeyError로 새 그래프 0.
+    센서값은 같은 설비 실제 이력 값 그대로(지어내기 0) · 이력 없는 설비는 거절."""
+    sensors = {
+        "air_temperature_k",
+        "process_temperature_k",
+        "rotational_speed_rpm",
+        "torque_nm",
+        "tool_wear_min",
+        "temp_diff_k",
+        "power_w",
+    }
+    try:
+        _add("--record", "H-9031", "--equipment", "M-03", "--days-ago", "2", "--action", "4.3.2")
+        line = json.loads(capsys.readouterr().out.strip().splitlines()[0])
+        assert line["approval"] == {"status": "승인", "by": "시연", "at": line["closed_at"]}
+        assert sensors <= set(line["sensor_snapshot"])
+        with db.connect() as c:
+            real = c.execute(
+                text(
+                    "select sensor_snapshot from knowledge.history_records where equipment_id = 'M-03' "
+                    "and source = 'generated' and record->>'demo' is null order by occurred_at desc limit 1"
+                )
+            ).scalar()
+            kept = c.execute(
+                text("select sensor_snapshot from knowledge.history_records where record_id = 'H-9031'")
+            ).scalar()
+        assert line["sensor_snapshot"] == real == kept
+    finally:
+        _drop("H-9031")
+    with pytest.raises(ValueError):  # 값을 가져올 이력이 없는 설비
+        _add("--record", "H-9032", "--equipment", "M-99", "--days-ago", "2", "--action", "4.3.2")
+
+
 def test_demo_command_only_touches_demo_rows(api, db):
     from c1a15 import demo_history
 

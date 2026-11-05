@@ -4,6 +4,7 @@
 - 시각은 지금(또는 --at) 기준 며칠 전으로 코드가 정한다. 절 이름은 매뉴얼 표에서(지어내기 0).
 - 넣은 줄 = source generated(표 약속 그대로) · record.demo = "D-570" 표시 — 빼기는 이 표시가 있는 줄만(다른 이력 손 0).
 - add는 이력 원본 꼴 한 줄(JSON)을 찍는다 — 배포단이 그래프 적재기 입력에 같은 줄을 넣어 Pack records와 맞춤.
+  적재기가 줄마다 읽는 승인 칸 · 센서 일곱도 채움: 센서값 = 같은 설비 실제 이력 값 그대로(이력 없는 설비는 거절).
 실행: python -m c1a15.demo_history add       (인자 없음 = M-01 · 3일 전 · 4.3.2 · H-0301)
      python -m c1a15.demo_history remove    (인자 없음 = 그 줄만 뺌)
      python -m c1a15.demo_history add --record H-0302 --equipment M-01 --group CL --days-ago 3 --action 4.3.2
@@ -29,6 +30,20 @@ def _parse_at(s: str | None) -> datetime:
     return at if at.tzinfo else at.replace(tzinfo=UTC)
 
 
+def snapshot_of(c: Connection, equipment: str) -> dict:
+    """같은 설비 실제 이력(시연 줄 · 승인 보고서 뺌)의 가장 늦은 센서값."""
+    row = c.execute(
+        text(
+            "select sensor_snapshot from knowledge.history_records where equipment_id = :eq "
+            "and source = 'generated' and record->>'demo' is null order by occurred_at desc limit 1"
+        ),
+        {"eq": equipment},
+    ).first()
+    if row is None:
+        raise ValueError(f"센서값을 가져올 이력이 없는 설비: {equipment}")
+    return row[0]
+
+
 def history_line(
     k,
     groups: dict[str, str],
@@ -38,6 +53,7 @@ def history_line(
     at: datetime,
     actions: list[str],
     checks: list[str],
+    snapshot: dict,
 ) -> dict:
     """이력 원본 꼴(data/history 줄과 같은 칸) 한 건 — 점검 → 조치 차례 · 결과 = 원인 확정(그 조치 절 원인 이름)."""
     for sec in [*checks, *actions]:
@@ -55,19 +71,21 @@ def history_line(
         for i, (kind, sec) in enumerate([*(("check", s) for s in checks), *(("action", s) for s in actions)])
     ]
     names = " · ".join(k.sections[s]["title"] for s in actions)
+    closed = (at + timedelta(minutes=len(steps) * 3 + 5)).isoformat()
     return {
         "record_id": record,
         "equipment_id": equipment,
         "occurred_at": at.isoformat(),
-        "closed_at": (at + timedelta(minutes=len(steps) * 3 + 5)).isoformat(),
+        "closed_at": closed,
         "symptom_group": {"code": group, "name": groups[group]},
-        "sensor_snapshot": {},
+        "sensor_snapshot": snapshot,
         "steps": steps,
         "outcome": {
             "type": "원인 확정",
             "cause_code": cause.code if cause else None,
             "cause_name": cause.name if cause else None,
         },
+        "approval": {"status": "승인", "by": "시연", "at": closed},
         "source": "generated",
         "provenance": f"시연 이력 줄({DEMO})",
         "narrative": f"{equipment} {names} 정비(시연 이력 줄).",
@@ -89,7 +107,7 @@ def add(c: Connection, line: dict) -> str:
     c.execute(
         text(
             "insert into knowledge.history_records(record_id, equipment_id, symptom_group, occurred_at, narrative, "
-            "sensor_snapshot, record, source, provenance) values (:r, :eq, :g, :at, :n, '{}'::jsonb, "
+            "sensor_snapshot, record, source, provenance) values (:r, :eq, :g, :at, :n, cast(:snap as jsonb), "
             "cast(:rec as jsonb), 'generated', :p)"
         ),
         {
@@ -98,6 +116,7 @@ def add(c: Connection, line: dict) -> str:
             "g": line["symptom_group"]["code"],
             "at": line["occurred_at"],
             "n": line["narrative"],
+            "snap": json.dumps(line["sensor_snapshot"], ensure_ascii=False),
             "rec": json.dumps(line, ensure_ascii=False),
             "p": line["provenance"],
         },
@@ -159,7 +178,15 @@ def main(argv: list[str] | None = None) -> int:
             at = _parse_at(args.at) - timedelta(days=args.days_ago)
             args.action = args.action or [DEFAULT["action"]]
             line = history_line(
-                deps.manual(), deps.group_names(), args.record, args.equipment, args.group, at, args.action, args.check
+                deps.manual(),
+                deps.group_names(),
+                args.record,
+                args.equipment,
+                args.group,
+                at,
+                args.action,
+                args.check,
+                snapshot_of(c, args.equipment),
             )
             print(
                 f"{add(c, line)} {args.record} · {args.equipment} · {at.isoformat()} · 조치 {', '.join(args.action)}",
