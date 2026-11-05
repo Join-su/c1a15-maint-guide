@@ -256,9 +256,18 @@ def test_exception_record_input_and_blocks():
         "occurred_at",
         "sensor_values",
         "previous_maintenance",
+        "recent_maintenance",  # D-570 최근 N일 정비 이력 전부
         "ai_first_check",
         "confirmed_cause",
         "report_id",
+    }
+    assert set(responses.ExceptionRecent.model_fields) == {
+        "record_id",
+        "occurred_at",
+        "days_before",
+        "did",
+        "checked",
+        "outcome",
     }
 
 

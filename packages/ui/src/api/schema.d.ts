@@ -1227,6 +1227,11 @@ export interface components {
             /** Occurred At */
             occurred_at: string;
             previous_maintenance: components["schemas"]["ExceptionPrev"] | null;
+            /**
+             * Recent Maintenance
+             * @default []
+             */
+            recent_maintenance: components["schemas"]["ExceptionRecent"][];
             /** Report Id */
             report_id: number | null;
             /** Sensor Values */
@@ -1402,6 +1407,24 @@ export interface components {
         ExceptionPrev: {
             /** Action */
             action: string | null;
+            /** Occurred At */
+            occurred_at: string;
+            /** Outcome */
+            outcome: string | null;
+            /** Record Id */
+            record_id: string;
+        };
+        /**
+         * ExceptionRecent
+         * @description D-570 최근 N일 정비 이력 한 건(recent-condition.md: did · checked = 앱 번호 · 적은 차례).
+         */
+        ExceptionRecent: {
+            /** Checked */
+            checked: string[];
+            /** Days Before */
+            days_before: number;
+            /** Did */
+            did: string[];
             /** Occurred At */
             occurred_at: string;
             /** Outcome */

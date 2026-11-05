@@ -653,7 +653,7 @@ describe("T09 보고서", () => {
 
   it("확정 뒤 · 나누지 못한 기록 · 옛 기록: 보고서 안 구역 읽기만(수정 단추 0)", () => {
     const c = load("s03-report-confirmed");
-    const CTX = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": null, "ai_first_check": null, "confirmed_cause": "원인 미상", "report_id": 1};
+    const CTX = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": null, "recent_maintenance": [], "ai_first_check": null, "confirmed_cause": "원인 미상", "report_id": 1};
     const REC = { ...AUTO, text: EXT, context: CTX, exception: null, exception_review: null, split_error: "not_split" };
     const done = render(<ReportScreen report={{ ...c.report!, exception_record: REC }} busy={false} send={() => {}} onHome={() => {}} />).container;
     const sec = done.querySelector('[data-part="ex-section"]')!;

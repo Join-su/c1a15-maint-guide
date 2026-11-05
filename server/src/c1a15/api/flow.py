@@ -8,8 +8,9 @@
 import dataclasses
 import hashlib
 import json
+import os
 import re
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException
 from sqlalchemy import Connection, select, text
@@ -1198,8 +1199,42 @@ def exception_guide_view(c: Connection, eg: dict) -> dict:
     }
 
 
+RECENT_DAYS = int(os.environ.get("C1A15_RECENT_DAYS", "7"))  # D-570 덧 1: 시연 N 기본 7일(약속 recent.days 1 ~ 30)
+
+
+def recent_maintenance(c: Connection, alarm: m.Alarm, days: int | None = None) -> list[dict]:
+    """D-570(recent-condition.md): 같은 설비 정비 이력 중 [알람 시각 − N일, 알람 시각) 안 전부, 최근 것 먼저 —
+    이력 번호 · 시각 · 며칠 전(코드 셈) · 한 조치 절 did · 한 점검 절 checked(앱 번호 · 적은 차례 · 예외 절 뺌) · 결과.
+    절 · 며칠 전은 이력 실제 값 그대로(추출기가 이 칸으로 recent{section, days}를 채움 · AI 판단 0)."""
+    n = RECENT_DAYS if days is None else days
+    rows = c.execute(
+        text(
+            "select record_id, occurred_at, record from knowledge.history_records where equipment_id = :eq "
+            "and occurred_at < :at and occurred_at >= :since order by occurred_at desc, record_id desc"
+        ),
+        {"eq": alarm.equipment_id, "at": alarm.occurred_at, "since": alarm.occurred_at - timedelta(days=n)},
+    ).all()
+
+    def sections(rec: dict, kind: str) -> list[str]:
+        secs = [st.get("section") for st in rec.get("steps") or [] if st.get("kind") == kind]
+        return list(dict.fromkeys(x for x in secs if x and not str(x).startswith(exception.PREFIX)))
+
+    return [
+        {
+            "record_id": r.record_id,
+            "occurred_at": r.occurred_at.isoformat(),
+            "days_before": (alarm.occurred_at - r.occurred_at).days,
+            "did": sections(r.record, "action"),
+            "checked": sections(r.record, "check"),
+            "outcome": (r.record.get("outcome") or {}).get("cause_name") or (r.record.get("outcome") or {}).get("type"),
+        }
+        for r in rows
+    ]
+
+
 def exception_context(c: Connection, alarm: m.Alarm, events: list[dict], cause: str, report_id: int) -> dict:
-    """D-538 자동 정보 여덟(입력 0): 설비 · 증상군 · 시각 · 센서값 · 직전 정비 · AI 첫 안내 · 확정 원인 · 보고서 번호.
+    """D-538 자동 정보 여덟(입력 0): 설비 · 증상군 · 시각 · 센서값 · 직전 정비 · AI 첫 안내 · 확정 원인 · 보고서 번호
+    + D-570 최근 N일 정비 이력 전부.
 
     지금 데이터에 없는 칸은 None(지어내기 0). 직전 정비 = 같은 설비 정비 이력 중 이 알람 앞 마지막 한 건.
     """
@@ -1227,6 +1262,7 @@ def exception_context(c: Connection, alarm: m.Alarm, events: list[dict], cause: 
         "occurred_at": alarm.occurred_at.isoformat(),
         "sensor_values": {"alarm": alarm.alarm, "snapshot": alarm.sensor_snapshot},
         "previous_maintenance": previous,
+        "recent_maintenance": recent_maintenance(c, alarm),  # D-570: 같은 설비 최근 N일 정비 이력 전부
         "ai_first_check": {"section": pv["section"], "title": pv["title"]} if pv and pv.get("section") else None,
         "confirmed_cause": cause,
         "report_id": report_id,

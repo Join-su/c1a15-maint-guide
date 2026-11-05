@@ -424,6 +424,17 @@ class ExceptionCheck(_Out):
     title: str
 
 
+class ExceptionRecent(_Out):
+    """D-570 최근 N일 정비 이력 한 건(recent-condition.md: did · checked = 앱 번호 · 적은 차례)."""
+
+    record_id: str
+    occurred_at: str
+    days_before: int
+    did: list[str]
+    checked: list[str]
+    outcome: str | None
+
+
 class ExceptionContext(_Out):
     """D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0)."""
 
@@ -432,6 +443,7 @@ class ExceptionContext(_Out):
     occurred_at: str
     sensor_values: dict
     previous_maintenance: ExceptionPrev | None
+    recent_maintenance: list[ExceptionRecent] = []  # D-570: 같은 설비 최근 N일 정비 이력 전부(전 기록 = 빈 목록)
     ai_first_check: ExceptionCheck | None
     confirmed_cause: str
     report_id: int | None

@@ -2182,6 +2182,14 @@
        }
       ]
      },
+     "recent_maintenance": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionRecent"
+      },
+      "title": "Recent Maintenance",
+      "type": "array"
+     },
      "report_id": {
       "anyOf": [
        {
@@ -2698,6 +2706,59 @@
      "action"
     ],
     "title": "ExceptionPrev",
+    "type": "object"
+   },
+   "ExceptionRecent": {
+    "additionalProperties": false,
+    "description": "D-570 최근 N일 정비 이력 한 건(recent-condition.md: did · checked = 앱 번호 · 적은 차례).",
+    "properties": {
+     "checked": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Checked",
+      "type": "array"
+     },
+     "days_before": {
+      "title": "Days Before",
+      "type": "integer"
+     },
+     "did": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Did",
+      "type": "array"
+     },
+     "occurred_at": {
+      "title": "Occurred At",
+      "type": "string"
+     },
+     "outcome": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Outcome"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "record_id",
+     "occurred_at",
+     "days_before",
+     "did",
+     "checked",
+     "outcome"
+    ],
+    "title": "ExceptionRecent",
     "type": "object"
    },
    "ExceptionRecord": {
