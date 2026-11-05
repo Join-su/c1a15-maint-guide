@@ -1,12 +1,13 @@
 # ruff: noqa: F811, E501 — test_api · test_deploy_path의 fixture(api · db · deploy)를 이름으로 가져와 쓴다, 시험 설명 문장은 길이 제한 밖
-"""D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나 → 「AI 나눔」(배포 Run 앱 임시 kind
-exception_split — 점검 1 + 조치 1 × n · 약속 v9 4절 꼴) → Pack 비슷한 것 찾기(약속 v9 5절 kind exception_similar · item마다
-상위 3 · 예외 | 매뉴얼) → item마다 같음(missed · 놓침) / 아님(new_exception · 새 예외) = report_confirm.exception_review
-→ 보고서 확정 기록(+ 서버가 붙이는 상황 · 결과 · 자동 정보 여덟) → 파트장 승인 때 정비 이력 원본 층 → 승인된 기록 목록.
+"""D-538 · D-556 · D-566 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나 → 「AI 나눔」(배포 Run kind
+exception_split — 약속 v10 2절: 예외 하나 = 주제 + 점검 목록 + 조치 목록 · 한쪽 0 = 나누지 못함) → Pack 비슷한 것 찾기
+(v10 3절 kind exception_similar · 예외 통째로 한 번 · 상위 3 · 예외 | 매뉴얼) → 예외 전체에 한 번 같음(missed · 놓침) /
+아님(new_exception · 새 예외) = report_confirm.exception_review → 보고서 확정 기록(+ 서버가 붙이는 상황 · 결과 · 자동 정보
+여덟) → 파트장 승인 때 정비 이력 원본 층(승인 기록 파일 칸 exception_record.exception · .exception_review) → 승인된 기록 목록.
 
 표 · 열 더함 0. 글이 비면 기록 없음. 자동 정보에 데이터가 없는 칸은 null(지어내기 0).
-가짜 배포 서버: 나눔 = fake_deploy.split_answer(글 줄 '점검 …' · '조치 …' 짝) · 비슷한 것 = similar_answer(Pack similar.py와
-같은 셈 · 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 EX-R-0001).
+가짜 배포 서버: 나눔 = fake_deploy.split_answer(글 줄 '점검 …' → 점검 목록 · '조치 …' → 조치 목록) · 비슷한 것 =
+similar_answer(Pack similar.py와 같은 셈 · 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 EX-R-0001).
 """
 
 import json
@@ -22,11 +23,25 @@ from test_lead import lead
 
 pytestmark = pytest.mark.db
 
-TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움. 점검 흡기 덕트 이음매. 조치 밴드를 다시 조임"
-SIM0 = {"kind": "예외", "no": "EX-R-0001"}  # 첫 item(나사)의 가짜 등록 예외
-REVIEW = ({"item": 0, "decision": "same", "match": SIM0}, {"item": 1, "decision": "not", "match": None})
+TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 점검 흡기 덕트 이음매. 조치 나사를 새로 끼움. 조치 밴드를 다시 조임"
+SIM0 = {"kind": "예외", "no": "EX-R-0001"}  # 가짜 등록 예외(필터 덮개 나사)
+SAME = {"decision": "same", "match": SIM0}
+NOT = {"decision": "not", "match": None}
+CHECKS = [
+    {
+        "what": "필터 덮개 고정 나사를 손으로 확인",
+        "how": "필터 덮개 고정 나사를 손으로 확인",
+        "criteria": "정상 범위",
+        "minutes": None,
+    },
+    {"what": "흡기 덕트 이음매", "how": "흡기 덕트 이음매", "criteria": "정상 범위", "minutes": None},
+]
+ACTIONS = [
+    {"what": "나사를 새로 끼움", "parts": [], "minutes": None},
+    {"what": "밴드를 다시 조임", "parts": [], "minutes": None},
+]
 NOTE_TEXT = (
-    "점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움. 점검 흡기 덕트 이음매 · 조치 밴드를 다시 조임"
+    "점검 필터 덮개 고정 나사를 손으로 확인 · 점검 흡기 덕트 이음매 · 조치 나사를 새로 끼움 · 조치 밴드를 다시 조임"
 )
 H = {"X-Internal-Token": "test-internal-token"}
 
@@ -45,8 +60,8 @@ def _split(tech, s, txt=TEXT):
     return ok(tech, s, type="exception_split", exception_text=txt)
 
 
-def _confirm(tech, s, txt=TEXT, review=REVIEW):
-    return ok(tech, s, type="report_confirm", exception_record={"text": txt}, exception_review=list(review))
+def _confirm(tech, s, txt=TEXT, review=SAME):
+    return ok(tech, s, type="report_confirm", exception_record={"text": txt}, exception_review=review)
 
 
 def _mine(api, rid):
@@ -78,49 +93,48 @@ def test_split_similar_review_confirm_context_reject_reconfirm_approve_history_a
     step = s["step"]
     s = _split(tech, s, f" {TEXT} ")
     sp = s["report"]["exception_split"]
-    assert sp["text"] == TEXT and sp["error"] is None and len(sp["items"]) == 2  # 점검 1 + 조치 1 × 2
-    assert sp["items"][0]["check"]["what"] == "필터 덮개 고정 나사를 손으로 확인"
-    assert sp["items"][0]["action"] == {"what": "나사를 새로 끼움", "parts": [], "minutes": None}
-    m0 = sp["items"][0]["matches"]  # 비슷한 것: 상위 3 · 높은 점수 먼저 · 최소 점수 0.15 이상 · 예외 | 매뉴얼
+    ex0 = sp["exception"]  # 예외 하나 = 주제 + 점검 목록 + 조치 목록(적은 순서 · 짝 없음 · 약속 v10 1절)
+    assert sp["text"] == TEXT and sp["error"] is None and "items" not in sp
+    assert ex0["checks"] == CHECKS and ex0["actions"] == ACTIONS
+    assert ex0["topic"] and len(ex0["topic"]) <= 15 and not ex0["topic"].startswith("예외상황")
+    m0 = ex0["matches"]  # 비슷한 것: 예외 통째로 한 번 · 상위 3 · 높은 점수 먼저 · 최소 점수 0.15 이상 · 예외 | 매뉴얼
     assert 0 < len(m0) <= 3 and all(m["kind"] in {"예외", "매뉴얼"} and m["score"] >= 0.15 for m in m0)
     assert [m["score"] for m in m0] == sorted((m["score"] for m in m0), reverse=True)
-    assert {k: m0[0][k] for k in ("kind", "no")} == SIM0  # 나사 item = 등록 예외가 맨 위
-    assert sp["items"][1]["matches"] == []  # 덕트 item = 최소 점수 밑뿐 → 비슷한 것 없음(D-556 덧 5 · 아님만)
+    assert {k: m0[0][k] for k in ("kind", "no")} == SIM0  # 등록 예외가 맨 위
     posts = deploy.posts()[runs_before:]
     assert [p["body"]["kind"] for p in posts] == ["exception_split", "exception_similar"]  # 판정 Run 다시 0
-    assert posts[0]["body"]["text"] == TEXT  # 약속 v9 4절 요청 꼴 그대로(Pack 9745f54 — 설비 · 시각 칸 0)
+    assert posts[0]["body"]["text"] == TEXT  # 약속 v10 2절 요청 꼴 그대로(설비 · 시각 칸 0)
     assert set(posts[0]["body"]) == {"kind", "session_id", "group", "text"}
-    assert posts[1]["body"] == {  # 약속 v9 5절 요청 꼴 그대로
+    assert posts[1]["body"] == {  # 약속 v10 3절 요청 꼴 그대로(v9 items 대신 exception 하나)
         "kind": "exception_similar",
         "session_id": posts[0]["body"]["session_id"],
         "group": "CL",
-        "items": [{k: it[k] for k in ("check", "action")} for it in sp["items"]],
+        "exception": {k: ex0[k] for k in ("topic", "checks", "actions")},
     }
     assert s["step"] == step  # 단계 그대로
     s = _split(tech, s)  # 같은 화면 한 번 더 = 새 Run 둘(seq가 다름) · 같은 결과
-    assert len(deploy.posts()) == runs_before + 4 and s["report"]["exception_split"]["items"] == sp["items"]
-    # 확정: item마다 한 번 같음(그 item 비슷한 것) / 아님(match null) — 빠짐 · 겹침 · 남의 항목 · 글 바뀜은 409
-    same0, not1 = REVIEW
+    assert len(deploy.posts()) == runs_before + 4 and s["report"]["exception_split"]["exception"] == ex0
+    # 확정: 예외 전체에 한 번 같음(비슷한 것 하나) / 아님(match null) — 없음 · 남의 항목 · 짝 어긋남 · 글 바뀜은 409
     for txt, review, reason in (
-        (TEXT, [same0], "exception_review_needed"),
-        (TEXT, [same0, same0], "exception_review_needed"),
-        (TEXT, [{**same0, "match": {"kind": "예외", "no": "EX-R-9999"}}, not1], "exception_review_invalid"),
-        (TEXT, [{**same0, "match": None}, not1], "exception_review_invalid"),
-        (TEXT, [same0, {**not1, "match": SIM0}], "exception_review_invalid"),
-        (TEXT + " 더", [same0, not1], "exception_split_needed"),
+        (TEXT, None, "exception_review_needed"),
+        (TEXT, {**SAME, "match": {"kind": "예외", "no": "EX-R-9999"}}, "exception_review_invalid"),
+        (TEXT, {**SAME, "match": None}, "exception_review_invalid"),
+        (TEXT, {**NOT, "match": SIM0}, "exception_review_invalid"),
+        (TEXT + " 더", SAME, "exception_split_needed"),
     ):
         r = _post(tech, s, type="report_confirm", exception_record={"text": txt}, exception_review=review)
         assert (r.status_code, r.json()["detail"]["reason"]) == (409, reason)
+    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=[{"item": 0, **SAME}])
+    assert r.status_code == 422  # v9 줄마다 꼴(목록 · item 칸)은 받지 않음
     assert _rid(db, s["session_id"]) is None  # 확정되지 않음
     s = _confirm(tech, s)
     ex = s["report"]["exception_record"]
     rid = _rid(db, s["session_id"])
-    assert ex["text"] == TEXT and [(it["decision"], it["match"], it["kind"]) for it in ex["items"]] == [
-        ("same", SIM0, "missed"),  # 같음 = 놓침(약속 v9 3절)
-        ("not", None, "new_exception"),  # 아님 = 새 예외(관문)
-    ]
-    assert [it["matches"] for it in ex["items"]] == [it["matches"] for it in sp["items"]]  # 그때 보인 비슷한 것
-    assert ex["exception_review"] == list(REVIEW)  # 승인 편지 칸 이름(D-556 덧 4): items · exception_review
+    assert ex["text"] == TEXT and "items" not in ex
+    got = ex["exception"]
+    assert (got["decision"], got["match"], got["kind"]) == ("same", SIM0, "missed")  # 같음 = 놓침(약속 v9 3절)
+    assert {k: got[k] for k in ("topic", "checks", "actions", "matches")} == ex0  # 그때 나눈 것 · 보인 비슷한 것
+    assert ex["exception_review"] == SAME  # 승인 기록 파일 칸(약속 v10 6절): exception · exception_review 한 번
     fields = {f["key"]: f["text"] for f in s["report"]["fields"]}
     assert ex["situation"] == f"{fields['equipment_alarm']} · {fields['sensor_evidence']}"  # 확정 때 값
     assert ex["result"] == "재가동 정상(경계 이내)" and "action" not in ex
@@ -144,7 +158,7 @@ def test_split_similar_review_confirm_context_reject_reconfirm_approve_history_a
     assert prev["record_id"] == want and prev["occurred_at"] and prev["outcome"]
     lc = lead(api)
     final = lc.get(f"/api/lead/reports/{rid}/final").json()["exception_record"]
-    assert _set(final) == ex  # 최종 보기 · 내부 목록은 빈 칸도 None으로 보임(action 등)
+    assert _set(final) == _set(ex)  # 최종 보기 · 내부 목록은 빈 칸도 None으로 보임(action 등)
     assert _mine(api, rid) == []  # 승인 전엔 목록 0
     # 반려 → 다시 나눔 · 다시 확정: 새 확정의 기록이 이김
     assert (
@@ -154,34 +168,36 @@ def test_split_similar_review_confirm_context_reject_reconfirm_approve_history_a
     s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
     assert s["report"]["exception_record"]["text"] == TEXT  # 다시 열린 보고서 칸에 앞 기록
     one = "점검 흡기 덕트 이음매. 조치 밴드를 다시 조임"
-    not0 = [{"item": 0, "decision": "not", "match": None}]
-    r = _post(tech, s, type="report_confirm", exception_record={"text": one}, exception_review=not0)
+    r = _post(tech, s, type="report_confirm", exception_record={"text": one}, exception_review=NOT)
     assert r.json()["detail"]["reason"] == "exception_split_needed"  # 반려 전 나눔은 쓰지 않음
     s = _split(tech, s, one)
-    s = _confirm(tech, s, one, not0)
+    s = _confirm(tech, s, one, NOT)
     r = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
     assert r.status_code == 200
     hid = r.json()["history_record_id"]
     with db.connect() as c:
         rec = c.execute(text("select record from knowledge.history_records where record_id = :i"), {"i": hid}).scalar()
-    assert rec["exception_record"]["text"] == one and [it["kind"] for it in rec["exception_record"]["items"]] == [
-        "new_exception"
-    ]
-    assert rec["exception_record"]["context"]["report_id"] == rid
+    er = rec["exception_record"]  # 승인 기록 파일 칸(약속 v10 6절): exception = 1절 꼴 그대로 · exception_review 한 번
+    assert er["text"] == one and "items" not in er and er["exception_review"] == NOT
+    assert er["exception"] == {"topic": er["exception"]["topic"], "checks": [CHECKS[1]], "actions": [ACTIONS[1]]}
+    assert isinstance(er["exception_matches"], list) and er["context"]["report_id"] == rid  # 그때 보인 비슷한 것(앱 칸)
     items = _mine(api, rid)
     assert [(x["record_id"], x["report_id"]) for x in items] == [(hid, rid)]
-    assert items[0]["approved_at"] and _set(items[0]["exception_record"]) == rec["exception_record"]
+    from c1a15.api import flow
+
+    assert items[0]["approved_at"] and _set(items[0]["exception_record"]) == _set(flow.record_out(er))
+    assert items[0]["exception_record"]["exception"]["kind"] == "new_exception"  # 목록 = 화면 꼴(이름 붙임)
     if os.environ.get("EXCEPTION_LIST_OUT"):  # D-545: 내부 목록 응답 한 건 그대로(가상 기록 · 토큰 · 접속 정보 0)
         with open(os.environ["EXCEPTION_LIST_OUT"], "w", encoding="utf-8") as fp:
             json.dump(items[0], fp, ensure_ascii=False, indent=1)
-    if os.environ.get("KG_RECORD_OUT"):  # D-543 받은 편지함 꼴 초안의 예시 한 건(시험 DB 값 그대로 · 실제 꼴)
+    if os.environ.get("KG_RECORD_OUT"):  # 승인 기록 파일 꼴 예시 한 건(시험 DB 값 그대로 · 실제 꼴)
         with open(os.environ["KG_RECORD_OUT"], "w", encoding="utf-8") as fp:
             json.dump({"approved_at": items[0]["approved_at"], "record": rec}, fp, ensure_ascii=False, indent=1)
 
 
 def test_split_run_failure_is_not_split_and_text_confirms_as_new_exception(api, db, deploy):
-    """D-556 덧 7(Pack 제안 3): 배포 Run이 끝내 실패하면 '나누지 못함'(error · item 0 · 비슷한 것 Run 0) — 고를 것 없이
-    글 그대로 새 예외로 확정(split_error) · 고름을 보내면 409 · 글을 바꾸면 다시 나눠야 함 · 글을 지우면 기록 없이 확정."""
+    """배포 Run이 끝내 실패하면 '나누지 못함'(error · 예외 null · 비슷한 것 Run 0) — 고를 것 없이 글 그대로 새 예외로
+    확정(split_error) · 고름을 보내면 409 · 글을 바꾸면 다시 나눠야 함 · 글을 지우면 기록 없이 확정."""
     reset_ops(db)
     tech, s = _to_report(api, db)
     runs_before = len(deploy.posts())
@@ -190,32 +206,46 @@ def test_split_run_failure_is_not_split_and_text_confirms_as_new_exception(api, 
     deploy.plan.clear()
     assert s["report"]["exception_split"] == {
         "text": TEXT,
-        "items": [],
+        "exception": None,
         "error": "pack_unavailable",
         "similar_error": None,
     }
     assert {p["body"]["kind"] for p in deploy.posts()[runs_before:]} == {"exception_split"}  # 비슷한 것 Run 0
-    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=list(REVIEW))
+    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=NOT)
     assert r.json()["detail"]["reason"] == "exception_review_invalid"
-    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT + " 더"}, exception_review=[])
+    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT + " 더"})
     assert r.json()["detail"]["reason"] == "exception_split_needed"
-    s = _confirm(tech, s, review=[])
+    s = _confirm(tech, s, review=None)
     ex = s["report"]["exception_record"]
-    assert (ex["text"], ex["items"], ex["exception_review"], ex["split_error"]) == (TEXT, [], [], "pack_unavailable")
+    assert (ex["text"], ex["exception"], ex["exception_review"], ex["split_error"]) == (
+        TEXT,
+        None,
+        None,
+        "pack_unavailable",
+    )
 
 
-@pytest.mark.parametrize(("mark", "reason"), [("[시험:나눔없음]", "not_split"), ("[시험:꼴깨짐]", "invalid_output")])
-def test_split_empty_items_is_not_split_like_run_failure(api, db, deploy, mark, reason):
-    """Pack이 빈 items(+ reason)를 내면 Run 실패와 같이 '나누지 못함' — 비슷한 것 Run 0 · 글 그대로 새 예외."""
+@pytest.mark.parametrize(
+    ("txt", "reason"),
+    [
+        (f"{TEXT} [시험:나눔없음]", "not_split"),
+        (f"{TEXT} [시험:꼴깨짐]", "invalid_output"),
+        ("점검 필터 덮개 고정 나사를 손으로 확인. 점검 흡기 덕트 이음매", "not_split"),  # 점검만(조치 0)
+        ("조치 나사를 새로 끼움. 조치 밴드를 다시 조임", "not_split"),  # 조치만(점검 0)
+    ],
+)
+def test_split_one_side_empty_is_not_split_like_run_failure(api, db, deploy, txt, reason):
+    """약속 v10 2절(D-566 덧 1 Q3): 점검 0 또는 조치 0 · 꼴 밖이면 예외 null + reason = Run 실패와 같이 '나누지 못함'
+    — 비슷한 것 Run 0 · 글 그대로 새 예외."""
     reset_ops(db)
     tech, s = _to_report(api, db)
     runs_before = len(deploy.posts())
-    txt = f"{TEXT} {mark}"
     s = _split(tech, s, txt)
-    assert s["report"]["exception_split"] == {"text": txt, "items": [], "error": reason, "similar_error": None}
+    assert s["report"]["exception_split"] == {"text": txt, "exception": None, "error": reason, "similar_error": None}
     assert [p["body"]["kind"] for p in deploy.posts()[runs_before:]] == ["exception_split"]
-    s = _confirm(tech, s, txt, review=[])
-    assert s["report"]["exception_record"]["split_error"] == reason and s["report"]["exception_record"]["items"] == []
+    s = _confirm(tech, s, txt, review=None)
+    ex = s["report"]["exception_record"]
+    assert (ex["split_error"], ex["exception"], ex["exception_review"]) == (reason, None, None)
 
 
 def test_split_failure_then_clear_text_confirms_without_record(api, db, deploy):
@@ -227,21 +257,20 @@ def test_split_failure_then_clear_text_confirms_without_record(api, db, deploy):
     assert s["report"]["status"] == "awaiting_approval" and s["report"]["exception_record"] is None
 
 
-def test_similar_failure_keeps_items_and_allows_only_not(api, db, deploy):
-    """비슷한 것 찾기가 끝내 실패하면 나눔 item은 그대로 · 비슷한 것 0 · similar_error — 같음은 409, 모두 아님이면 확정."""
+def test_similar_failure_keeps_exception_and_allows_only_not(api, db, deploy):
+    """비슷한 것 찾기가 끝내 실패하면 나눈 예외는 그대로 · 비슷한 것 0 · similar_error — 같음은 409, 아님이면 확정."""
     reset_ops(db)
     tech, s = _to_report(api, db)
     deploy.plan.extend([{"use_default": True}, *[{"status": 500, "code": "internal", "retryable": False}] * 3])
     s = _split(tech, s)
     sp = s["report"]["exception_split"]
     assert sp["error"] is None and sp["similar_error"] == "pack_unavailable"
-    assert len(sp["items"]) == 2 and all(it["matches"] == [] for it in sp["items"])
+    assert sp["exception"]["checks"] == CHECKS and sp["exception"]["matches"] == []
     deploy.plan.clear()
-    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=list(REVIEW))
+    r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=SAME)
     assert r.json()["detail"]["reason"] == "exception_review_invalid"
-    nots = [{"item": i, "decision": "not", "match": None} for i in range(2)]
-    s = _confirm(tech, s, review=nots)
-    assert [it["kind"] for it in s["report"]["exception_record"]["items"]] == ["new_exception"] * 2
+    s = _confirm(tech, s, review=NOT)
+    assert s["report"]["exception_record"]["exception"]["kind"] == "new_exception"
 
 
 def test_exception_record_empty_is_none_and_list_needs_internal_token(api, db):
@@ -330,34 +359,35 @@ def test_old_drafts_read_as_one_text():
     assert flow.exception_text(old) == "조치 글"  # 전 기록 알림 = 조치 글 그대로
 
 
-def test_split_items_drop_malformed_lines():
-    """배포 출력 줄 꼴이 어긋나면 그 줄만 뺌(지어내기 0)."""
+def test_split_exception_drops_malformed_lines_and_one_side_empty_is_none():
+    """배포 출력 줄 꼴이 어긋나면 그 줄만 뺌(지어내기 0) · 남은 점검 0 또는 조치 0이면 None(나누지 못함)."""
     from c1a15.api import flow
 
-    good = {"check": {"what": "가", "how": "나", "criteria": "다", "minutes": 3}, "action": {"what": "라"}}
-    blank = {"check": {"what": " ", "how": "나", "criteria": "다"}, "action": {"what": "라"}}  # 점검 무엇이 빈 짝은 뺌
-    out = flow.split_items({"exception_split": {"items": [good, {"check": "글"}, {"action": {}}, blank]}})
-    no_how = {
-        "check": {"what": "가", "how": "", "criteria": ""},
-        "action": {"what": "라"},
-    }  # 방법 · 기준 빈 글은 그대로(Pack 43025a5)
-    assert flow.split_items({"exception_split": {"items": [no_how]}})[0]["check"] == {
-        "what": "가",
-        "how": "",
-        "criteria": "",
-        "minutes": None,
-    }
-    assert out == [
-        {
-            "topic": "가",  # 주제 칸이 없으면 점검 무엇(고침A · Pack 칸 오기 전)
-            "check": {"what": "가", "how": "나", "criteria": "다", "minutes": 3},
-            "action": {"what": "라", "parts": [], "minutes": None},
+    ck = {"what": "가", "how": "나", "criteria": "다", "minutes": 3}
+
+    def out(**ex):
+        return {
+            "exception_split": {"exception": {"topic": "덮개 나사", "checks": [ck], "actions": [{"what": "라"}]} | ex}
         }
+
+    got = flow.split_exception(out(checks=[ck, "글", {"what": " "}, {"how": "나"}], actions=[{"what": "라"}, {}, 3]))
+    assert got == {
+        "topic": "덮개 나사",
+        "checks": [ck],
+        "actions": [{"what": "라", "parts": [], "minutes": None}],
+    }
+    assert flow.split_exception(out(checks=[{"what": "가"}]))["checks"] == [  # 방법 · 기준 빈 글은 그대로
+        {"what": "가", "how": "", "criteria": "", "minutes": None}
     ]
-    assert (
-        flow.split_items({"exception_split": {"items": [{**good, "topic": " 덮개 나사 "}]}})[0]["topic"] == "덮개 나사"
-    )
-    assert flow.split_items({}) == [] and len(flow.split_items({"exception_split": {"items": [good] * 12}})) == 10
+    assert flow.split_exception(out(checks=[])) is None and flow.split_exception(out(actions=[{"what": " "}])) is None
+    assert flow.split_exception(out(checks="글")) is None and flow.split_exception({}) is None
+    assert flow.split_exception({"exception_split": {"exception": None, "reason": "not_split"}}) is None
+    # 주제: 머리 '예외상황-' 떼기 · 15자 · 비면 첫 조치 what 앞 15자(Pack 다듬기와 같음)
+    assert flow.split_exception(out(topic=" 예외상황-덮개 나사 "))["topic"] == "덮개 나사"
+    assert flow.split_exception(out(topic="가" * 20))["topic"] == "가" * 15
+    assert flow.split_exception(out(topic=None, actions=[{"what": "나" * 20}]))["topic"] == "나" * 15
+    many = flow.split_exception(out(checks=[ck] * 12, actions=[{"what": "라"}] * 12))
+    assert len(many["checks"]) == len(many["actions"]) == 10
     assert [flow.split_reason(o) for o in ({}, {"exception_split": {"reason": "invalid_output"}})] == [
         "not_split",
         "invalid_output",
@@ -365,24 +395,71 @@ def test_split_items_drop_malformed_lines():
 
 
 def test_similar_query_and_matches_shape():
-    """약속 v9 요청 꼴에 맞는 item만 보냄(빈 글 칸 · 11번째부터 0) · 결과는 보낸 번호로 되돌려 상위 3 · 모르는 kind는 뺌."""
+    """약속 v10 3절: 요청 = 예외 하나(비슷한 것 칸 뺌) · 결과 = 통째 matches 상위 3 · 모르는 kind · 꼴 어긋남은 뺌."""
     from c1a15.api import flow
 
-    def it(what="가", act="라"):
-        return {"check": {"what": what, "how": "나", "criteria": "다"}, "action": {"what": act}}
-
-    assert flow.similar_query([it(), it(what=""), it(act=""), it()]) == [0, 3]
-    assert flow.similar_query([it()] * 12) == list(range(10))
+    ex = {"topic": "가", "checks": [{"what": "나"}], "actions": [{"what": "다"}], "matches": [{"kind": "예외"}]}
+    assert flow.similar_query(ex) == {"topic": "가", "checks": [{"what": "나"}], "actions": [{"what": "다"}]}
     m = lambda k, no, sc: {"kind": k, "no": no, "name": "이름", "score": sc}  # noqa: E731
-    out = flow.similar_matches(
-        {
-            "exception_similar": [
-                {"item": 0, "matches": [m("매뉴얼", "4.5", 0.6), m("그래프", "X", 0.5), m("예외", "EX-R-1", 0.4)]},
-                {"item": 1, "matches": [m("매뉴얼", "4.4", 0.3)] * 4},
-                {"item": 9, "matches": [m("매뉴얼", "4.6", 0.2)]},  # 보내지 않은 번호는 뺌
-            ]
-        },
-        [0, 3],
-        4,
+    rows = [m("매뉴얼", "4.5", 0.6), m("그래프", "X", 0.5), m("예외", "EX-R-1", 0.4), {"kind": "예외"}]
+    assert flow.similar_matches({"exception_similar": {"matches": rows}}) == [
+        m("매뉴얼", "4.5", 0.6),
+        m("예외", "EX-R-1", 0.4),
+    ]
+    assert len(flow.similar_matches({"exception_similar": {"matches": [m("매뉴얼", "4.4", 0.3)] * 4}})) == 3
+    assert flow.similar_matches({"exception_similar": [{"item": 0, "matches": rows}]}) == []  # v9 줄마다 꼴은 읽지 않음
+    assert flow.similar_matches({}) == []
+
+
+def test_v9_pair_records_read_as_one_exception():
+    """v9 짝 기록(items · 줄마다 review)은 읽기만: 예외 하나로(점검 · 조치 목록을 이음) — 짝이 하나면 그 고름 그대로,
+    여럿이면 고름 칸 없이(지어내기 0) · 기록 줄은 짝마다 그대로 · 알림 글 · 주제도 읽힘."""
+    from c1a15.api import flow, sessions
+
+    def pair(i, kind):
+        return {
+            "topic": f"주제{i}",
+            "check": {"what": f"점검{i}", "how": "", "criteria": "", "minutes": None},
+            "action": {"what": f"조치{i}", "parts": [], "minutes": None},
+            "matches": [],
+            "decision": "same" if kind == "missed" else "not",
+            "match": {"kind": "예외", "no": "EX-R-1"} if kind == "missed" else None,
+            "kind": kind,
+        }
+
+    two = {"text": "글", "items": [pair(1, "missed"), pair(2, "new_exception")], "exception_review": [{"item": 0}]}
+    out = flow.record_out(two)
+    assert "items" not in out and out["exception_review"] is None and out["text"] == "글"
+    assert out["exception"] == {
+        "topic": "주제1",
+        "checks": [two["items"][0]["check"], two["items"][1]["check"]],
+        "actions": [two["items"][0]["action"], two["items"][1]["action"]],
+        "matches": [],
+    }
+    one = flow.record_out({"text": "글", "items": [pair(1, "missed")], "exception_review": [{"item": 0}]})
+    assert (one["exception"]["kind"], one["exception_review"]) == (
+        "missed",
+        {"decision": "same", "match": {"kind": "예외", "no": "EX-R-1"}},
     )
-    assert out == [[m("매뉴얼", "4.5", 0.6), m("예외", "EX-R-1", 0.4)], [], [], [m("매뉴얼", "4.4", 0.3)] * 3]
+    assert flow.record_out({"text": "글", "items": [], "split_error": "not_split"})["exception"] is None
+    assert flow.exception_text(two) == "점검 점검1 · 조치 조치1. 점검 점검2 · 조치 조치2"
+    events = [{"seq": 1, "type": "report_confirm", "exception_record": two}]
+    assert [r["kind"] for r in sessions.check_records(7, events)] == ["missed", "new_exception"]
+    m = {"kind": "예외", "no": "EX-R-1"}
+    v10 = {
+        "text": "글",
+        "exception": {"topic": "가", "checks": [], "actions": []},
+        "exception_review": {"decision": "same", "match": m},
+    }
+    (row,) = sessions.check_records(7, [{**events[0], "exception_record": v10}])
+    assert (row["kind"], row["relation_id"]) == ("missed", "EX-R-1")
+    view = flow.record_out({**v10, "exception_matches": [{**m, "name": "가", "score": 0.5}]})
+    assert "exception_matches" not in view and view["exception_review"] == v10["exception_review"]
+    assert {k: view["exception"][k] for k in ("decision", "match", "kind")} == {
+        "decision": "same",
+        "match": m,
+        "kind": "missed",
+    }
+    assert view["exception"]["matches"] == [{**m, "name": "가", "score": 0.5}]
+    nv = flow.record_out({**v10, "exception_review": {"decision": "not", "match": None}})["exception"]
+    assert (nv["kind"], nv["match"], nv["matches"]) == ("new_exception", None, [])

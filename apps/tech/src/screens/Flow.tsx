@@ -119,47 +119,52 @@ function Btn({
   );
 }
 
-// D-556 예외 기록: 자유 글(자리글 = 안내 문구) → 「AI 나눔」(점검 1 + 조치 1 × n) → item마다 비슷한 것(약속 v9 5절 상위 3 ·
-// 예외 | 매뉴얼) 중 같음 하나 / 아님 → exception_review(같음 = missed 놓침 · 아님 = new_exception 새 예외).
-// 정답지 고침A 18 · 19쪽: 예외 진행 세션은 보고서 전 팝업에서 적고 「보고서에 적용」 → 보고서 초안 안 '예외 상황' 구역 · [예외 상황 수정].
+// 예외 기록: 자유 글(자리글 = 안내 문구) → 「AI 나눔」(약속 v10: 예외 하나 = 주제 + 점검 목록 + 조치 목록) → 예외 통째로
+// 비슷한 것(상위 3 · 예외 | 매뉴얼) 중 같음 하나 / 아님 → exception_review 한 번(같음 = missed 놓침 · 아님 = new_exception 새 예외).
+// 정답지 18 · 19쪽: 예외 진행 세션은 보고서 전 팝업에서 적고 「보고서에 적용」 → 보고서 초안 안 '예외 상황' 구역 · [예외 상황 수정].
 export const EX_HINT = "점검한 것과 조치한 것을 모두 적어 주세요";
-type ExItem = Schemas["ExceptionItem"];
+type ExOne = Schemas["ExceptionOne"];
 type ExMatch = Schemas["ExceptionSimilar"];
 const matchKey = (m: { kind: string; no: string }) => `${m.kind}|${m.no}`;
 const exName = (topic?: string | null) => `예외상황-${topic ?? ""}`; // 고침A 11쪽 예외 이름
 const matchLabel = (m: ExMatch) => (m.kind === "예외" ? exName(m.name) : `${m.no} ${m.name}`);
-const lineCheck = (it: ExItem) =>
-  [it.check.what, it.check.how !== it.check.what ? it.check.how : "", it.check.criteria && `기준 ${it.check.criteria}`]
-    .filter(Boolean)
-    .join(" · ");
-const lineAction = (it: ExItem) =>
-  [it.action.what, it.action.parts.length ? `부품 ${it.action.parts.join(", ")}` : ""].filter(Boolean).join(" · ") || "-";
+const lineCheck = (c: ExOne["checks"][number]) =>
+  [c.what, c.how && c.how !== c.what ? c.how : "", c.criteria && `기준 ${c.criteria}`].filter(Boolean).join(" · ");
+const lineAction = (a: ExOne["actions"][number]) =>
+  [a.what, a.parts.length ? `부품 ${a.parts.join(", ")}` : ""].filter(Boolean).join(" · ");
+/** 보고서 구역 한 줄(정답지 21쪽): '1 … · 2 …'. */
+const numbered = (xs: string[]) => xs.map((x, i) => `${i + 1} ${x}`).join(" · ");
 
-/** 확정 · 적용한 item의 칩: 같음 · {그 비슷한 것 이름} / 새 예외 · 예외상황-{주제}(고침A 19쪽). */
-function exChip(it: ExItem): { cls: string; text: string } {
-  if (it.kind === "missed" && it.match) {
-    const m = (it.matches ?? []).find((x) => matchKey(x) === matchKey(it.match!));
-    return { cls: "gray", text: `같음 · ${m ? matchLabel(m) : `${it.match.kind} ${it.match.no}`}` };
+/** 적용 · 확정한 예외의 칩: 같음 · {그 비슷한 것 이름} / 새 예외 · 예외상황-{주제}(정답지 19 · 20쪽). */
+function exChip(ex: ExOne): { cls: string; text: string } {
+  if (ex.kind === "missed" && ex.match) {
+    const m = (ex.matches ?? []).find((x) => matchKey(x) === matchKey(ex.match!));
+    return { cls: "gray", text: `같음 · ${m ? matchLabel(m) : `${ex.match.kind} ${ex.match.no}`}` };
   }
-  return { cls: "blue", text: it.topic ? `새 예외 · ${exName(it.topic)}` : "새 예외" };
+  return { cls: "blue", text: `새 예외 · ${exName(ex.topic)}` };
 }
 
-/** 팝업 안 나눔 한 item(고침A 18쪽): 이름 · 점검 · 조치 · 비슷한 것마다 「같음」 + 「아님」 · 비슷한 것 0이면 바로 새 예외. */
-function ExPopItem({ it, i, pick, onPick }: { it: ExItem; i: number; pick?: string | null; onPick: (v: string | null) => void }) {
-  const matches = it.matches ?? [];
+/** 팝업 안 나눈 예외 하나(정답지 18쪽): 이름 · 점검 n · 조치 n · 비슷한 것(예외 통째)마다 「같음」 + 「아님」 · 0이면 바로 새 예외. */
+function ExPopOne({ ex, pick, onPick }: { ex: ExOne; pick?: string | null; onPick: (v: string | null) => void }) {
+  const matches = ex.matches ?? [];
   return (
-    <div className="exi" data-item={i}>
-      {it.topic ? <span className="ch amber exn0">{exName(it.topic)}</span> : null}
-      <div className="exl">
-        <span className="ch gray">점검</span>
-        {lineCheck(it)}
-      </div>
-      <div className="exl">
-        <span className="ch gray">조치</span>
-        {lineAction(it)}
-      </div>
+    <div className="exi" data-part="ex-one">
+      <span className="exn0">{exName(ex.topic)}</span>
+      {ex.checks.map((c, i) => (
+        <div className="exl" key={`c${i}`} data-step={`c${i + 1}`}>
+          <span className="ch gray">점검 {i + 1}</span>
+          {lineCheck(c)}
+        </div>
+      ))}
+      {ex.actions.map((a, i) => (
+        <div className="exl" key={`a${i}`} data-step={`a${i + 1}`}>
+          <span className="ch gray">조치 {i + 1}</span>
+          {lineAction(a)}
+        </div>
+      ))}
       {matches.length ? (
         <div className="exs exm">
+          <span className="exh">비슷한 것 · 예외 통째로 견줌</span>
           {matches.map((m) => (
             <div className="exr" key={matchKey(m)} data-match={matchKey(m)}>
               <span className={`ch ${m.kind === "예외" ? "amber" : "gray"}`}>{m.kind}</span>
@@ -197,23 +202,19 @@ function ExPopup({
   const applied = report.exception_applied;
   const [ex, setEx] = useState(applied?.text ?? report.exception_record?.text ?? report.exception_draft?.text ?? "");
   const split = report.exception_split;
-  const fresh = split && !split.error && split.text === ex.trim() ? split.items : null; // 글이 바뀌면 다시 나눔
-  const unsplit = !!split?.error && split.text === ex.trim(); // 나누지 못함 → 글 그대로 새 예외(D-556 덧 7)
+  const fresh = split && !split.error && split.text === ex.trim() ? split.exception : null; // 글이 바뀌면 다시 나눔
+  const unsplit = !!split?.error && split.text === ex.trim(); // 나누지 못함 → 글 그대로 새 예외(약속 v10 2절)
   const splitKey = JSON.stringify(fresh);
-  const [picks, setPicks] = useState<{ key: string; v: (string | null | undefined)[] }>(() => ({
-    key: applied && applied.text === ex.trim() ? splitKey : "",
-    v: (applied?.exception_review ?? []).map((r) => (r.match ? matchKey(r.match) : null)),
-  }));
-  const chosen = (fresh ?? []).map((it, i) => (it.matches?.length ? (picks.key === splitKey ? picks.v[i] : undefined) : null));
-  const ready = !!ex.trim() && (unsplit || (fresh !== null && fresh.length > 0 && chosen.every((v) => v !== undefined)));
+  const [picks, setPicks] = useState<{ key: string; v: string | null | undefined }>(() => {
+    const r = applied?.exception_review;
+    return { key: applied && applied.text === ex.trim() ? splitKey : "", v: r ? (r.match ? matchKey(r.match) : null) : undefined };
+  });
+  const chosen = fresh ? (fresh.matches?.length ? (picks.key === splitKey ? picks.v : undefined) : null) : undefined;
+  const ready = !!ex.trim() && (unsplit || (fresh !== null && chosen !== undefined));
   const apply = () => {
     if (busy || !ready) return;
-    const review = unsplit
-      ? []
-      : chosen.map((v, item) => {
-          const m = v ? fresh?.[item].matches?.find((x) => matchKey(x) === v) : undefined;
-          return m ? { item, decision: "same", match: { kind: m.kind, no: m.no } } : { item, decision: "not", match: null };
-        });
+    const m = chosen ? fresh?.matches?.find((x) => matchKey(x) === chosen) : undefined;
+    const review = unsplit ? null : m ? { decision: "same", match: { kind: m.kind, no: m.no } } : { decision: "not", match: null };
     void Promise.resolve(send({ type: "exception_apply", exception_record: { text: ex.trim() }, exception_review: review })).then(
       (ok) => ok && onApplied(),
     );
@@ -261,21 +262,9 @@ function ExPopup({
               </div>
             </div>
           ) : null}
-          {fresh?.length ? (
+          {fresh ? (
             <div className="exg" data-part="ex-items">
-              {fresh.map((it, i) => (
-                <ExPopItem
-                  key={i}
-                  it={it}
-                  i={i}
-                  pick={chosen[i]}
-                  onPick={(v) => {
-                    const next = [...chosen];
-                    next[i] = v;
-                    setPicks({ key: splitKey, v: next });
-                  }}
-                />
-              ))}
+              <ExPopOne ex={fresh} pick={chosen} onPick={(v) => setPicks({ key: splitKey, v })} />
             </div>
           ) : null}
           <div className="khf">
@@ -302,11 +291,11 @@ function ExPopup({
   );
 }
 
-/** 고침A 19쪽 보고서 초안 안 '예외 상황' 구역(넘치면 이 구역만 스크롤): 상황 · 적은 글 · 나눔 n · 결과 · [예외 상황 수정]. */
+/** 정답지 19 · 20쪽 보고서 초안 안 '예외 상황' 구역(넘치면 이 구역만 스크롤): 상황 · 적은 글 · 예외 · 점검 · 조치 · 결과 · [예외 상황 수정]. */
 function ExSection({
   situation,
   text,
-  items,
+  exception,
   splitError,
   result,
   legacy,
@@ -315,13 +304,14 @@ function ExSection({
 }: {
   situation: string;
   text?: string | null;
-  items?: ExItem[] | null;
+  exception?: ExOne | null;
   splitError?: string | null;
   result?: string | null;
   legacy?: { situation: string; action?: string | null } | null;
   onEdit?: () => void;
   done?: boolean; // 확정 뒤 — 보기만(정답지 20쪽)
 }) {
+  const c = exception ? exChip(exception) : null;
   return (
     <div className="rx" data-part="ex-section">
       <div className="rx-h">
@@ -351,21 +341,27 @@ function ExSection({
               <span>적은 글</span>
               <span>{text}</span>
             </div>
-            {(items ?? []).map((it, i) => {
-              const c = exChip(it);
-              return (
-                <div className="rxr" key={i} data-item={i}>
-                  <span>나눔 {i + 1}</span>
+            {exception && c ? (
+              <>
+                <div className="rxr" data-item="exception">
+                  <span>예외</span>
                   <span>
-                    점검 {it.check.what}
-                    {it.action.what ? ` · 조치 ${it.action.what}` : ""} <span className={`ch ${c.cls}`}>{c.text}</span>
+                    {exName(exception.topic)} <span className={`ch ${c.cls}`}>{c.text}</span>
                   </span>
                 </div>
-              );
-            })}
+                <div className="rxr" data-item="checks">
+                  <span>점검</span>
+                  <span>{numbered(exception.checks.map(lineCheck))}</span>
+                </div>
+                <div className="rxr" data-item="actions">
+                  <span>조치</span>
+                  <span>{numbered(exception.actions.map(lineAction))}</span>
+                </div>
+              </>
+            ) : null}
             {splitError ? (
               <div className="rxr" data-item="none">
-                <span>나눔</span>
+                <span>예외</span>
                 <span>
                   <span className="ch blue">나누지 못함 · 새 예외</span>
                 </span>
@@ -1031,7 +1027,7 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
             <ExSection
               situation={report.exception_auto?.situation ?? ""}
               text={applied.text}
-              items={applied.items}
+              exception={applied.exception}
               splitError={applied.split_error}
               result={report.exception_auto?.result}
               onEdit={busy ? undefined : () => setPopup(true)}
@@ -1040,10 +1036,10 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
             <ExSection
               situation={rec.situation}
               text={rec.text}
-              items={rec.items}
+              exception={rec.exception}
               splitError={rec.split_error}
               result={rec.result}
-              legacy={rec.items ? null : { situation: rec.situation, action: rec.action }}
+              legacy={rec.text == null ? { situation: rec.situation, action: rec.action } : null}
               done
             />
           ) : null}

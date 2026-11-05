@@ -229,8 +229,9 @@ def report(alarm_id: int, group: str, similar: list[dict], draft: dict, sections
 
 
 def split_body(alarm, group: str, text: str) -> dict:
-    """약속 v9 4절 Pack run kind exception_split(D-556 덧 7 · c1a15-pack 9745f54): 정비자 예외 글 하나 →
-    점검 1 + 조치 1 × n. 요청 = {kind, session_id, group, text}만(설비 · 시각 칸은 Pack이 거절). 글 속 이름은 거름."""
+    """약속 v10 2절 Pack run kind exception_split: 정비자 예외 글 하나 →
+    예외 하나(주제 + 점검 목록 + 조치 목록).
+    요청 = {kind, session_id, group, text}만(설비 · 시각 칸은 Pack이 거절). 글 속 이름은 거름."""
     return {
         "kind": "exception_split",
         "session_id": session_ident(alarm.alarm_id),
@@ -245,13 +246,18 @@ def split(alarm, group: str, text: str, seq: int) -> RunResult:
     return client().run("exception_split", session_ident(alarm.alarm_id), seq, split_body(alarm, group, text))
 
 
-def exception_similar_body(alarm, group: str, items: list[dict]) -> dict:
-    """약속 v9 5절 kind exception_similar: AI 나눔 item(점검 · 조치 · 1 ~ 10) → item마다 비슷한 것 상위 3."""
-    return {"kind": "exception_similar", "session_id": session_ident(alarm.alarm_id), "group": group, "items": items}
+def exception_similar_body(alarm, group: str, exception: dict) -> dict:
+    """약속 v10 3절 kind exception_similar: AI 나눔 예외 하나(주제 · 점검 · 조치) → 통째로 비슷한 것 상위 3."""
+    return {
+        "kind": "exception_similar",
+        "session_id": session_ident(alarm.alarm_id),
+        "group": group,
+        "exception": exception,
+    }
 
 
-def exception_similar(alarm, group: str, items: list[dict], seq: int) -> RunResult:
+def exception_similar(alarm, group: str, exception: dict, seq: int) -> RunResult:
     """seq = 「AI 나눔」을 누른 기록(나눔 Run과 같은 seq · kind가 달라 키가 다름)."""
     return client().run(
-        "exception_similar", session_ident(alarm.alarm_id), seq, exception_similar_body(alarm, group, items)
+        "exception_similar", session_ident(alarm.alarm_id), seq, exception_similar_body(alarm, group, exception)
     )

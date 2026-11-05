@@ -394,7 +394,7 @@ def exception_record_list(c: Connection) -> dict:
                 "record_id": r.record_id,
                 "report_id": r.record["source"]["report_id"],
                 "approved_at": (r.record.get("approval") or {}).get("at"),
-                "exception_record": r.record["exception_record"],
+                "exception_record": flow.record_out(r.record["exception_record"]),
             }
             for r in rows
         ]

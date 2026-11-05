@@ -1091,8 +1091,7 @@ export interface components {
             /** Equipment Id */
             equipment_id?: string | null;
             exception_record?: components["schemas"]["ExceptionInput"] | null;
-            /** Exception Review */
-            exception_review?: components["schemas"]["ExceptionReview"][] | null;
+            exception_review?: components["schemas"]["ExceptionReview"] | null;
             /** Exception Text */
             exception_text?: string | null;
             /** Field */
@@ -1139,13 +1138,11 @@ export interface components {
         };
         /**
          * ExceptionApplied
-         * @description 고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).
+         * @description 정답지 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).
          */
         ExceptionApplied: {
-            /** Exception Review */
-            exception_review: components["schemas"]["ExceptionReviewOut"][];
-            /** Items */
-            items: components["schemas"]["ExceptionItem"][];
+            exception: components["schemas"]["ExceptionOne"] | null;
+            exception_review: components["schemas"]["ExceptionReviewOut"] | null;
             /** Split Error */
             split_error?: string | null;
             /** Text */
@@ -1264,7 +1261,8 @@ export interface components {
         /**
          * ExceptionInput
          * @description D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.
-         *     확정 때는 그 글의 「AI 나눔」 item마다 같음 / 아님(exception_review) — 상황 · 결과 · 자동 정보는 서버가 붙임.
+         *     확정 · 적용 때는 그 글의 「AI 나눔」 예외 전체에 한 번 같음 / 아님(exception_review)
+         *     — 상황 · 결과 · 자동 정보는 서버가 붙임.
          */
         ExceptionInput: {
             /**
@@ -1274,28 +1272,8 @@ export interface components {
             text: string;
         };
         /**
-         * ExceptionItem
-         * @description AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님.
-         */
-        ExceptionItem: {
-            action: components["schemas"]["ExceptionActionFields"];
-            check: components["schemas"]["ExceptionCheckFields"];
-            /** Decision */
-            decision?: string | null;
-            /** Kind */
-            kind?: string | null;
-            match?: components["schemas"]["ExceptionMatchRef"] | null;
-            /**
-             * Matches
-             * @default []
-             */
-            matches: components["schemas"]["ExceptionSimilar"][];
-            /** Topic */
-            topic?: string | null;
-        };
-        /**
          * ExceptionMatch
-         * @description 약속 v9 5절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).
+         * @description 약속 v10 3절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).
          */
         ExceptionMatch: {
             /**
@@ -1331,6 +1309,28 @@ export interface components {
             /** Topic */
             topic?: string | null;
         };
+        /**
+         * ExceptionOne
+         * @description 예외 하나(약속 v10 1절) = 주제 + 점검 목록 + 조치 목록 + 비슷한 것(3절) + 확정 · 적용 뒤 같음 / 아님.
+         */
+        ExceptionOne: {
+            /** Actions */
+            actions: components["schemas"]["ExceptionActionFields"][];
+            /** Checks */
+            checks: components["schemas"]["ExceptionCheckFields"][];
+            /** Decision */
+            decision?: string | null;
+            /** Kind */
+            kind?: string | null;
+            match?: components["schemas"]["ExceptionMatchRef"] | null;
+            /**
+             * Matches
+             * @default []
+             */
+            matches: components["schemas"]["ExceptionSimilar"][];
+            /** Topic */
+            topic: string;
+        };
         /** ExceptionPrev */
         ExceptionPrev: {
             /** Action */
@@ -1347,10 +1347,8 @@ export interface components {
             /** Action */
             action?: string | null;
             context: components["schemas"]["ExceptionContext"];
-            /** Exception Review */
-            exception_review?: components["schemas"]["ExceptionReviewOut"][] | null;
-            /** Items */
-            items?: components["schemas"]["ExceptionItem"][] | null;
+            exception?: components["schemas"]["ExceptionOne"] | null;
+            exception_review?: components["schemas"]["ExceptionReviewOut"] | null;
             /** Result */
             result?: string | null;
             /** Situation */
@@ -1380,7 +1378,7 @@ export interface components {
         };
         /**
          * ExceptionReview
-         * @description 약속 v9 5절 report_confirm.exception_review 한 줄: AI 나눔 item마다 같음(그 match = 놓침) / 아님(새 예외).
+         * @description 약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).
          */
         ExceptionReview: {
             /**
@@ -1388,24 +1386,20 @@ export interface components {
              * @enum {string}
              */
             decision: "same" | "not";
-            /** Item */
-            item: number;
             match?: components["schemas"]["ExceptionMatch"] | null;
         };
         /**
          * ExceptionReviewOut
-         * @description 약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4).
+         * @description 약속 v10 6절 exception_record.exception_review(한 번 · 확정 기록 · 승인 기록 파일에 그대로).
          */
         ExceptionReviewOut: {
             /** Decision */
             decision: string;
-            /** Item */
-            item: number;
             match: components["schemas"]["ExceptionMatchRef"] | null;
         };
         /**
          * ExceptionSimilar
-         * @description 약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.
+         * @description 약속 v10 3절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.
          */
         ExceptionSimilar: {
             /** Kind */
@@ -1419,13 +1413,12 @@ export interface components {
         };
         /**
          * ExceptionSplit
-         * @description D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함.
+         * @description 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함 · 나누지 못함이면 exception null.
          */
         ExceptionSplit: {
             /** Error */
             error: string | null;
-            /** Items */
-            items: components["schemas"]["ExceptionItem"][];
+            exception: components["schemas"]["ExceptionOne"] | null;
             /** Similar Error */
             similar_error?: string | null;
             /** Text */

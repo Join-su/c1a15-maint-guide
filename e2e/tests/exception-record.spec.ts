@@ -1,6 +1,6 @@
-// D-538 · D-556 · 정답지 고침A 18 · 19쪽 예외 상황 기록을 사람 손 순서로: [예외] 바로 조치 → 조치 → 재가동 → 보고서 전 팝업
-// '예외 상황 기록'(자동) — 글 하나(자리글 = 안내 문구) → 「AI 나눔」(가짜 배포 서버 — 점검 1 + 조치 1 × 2 · item마다 주제 ·
-// 비슷한 것 상위 3) → 「AI 나눔」 한 번 더(같은 창 · D-503 1) → item마다 「같음」 / 「아님」 → 「보고서에 적용」
+// D-538 · D-566 · 정답지 18 ~ 21쪽 예외 상황 기록을 사람 손 순서로: [예외] 바로 조치 → 조치 → 재가동 → 보고서 전 팝업
+// '예외 상황 기록'(자동) — 글 하나(자리글 = 안내 문구) → 「AI 나눔」(가짜 배포 서버 — 약속 v10 예외 하나 = 주제 + 점검 2 +
+// 조치 2 · 비슷한 것 통째 상위 3) → 「AI 나눔」 한 번 더(같은 창 · D-503 1) → 예외 전체에 한 번 「같음」 / 「아님」 → 「보고서에 적용」
 // → 보고서 초안 안 '예외 상황' 구역 → [예외 상황 수정](앞 내용 채운 팝업) → 「취소」 → 「보고서 확정」 → 확인 창 「취소」 → 다시 확정
 // → 확정 뒤 구역은 읽기만 → 파트장 최종본 '6. 예외 상황 기록' → 승인 → 정비 이력 원본 층(record.exception_record)에 같이 저장.
 // 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 화면마다 PNG(1280 × 800).
@@ -12,7 +12,10 @@ import { guard, LEAD_PW, LEAD_URL, login, psql, resetOps, restartWithin, shot, t
 
 test.beforeEach(() => resetOps());
 
-const TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움. 점검 흡기 덕트 이음매. 조치 밴드를 다시 조임";
+const TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 점검 흡기 덕트 이음매. 조치 나사를 새로 끼움. 조치 밴드를 다시 조임";
+const CHECKS = "1 필터 덮개 고정 나사를 손으로 확인 · 기준 정상 범위 · 2 흡기 덕트 이음매 · 기준 정상 범위";
+const ACTIONS = "1 나사를 새로 끼움 · 2 밴드를 다시 조임";
+const NAME = "예외상황-필터 덮개 나사";
 const RESULT = "재가동 정상(경계 이내)";
 
 async function snap(page: Page, info: TestInfo, name: string) {
@@ -60,15 +63,22 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
     const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
     await dlg.locator(".exa .btn", { hasText: "AI 나눔" }).click();
     expect((await sent).status()).toBe(200);
-    await expect(rows).toHaveCount(2);
+    await expect(rows).toHaveCount(1); // 예외 하나(둘로 나누지 않음 · 약속 v10)
   }
-  await expect(rows.locator(".exn0")).toHaveText(["예외상황-필터 덮개 고정", "예외상황-흡기 덕트 이음매"]); // 주제(가짜 = 앞 세 낱말)
-  const sim0 = rows.nth(0).locator(".exr");
-  await expect(sim0.first()).toHaveText("예외예외상황-필터 덮개 고정 나사 확인같음"); // 나사 item = 등록 예외가 맨 위
-  await expect(rows.nth(1).locator(".exs .ch")).toHaveText("새 예외 · 비슷한 것 없음"); // 비슷한 것 0(D-556 덧 5)
-  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 다 고르기 전 잠김
+  await expect(rows.locator(".exn0")).toHaveText(NAME); // 주제(가짜 = 점검 낱말 1 · 2 · 4)
+  await expect(rows.locator(".exl")).toHaveText([
+    "점검 1필터 덮개 고정 나사를 손으로 확인 · 기준 정상 범위",
+    "점검 2흡기 덕트 이음매 · 기준 정상 범위",
+    "조치 1나사를 새로 끼움",
+    "조치 2밴드를 다시 조임",
+  ]); // 적은 순서 그대로
+  await expect(rows.locator(".exh")).toHaveText("비슷한 것 · 예외 통째로 견줌");
+  const sim0 = rows.locator(".exr");
+  await expect(sim0.first()).toHaveText(`예외${NAME}같음`); // 등록 예외가 맨 위
+  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 고르기 전 잠김
+  await expect(dlg.locator(".mb .btn")).toHaveText(["보고서에 적용"]); // 처음 팝업엔 「취소」 0(정답지 18쪽)
   await pause(page);
-  await rows.nth(0).locator(".exb .btn", { hasText: "아님" }).click();
+  await rows.locator(".exb .btn", { hasText: "아님" }).click();
   await pause(page);
   await sim0.first().locator(".btn", { hasText: "같음" }).click(); // 다시 고름 — 마지막이 이김
   await snap(page, info, "X1-exception-popup");
@@ -77,13 +87,16 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await expect(dlg).toHaveCount(0);
   // 고침A 19쪽: 보고서 초안 안 '예외 상황' 구역 · 칩 이름
   const sec = page.locator('.g73 > .cd').first().locator('[data-part="ex-section"]');
-  await expect(sec.locator(".rxr > span:first-child")).toHaveText(["상황", "적은 글", "나눔 1", "나눔 2", "결과"]);
-  await expect(sec.locator(".rxr .ch")).toHaveText(["같음 · 예외상황-필터 덮개 고정 나사 확인", "새 예외 · 예외상황-흡기 덕트 이음매"]);
+  await expect(sec.locator(".rxr > span:first-child")).toHaveText(["상황", "적은 글", "예외", "점검", "조치", "결과"]);
+  await expect(sec.locator(".rxr .ch")).toHaveText([`같음 · ${NAME}`]); // 칩 하나(예외 전체에 한 번)
+  await expect(sec.locator('[data-item="checks"] > span').last()).toHaveText(CHECKS);
+  await expect(sec.locator('[data-item="actions"] > span').last()).toHaveText(ACTIONS);
   await snap(page, info, "X2-report-section");
   await pause(page);
   await sec.locator(".btn", { hasText: "예외 상황 수정" }).click(); // 같은 화면 한 번 더: 앞 내용 채운 팝업
   await expect(dlg.getByLabel("예외 글", { exact: true })).toHaveValue(TEXT);
-  await expect(dlg.locator('.exi[data-item="0"] .exr').first().locator(".btn")).not.toHaveClass(/ghost/);
+  await expect(dlg.locator(".exi .exr").first().locator(".btn")).not.toHaveClass(/ghost/); // 앞 고름 그대로
+  await expect(dlg.locator(".mb .btn")).toHaveText(["취소", "보고서에 적용"]); // 다시 연 팝업만 「취소」(정답지 19쪽)
   await pause(page);
   await dlg.locator(".mb .btn", { hasText: "취소" }).click();
   await expect(dlg).toHaveCount(0);
@@ -113,14 +126,15 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await pause(lead);
   await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
   await expect(lead.locator(".fdoc h2").last()).toHaveText("6. 예외 상황 기록");
-  await expect(lead.locator(".fd-ex th")).toHaveText(["상황", "적은 글", "나눔 1", "나눔 2", "결과", "설비 · 증상", "센서값", "직전 정비", "AI 첫 안내", "확정 원인"]);
+  await expect(lead.locator(".fd-ex th")).toHaveText(["상황", "적은 글", "예외", "점검", "조치", "결과", "설비 · 증상", "센서값", "직전 정비", "AI 첫 안내", "확정 원인"]);
   await expect(lead.locator(".fd-ex td").nth(0)).toHaveText(situation);
   await expect(lead.locator(".fd-ex td").nth(1)).toHaveText(TEXT);
-  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText("점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움 같음 · 예외상황-필터 덮개 고정 나사 확인");
-  await expect(lead.locator(".fd-ex td").nth(3)).toHaveText("점검 흡기 덕트 이음매 · 조치 밴드를 다시 조임 새 예외 · 예외상황-흡기 덕트 이음매");
-  await expect(lead.locator(".fd-ex td").nth(4)).toHaveText(RESULT);
-  await expect(lead.locator(".fd-ex td").nth(8)).toHaveText("4.3 흡기 필터 육안 점검"); // 자동: AI 첫 안내
-  await expect(lead.locator(".fd-ex td").nth(9)).toHaveText("원인 미상"); // 자동: 확정 원인(예외 진행 = 원인은 예외 칸)
+  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText(`${NAME} 같음 · ${NAME}`); // 정답지 21쪽
+  await expect(lead.locator(".fd-ex td").nth(3)).toHaveText(CHECKS);
+  await expect(lead.locator(".fd-ex td").nth(4)).toHaveText(ACTIONS);
+  await expect(lead.locator(".fd-ex td").nth(5)).toHaveText(RESULT);
+  await expect(lead.locator(".fd-ex td").nth(9)).toHaveText("4.3 흡기 필터 육안 점검"); // 자동: AI 첫 안내
+  await expect(lead.locator(".fd-ex td").nth(10)).toHaveText("원인 미상"); // 자동: 확정 원인(예외 진행 = 원인은 예외 칸)
   await lead.locator(".fd-ex").scrollIntoViewIfNeeded();
   await snap(lead, info, "X4-lead-final-exception");
   await pause(lead);
@@ -131,7 +145,12 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   // 승인 = 정비 이력 원본 층에 같이(record.exception_record)
   const rid = psql("select report_id from ops.reports"); // 이번 보고서(앞 반복이 남긴 승인 이력과 가름 — 지식 schema는 초기화 밖)
   expect(psql(`select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe(situation);
-  expect(psql(`select string_agg(i->>'kind', ',') from knowledge.history_records, jsonb_array_elements(record->'exception_record'->'items') i where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("missed,new_exception"); // 약속 v9 3절 기록 이름
+  // 승인 기록 파일 칸(약속 v10 6절): exception 하나(kind = 약속 v9 3절 이름) · exception_review 한 번
+  const er = `from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`;
+  expect(psql(`select record->'exception_record'->'exception'->>'kind' ${er}`)).toBe("missed");
+  expect(psql(`select jsonb_array_length(record->'exception_record'->'exception'->'checks') || ',' || jsonb_array_length(record->'exception_record'->'exception'->'actions') ${er}`)).toBe("2,2");
+  expect(psql(`select record->'exception_record'->'exception_review'->>'decision' ${er}`)).toBe("same");
+  expect(psql(`select (record->'exception_record' ? 'items')::text ${er}`)).toBe("false");
   expect(psql(`select record->'exception_record'->'context'->>'equipment_id' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("M-01");
   if (process.env.SHOT_DIR) {
     // D-503 2: 이력 원본 층에 실제로 저장된 꼴 한 건

@@ -429,7 +429,7 @@ class ExceptionDraft(_Out):
 
 
 class ExceptionSimilar(_Out):
-    """약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절."""
+    """약속 v10 3절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절."""
 
     kind: str  # 예외 | 매뉴얼
     no: str
@@ -443,32 +443,31 @@ class ExceptionMatchRef(_Out):
 
 
 class ExceptionReviewOut(_Out):
-    """약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4)."""
+    """약속 v10 6절 exception_record.exception_review(한 번 · 확정 기록 · 승인 기록 파일에 그대로)."""
 
-    item: int
     decision: str  # same | not
     match: ExceptionMatchRef | None
 
 
-class ExceptionItem(_Out):
-    """AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님."""
+class ExceptionOne(_Out):
+    """예외 하나(약속 v10 1절) = 주제 + 점검 목록 + 조치 목록 + 비슷한 것(3절) + 확정 · 적용 뒤 같음 / 아님."""
 
-    topic: str | None = None  # 고침A '예외상황-{주제}'의 주제(Pack 결과 칸 임시 이름)
-    check: ExceptionCheckFields
-    action: ExceptionActionFields
+    topic: str  # 15자 안 · 이름 = '예외상황-{topic}'
+    checks: list[ExceptionCheckFields]
+    actions: list[ExceptionActionFields]
     matches: list[ExceptionSimilar] = []
-    decision: str | None = None  # 확정 뒤: same | not
-    match: ExceptionMatchRef | None = None  # 확정 뒤: 같다고 한 것
-    kind: str | None = None  # 확정 뒤 기록 이름(약속 v9 3절): missed | new_exception
+    decision: str | None = None  # 적용 뒤: same | not
+    match: ExceptionMatchRef | None = None  # 적용 뒤: 같다고 한 것
+    kind: str | None = None  # 적용 뒤 기록 이름(약속 v9 3절): missed | new_exception
 
 
 class ExceptionSplit(_Out):
-    """D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함."""
+    """「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함 · 나누지 못함이면 exception null."""
 
     text: str
-    items: list[ExceptionItem]
+    exception: ExceptionOne | None
     error: str | None
-    similar_error: str | None = None  # 비슷한 것 찾기 실패(item은 아님만 고름)
+    similar_error: str | None = None  # 비슷한 것 찾기 실패(아님만 고름)
 
 
 class ExceptionAuto(_Out):
@@ -488,11 +487,11 @@ class SwitchCandidate(_Out):
 
 
 class ExceptionApplied(_Out):
-    """고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전)."""
+    """정답지 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전)."""
 
     text: str
-    items: list[ExceptionItem]
-    exception_review: list[ExceptionReviewOut]
+    exception: ExceptionOne | None
+    exception_review: ExceptionReviewOut | None
     split_error: str | None = None
 
 
@@ -504,7 +503,7 @@ class ExceptionNote(_Out):
     situation: str
     action: str
     text: str  # 알림에 보일 한 줄(D-554 ④ 칸 기록 = 칸을 이은 글 · 전 기록 = 상황 글)
-    topic: str | None = None  # 고침A 12쪽 '이전 예외 기록 · 예외상황-{주제}'(첫 나눔 item 주제 · 없으면 None)
+    topic: str | None = None  # 고침A 12쪽 '이전 예외 기록 · 예외상황-{주제}'(예외 주제 · 없으면 None)
 
 
 class ExceptionRecord(_Out):
@@ -512,8 +511,8 @@ class ExceptionRecord(_Out):
     context: ExceptionContext
     action: str | None = None  # 전 기록 = 무엇을 했나 글(D-556 기록은 없음)
     text: str | None = None  # D-556 정비자 글 그대로
-    items: list[ExceptionItem] | None = None  # D-556 AI 나눔 줄 + 같음 / 아님
-    exception_review: list[ExceptionReviewOut] | None = None  # 약속 v9 5절 · 승인 편지 칸(D-556 덧 4)
+    exception: ExceptionOne | None = None  # 약속 v10 6절 예외 하나 + 같음 / 아님(v9 짝 기록은 하나로 읽음)
+    exception_review: ExceptionReviewOut | None = None  # 약속 v10 6절 · 승인 기록 파일 칸(한 번)
     split_error: str | None = None  # 나누지 못함(pack_unavailable | not_split | invalid_output) → 글 그대로 새 예외
     result: str | None = None  # D-556 자동(재가동 판정)
 

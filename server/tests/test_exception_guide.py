@@ -34,7 +34,7 @@ def _approved_exception(api, db):
         s,
         type="report_confirm",
         exception_record={"text": EX_TEXT},
-        exception_review=[{"item": i, "decision": "not", "match": None} for i in range(2)],
+        exception_review={"decision": "not", "match": None},
     )
     rid = _rid(db, s["session_id"])
     return lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).json()["history_record_id"]

@@ -208,9 +208,9 @@
 .ap .modal.exp { left: 230px; top: 56px; width: 820px; max-height: 688px; }
 .ap .exp .mh { display: flex; align-items: center; justify-content: space-between; }
 .ap .exp .exp-b { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
-.ap .exp .exg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
-.ap .exp .exg .exi + .exi { margin-top: 0; }
-.ap .exp .exn0 { display: inline-block; margin-bottom: 6px; }
+.ap .exp .exn0 { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; color: #b45309; }
+.ap .exp .exl + .exl { margin-top: 2px; }
+.ap .exp .exh { font-size: 13px; font-weight: 700; color: var(--sub); }
 .ap .rx { border: 1px solid var(--ln); border-radius: 12px; margin-top: 14px; }
 .ap .rx .rx-h { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--ln); }
 .ap .rx .rx-h .btn { height: 36px; padding: 0 14px; }

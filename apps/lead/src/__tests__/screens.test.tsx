@@ -177,43 +177,56 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     const none = render(<Review api={{} as Api} report={{ ...report(), exception_record: null }} onBack={noop} onDone={noop} />).container;
     expect(texts(none, "h2")).not.toContain("6. 예외 상황 기록");
     cleanup();
-    // D-556 기록: 상황(자동) · 적은 글 · 나눔 줄(점검 · 조치 · 같음 EX-… / 새 예외) · 결과(자동)
+    // 약속 v10 기록(정답지 21쪽): 상황(자동) · 적은 글 · 예외(이름 + 칩) · 점검 목록 · 조치 목록 · 결과(자동)
+    const one = {
+      topic: "필터 덮개 나사",
+      checks: [
+        { what: "덮개 나사", how: "", criteria: "정상 범위", minutes: null },
+        { what: "덕트 이음매", how: "", criteria: "", minutes: null },
+      ],
+      actions: [
+        { what: "나사 새로 끼움", parts: [], minutes: null },
+        { what: "밴드 조임", parts: ["밴드"], minutes: null },
+      ],
+      matches: [{ kind: "예외", no: "EX-R-0001", name: "필터 덮개 나사", score: 0.7 }],
+      decision: "same",
+      match: { kind: "예외", no: "EX-R-0001" },
+      kind: "missed",
+    };
     const split = {
       ...xr,
       action: null,
       situation: "M-01 · 온도 차 저하 · 14:50 ~ 15:20 · 온도 차 7.8 K(경계 8.2 K 미만)",
-      text: "점검 덮개 나사. 조치 나사 새로 끼움. 점검 덕트 이음매. 조치 밴드 조임",
-      items: [
-        { check: { what: "덮개 나사", how: "", criteria: "", minutes: null }, action: { what: "나사 새로 끼움", parts: [], minutes: null }, matches: [], decision: "same", match: { kind: "예외", no: "EX-R-0001" }, kind: "missed" },
-        { check: { what: "덕트 이음매", how: "", criteria: "", minutes: null }, action: { what: "", parts: [], minutes: null }, matches: [], decision: "not", match: null, kind: "new_exception" },
-      ],
+      text: "점검 덮개 나사. 점검 덕트 이음매. 조치 나사 새로 끼움. 조치 밴드 조임",
+      exception: one,
+      exception_review: { decision: "same", match: one.match },
       result: "재가동 정상(경계 이내)",
     };
     const s2 = render(<Review api={{} as Api} report={{ ...report(), exception_record: split }} onBack={noop} onDone={noop} />).container;
-    expect(texts(s2, ".fd-ex th").slice(0, 5)).toEqual(["상황", "적은 글", "나눔 1", "나눔 2", "결과"]);
-    expect(texts(s2, ".fd-ex td").slice(0, 5)).toEqual([
+    expect(texts(s2, ".fd-ex th").slice(0, 6)).toEqual(["상황", "적은 글", "예외", "점검", "조치", "결과"]);
+    expect(texts(s2, ".fd-ex td").slice(0, 6)).toEqual([
       split.situation,
       split.text,
-      "점검 덮개 나사 · 조치 나사 새로 끼움 같음 · 예외 EX-R-0001",
-      "점검 덕트 이음매 새 예외",
+      "예외상황-필터 덮개 나사 같음 · 예외상황-필터 덮개 나사",
+      "1 덮개 나사 · 기준 정상 범위 · 2 덕트 이음매",
+      "1 나사 새로 끼움 · 2 밴드 조임 · 부품 밴드",
       "재가동 정상(경계 이내)",
     ]);
+    expect(texts(s2, ".fd-ex .fd-xk")).toEqual(["같음 · 예외상황-필터 덮개 나사"]); // 칩 하나(예외 전체에 한 번)
     cleanup();
-    // 정답지 고침A 19 · 21쪽: 칩 이름 = 같음 · {비슷한 것 이름} / 새 예외 · 예외상황-{주제}
-    const named = {
-      ...split,
-      items: [
-        { ...split.items[0], topic: "필터 덮개 나사", matches: [{ kind: "예외", no: "EX-R-0001", name: "필터 덮개 나사", score: 0.7 }] },
-        { ...split.items[1], topic: "흡기 덕트 이음매" },
-      ],
-    };
-    const s4 = render(<Review api={{} as Api} report={{ ...report(), exception_record: named }} onBack={noop} onDone={noop} />).container;
-    expect(texts(s4, ".fd-ex .fd-xk")).toEqual(["같음 · 예외상황-필터 덮개 나사", "새 예외 · 예외상황-흡기 덕트 이음매"]);
+    // 아님 = 새 예외 · 예외상황-{주제} · 비슷한 것 이름이 없으면 kind no
+    const nw = { ...split, exception: { ...one, decision: "not", match: null, kind: "new_exception" } };
+    const s4 = render(<Review api={{} as Api} report={{ ...report(), exception_record: nw }} onBack={noop} onDone={noop} />).container;
+    expect(texts(s4, ".fd-ex .fd-xk")).toEqual(["새 예외 · 예외상황-필터 덮개 나사"]);
     cleanup();
-    // 나누지 못한 기록(D-556 덧 7): 적은 글 그대로 새 예외 — '나눔' 한 줄
-    const unsplit = { ...split, items: [], exception_review: [], split_error: "not_split" };
+    const bare = { ...split, exception: { ...one, matches: [] } };
+    const s5 = render(<Review api={{} as Api} report={{ ...report(), exception_record: bare }} onBack={noop} onDone={noop} />).container;
+    expect(texts(s5, ".fd-ex .fd-xk")).toEqual(["같음 · 예외 EX-R-0001"]);
+    cleanup();
+    // 나누지 못한 기록(약속 v10 2절): 적은 글 그대로 새 예외 — '예외' 한 줄
+    const unsplit = { ...split, exception: null, exception_review: null, split_error: "not_split" };
     const s3 = render(<Review api={{} as Api} report={{ ...report(), exception_record: unsplit }} onBack={noop} onDone={noop} />).container;
-    expect(texts(s3, ".fd-ex th").slice(0, 4)).toEqual(["상황", "적은 글", "나눔", "결과"]);
+    expect(texts(s3, ".fd-ex th").slice(0, 4)).toEqual(["상황", "적은 글", "예외", "결과"]);
     expect(texts(s3, ".fd-ex td")[2]).toBe("나누지 못함 · 새 예외");
   });
 

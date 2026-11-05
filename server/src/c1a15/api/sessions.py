@@ -773,7 +773,7 @@ def switch_candidates(k, step: dict, events: list[dict] = ()) -> list[dict]:
 
 
 def check_records(sid: int, events: list[dict]) -> list[dict]:
-    """약속 v9 3절 기록 줄: 헛걸음(switch_check) · 놓침 / 새 예외(마지막 확정 예외 칸 item) + 사람이 고른 점검.
+    """약속 v9 3절 기록 줄: 헛걸음(switch_check) · 놓침 / 새 예외(마지막 확정 예외 하나 · v10) + 사람이 고른 점검.
     사람이 고른 점검 = 예외 진행이면 {EX-NEW, 그때 점검} · 아니면 마지막 바꾼 점검 · 없으면 None."""
     live = [e for e in events if not e.get("void")]
     out, human, chain = [], None, None
@@ -789,7 +789,10 @@ def check_records(sid: int, events: list[dict]) -> list[dict]:
             before = current_step([x for x in live if x["seq"] < e["seq"]]) or {}
             human = {"section": switch.NEW, "from_section": before.get("section")}
     last = next((e for e in reversed(live) if e["type"] == "report_confirm"), None)
-    for it in ((last or {}).get("exception_record") or {}).get("items") or []:
+    # 놓침 / 새 예외 = 마지막 확정 예외 하나(약속 v10 · 예외 전체에 한 번) — v9 기록은 짝마다 한 줄 그대로 읽음
+    for it in flow.exception_entries((last or {}).get("exception_record") or {}):
+        if not it.get("kind"):
+            continue
         out.append(
             {
                 "kind": it["kind"],

@@ -1720,17 +1720,12 @@
      "exception_review": {
       "anyOf": [
        {
-        "items": {
-         "$ref": "#/components/schemas/ExceptionReview"
-        },
-        "maxItems": 20,
-        "type": "array"
+        "$ref": "#/components/schemas/ExceptionReview"
        },
        {
         "type": "null"
        }
-      ],
-      "title": "Exception Review"
+      ]
      },
      "exception_text": {
       "anyOf": [
@@ -1950,21 +1945,27 @@
    },
    "ExceptionApplied": {
     "additionalProperties": false,
-    "description": "고침A 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).",
+    "description": "정답지 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).",
     "properties": {
-     "exception_review": {
-      "items": {
-       "$ref": "#/components/schemas/ExceptionReviewOut"
-      },
-      "title": "Exception Review",
-      "type": "array"
+     "exception": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionOne"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
-     "items": {
-      "items": {
-       "$ref": "#/components/schemas/ExceptionItem"
-      },
-      "title": "Items",
-      "type": "array"
+     "exception_review": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionReviewOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "split_error": {
       "anyOf": [
@@ -1984,7 +1985,7 @@
     },
     "required": [
      "text",
-     "items",
+     "exception",
      "exception_review"
     ],
     "title": "ExceptionApplied",
@@ -2322,7 +2323,7 @@
    },
    "ExceptionInput": {
     "additionalProperties": false,
-    "description": "D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.\n확정 때는 그 글의 「AI 나눔」 item마다 같음 / 아님(exception_review) — 상황 · 결과 · 자동 정보는 서버가 붙임.",
+    "description": "D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.\n확정 · 적용 때는 그 글의 「AI 나눔」 예외 전체에 한 번 같음 / 아님(exception_review)\n— 상황 · 결과 · 자동 정보는 서버가 붙임.",
     "properties": {
      "text": {
       "default": "",
@@ -2334,78 +2335,9 @@
     "title": "ExceptionInput",
     "type": "object"
    },
-   "ExceptionItem": {
-    "additionalProperties": false,
-    "description": "AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님.",
-    "properties": {
-     "action": {
-      "$ref": "#/components/schemas/ExceptionActionFields"
-     },
-     "check": {
-      "$ref": "#/components/schemas/ExceptionCheckFields"
-     },
-     "decision": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Decision"
-     },
-     "kind": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Kind"
-     },
-     "match": {
-      "anyOf": [
-       {
-        "$ref": "#/components/schemas/ExceptionMatchRef"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "matches": {
-      "default": [],
-      "items": {
-       "$ref": "#/components/schemas/ExceptionSimilar"
-      },
-      "title": "Matches",
-      "type": "array"
-     },
-     "topic": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Topic"
-     }
-    },
-    "required": [
-     "check",
-     "action"
-    ],
-    "title": "ExceptionItem",
-    "type": "object"
-   },
    "ExceptionMatch": {
     "additionalProperties": false,
-    "description": "약속 v9 5절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).",
+    "description": "약속 v10 3절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).",
     "properties": {
      "kind": {
       "enum": [
@@ -2493,6 +2425,77 @@
     "title": "ExceptionNote",
     "type": "object"
    },
+   "ExceptionOne": {
+    "additionalProperties": false,
+    "description": "예외 하나(약속 v10 1절) = 주제 + 점검 목록 + 조치 목록 + 비슷한 것(3절) + 확정 · 적용 뒤 같음 / 아님.",
+    "properties": {
+     "actions": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionActionFields"
+      },
+      "title": "Actions",
+      "type": "array"
+     },
+     "checks": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionCheckFields"
+      },
+      "title": "Checks",
+      "type": "array"
+     },
+     "decision": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decision"
+     },
+     "kind": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Kind"
+     },
+     "match": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionMatchRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "matches": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionSimilar"
+      },
+      "title": "Matches",
+      "type": "array"
+     },
+     "topic": {
+      "title": "Topic",
+      "type": "string"
+     }
+    },
+    "required": [
+     "topic",
+     "checks",
+     "actions"
+    ],
+    "title": "ExceptionOne",
+    "type": "object"
+   },
    "ExceptionPrev": {
     "additionalProperties": false,
     "properties": {
@@ -2553,33 +2556,25 @@
      "context": {
       "$ref": "#/components/schemas/ExceptionContext"
      },
+     "exception": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionOne"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "exception_review": {
       "anyOf": [
        {
-        "items": {
-         "$ref": "#/components/schemas/ExceptionReviewOut"
-        },
-        "type": "array"
+        "$ref": "#/components/schemas/ExceptionReviewOut"
        },
        {
         "type": "null"
        }
-      ],
-      "title": "Exception Review"
-     },
-     "items": {
-      "anyOf": [
-       {
-        "items": {
-         "$ref": "#/components/schemas/ExceptionItem"
-        },
-        "type": "array"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Items"
+      ]
      },
      "result": {
       "anyOf": [
@@ -2681,7 +2676,7 @@
    },
    "ExceptionReview": {
     "additionalProperties": false,
-    "description": "약속 v9 5절 report_confirm.exception_review 한 줄: AI 나눔 item마다 같음(그 match = 놓침) / 아님(새 예외).",
+    "description": "약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).",
     "properties": {
      "decision": {
       "enum": [
@@ -2690,12 +2685,6 @@
       ],
       "title": "Decision",
       "type": "string"
-     },
-     "item": {
-      "maximum": 19.0,
-      "minimum": 0.0,
-      "title": "Item",
-      "type": "integer"
      },
      "match": {
       "anyOf": [
@@ -2709,7 +2698,6 @@
      }
     },
     "required": [
-     "item",
      "decision"
     ],
     "title": "ExceptionReview",
@@ -2717,15 +2705,11 @@
    },
    "ExceptionReviewOut": {
     "additionalProperties": false,
-    "description": "약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4).",
+    "description": "약속 v10 6절 exception_record.exception_review(한 번 · 확정 기록 · 승인 기록 파일에 그대로).",
     "properties": {
      "decision": {
       "title": "Decision",
       "type": "string"
-     },
-     "item": {
-      "title": "Item",
-      "type": "integer"
      },
      "match": {
       "anyOf": [
@@ -2739,7 +2723,6 @@
      }
     },
     "required": [
-     "item",
      "decision",
      "match"
     ],
@@ -2748,7 +2731,7 @@
    },
    "ExceptionSimilar": {
     "additionalProperties": false,
-    "description": "약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.",
+    "description": "약속 v10 3절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.",
     "properties": {
      "kind": {
       "title": "Kind",
@@ -2778,7 +2761,7 @@
    },
    "ExceptionSplit": {
     "additionalProperties": false,
-    "description": "D-556 「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함.",
+    "description": "「AI 나눔」 마지막 결과(확정 전) — text가 지금 글과 다르면 다시 눌러야 함 · 나누지 못함이면 exception null.",
     "properties": {
      "error": {
       "anyOf": [
@@ -2791,12 +2774,15 @@
       ],
       "title": "Error"
      },
-     "items": {
-      "items": {
-       "$ref": "#/components/schemas/ExceptionItem"
-      },
-      "title": "Items",
-      "type": "array"
+     "exception": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionOne"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "similar_error": {
       "anyOf": [
@@ -2816,7 +2802,7 @@
     },
     "required": [
      "text",
-     "items",
+     "exception",
      "error"
     ],
     "title": "ExceptionSplit",

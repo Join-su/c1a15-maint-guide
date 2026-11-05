@@ -24,17 +24,20 @@ function alarmText(v: { [key: string]: unknown }): string {
 /** 한 줄로 이음(빈 칸 뺌 · 모두 비면 '-'). */
 const join = (xs: (string | false | null | undefined)[]) => xs.filter((x): x is string => !!x).join(" · ") || "-";
 
-type XItem = NonNullable<NonNullable<Schemas["FinalReport"]["exception_record"]>["items"]>[number];
+type XOne = NonNullable<NonNullable<Schemas["FinalReport"]["exception_record"]>["exception"]>;
 
-/** 6번 나눔 줄 칩(정답지 고침A 19 · 21쪽 — 정비자 보고서 구역과 같은 이름): 같음 · {비슷한 것 이름} / 새 예외 · 예외상황-{주제}. */
-function xkLabel(it: XItem): string {
-  if (it.kind === "missed" && it.match) {
-    const m = (it.matches ?? []).find((x) => x.kind === it.match!.kind && x.no === it.match!.no);
-    const name = m ? (m.kind === "예외" ? `예외상황-${m.name}` : `${m.no} ${m.name}`) : `${it.match.kind} ${it.match.no}`;
+/** 6번 예외 칩(정답지 21쪽 — 정비자 보고서 구역과 같은 이름): 같음 · {비슷한 것 이름} / 새 예외 · 예외상황-{주제}. */
+function xkLabel(ex: XOne): string {
+  if (ex.kind === "missed" && ex.match) {
+    const m = (ex.matches ?? []).find((x) => x.kind === ex.match!.kind && x.no === ex.match!.no);
+    const name = m ? (m.kind === "예외" ? `예외상황-${m.name}` : `${m.no} ${m.name}`) : `${ex.match.kind} ${ex.match.no}`;
     return `같음 · ${name}`;
   }
-  return it.topic ? `새 예외 · 예외상황-${it.topic}` : "새 예외";
+  return `새 예외 · 예외상황-${ex.topic}`;
 }
+
+/** 점검 · 조치 목록 한 줄(정답지 21쪽): '1 … · 기준 … · 2 …'. */
+const numbered = (xs: string[]) => xs.map((x, i) => `${i + 1} ${x}`).join(" · ");
 
 export function FinalReport({ data }: { data: Final }) {
   const approved = data.status === "approved";
@@ -200,7 +203,7 @@ export function FinalReport({ data }: { data: Final }) {
           <div className="fd-open">{data.unresolved}</div>
         </section>
       </div>
-      {xr ? ( // D-538: 예외 상황 기록 — 정비자 글 · AI 나눔 줄 · 같음/아님(D-556 · 전 기록은 두 글) + 자동 정보(보기만)
+      {xr ? ( // D-538: 예외 상황 기록 — 정비자 글 · 예외 하나(점검 · 조치 목록) · 같음/아님(약속 v10 · 전 기록은 두 글) + 자동 정보(보기만)
         <section>
           <h2>6. 예외 상황 기록</h2>
           <div className="fd-exs">{/* 정답지 고침A 21쪽: 넘치면 이 구역만 스크롤 */}
@@ -210,26 +213,34 @@ export function FinalReport({ data }: { data: Final }) {
                 <th>상황</th>
                 <td>{xr.situation}</td>
               </tr>
-              {xr.items ? (
+              {xr.text != null ? (
                 <>
                   <tr>
                     <th>적은 글</th>
                     <td>{xr.text}</td>
                   </tr>
-                  {xr.items.map((it, i) => (
-                    <tr key={i} data-item={i}>
-                      <th>나눔 {i + 1}</th>
-                      <td>
-                        {join([`점검 ${it.check.what}`, it.action.what && `조치 ${it.action.what}`])}{" "}
-                        <span className={`fd-xk ${it.kind === "missed" ? "miss" : "new"}`}>
-                          {xkLabel(it)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {xr.split_error ? ( // 나누지 못함 → 적은 글 그대로 새 예외(D-556 덧 7)
+                  {xr.exception ? ( // 예외 하나 = 주제 + 점검 목록 + 조치 목록(약속 v10)
+                    <>
+                      <tr data-item="exception">
+                        <th>예외</th>
+                        <td>
+                          예외상황-{xr.exception.topic}{" "}
+                          <span className={`fd-xk ${xr.exception.kind === "missed" ? "miss" : "new"}`}>{xkLabel(xr.exception)}</span>
+                        </td>
+                      </tr>
+                      <tr data-item="checks">
+                        <th>점검</th>
+                        <td>{numbered(xr.exception.checks.map((c) => join([c.what, c.criteria && `기준 ${c.criteria}`])))}</td>
+                      </tr>
+                      <tr data-item="actions">
+                        <th>조치</th>
+                        <td>{numbered(xr.exception.actions.map((a) => join([a.what, a.parts.length > 0 && `부품 ${a.parts.join(", ")}`])))}</td>
+                      </tr>
+                    </>
+                  ) : null}
+                  {xr.split_error ? ( // 나누지 못함 → 적은 글 그대로 새 예외(약속 v10 2절)
                     <tr data-item="none">
-                      <th>나눔</th>
+                      <th>예외</th>
                       <td>
                         <span className="fd-xk new">나누지 못함 · 새 예외</span>
                       </td>

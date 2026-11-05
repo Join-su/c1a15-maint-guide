@@ -190,28 +190,29 @@ def test_exception_act_now_notices_lead_and_records_human_check(api, db, deploy)
     assert s["report"]["exception_session"] is True and s["report"]["exception_applied"] is None  # 고침A 18쪽 팝업
     r = _post(tech, s, type="report_confirm")
     assert r.json()["detail"]["reason"] == "exception_apply_needed"  # 예외 진행 세션은 적용해야 확정
-    r = _post(tech, s, type="exception_apply", exception_record={"text": " "}, exception_review=[])
+    r = _post(tech, s, type="exception_apply", exception_record={"text": " "})
     assert (r.status_code, r.json()["detail"]) == (409, "exception_text_required")  # 빈 글 = 적용 0
-    txt = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움"
+    txt = "점검 필터 덮개 고정 나사를 손으로 확인. 점검 흡기 덕트 이음매. 조치 나사를 새로 끼움. 조치 밴드를 다시 조임"
     s = ok(tech, s, type="exception_split", exception_text=txt)
-    it0 = s["report"]["exception_split"]["items"][0]
-    m0 = it0["matches"][0]
-    assert it0["topic"] == "필터 덮개 고정"  # 고침A '예외상황-{주제}'(가짜 = 점검 앞 세 낱말)
-    review = [{"item": 0, "decision": "same", "match": {"kind": m0["kind"], "no": m0["no"]}}]
+    ex0 = s["report"]["exception_split"]["exception"]
+    m0 = ex0["matches"][0]
+    assert ex0["topic"] == "필터 덮개 나사"  # '예외상황-{주제}'(가짜 = 점검 낱말 1 · 2 · 4 · Pack 몫)
+    assert [len(ex0["checks"]), len(ex0["actions"])] == [2, 2]  # 예외 하나 = 점검 목록 + 조치 목록(약속 v10)
+    review = {"decision": "same", "match": {"kind": m0["kind"], "no": m0["no"]}}
     runs_before = len(deploy.posts())
     s = ok(
         tech,
         s,
         type="exception_apply",
         exception_record={"text": txt},
-        exception_review=[{**review[0], "decision": "not", "match": None}],
+        exception_review={"decision": "not", "match": None},
     )
-    assert [it["kind"] for it in s["report"]["exception_applied"]["items"]] == ["new_exception"]
+    assert s["report"]["exception_applied"]["exception"]["kind"] == "new_exception"
     s = ok(
         tech, s, type="exception_apply", exception_record={"text": txt}, exception_review=review
     )  # [예외 상황 수정] → 다시 적용
     ap = s["report"]["exception_applied"]
-    assert (ap["text"], [it["kind"] for it in ap["items"]], ap["exception_review"]) == (txt, ["missed"], review)
+    assert (ap["text"], ap["exception"]["kind"], ap["exception_review"]) == (txt, "missed", review)
     assert len(deploy.posts()) == runs_before and s["report"]["status"] == "draft"  # 적용 = 판정 Run 0 · 확정 전
     s = ok(tech, s, type="report_confirm")  # 적용한 것을 함께 확정
     assert s["report"]["exception_record"]["exception_review"] == review
@@ -237,29 +238,30 @@ def test_rejected_report_reuses_last_confirmed_exception_as_applied():
     """정답지 20쪽: 반려되면 앞 확정 기록이 '예외 상황' 구역에 다시(= 적용한 것) — 앱 몫(Pack 반려 길은 따로)."""
     from c1a15.api import flow
 
-    rec = {"text": "글", "items": [{"kind": "missed"}], "exception_review": [{"item": 0, "decision": "same"}]}
+    one = {"topic": "가", "checks": [], "actions": [], "decision": "same", "kind": "missed"}
+    rec = {"text": "글", "exception": one, "exception_review": {"decision": "same", "match": None}}
     events = [
         {
             "seq": 1,
             "type": "exception_apply",
             "text": "옛 글",
-            "items": [{}],
-            "exception_review": [],
+            "exception": one,
+            "exception_review": None,
             "split_error": None,
         },
         {"seq": 2, "type": "report_confirm", "exception_record": rec},
     ]
     assert flow.exception_applied_of(events) is None  # 확정 뒤 = 적용 0
     rejected = [*events, {"seq": 3, "type": "report_rejected"}]
-    assert flow.exception_applied_of(rejected) == {**{k: rec.get(k) for k in rec}, "split_error": None}
+    assert flow.exception_applied_of(rejected) == {**rec, "split_error": None}
     reapplied = [
         *rejected,
         {
             "seq": 4,
             "type": "exception_apply",
             "text": "새 글",
-            "items": [{}],
-            "exception_review": [],
+            "exception": one,
+            "exception_review": None,
             "split_error": None,
         },
     ]
@@ -267,7 +269,7 @@ def test_rejected_report_reuses_last_confirmed_exception_as_applied():
 
 
 def test_check_records_order_and_names():
-    """기록 줄 셈(순수 함수): 바꾼 점검마다 헛걸음 · 마지막 확정 예외 칸 item마다 놓침 / 새 예외 · 무효 사건은 뺌."""
+    """기록 줄 셈(순수 함수): 바꾼 점검마다 헛걸음 · 마지막 확정 예외 하나 = 놓침 / 새 예외 · 무효 사건은 뺌."""
     from c1a15.api.sessions import check_records
 
     events = [
@@ -287,19 +289,25 @@ def test_check_records_order_and_names():
             "seq": 9,
             "type": "report_confirm",
             "exception_record": {
-                "items": [
-                    {"kind": "missed", "match": {"kind": "매뉴얼", "no": "4.5.2"}},
-                    {"kind": "new_exception", "match": None},
-                ]
+                "exception": {"topic": "가", "checks": [], "actions": []},
+                "exception_review": {"decision": "same", "match": {"kind": "매뉴얼", "no": "4.5.2"}},
             },
         },
     ]
     hc = {"section": "4.5", "from_section": "4.3"}
-    assert check_records(3, events) == [
+    assert check_records(3, events) == [  # 예외 하나 = 줄 하나(약속 v10 · 예외 전체에 한 번)
         {"kind": "wasted_step", "session_id": 3, "human_check": hc, "at_seq": 6},
         {"kind": "missed", "session_id": 3, "human_check": hc, "relation_id": "4.5.2", "at_seq": 9},
-        {"kind": "new_exception", "session_id": 3, "human_check": hc, "relation_id": None, "at_seq": 9},
     ]
+    nr = {
+        "exception": {"topic": "가", "checks": [], "actions": []},
+        "exception_review": {"decision": "not", "match": None},
+    }
+    new_ex = {**events[-1], "exception_record": nr}
+    assert check_records(3, [*events[:-1], new_ex])[-1]["kind"] == "new_exception"
+    assert [
+        r["kind"] for r in check_records(3, [*events[:-1], {**new_ex, "exception_record": {"split_error": "x"}}])
+    ] == ["wasted_step"]  # 나누지 못함(예외 null) = 기록 줄 0 — 앞과 같음
     assert check_records(3, [*events[:1], {"seq": 6, "type": "exception_start", "mode": "act_now"}]) == []
     # 고침A 14쪽: 여러 번 바꾸면 마지막에 결과를 낸 점검만(중간 고름 기록 0) · from = 처음 추천
     chain = [

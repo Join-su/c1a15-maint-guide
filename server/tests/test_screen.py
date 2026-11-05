@@ -182,18 +182,23 @@ def test_final_report_carries_cause_basis_and_author_role():
 
 
 def test_exception_record_input_and_blocks():
-    """D-538 · D-556: 예외 상황 기록 = 글 하나(2000자) + item마다 같음 / 아님(약속 v9 exception_review) · 「AI 나눔」 ·
-    비슷한 것 · 자동 상황 · 결과 · 자동 정보 — 확정 입력 · 보고서 · 최종본 · 목록 꼴."""
+    """D-538 · D-566: 예외 상황 기록 = 글 하나(2000자) + 예외 전체에 한 번 같음 / 아님(약속 v10 exception_review) ·
+    「AI 나눔」 · 비슷한 것 · 자동 상황 · 결과 · 자동 정보 — 확정 입력 · 보고서 · 최종본 · 목록 꼴."""
     from c1a15.api import responses, schemas
 
-    same = {"item": 0, "decision": "same", "match": {"kind": "예외", "no": "EX-R-1"}}
-    review = [same, {"item": 1, "decision": "not"}]
-    body = schemas.EventBody(seq=1, type="report_confirm", exception_record={"text": "가"}, exception_review=review)
+    same = {"decision": "same", "match": {"kind": "예외", "no": "EX-R-1"}}
+    body = schemas.EventBody(seq=1, type="report_confirm", exception_record={"text": "가"}, exception_review=same)
     assert body.exception_record.text == "가"
-    assert [(r.decision, r.match and r.match.no) for r in body.exception_review] == [("same", "EX-R-1"), ("not", None)]
-    for bad in ({"item": 0, "decision": "같음"}, {**same, "match": {"kind": "그래프", "no": "X"}}):
-        with pytest.raises(ValueError):
-            schemas.EventBody(seq=1, type="report_confirm", exception_review=[bad])
+    assert (body.exception_review.decision, body.exception_review.match.no) == ("same", "EX-R-1")
+    assert (
+        schemas.EventBody(
+            seq=1, type="exception_apply", exception_record={"text": "가"}, exception_review={"decision": "not"}
+        ).exception_review.match
+        is None
+    )
+    for bad in ({"decision": "같음"}, {**same, "match": {"kind": "그래프", "no": "X"}}, {"item": 0, **same}, [same]):
+        with pytest.raises(ValueError):  # 모르는 값 · v9 item 칸 · 목록 꼴은 받지 않음
+            schemas.EventBody(seq=1, type="report_confirm", exception_review=bad)
     with pytest.raises(ValueError):
         schemas.ExceptionInput(text="가", choices=[])  # D-556 1단계 임시 이름은 받지 않음
     with pytest.raises(ValueError):
@@ -204,18 +209,23 @@ def test_exception_record_input_and_blocks():
     with pytest.raises(ValueError):
         schemas.EventBody(seq=1, type="exception_split")  # 나눌 글 없으면 422
     assert set(responses.ExceptionDraft.model_fields) == {"text"}
-    assert {"situation", "text", "items", "result", "action", "context"} <= set(responses.ExceptionRecord.model_fields)
-    assert set(responses.ExceptionItem.model_fields) == {
+    assert {"situation", "text", "exception", "result", "action", "context"} <= set(
+        responses.ExceptionRecord.model_fields
+    )
+    assert "items" not in responses.ExceptionRecord.model_fields  # v9 짝 기록은 예외 하나로 읽음
+    assert set(responses.ExceptionOne.model_fields) == {
         "topic",
-        "check",
-        "action",
+        "checks",
+        "actions",
         "matches",
         "decision",
         "match",
         "kind",
     }
-    assert "exception_review" in responses.ExceptionRecord.model_fields  # 승인 편지 칸(D-556 덧 4)
-    assert set(responses.ExceptionSimilar.model_fields) == {"kind", "no", "name", "score"}  # 약속 v9 5절
+    assert set(responses.ExceptionReviewOut.model_fields) == {"decision", "match"}  # 승인 기록 파일 칸(약속 v10 6절)
+    assert "exception_review" in responses.ExceptionRecord.model_fields
+    assert set(responses.ExceptionSplit.model_fields) == {"text", "exception", "error", "similar_error"}
+    assert set(responses.ExceptionSimilar.model_fields) == {"kind", "no", "name", "score"}  # 약속 v10 3절
     assert set(responses.CheckRecord.model_fields) == {"kind", "session_id", "human_check", "relation_id", "at_seq"}
     assert {"exception_auto", "exception_split"} <= set(responses.ReportBlock.model_fields)
     assert (

@@ -34,8 +34,8 @@ REQUIRED = {
     "start": {"session_id", "event_id", "group", "query", "events", "grades", "minutes"},
     "judge": {"session_id", "group", "similar", "events", "grades", "minutes"},
     "report": {"session_id", "group", "similar", "report_draft", "allowed_sections"},  # 약속 v3(EV-001 ES-10)
-    "exception_split": {"session_id", "group", "text"},  # 약속 v9 4절 Pack run kind(D-556 덧 7 · 9745f54)
-    "exception_similar": {"session_id", "group", "items"},  # 약속 v9 5절
+    "exception_split": {"session_id", "group", "text"},  # 약속 v10 2절 Pack run kind
+    "exception_similar": {"session_id", "group", "exception"},  # 약속 v10 3절(v9 items 대신 예외 하나)
 }
 FORBIDDEN = {
     "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query"},
@@ -43,8 +43,9 @@ FORBIDDEN = {
     "judge": {"event_card", "settings", "event_id", "query"},
     "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes"},
     "exception_split": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "similar"}
-    | {"equipment_id", "occurred_at", "line_id", "items"},  # Pack v9 schema: kind · session_id · group · text만
-    "exception_similar": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "text"},
+    | {"equipment_id", "occurred_at", "line_id", "items"},  # Pack schema: kind · session_id · group · text만
+    "exception_similar": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "text"}
+    | {"items"},
 }
 
 
@@ -339,10 +340,10 @@ def engine_answer(body: dict) -> dict:
     return {"output": _judge_output(body)}
 
 
-# D-556 가짜 AI 나눔: 글 줄(마침표 · 줄바꿈)의 '점검 …' · '조치 …'를 짝지어 점검 1 + 조치 1 × n — 실제 AI 호출 0
-# 가짜 비슷한 것 찾기(약속 v9 5절 꼴): Pack custom/similar.py와 같은 셈(글자 두 개 묶음 코사인 · 상위 3 · 최소 점수)을
-# 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 절 하나(CL · 그래프 대신)에 — 시험 · e2e가 같음 / 아님 둘 다 걷게
-SIMILAR_EXCEPTION = {"CL": [("EX-R-0001", "필터 덮개 고정 나사 확인", "필터 덮개 고정 나사 네 개 체결 확인")]}
+# 가짜 AI 나눔(약속 v10 2절): 글 줄(마침표 · 줄바꿈)의 '점검 …' → 점검 목록 · '조치 …' → 조치 목록 — 호출 0
+# 가짜 비슷한 것 찾기(약속 v10 3절 꼴): Pack custom/similar.py와 같은 셈(글자 두 개 묶음 코사인 · 상위 3 · 최소 점수)을
+# 예외 통째로 한 번 · 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 절 하나(CL)에 — 같음 / 아님 둘 다
+SIMILAR_EXCEPTION = {"CL": [("EX-R-0001", "필터 덮개 나사", "필터 덮개 고정 나사 네 개 체결 확인 나사를 새로 끼움")]}
 SIMILAR_MIN = 0.15  # Pack similar.py MIN_SCORE(c1a15-pack 69ebdd1 · D-556 덧 5 · 6) — 빈 matches = 비슷한 것 없음
 
 
@@ -370,44 +371,46 @@ def similar_answer(body: dict) -> dict:
     secs = [x.section_id for x in k.checks.get(group, [])] + [x.action_section for x in k.causes.get(group, [])]
     pool = [("매뉴얼", s, k.sections[s]["title"], f"{k.sections[s]['title']} {k.sections[s]['text']}") for s in secs]
     pool += [("예외", no, name, f"{name} {txt}") for no, name, txt in SIMILAR_EXCEPTION.get(group, [])]
-    grams = [(kind, no, name, _grams(txt)) for kind, no, name, txt in pool]
-    out = []
-    for i, it in enumerate(body["items"]):
-        c, a = it["check"], it["action"]
-        q = _grams(" ".join([c["what"], c["how"], c["criteria"], a["what"], *(a.get("parts") or [])]))
-        hits = sorted(((round(_cos(q, g), 4), kind, no, nm) for kind, no, nm, g in grams), key=lambda h: (-h[0], h[2]))
-        top = [{"kind": kd, "no": no, "name": nm, "score": sc} for sc, kd, no, nm in hits[:3] if sc >= SIMILAR_MIN]
-        out.append({"item": i, "matches": top})
-    return {"exception_similar": out}
+    ex = body["exception"]
+    words = [ex.get("topic") or ""]
+    words += [x for c in ex["checks"] for x in (c["what"], c.get("how") or "", c.get("criteria") or "")]
+    words += [x for a in ex["actions"] for x in (a["what"], *(a.get("parts") or []))]
+    q = _grams(" ".join(words))
+    hits = sorted(((round(_cos(q, _grams(t)), 4), kd, no, nm) for kd, no, nm, t in pool), key=lambda h: (-h[0], h[2]))
+    top = [{"kind": kd, "no": no, "name": nm, "score": sc} for sc, kd, no, nm in hits[:3] if sc >= SIMILAR_MIN]
+    return {"exception_similar": {"matches": top}}
 
 
 def split_answer(text: str) -> dict:
-    """Pack 9745f54 꼴 흉내: {exception_split: {items, reason}} — 빈 글 칸 짝은 뺌 · 남은 짝 0이면 빈 items + reason.
-    표지(Pack tools/fake/rule.py와 같은 이름): [시험:나눔없음] → 빈 items(not_split) ·
-    [시험:꼴깨짐] → 빈 칸 짝뿐(invalid_output)."""
+    """Pack 약속 v10 2절 꼴 흉내: {exception_split: {exception | null, reason}}
+    — 점검 0 또는 조치 0이면 null + not_split.
+    표지(Pack tools/fake/rule.py와 같은 이름): [시험:나눔없음] → not_split · [시험:꼴깨짐] → invalid_output."""
     import re
 
     if "[시험:나눔없음]" in text:
-        return {"exception_split": {"items": [], "reason": "not_split"}}
+        return {"exception_split": {"exception": None, "reason": "not_split"}}
     if "[시험:꼴깨짐]" in text:
-        return {"exception_split": {"items": [], "reason": "invalid_output"}}
+        return {"exception_split": {"exception": None, "reason": "invalid_output"}}
     lines = [x.strip() for x in re.split(r"[.\n]+", text) if x.strip()]
     checks = [x.removeprefix("점검").strip() for x in lines if x.startswith("점검")]
     actions = [x.removeprefix("조치").strip() for x in lines if x.startswith("조치")]
-    if not checks and not actions:  # 머리말 없는 글 = 앞 줄 점검 · 뒤 줄 조치(한 예외)
+    if not checks and not actions:  # 머리말 없는 글 = 앞 줄 점검 · 뒤 줄 조치
         checks, actions = lines[:1], lines[1:2]
-    items = []
-    for i in range(max(len(checks), len(actions))):
-        ck, ac = (checks[i] if i < len(checks) else ""), (actions[i] if i < len(actions) else "")
-        if ck and ac:  # 빈 칸 짝은 뺌(Pack custom/split.py)
-            items.append(
-                {
-                    "topic": " ".join(ck.split()[:3]),  # 고침A 주제(임시 칸 · Pack 몫)
-                    "check": {"what": ck[:40], "how": ck, "criteria": "정상 범위", "minutes": None},
-                    "action": {"what": ac[:40], "parts": [], "minutes": None},
-                }
-            )
-    return {"exception_split": {"items": items[:10], "reason": None if items else "not_split"}}
+    checks = list(dict.fromkeys(x for x in checks if x))[:10]  # 같은 점검 합침 · 상한 10(Pack 거르기)
+    actions = list(dict.fromkeys(x for x in actions if x))[:10]
+    if not checks or not actions:  # 한쪽 0 = 나누지 못함(약속 v10 2절 · D-566 덧 1)
+        return {"exception_split": {"exception": None, "reason": "not_split"}}
+    topic = " ".join(checks[0].split()[:2] + checks[0].split()[3:4]).rstrip("을를")[:15]  # 가짜 주제(Pack 몫)
+    return {
+        "exception_split": {
+            "exception": {
+                "topic": topic,
+                "checks": [{"what": c[:40], "how": c, "criteria": "정상 범위", "minutes": None} for c in checks],
+                "actions": [{"what": a[:40], "parts": [], "minutes": None} for a in actions],
+            },
+            "reason": None,
+        }
+    }
 
 
 def _with_desc(d: dict, k) -> dict:

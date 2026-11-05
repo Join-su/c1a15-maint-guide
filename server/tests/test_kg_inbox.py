@@ -14,7 +14,7 @@ from sqlalchemy import text
 
 from test_api import LEAD_PW, login, ok, start, to_instruct  # noqa: F401
 from test_deploy_path import api, count, db, reset_ops  # noqa: F401
-from test_exception_record import REVIEW, TEXT
+from test_exception_record import SAME, TEXT
 from test_r12_inbox import approve, audits, confirmed_report
 
 pytestmark = pytest.mark.db
@@ -90,7 +90,7 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
         s,
         type="report_confirm",
         exception_record={"text": TEXT},
-        exception_review=list(REVIEW),
+        exception_review=SAME,
     )
     lc, _ = login(api, "lead", "lead.park", LEAD_PW)
     rid = count(db, "select report_id from ops.reports where session_id = :s", s=s["session_id"])
@@ -100,10 +100,13 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
     assert set(rec) == RECORD_KEYS | {"exception_record"}
     ex = rec[
         "exception_record"
-    ]  # D-556: 글 · 나눔 줄(check · action = Pack fields-gate 꼴) · 같음/아님 · 자동 상황 · 결과
-    assert ex["text"] == TEXT and [it["kind"] for it in ex["items"]] == ["missed", "new_exception"]  # 약속 v9 3절
-    assert set(ex["items"][0]) == {"topic", "check", "action", "matches", "decision", "match", "kind"}
-    assert ex["exception_review"] == list(REVIEW)  # 편지 칸 이름(D-556 덧 4 · deploy 848449d)
+    ]  # 약속 v10 6절: 글 · 예외 하나(주제 · 점검 목록 · 조치 목록) · 같음/아님 한 번 · 자동 칸
+    assert ex["text"] == TEXT and "items" not in ex
+    assert set(ex["exception"]) == {"topic", "checks", "actions"}  # 1절 꼴 그대로(llmops-2 적재기는 그 밖 칸을 거절)
+    assert set(ex["exception"]["checks"][0]) == {"what", "how", "criteria", "minutes"}
+    assert set(ex["exception"]["actions"][0]) == {"what", "parts", "minutes"}
+    assert ex["exception_review"] == SAME  # 승인 기록 파일 칸 이름(약속 v10 6절) · 같음 = 놓침
+    assert [m["no"] for m in ex["exception_matches"]][:1] == ["EX-R-0001"]  # 그때 보인 비슷한 것(앱 칸)
     assert ex["situation"].startswith("M-01 · ") and ex["result"] == "재가동 정상(경계 이내)"
     assert set(rec["exception_record"]["context"]) >= {"equipment_id", "sensor_values", "symptom_group"}
     note = next(x["note"] for x in rec["steps"] if x.get("section") == "4.3")

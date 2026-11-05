@@ -36,23 +36,23 @@ class AlarmBody(_Strict):
 
 
 class ExceptionMatch(_Strict):
-    """약속 v9 5절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no)."""
+    """약속 v10 3절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no)."""
 
     kind: Literal["예외", "매뉴얼"]
     no: str = Field(max_length=40)
 
 
 class ExceptionReview(_Strict):
-    """약속 v9 5절 report_confirm.exception_review 한 줄: AI 나눔 item마다 같음(그 match = 놓침) / 아님(새 예외)."""
+    """약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외)."""
 
-    item: int = Field(ge=0, le=19)
     decision: Literal["same", "not"]
     match: ExceptionMatch | None = None
 
 
 class ExceptionInput(_Strict):
     """D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.
-    확정 때는 그 글의 「AI 나눔」 item마다 같음 / 아님(exception_review) — 상황 · 결과 · 자동 정보는 서버가 붙임."""
+    확정 · 적용 때는 그 글의 「AI 나눔」 예외 전체에 한 번 같음 / 아님(exception_review)
+    — 상황 · 결과 · 자동 정보는 서버가 붙임."""
 
     text: str = Field(default="", max_length=2000)
 
@@ -99,7 +99,7 @@ class EventBody(_Strict):
     text: str | None = None  # 보고서 항목 문장(고친 문장, R8 검사)
     exception_record: ExceptionInput | None = None  # D-538: 예외 상황 기록(선택) — 보고서 확정과 함께
     exception_text: str | None = Field(default=None, max_length=2000)  # D-556 「AI 나눔」할 예외 글
-    exception_review: list[ExceptionReview] | None = Field(default=None, max_length=20)  # 약속 v9 5절
+    exception_review: ExceptionReview | None = None  # 약속 v10 3절(한 번)
     mode: Literal["call_first", "act_now"] | None = None  # 약속 v9 exception_start: 호출 후 조치 / 바로 조치
 
     @model_validator(mode="after")
