@@ -1232,6 +1232,22 @@ def recent_maintenance(c: Connection, alarm: m.Alarm, days: int | None = None) -
     ]
 
 
+RECENT_WORK_DAYS, RECENT_WORK_MAX = 30, 60  # Pack 5e76c66 약속 v10 덧: 알람 시각 앞 30일 · 60줄 안
+SECTION_NO = re.compile(r"^[0-9]\.[0-9](\.[0-9])?$")  # 같은 칸: 앱 절 번호만
+
+
+def recent_work_of(rows: list[dict]) -> list[dict]:
+    """recent_maintenance 줄 → start 요청 recent_work [{record_id, at(초까지), sections(조치 · 점검 앱 번호)}]
+    — 절 없는 줄은 뺌."""
+    out = []
+    for r in rows:
+        secs = [x for x in [*r["did"], *r["checked"]] if SECTION_NO.match(x)]
+        if secs:
+            at = datetime.fromisoformat(r["occurred_at"]).replace(microsecond=0).isoformat()
+            out.append({"record_id": r["record_id"], "at": at, "sections": secs})
+    return out[:RECENT_WORK_MAX]
+
+
 def exception_context(c: Connection, alarm: m.Alarm, events: list[dict], cause: str, report_id: int) -> dict:
     """D-538 자동 정보 여덟(입력 0): 설비 · 증상군 · 시각 · 센서값 · 직전 정비 · AI 첫 안내 · 확정 원인 · 보고서 번호
     + D-570 최근 N일 정비 이력 전부.

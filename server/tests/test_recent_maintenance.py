@@ -4,13 +4,16 @@
 
 import json
 import os
+import re
 from datetime import UTC, datetime, timedelta
 
 import pytest
 from sqlalchemy import text
 
-from test_api import api, db, ok, reset_ops  # noqa: F401
+from fake_deploy import pack_answer
+from test_api import api, db, ok, reset_ops, start, to_instruct  # noqa: F401
 from test_deploy_path import deploy  # noqa: F401
+from test_exception_guide import _approved_exception, _bodies, _guide
 from test_exception_record import NOT, TEXT, _split, _to_report
 
 pytestmark = pytest.mark.db
@@ -139,3 +142,71 @@ def test_exception_record_context_carries_recent_list(api, db, deploy):
                 json.dump(ctx, fp, ensure_ascii=False, indent=1)
     finally:
         _drop("H-9011")
+
+
+AT = re.compile(
+    r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{2}:[0-9]{2}$"
+)  # Pack 약속 v10 덧 at 칸
+
+
+def test_start_request_carries_recent_work_only_on_start(api, db, deploy):
+    """Pack 5e76c66: start 요청 recent_work = 그 설비 30일 안 정비 [{record_id, at, sections}] · judge엔 없음 · 없으면 칸 0."""
+    reset_ops(db)
+    try:
+        _add("--days-ago", "3", "--check", "4.3")  # 기본 = H-0301 · M-01 · 4.3.2
+        _add("--record", "H-9021", "--days-ago", "20", "--action", "4.5.2")  # 7일 밖 · 30일 안
+        _add("--record", "H-9022", "--days-ago", "31", "--action", "4.5.2")  # 30일 밖
+        _add("--record", "H-9023", "--equipment", "M-02", "--days-ago", "2")  # 다른 설비
+        tech, s = start(api, db, equipment="M-01")
+        s = to_instruct(tech, s)
+        body = _bodies(deploy, "start")[-1]
+        if os.environ.get("RECENT_START_OUT"):  # D-503 2: start 요청 실제 한 건(Pack v10 덧 schema 대조용)
+            with open(os.environ["RECENT_START_OUT"], "w", encoding="utf-8") as fp:
+                json.dump(body, fp, ensure_ascii=False, indent=1)
+        rows = {r["record_id"]: r for r in body["recent_work"]}
+        assert body["equipment_id"] == "M-01" and AT.match(body["occurred_at"])
+        assert rows["H-0301"]["sections"] == ["4.3.2", "4.3"] and "H-9021" in rows
+        assert not {"H-9022", "H-9023"} & set(rows)
+        assert all(
+            AT.match(r["at"]) and set(r) == {"record_id", "at", "sections"} and r["sections"] for r in rows.values()
+        )
+        assert all("recent_work" not in b for b in _bodies(deploy, "judge"))  # 다른 종류는 Pack이 거절
+    finally:
+        _drop("H-0301", "H-9021", "H-9022", "H-9023")
+
+
+def test_recent_work_shape_filters_and_caps():
+    """Pack 칸 조건: 절 앱 번호만(EX-… · 빈 절 줄 뺌) · 시각 초까지 · 60줄 상한."""
+    from c1a15.api import flow
+
+    row = {
+        "record_id": "H-1",
+        "occurred_at": "2026-11-03T01:02:03.456789+00:00",
+        "did": ["4.3.2", "EX-R-1"],
+        "checked": ["4.3"],
+    }
+    empty = {"record_id": "H-2", "occurred_at": "2026-11-03T01:02:03+00:00", "did": [], "checked": []}
+    assert flow.recent_work_of([row, empty]) == [
+        {"record_id": "H-1", "at": "2026-11-03T01:02:03+00:00", "sections": ["4.3.2", "4.3"]}
+    ]
+    assert len(flow.recent_work_of([row] * 70)) == 60
+
+
+@pytest.mark.parametrize(("days_ago", "shown"), [(3, True), (8, False)])
+def test_recent_exception_recommended_only_with_recent_work(api, db, deploy, days_ago, shown):
+    """D-570 시연 길: 3일 전 그 절 정비 있는 설비 알람 = 예외 추천 · 7일 밖이면 0 · 줄을 빼면 같은 알람 추천 0."""
+    reset_ops(db)
+    eg = {**_guide(_approved_exception(api, db)), "next_section": "4.3"}
+    # 절 = 4.5.2: 준비로 승인한 보고서(4.3.2 조치)도 '최근 정비'라 그 절로는 늘 맞음 — 시연 줄만 가리는 절로 시험
+    deploy.default = pack_answer(exception_guide=eg, exception_recent={"section": "4.5.2", "days": 7})
+    try:
+        _add("--days-ago", str(days_ago), "--action", "4.5.2")
+        tech, s = start(api, db, equipment="M-01")
+        s = to_instruct(tech, s)
+        assert (s["step"]["section"] == eg["section"]) is shown
+    finally:
+        _drop("H-0301")
+    reset_ops(db)
+    tech, s = start(api, db, equipment="M-01")  # 뺀 뒤 같은 알람 = 추천 0
+    s = to_instruct(tech, s)
+    assert s["step"]["section"] != eg["section"]

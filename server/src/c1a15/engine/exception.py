@@ -1,5 +1,6 @@
 """예외 안내 갈래(D-545 · 약속 v8) — 순수 함수(그래프 파일 · 망 · DB 0). Pack custom/judge.py가 쓰고, 앱 engine/exception.py는 이 파일의 사본(import 줄만 바뀜).
-꼴 정본 = handoff/d545/graph-shape.md 3 · 4절: exception_relations 줄 {id, step, mode, grade, when{group, sensors[[칸, 연산, 값]], equipment_id?}, cause, records, n}
+꼴 정본 = handoff/d545/graph-shape.md 3 · 4절: exception_relations 줄 {id, step, mode, grade, when{group, sensors[[칸, 연산, 값]], equipment_id?, recent?}, cause, records, n}
+(D-570 · handoff/d570/recent-condition.md: when.recent {section 앱 번호, days 1 ~ 30} = 알람 설비 이력 중 [알람 시각 − days, 알람 시각) 안에 그 절을 한(did · checked) 이력이 있을 때만 · 설비 무관)
 · sections 예외 줄 {no = app_no = EX-<이력 번호>, kind 예외, grade, name, guide, steps, criteria, group, minutes, records}.
 흐름(약속 v10 · D-566 덧 1): 잠금 · 사전 확인 뒤 첫 점검 차례에 예외 절 먼저 → 등급 C면 파트장 승인 **예외 전체에 한 번** →
 **걸음마다** 점검 c1 → c2 … → 조치 a1 → a2 …(적은 순서 · 결과로 건너뛰지 않음 · 사건 step 칸) → 재가동 → 재가동 값 →
@@ -10,6 +11,7 @@ from c1a15.engine import rules, session
 FIELDS = ("air_temperature_k", "process_temperature_k", "rotational_speed_rpm", "torque_nm", "tool_wear_min", "temp_diff_k", "power_w")
 OPS = {">=": lambda a, b: a >= b, "<=": lambda a, b: a <= b, ">": lambda a, b: a > b, "<": lambda a, b: a < b, "=": lambda a, b: a == b}
 PREFIX = "EX-"
+DAYS_MAX = 30   # 최근 정비 조건 기간 상한(일)
 BEFORE = {"instruct", "instruct_after_checklist", "call"}   # 첫 점검 차례(잠금 · 사전 확인 · 확인 질문 · 범위 밖 · 보고서 단계는 그대로)
 
 
@@ -25,6 +27,10 @@ def check(x, sec, names):
     for c in w.get("sensors") or []:
         if len(c) != 3 or c[0] not in FIELDS or c[1] not in OPS or isinstance(c[2], bool) or not isinstance(c[2], (int, float)):
             raise RuleError(f"{x.get('id')}: 예외 조건 칸이 허용 목록 밖")
+    r = w.get("recent")
+    if r is not None and not (isinstance(r, dict) and set(r) == {"section", "days"} and isinstance(r["section"], str) and r["section"]
+                              and isinstance(r["days"], int) and not isinstance(r["days"], bool) and 1 <= r["days"] <= DAYS_MAX):
+        raise RuleError(f"{x.get('id')}: 최근 정비 조건 꼴이 다름")
 
 
 def _parts(graph):
@@ -42,9 +48,33 @@ def find(graph, rel_id):
     return None
 
 
-def match(graph, group, sensors, equipment_id=None):
-    """알람 → 맞는 안내 관계 하나(증상군 · 센서 구간 · 같은 설비 모두 맞을 때). mode 참고는 판단에 안 씀.
-    여럿 맞으면 좁은 것 먼저(D-546 덧 15): ① 설비 조건 있는 줄 → ② 센서 조건 줄 수 많은 줄 → ③ 근거 수 n 큰 줄 → ④ id 큰 줄(나중 관계 · D-546 덧 36)."""
+def _recent(graph, r, equipment_id, occurred_at, recent_work=None):
+    """최근 정비 조건(D-570): 알람 설비 이력 중 [알람 시각 − days, 알람 시각) 안에 그 절을 한 이력이 있나 — 설비 · 시각 칸이 없으면 안 맞음.
+    이력 = 그래프 records(did · checked) + 요청 recent_work(앱 DB · 그 설비 것 · 그래프 반영 전 정비도 봄)."""
+    if not (equipment_id and occurred_at):
+        return False
+    at = _secs(occurred_at)
+    lo = at - r["days"] * 86400
+    hist = [(h["ts"], [*(h.get("did") or []), *(h.get("checked") or [])]) for h in graph.get("records") or [] if h.get("equipment") == equipment_id]
+    hist += [(w["at"], w["sections"]) for w in recent_work or []]
+    return any(lo <= _secs(ts) < at and r["section"] in secs for ts, secs in hist)
+
+
+def _secs(t):
+    """'YYYY-MM-DDTHH:MM:SS+09:00' → UTC 초(graph_query._ts와 같은 셈 · 표준 모듈 datetime 0 · 앱 engine 사본도 그대로 씀)."""
+    y, mo, d = int(t[0:4]), int(t[5:7]), int(t[8:10])
+    y2 = y - (mo <= 2)
+    era = y2 // 400
+    yoe = y2 - era * 400
+    doy = (153 * (mo + (-3 if mo > 2 else 9)) + 2) // 5 + d - 1
+    days = era * 146097 + yoe * 365 + yoe // 4 - yoe // 100 + doy
+    off = (1 if t[19] == "+" else -1) * (int(t[20:22]) * 3600 + int(t[23:25]) * 60) if len(t) > 19 else 0
+    return days * 86400 + int(t[11:13]) * 3600 + int(t[14:16]) * 60 + int(t[17:19]) - off
+
+
+def match(graph, group, sensors, equipment_id=None, occurred_at=None, recent_work=None):
+    """알람 → 맞는 안내 관계 하나(증상군 · 센서 구간 · 같은 설비 · 최근 정비 모두 맞을 때). mode 참고는 판단에 안 씀.
+    여럿 맞으면 좁은 것 먼저(D-546 덧 15): ① 설비 조건 · 최근 정비 조건 있는 줄 → ② 센서 조건 줄 수 많은 줄 → ③ 근거 수 n 큰 줄 → ④ id 큰 줄(나중 관계 · D-546 덧 36)."""
     sec, names = _parts(graph)
     name = next(g["name"] for g in graph["groups"] if g["code"] == group)
     hits = []
@@ -55,11 +85,13 @@ def match(graph, group, sensors, equipment_id=None):
         w = x["when"]
         if w["group"] != name or (w.get("equipment_id") and w["equipment_id"] != equipment_id):
             continue
+        if w.get("recent") and not _recent(graph, w["recent"], equipment_id, occurred_at, recent_work):
+            continue
         if all(OPS[op](sensors[f], v) for f, op, v in w.get("sensors") or []):
             hits.append(x)
     if not hits:
         return None
-    x = min(sorted(hits, key=lambda x: x["id"], reverse=True), key=lambda x: (not x["when"].get("equipment_id"), -len(x["when"].get("sensors") or []), -(x.get("n") or 0)))
+    x = min(sorted(hits, key=lambda x: x["id"], reverse=True), key=lambda x: (not (x["when"].get("equipment_id") or x["when"].get("recent")), -len(x["when"].get("sensors") or []), -(x.get("n") or 0)))
     return x, sec[x["step"]]
 
 

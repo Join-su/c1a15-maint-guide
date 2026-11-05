@@ -44,6 +44,11 @@ export function alarm(scenario: string): number {
   return Number(m[1]);
 }
 
+/** D-570 시연 이력 줄: 넣기(add) · 빼기(remove) — 사람이 시연 전에 치는 명령 그대로. */
+export function demoHistory(...args: string[]): void {
+  hostPy(["-m", "c1a15.demo_history", ...args]);
+}
+
 /** 매 시험 전: 운영 기록(알람 · 세션 · 로그인)과 등급표를 처음 상태로. */
 export function resetOps(): void {
   psql(

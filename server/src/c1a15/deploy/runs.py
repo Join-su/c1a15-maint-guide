@@ -122,10 +122,12 @@ def alarm_context(alarm) -> dict:
     return out
 
 
-def start_body(alarm, grades: dict, minutes: dict) -> dict:
-    """약속 v4: 상위 10건은 Pack 리트리버(retrieve_history)가 고름 — similar 칸은 보내지 않음(EV-001 CH-29)."""
+def start_body(alarm, grades: dict, minutes: dict, recent_work: list[dict] | None = None) -> dict:
+    """약속 v4: 상위 10건은 Pack 리트리버(retrieve_history)가 고름 — similar 칸은 보내지 않음(EV-001 CH-29).
+    recent_work = 약속 v10 덧(D-570 · Pack 5e76c66): 그 설비 30일 안 정비(앱 DB) — 없으면 칸 0(지금 바이트)."""
     return {
         **alarm_context(alarm),
+        **({"recent_work": recent_work} if recent_work else {}),
         "kind": "start",
         "session_id": session_ident(alarm.alarm_id),
         "event_id": start_event_id(alarm),
@@ -172,8 +174,8 @@ def judge_body(
     return body
 
 
-def start(alarm, grades: dict, minutes: dict) -> RunResult:
-    return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, grades, minutes))
+def start(alarm, grades: dict, minutes: dict, recent_work: list[dict] | None = None) -> RunResult:
+    return client().run("start", session_ident(alarm.alarm_id), 0, start_body(alarm, grades, minutes, recent_work))
 
 
 def audit_names(where: str, target: str, n: int) -> None:

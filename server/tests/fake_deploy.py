@@ -37,11 +37,11 @@ REQUIRED = {
     "exception_split": {"session_id", "group", "text"},  # 약속 v10 2절 Pack run kind
     "exception_similar": {"session_id", "group", "exception"},  # 약속 v10 3절(v9 items 대신 예외 하나)
 }
-FORBIDDEN = {
-    "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query"},
+FORBIDDEN = {  # recent_work = start만(Pack 5e76c66 약속 v10 덧 · 다른 종류는 거절)
+    "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query", "recent_work"},
     "start": {"event_card", "settings"},
-    "judge": {"event_card", "settings", "event_id", "query"},
-    "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes"},
+    "judge": {"event_card", "settings", "event_id", "query", "recent_work"},
+    "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "recent_work"},
     "exception_split": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "similar"}
     | {"equipment_id", "occurred_at", "line_id", "items"},  # Pack schema: kind · session_id · group · text만
     "exception_similar": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "text"}
@@ -475,6 +475,15 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
     # 약속 v8 흉내 = Pack custom/judge.py 차례(engine/exception 사본 · D-545 handoff README):
     # start는 관계를 맞춰(여기선 opts로 줌) 결과에 exception_guide, judge는 다시 담긴 exception_relation으로 같은 관계
     eg = opts.get("exception_guide")
+    rec = opts.get(
+        "exception_recent"
+    )  # D-570 when.recent {section, days} — 그래프 records 없이 요청 recent_work만(Pack 5e76c66 _recent 사본)
+    if eg and rec and body["kind"] == "start":
+        graph = {"records": []}
+        if not exception._recent(
+            graph, rec, body.get("equipment_id"), body.get("occurred_at"), body.get("recent_work")
+        ):
+            eg = None  # 최근 정비 없는 같은 알람 = 추천 0
     ex = _ex_of(eg, opts) if eg else None
     if ex and body["kind"] == "judge" and body.get("exception_relation") != eg["relation_id"]:
         ex = None  # 관계 id가 다르면(그래프 버전이 바뀜) 예외 안내 없이 원래 판정

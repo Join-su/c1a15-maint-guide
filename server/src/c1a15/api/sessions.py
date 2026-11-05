@@ -276,7 +276,8 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
         return existing
     # 첫 Run = start — 상위 10은 Pack 리트리버(약속 v4, EV-001 CH-29 · CH-31) · 실패면 세션을 만들지 않음
     g, minutes = deps.grades(c)
-    res = runs.start(alarm, g, minutes)
+    recent = flow.recent_work_of(flow.recent_maintenance(c, alarm, days=flow.RECENT_WORK_DAYS))  # D-570 최근 정비 조건
+    res = runs.start(alarm, g, minutes, recent)
     similar = res.output["similar"]
     _check_known_records(c, alarm, similar, res.run_id)
     deploy_cols = {"retrieval": res.output["retrieval"], "start_run_id": res.run_id, "deployment_id": res.deployment_id}

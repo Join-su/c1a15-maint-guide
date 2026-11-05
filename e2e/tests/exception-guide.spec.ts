@@ -9,7 +9,7 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Browser, type Page, type TestInfo } from "@playwright/test";
-import { alarm, confirmReportModal, freshGuardOff, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
+import { alarm, confirmReportModal, demoHistory, freshGuardOff, guard, login, loginLead, psql, resetOps, restartWithin, result, shot } from "./helpers";
 
 const DEPLOY = process.env.C1A15_DEPLOY_URL ?? "http://127.0.0.1:18796";
 const SIT = "바닥에 절삭유가 고여 있었고 덮개 고정 나사 하나가 빠져 있었음";
@@ -278,6 +278,32 @@ test("예외 안내 걸음마다(정답지 26쪽): 안내 차례 넷 · 승인 �
   expect(ev).toBe("result:c1,result:c2,action_done:a1,action_done:a2"); // 사건 step 칸(약속 v10 5절)
   g.check(info);
   lg.check(info);
+});
+
+// D-570 실시간 시연 길(Pack 5e76c66 _recent 사본 · 가짜 배포): 앱이 start 요청 recent_work에 그 설비 30일 안 정비를 실음 →
+// 예외 조건 '최근 7일 안 그 절 정비' → 시연 이력 줄 넣기 = 같은 증상 알람에 예외 추천 · 빼기 = 같은 알람 추천 0
+test("최근 정비 원인 예외(D-570): 시연 줄 넣기 → 알람 → 예외 추천 · 빼기 → 같은 알람 추천 0(사람 손 순서)", async ({ page }, info) => {
+  const SEC = "4.4.2"; // 다른 시험 승인 이력과 겹치지 않는 절
+  await answer({ exception_guide: guide({ minutes: 15, next_section: "4.3", checks: WALK_CHECKS, actions: WALK_ACTIONS }), exception_recent: { section: SEC, days: 7 } });
+  const g = guard(page, [/status of 401/]); // 시험이 중간에 로그인 기록을 비움(resetOps) — 그 뒤 옛 쿠키 401은 시험 탓
+  demoHistory("add", "--action", SEC); // M-01 · 지금부터 3일 전
+  try {
+    await toExceptionCall(page);
+    const left = page.locator(".g64 > .cd").first();
+    await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검"); // 예외 추천
+    await expect(left.locator('[data-part="ex-walk"] .xwr')).toHaveText(walkNow(0));
+    await snap(page, info, "R1-recent-recommended");
+    const sent = psql("select payload->'decision'->>'section' from ops.session_events where type = 'step_opened' order by seq desc limit 1");
+    expect(sent).toBe(`EX-${rid}`);
+  } finally {
+    demoHistory("remove");
+  }
+  resetOps(); // 로그인도 처음으로 — 같은 알람을 처음부터(시연 줄 뺀 뒤)
+  await toExceptionCall(page);
+  await expect(page.locator(".ins-h h3")).toHaveText("흡기 필터 육안 점검"); // 추천 0 = 원래 첫 점검
+  await expect(page.locator('[data-part="ex-walk"]')).toHaveCount(0);
+  await snap(page, info, "R2-no-recent-no-exception");
+  g.check(info);
 });
 
 test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 시작」 → 진단 '다음 점검' = 예외 절 호출 → 잠금 · 사전 확인 → 예외 카드(F1 걷기 결함 덧 33)", async ({ page }, info) => {
