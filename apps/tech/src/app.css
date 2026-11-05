@@ -214,6 +214,13 @@
 .ap .exp .exp-b { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
 .ap .exp .exn0 { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 700; color: #b45309; }
 .ap .exp .exl + .exl { margin-top: 2px; }
+.ap .exp .exe { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; padding: 10px 12px; border: 1px dashed #f0b67a; border-radius: 10px; background: #fffaf3; }
+.ap .exp .exe > b { font-size: 13px; color: #b45309; }
+.ap .exp .exe input { height: 36px; padding: 0 12px; border: 1px solid #f5d0a9; border-radius: 8px; background: #fff; font: inherit; font-size: 14px; }
+.ap .exp .exel { display: flex; flex-direction: column; gap: 4px; }
+.ap .exp .exel > span { font-size: 13px; color: var(--sub); }
+.ap .exp .exr .btn.xed.ghost { border-color: #f0b67a; color: #b45309; }
+.ap .exp .exr .btn.xed.xon { border-width: 2px; background: #fffaf3; }
 .ap .exp .exh { font-size: 13px; font-weight: 700; color: var(--sub); }
 .ap .rx { border: 1px solid var(--ln); border-radius: 12px; margin-top: 14px; }
 .ap .rx .rx-h { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--ln); }

@@ -344,6 +344,20 @@ def engine_answer(body: dict) -> dict:
 # 가짜 비슷한 것 찾기(약속 v10 3절 꼴): Pack custom/similar.py와 같은 셈(글자 두 개 묶음 코사인 · 상위 3 · 최소 점수)을
 # 예외 통째로 한 번 · 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 절 하나(CL)에 — 같음 / 아님 둘 다
 SIMILAR_EXCEPTION = {"CL": [("EX-R-0001", "필터 덮개 나사", "필터 덮개 고정 나사 네 개 체결 확인 나사를 새로 끼움")]}
+# 가짜 등록 예외 지금 목록(Pack 1674865 꼴: matches 예외 줄 checks · actions 선택 칸 · 분 = 정수)
+SIMILAR_EXCEPTION_LISTS = {
+    "EX-R-0001": {
+        "checks": [
+            {
+                "what": "필터 덮개 고정 나사",
+                "how": "나사 네 개를 손으로 돌려 본다",
+                "criteria": "네 개 모두 체결 = 정상",
+                "minutes": 5,
+            }
+        ],
+        "actions": [{"what": "나사를 새로 끼움", "parts": [], "minutes": 10}],
+    }
+}
 SIMILAR_MIN = 0.15  # Pack similar.py MIN_SCORE(c1a15-pack 69ebdd1 · D-556 덧 5 · 6) — 빈 matches = 비슷한 것 없음
 
 
@@ -377,7 +391,11 @@ def similar_answer(body: dict) -> dict:
     words += [x for a in ex["actions"] for x in (a["what"], *(a.get("parts") or []))]
     q = _grams(" ".join(words))
     hits = sorted(((round(_cos(q, _grams(t)), 4), kd, no, nm) for kd, no, nm, t in pool), key=lambda h: (-h[0], h[2]))
-    top = [{"kind": kd, "no": no, "name": nm, "score": sc} for sc, kd, no, nm in hits[:3] if sc >= SIMILAR_MIN]
+    top = [
+        {"kind": kd, "no": no, "name": nm, "score": sc, **(SIMILAR_EXCEPTION_LISTS.get(no, {}) if kd == "예외" else {})}
+        for sc, kd, no, nm in hits[:3]
+        if sc >= SIMILAR_MIN
+    ]
     return {"exception_similar": {"matches": top}}
 
 

@@ -42,11 +42,38 @@ class ExceptionMatch(_Strict):
     no: str = Field(max_length=40)
 
 
+class ExceptionCheckIn(_Strict):
+    """약속 v10 1절 점검 칸(what만 필수)."""
+
+    what: str = Field(min_length=1, max_length=200)
+    how: str = Field(default="", max_length=500)
+    criteria: str = Field(default="", max_length=200)
+    minutes: int | None = Field(default=None, ge=1)
+
+
+class ExceptionActionIn(_Strict):
+    """약속 v10 1절 조치 칸(what만 필수)."""
+
+    what: str = Field(min_length=1, max_length=200)
+    parts: list[str] = Field(default=[], max_length=10)
+    minutes: int | None = Field(default=None, ge=1)
+
+
+class ExceptionEdit(_Strict):
+    """same-edit.md 1절 exception_review.edit(정답지 30쪽 같음 + 고침/보탬):
+    고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체."""
+
+    checks: list[ExceptionCheckIn] = Field(min_length=1, max_length=10)
+    actions: list[ExceptionActionIn] = Field(min_length=1, max_length=10)
+
+
 class ExceptionReview(_Strict):
-    """약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외)."""
+    """약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).
+    edit = 2단계 같음 + 고침(same-edit.md 1절 · 기존 예외 match만 · 고친 뒤 목록 전체)."""
 
     decision: Literal["same", "not"]
     match: ExceptionMatch | None = None
+    edit: ExceptionEdit | None = None
 
 
 class ExceptionInput(_Strict):

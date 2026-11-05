@@ -450,6 +450,8 @@ class ExceptionSimilar(_Out):
     no: str
     name: str
     score: float
+    checks: list[ExceptionCheckFields] | None = None  # 예외 줄 지금 목록(선택 · 같음 + 고침 바탕 · D-560 덧 10)
+    actions: list[ExceptionActionFields] | None = None
 
 
 class ExceptionMatchRef(_Out):
@@ -457,11 +459,19 @@ class ExceptionMatchRef(_Out):
     no: str
 
 
+class ExceptionEditOut(_Out):
+    """same-edit.md 1절 edit(정답지 30쪽 같음 + 고침): 고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체."""
+
+    checks: list[ExceptionCheckFields]
+    actions: list[ExceptionActionFields]
+
+
 class ExceptionReviewOut(_Out):
     """약속 v10 6절 exception_record.exception_review(한 번 · 확정 기록 · 승인 기록 파일에 그대로)."""
 
     decision: str  # same | not
     match: ExceptionMatchRef | None
+    edit: ExceptionEditOut | None = None  # same-edit.md 1절(같음 + 고침일 때만)
 
 
 class ExceptionOne(_Out):
@@ -471,6 +481,7 @@ class ExceptionOne(_Out):
     checks: list[ExceptionCheckFields]
     actions: list[ExceptionActionFields]
     matches: list[ExceptionSimilar] = []
+    edit: ExceptionEditOut | None = None  # 2단계 같음 + 고침(정답지 30쪽 · 같음일 때만)
     decision: str | None = None  # 적용 뒤: same | not
     match: ExceptionMatchRef | None = None  # 적용 뒤: 같다고 한 것
     kind: str | None = None  # 적용 뒤 기록 이름(약속 v9 3절): missed | new_exception

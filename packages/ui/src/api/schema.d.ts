@@ -1137,6 +1137,21 @@ export interface components {
             what: string;
         };
         /**
+         * ExceptionActionIn
+         * @description 약속 v10 1절 조치 칸(what만 필수).
+         */
+        ExceptionActionIn: {
+            /** Minutes */
+            minutes?: number | null;
+            /**
+             * Parts
+             * @default []
+             */
+            parts: string[];
+            /** What */
+            what: string;
+        };
+        /**
          * ExceptionApplied
          * @description 정답지 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).
          */
@@ -1180,6 +1195,26 @@ export interface components {
             what: string;
         };
         /**
+         * ExceptionCheckIn
+         * @description 약속 v10 1절 점검 칸(what만 필수).
+         */
+        ExceptionCheckIn: {
+            /**
+             * Criteria
+             * @default
+             */
+            criteria: string;
+            /**
+             * How
+             * @default
+             */
+            how: string;
+            /** Minutes */
+            minutes?: number | null;
+            /** What */
+            what: string;
+        };
+        /**
          * ExceptionContext
          * @description D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0).
          */
@@ -1210,6 +1245,27 @@ export interface components {
         ExceptionDraft: {
             /** Text */
             text: string;
+        };
+        /**
+         * ExceptionEdit
+         * @description same-edit.md 1절 exception_review.edit(정답지 30쪽 같음 + 고침/보탬):
+         *     고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체.
+         */
+        ExceptionEdit: {
+            /** Actions */
+            actions: components["schemas"]["ExceptionActionIn"][];
+            /** Checks */
+            checks: components["schemas"]["ExceptionCheckIn"][];
+        };
+        /**
+         * ExceptionEditOut
+         * @description same-edit.md 1절 edit(정답지 30쪽 같음 + 고침): 고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체.
+         */
+        ExceptionEditOut: {
+            /** Actions */
+            actions: components["schemas"]["ExceptionActionFields"][];
+            /** Checks */
+            checks: components["schemas"]["ExceptionCheckFields"][];
         };
         /**
          * ExceptionGuide
@@ -1330,6 +1386,7 @@ export interface components {
             checks: components["schemas"]["ExceptionCheckFields"][];
             /** Decision */
             decision?: string | null;
+            edit?: components["schemas"]["ExceptionEditOut"] | null;
             /** Kind */
             kind?: string | null;
             match?: components["schemas"]["ExceptionMatchRef"] | null;
@@ -1389,6 +1446,7 @@ export interface components {
         /**
          * ExceptionReview
          * @description 약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).
+         *     edit = 2단계 같음 + 고침(same-edit.md 1절 · 기존 예외 match만 · 고친 뒤 목록 전체).
          */
         ExceptionReview: {
             /**
@@ -1396,6 +1454,7 @@ export interface components {
              * @enum {string}
              */
             decision: "same" | "not";
+            edit?: components["schemas"]["ExceptionEdit"] | null;
             match?: components["schemas"]["ExceptionMatch"] | null;
         };
         /**
@@ -1405,6 +1464,7 @@ export interface components {
         ExceptionReviewOut: {
             /** Decision */
             decision: string;
+            edit?: components["schemas"]["ExceptionEditOut"] | null;
             match: components["schemas"]["ExceptionMatchRef"] | null;
         };
         /**
@@ -1412,6 +1472,10 @@ export interface components {
          * @description 약속 v10 3절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.
          */
         ExceptionSimilar: {
+            /** Actions */
+            actions?: components["schemas"]["ExceptionActionFields"][] | null;
+            /** Checks */
+            checks?: components["schemas"]["ExceptionCheckFields"][] | null;
             /** Kind */
             kind: string;
             /** Name */

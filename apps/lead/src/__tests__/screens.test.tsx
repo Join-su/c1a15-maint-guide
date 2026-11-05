@@ -214,6 +214,16 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     ]);
     expect(texts(s2, ".fd-ex .fd-xk")).toEqual(["같음 · 예외상황-필터 덮개 나사"]); // 칩 하나(예외 전체에 한 번)
     cleanup();
+    // 정답지 30쪽 파트장 승인: 칩 '같음 + 고침 · 이름' · 바뀌기 전 / 뒤 나란히(전 = 그때 받은 대상 지금 목록)
+    const tgt = { checks: [{ what: "필터 덮개 고정 나사", how: "손으로 돌려 본다", criteria: "", minutes: null }], actions: [{ what: "나사를 새로 끼움", parts: [], minutes: null }] };
+    const edit = { checks: [{ ...tgt.checks[0], how: "풀린 나사는 손으로 돌려 본다" }], actions: tgt.actions };
+    const ed = { ...split, exception: { ...one, matches: [{ ...one.matches[0], ...tgt }], edit } };
+    const s6 = render(<Review api={{} as Api} report={{ ...report(), exception_record: ed }} onBack={noop} onDone={noop} />).container;
+    expect(texts(s6, ".fd-ex .fd-xk")).toEqual(["같음 + 고침 · 예외상황-필터 덮개 나사"]);
+    expect(texts(s6, ".fd-ex th").slice(0, 8)).toEqual(["상황", "적은 글", "예외", "점검", "조치", "고침 전", "고침 뒤", "결과"]);
+    expect(texts(s6, '.fd-ex tr[data-item="edit-before"] td')).toEqual(["점검 1 필터 덮개 고정 나사 · 손으로 돌려 본다 / 조치 1 나사를 새로 끼움"]);
+    expect(texts(s6, '.fd-ex tr[data-item="edit-after"] td')).toEqual(["점검 1 필터 덮개 고정 나사 · 풀린 나사는 손으로 돌려 본다 / 조치 1 나사를 새로 끼움"]);
+    cleanup();
     // 아님 = 새 예외 · 예외상황-{주제} · 비슷한 것 이름이 없으면 kind no
     const nw = { ...split, exception: { ...one, decision: "not", match: null, kind: "new_exception" } };
     const s4 = render(<Review api={{} as Api} report={{ ...report(), exception_record: nw }} onBack={noop} onDone={noop} />).container;

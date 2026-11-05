@@ -218,14 +218,24 @@ def test_exception_record_input_and_blocks():
         "checks",
         "actions",
         "matches",
+        "edit",  # 정답지 30쪽 같음 + 고침(앱 임시 칸)
         "decision",
         "match",
         "kind",
     }
-    assert set(responses.ExceptionReviewOut.model_fields) == {"decision", "match"}  # 승인 기록 파일 칸(약속 v10 6절)
+    assert set(schemas.ExceptionEdit.model_fields) == {"checks", "actions"}  # same-edit.md 1절
+    with pytest.raises(ValueError):
+        schemas.ExceptionEdit(checks=[], actions=[{"what": "가"}])  # 목록 1 ~ 10
+    assert "edit" in responses.ExceptionReviewOut.model_fields
+    assert {"checks", "actions"} <= set(responses.ExceptionSimilar.model_fields)  # 예외 줄 지금 목록(선택)
+    assert set(responses.ExceptionReviewOut.model_fields) == {
+        "decision",
+        "match",
+        "edit",
+    }  # 승인 기록 파일 칸(약속 v10 6절)
     assert "exception_review" in responses.ExceptionRecord.model_fields
     assert set(responses.ExceptionSplit.model_fields) == {"text", "exception", "error", "similar_error"}
-    assert set(responses.ExceptionSimilar.model_fields) == {"kind", "no", "name", "score"}  # 약속 v10 3절
+    assert {"kind", "no", "name", "score"} <= set(responses.ExceptionSimilar.model_fields)  # 약속 v10 3절
     assert set(responses.CheckRecord.model_fields) == {"kind", "session_id", "human_check", "relation_id", "at_seq"}
     assert {"exception_auto", "exception_split"} <= set(responses.ReportBlock.model_fields)
     assert (

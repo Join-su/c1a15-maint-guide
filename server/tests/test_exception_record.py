@@ -70,8 +70,11 @@ def _mine(api, rid):
     return [x for x in items if x["report_id"] == rid]
 
 
-def _set(ex: dict) -> dict:
-    return {k: v for k, v in ex.items() if v is not None}
+def _set(ex):
+    """None 칸을 뺀 값(응답은 빈 선택 칸도 None으로 보임 · 안쪽까지)."""
+    if isinstance(ex, dict):
+        return {k: _set(v) for k, v in ex.items() if v is not None}
+    return [_set(x) for x in ex] if isinstance(ex, list) else ex
 
 
 def _rid(db, sid):
@@ -463,3 +466,50 @@ def test_v9_pair_records_read_as_one_exception():
     assert view["exception"]["matches"] == [{**m, "name": "가", "score": 0.5}]
     nv = flow.record_out({**v10, "exception_review": {"decision": "not", "match": None}})["exception"]
     assert (nv["kind"], nv["match"], nv["matches"]) == ("new_exception", None, [])
+
+
+def test_same_with_edit_stage2(api, db, deploy):
+    """정답지 30쪽 2단계 '같음 + 고침'(same-edit.md 1절 · D-560 덧 10): 비슷한 것 예외 줄에 대상 예외 지금 목록(가짜 = Pack 흉내)
+    → 같음 + edit {checks, actions} = 고친 뒤 대상 목록 전체 → 기록 exception_review.edit(exception 꼴 그대로) · 화면 응답
+    exception.edit · 보고서 · 최종본 · 승인 이력에 같이. 아님 · 매뉴얼 · 목록 없는 줄 · 바뀐 것 0 · 빈 what은 409 / 422."""
+    from c1a15.api import flow
+
+    reset_ops(db)
+    tech, s = _to_report(api, db)
+    s = _split(tech, s)
+    ms = s["report"]["exception_split"]["exception"]["matches"]
+    target = next(m for m in ms if m["kind"] == "예외")
+    manual = next(m for m in ms if m["kind"] == "매뉴얼")
+    assert target["checks"] and target["actions"] and manual.get("checks") is None  # 예외 줄만 지금 목록
+    checks = [
+        {**target["checks"][0], "how": "덮개 고정 나사 네 개가 다 있는지 보고, 풀린 나사가 있으면 손으로 돌려 본다"}
+    ]
+    actions = [*target["actions"], {"what": "남은 나사도 다시 조인다", "parts": [], "minutes": None}]
+    edit = {"checks": checks, "actions": actions}
+    for review in (
+        {**NOT, "edit": edit},  # 아님엔 고침 0
+        {"decision": "same", "match": {"kind": "매뉴얼", "no": manual["no"]}, "edit": edit},  # 매뉴얼 절은 고침 0
+        {**SAME, "edit": {"checks": target["checks"], "actions": target["actions"]}},  # 바뀐 것 0 = 같음만
+    ):
+        r = _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=review)
+        assert (r.status_code, r.json()["detail"]["reason"]) == (409, "exception_review_invalid")
+    bad = {**SAME, "edit": {"checks": [{"what": ""}], "actions": actions}}
+    assert (
+        _post(tech, s, type="report_confirm", exception_record={"text": TEXT}, exception_review=bad).status_code == 422
+    )
+    s = _confirm(tech, s, review={**SAME, "edit": edit})
+    ex = s["report"]["exception_record"]
+    assert ex["exception"]["edit"] == edit and ex["exception"]["kind"] == "missed"
+    assert ex["exception_review"] == {**SAME, "edit": edit}  # same-edit.md 1절 칸
+    rid = _rid(db, s["session_id"])
+    lc = lead(api)
+    assert lc.get(f"/api/lead/reports/{rid}/final").json()["exception_record"]["exception"]["edit"] == edit
+    hid = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).json()["history_record_id"]
+    with db.connect() as c:
+        er = c.execute(
+            text("select record->'exception_record' from knowledge.history_records where record_id = :i"), {"i": hid}
+        ).scalar()
+    assert er["exception_review"] == {**SAME, "edit": edit} and set(er["exception"]) == {"topic", "checks", "actions"}
+    before = next(m for m in er["exception_matches"] if m["no"] == SIM0["no"])  # 바뀌기 전(그때 받은 대상 목록)
+    assert (before["checks"], before["actions"]) == (target["checks"], target["actions"])
+    assert flow.record_out(er)["exception"]["edit"] == edit

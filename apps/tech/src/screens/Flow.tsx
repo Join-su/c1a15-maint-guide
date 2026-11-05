@@ -139,14 +139,43 @@ const numbered = (xs: string[]) => xs.map((x, i) => `${i + 1} ${x}`).join(" · "
 function exChip(ex: ExOne): { cls: string; text: string } {
   if (ex.kind === "missed" && ex.match) {
     const m = (ex.matches ?? []).find((x) => matchKey(x) === matchKey(ex.match!));
-    return { cls: "gray", text: `같음 · ${m ? matchLabel(m) : `${ex.match.kind} ${ex.match.no}`}` };
+    const head = ex.edit ? "같음 + 고침" : "같음"; // 정답지 30쪽 2단계
+    return { cls: ex.edit ? "amber" : "gray", text: `${head} · ${m ? matchLabel(m) : `${ex.match.kind} ${ex.match.no}`}` };
   }
   return { cls: "blue", text: `새 예외 · ${exName(ex.topic)}` };
 }
 
 /** 팝업 안 나눈 예외 하나(정답지 18쪽): 이름 · 점검 n · 조치 n · 비슷한 것(예외 통째)마다 「같음」 + 「아님」 · 0이면 바로 새 예외. */
-function ExPopOne({ ex, pick, onPick }: { ex: ExOne; pick?: string | null; onPick: (v: string | null) => void }) {
+// 정답지 30쪽 · same-edit.md 1절: 같음 + 고침/보탬 = 대상 예외 지금 목록(비슷한 것 예외 줄) 위에 점검마다 방법 고침 + 조치 하나 보탬
+type ExEdit = { key: string | null; hows: string[]; add: string };
+type ExList = { checks: ExOne["checks"]; actions: ExOne["actions"] };
+/** 고친 뒤 대상 예외 목록 전체(same-edit.md 1절 edit) — 바뀐 것 없으면 null. */
+function editOf(m: ExMatch, e: ExEdit): ExList | null {
+  if (!m.checks || !m.actions) return null;
+  const checks = m.checks.map((c, i) => ({ ...c, how: (e.hows[i] ?? c.how).trim() }));
+  const actions = e.add.trim() ? [...m.actions, { what: e.add.trim(), parts: [], minutes: null }] : m.actions;
+  const changed = checks.some((c, i) => c.how !== m.checks![i].how) || actions.length !== m.actions.length;
+  return changed ? { checks, actions } : null;
+}
+/** 고침 전 · 뒤 한 줄(정답지 30쪽 파트장 '바뀌기 전 / 뒤 나란히'): '점검 1 무엇 · 방법 / 조치 1 무엇'. */
+const listLine = (l: ExList) =>
+  `점검 ${numbered(l.checks.map((c) => [c.what, c.how].filter(Boolean).join(" · ")))} / 조치 ${numbered(l.actions.map((a) => a.what))}`;
+
+function ExPopOne({
+  ex,
+  pick,
+  onPick,
+  edit,
+  onEdit,
+}: {
+  ex: ExOne;
+  pick?: string | null;
+  onPick: (v: string | null) => void;
+  edit: ExEdit;
+  onEdit: (e: ExEdit) => void;
+}) {
   const matches = ex.matches ?? [];
+  const editTarget = edit.key ? matches.find((m) => matchKey(m) === edit.key && m.checks) : undefined;
   return (
     <div className="exi" data-part="ex-one">
       <span className="exn0">{exName(ex.topic)}</span>
@@ -169,11 +198,53 @@ function ExPopOne({ ex, pick, onPick }: { ex: ExOne; pick?: string | null; onPic
             <div className="exr" key={matchKey(m)} data-match={matchKey(m)}>
               <span className={`ch ${m.kind === "예외" ? "amber" : "gray"}`}>{m.kind}</span>
               <span className="exn">{matchLabel(m)}</span>
-              <Btn cls={pick === matchKey(m) ? "on" : "ghost"} label="같음" onClick={() => onPick(matchKey(m))} />
+              <Btn
+                cls={pick === matchKey(m) ? "on" : "ghost"} // 정답지 30쪽: 고침/보탬이어도 같음은 채움
+                label="같음"
+                onClick={() => {
+                  onEdit({ ...edit, key: null });
+                  onPick(matchKey(m));
+                }}
+              />
+              {m.kind === "예외" && m.checks && m.actions ? ( // 정답지 30쪽: 지금 목록이 온 기존 예외만 고침/보탬
+                <Btn
+                  cls={`ghost xed${edit.key === matchKey(m) && pick === matchKey(m) ? " xon" : ""}`} // 주황 테두리 그대로
+                  label="고침/보탬"
+                  onClick={() => {
+                    if (edit.key !== matchKey(m)) onEdit({ key: matchKey(m), hows: m.checks!.map((c) => c.how), add: "" });
+                    onPick(matchKey(m));
+                  }}
+                />
+              ) : null}
             </div>
           ))}
+          {editTarget && pick === edit.key ? (
+            <div className="exe" data-part="ex-edit">
+              <b>고칠 점검방법</b>
+              {editTarget.checks!.map((c, i) => (
+                <label className="exel" key={i}>
+                  {editTarget.checks!.length > 1 ? <span>점검 {i + 1} · {c.what}</span> : null}
+                  <input
+                    aria-label={`고칠 점검방법 ${i + 1}`}
+                    maxLength={500}
+                    value={edit.hows[i] ?? ""}
+                    onChange={(e) => onEdit({ ...edit, hows: edit.hows.map((h, j) => (j === i ? e.target.value : h)) })}
+                  />
+                </label>
+              ))}
+              <b>보탤 조치</b>
+              <input aria-label="보탤 조치" maxLength={200} value={edit.add} onChange={(e) => onEdit({ ...edit, add: e.target.value })} />
+            </div>
+          ) : null}
           <span className="exb">
-            <Btn cls={pick === null ? "on" : "ghost"} label="아님" onClick={() => onPick(null)} />
+            <Btn
+              cls={pick === null ? "on" : "ghost"}
+              label="아님"
+              onClick={() => {
+                onEdit({ ...edit, key: null });
+                onPick(null);
+              }}
+            />
           </span>
         </div>
       ) : (
@@ -210,11 +281,23 @@ function ExPopup({
     return { key: applied && applied.text === ex.trim() ? splitKey : "", v: r ? (r.match ? matchKey(r.match) : null) : undefined };
   });
   const chosen = fresh ? (fresh.matches?.length ? (picks.key === splitKey ? picks.v : undefined) : null) : undefined;
-  const ready = !!ex.trim() && (unsplit || (fresh !== null && chosen !== undefined));
+  const [edit, setEdit] = useState<ExEdit>(() => {
+    const e = applied?.exception?.edit; // 앞 적용 = 고친 뒤 목록 → 칸 다시 채움(대상 = 그때 비슷한 것 예외 줄)
+    const r = applied?.exception_review;
+    const t = e && r?.match ? applied?.exception?.matches?.find((m) => matchKey(m) === matchKey(r.match!)) : undefined;
+    return e && t
+      ? { key: matchKey(t), hows: e.checks.map((c) => c.how), add: e.actions.length > (t.actions?.length ?? 0) ? e.actions[e.actions.length - 1].what : "" }
+      : { key: null, hows: [], add: "" };
+  });
+  const editing = !!edit.key && chosen === edit.key; // 정답지 30쪽 같음 + 고침 — 바뀐 것이 있어야
+  const target = editing ? fresh?.matches?.find((x) => matchKey(x) === edit.key) : undefined;
+  const edited = target ? editOf(target, edit) : null;
+  const ready = !!ex.trim() && (unsplit || (fresh !== null && chosen !== undefined && (!editing || !!edited)));
   const apply = () => {
     if (busy || !ready) return;
     const m = chosen ? fresh?.matches?.find((x) => matchKey(x) === chosen) : undefined;
-    const review = unsplit ? null : m ? { decision: "same", match: { kind: m.kind, no: m.no } } : { decision: "not", match: null };
+    const same = m ? { decision: "same", match: { kind: m.kind, no: m.no }, ...(editing && edited ? { edit: edited } : {}) } : null;
+    const review = unsplit ? null : same ?? { decision: "not", match: null };
     void Promise.resolve(send({ type: "exception_apply", exception_record: { text: ex.trim() }, exception_review: review })).then(
       (ok) => ok && onApplied(),
     );
@@ -264,7 +347,7 @@ function ExPopup({
           ) : null}
           {fresh ? (
             <div className="exg" data-part="ex-items">
-              <ExPopOne ex={fresh} pick={chosen} onPick={(v) => setPicks({ key: splitKey, v })} />
+              <ExPopOne ex={fresh} pick={chosen} onPick={(v) => setPicks({ key: splitKey, v })} edit={edit} onEdit={setEdit} />
             </div>
           ) : null}
           <div className="khf">
@@ -312,6 +395,8 @@ function ExSection({
   done?: boolean; // 확정 뒤 — 보기만(정답지 20쪽)
 }) {
   const c = exception ? exChip(exception) : null;
+  const t = exception?.edit && exception.match ? exception.matches?.find((m) => matchKey(m) === matchKey(exception.match!)) : undefined;
+  const editBefore = t?.checks && t.actions ? { checks: t.checks, actions: t.actions } : null;
   return (
     <div className="rx" data-part="ex-section">
       <div className="rx-h">
@@ -357,6 +442,20 @@ function ExSection({
                   <span>조치</span>
                   <span>{numbered(exception.actions.map(lineAction))}</span>
                 </div>
+                {exception.edit ? ( // 정답지 30쪽 2단계 같음 + 고침: 고침 전(그때 대상 목록) · 뒤
+                  <>
+                    {editBefore ? (
+                      <div className="rxr" data-item="edit-before">
+                        <span>고침 전</span>
+                        <span>{listLine(editBefore)}</span>
+                      </div>
+                    ) : null}
+                    <div className="rxr" data-item="edit-after">
+                      <span>고침 뒤</span>
+                      <span>{listLine(exception.edit)}</span>
+                    </div>
+                  </>
+                ) : null}
               </>
             ) : null}
             {splitError ? (

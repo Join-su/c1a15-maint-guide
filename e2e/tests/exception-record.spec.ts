@@ -16,6 +16,10 @@ const TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 점검 흡
 const CHECKS = "1 필터 덮개 고정 나사를 손으로 확인 · 기준 정상 범위 · 2 흡기 덕트 이음매 · 기준 정상 범위";
 const ACTIONS = "1 나사를 새로 끼움 · 2 밴드를 다시 조임";
 const NAME = "예외상황-필터 덮개 나사";
+const EDIT_HOW = "덮개 고정 나사 네 개가 다 있는지 보고, 풀린 나사가 있으면 손으로 돌려 본다";
+const EDIT_ADD = "빠진 나사는 새로 끼우고 남은 나사도 다시 조인다";
+const BEFORE_LINE = "점검 1 필터 덮개 고정 나사 · 나사 네 개를 손으로 돌려 본다 / 조치 1 나사를 새로 끼움";
+const AFTER_LINE = `점검 1 필터 덮개 고정 나사 · ${EDIT_HOW} / 조치 1 나사를 새로 끼움 · 2 ${EDIT_ADD}`;
 const RESULT = "재가동 정상(경계 이내)";
 
 async function snap(page: Page, info: TestInfo, name: string) {
@@ -74,7 +78,7 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   ]); // 적은 순서 그대로
   await expect(rows.locator(".exh")).toHaveText("비슷한 것 · 예외 통째로 견줌");
   const sim0 = rows.locator(".exr");
-  await expect(sim0.first()).toHaveText(`예외${NAME}같음`); // 등록 예외가 맨 위
+  await expect(sim0.first()).toHaveText(`예외${NAME}같음고침/보탬`); // 등록 예외가 맨 위(정답지 30쪽: 기존 예외만 고침/보탬)
   await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 고르기 전 잠김
   await expect(dlg.locator(".mb .btn")).toHaveText(["보고서에 적용"]); // 처음 팝업엔 「취소」 0(정답지 18쪽)
   await pause(page);
@@ -95,7 +99,7 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await pause(page);
   await sec.locator(".btn", { hasText: "예외 상황 수정" }).click(); // 같은 화면 한 번 더: 앞 내용 채운 팝업
   await expect(dlg.getByLabel("예외 글", { exact: true })).toHaveValue(TEXT);
-  await expect(dlg.locator(".exi .exr").first().locator(".btn")).not.toHaveClass(/ghost/); // 앞 고름 그대로
+  await expect(dlg.locator(".exi .exr").first().locator(".btn").filter({ hasText: /^같음$/ })).not.toHaveClass(/ghost/); // 앞 고름 그대로
   await expect(dlg.locator(".mb .btn")).toHaveText(["취소", "보고서에 적용"]); // 다시 연 팝업만 「취소」(정답지 19쪽)
   await pause(page);
   await dlg.locator(".mb .btn", { hasText: "취소" }).click();
@@ -158,6 +162,86 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
     const real = psql(`select record->'exception_record' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`);
     writeFileSync(path.join(process.env.SHOT_DIR, "real-exception-record.json"), JSON.stringify(JSON.parse(real), null, 1));
   }
+  g.check(info);
+  lg.check(info);
+});
+
+// 정답지 30쪽 2단계 '같음 + 고침'(same-edit.md · D-560 덧 10): 비슷한 것 예외 줄 = 대상 예외 지금 목록(가짜 = Pack 흉내) →
+// 「고침/보탬」 → 점검마다 방법 칸(미리 채움) + 보탤 조치 → 「보고서에 적용」 → 보고서 구역 '같음 + 고침' · 고침 전 / 뒤 → 확정 →
+// 파트장 6번 같은 줄 → 승인 → 이력 원본 층 exception_review.edit(고친 뒤 목록 전체)
+test("같음 + 고침(정답지 30쪽): 기존 예외 「고침/보탬」 → 고칠 글 → 적용 → 보고서 구역 → 확정 → 파트장 6번 → 승인(사람 손 순서)", async ({ page, browser }, info) => {
+  const g = guard(page);
+  await login(page);
+  await toFirstCheck(page, "DEMO-01");
+  await pause(page);
+  await page.locator(".refs .lk", { hasText: "점검 바꾸기" }).click();
+  const sw = page.locator('.modal[aria-label="점검 바꾸기"]');
+  await sw.locator(".swc.swx").click();
+  await pause(page);
+  await sw.locator(".swc", { hasText: "바로 조치" }).click();
+  await pause(page);
+  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
+  await restartWithin(page);
+  await pause(page);
+  await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
+  const dlg = page.locator('.modal[aria-label="예외 상황 기록"]');
+  const ta = dlg.getByLabel("예외 글", { exact: true });
+  await ta.click();
+  await ta.fill(TEXT);
+  await pause(page);
+  await dlg.locator(".exa .btn", { hasText: "AI 나눔" }).click();
+  const row = dlg.locator(".exi .exr").first();
+  await expect(row).toHaveText(`예외${NAME}같음고침/보탬`);
+  await pause(page);
+  await row.locator(".btn", { hasText: "고침/보탬" }).click();
+  const box = dlg.locator('[data-part="ex-edit"]');
+  await expect(box.locator("b")).toHaveText(["고칠 점검방법", "보탤 조치"]);
+  await expect(dlg.locator(".mb .btn", { hasText: "보고서에 적용" })).toHaveClass(/dis/); // 바뀐 것 0 = 잠김
+  await expect(box.getByLabel("고칠 점검방법 1")).toHaveValue("나사 네 개를 손으로 돌려 본다"); // 대상 지금 방법
+  await box.getByLabel("고칠 점검방법 1").fill(EDIT_HOW);
+  await box.getByLabel("보탤 조치").fill(EDIT_ADD);
+  await snap(page, info, "S1-same-edit-popup");
+  await pause(page);
+  await dlg.locator(".mb .btn", { hasText: "보고서에 적용" }).click();
+  await expect(dlg).toHaveCount(0);
+  const sec = page.locator(".g73 > .cd").first().locator('[data-part="ex-section"]');
+  await expect(sec.locator(".rxr .ch")).toHaveText([`같음 + 고침 · ${NAME}`]);
+  await expect(sec.locator('[data-item="edit-before"] > span').last()).toHaveText(BEFORE_LINE);
+  await expect(sec.locator('[data-item="edit-after"] > span').last()).toHaveText(AFTER_LINE);
+  await pause(page);
+  await sec.locator(".btn", { hasText: "예외 상황 수정" }).click(); // 같은 화면 한 번 더: 앞 글 그대로
+  await expect(dlg.getByLabel("고칠 점검방법 1")).toHaveValue(EDIT_HOW);
+  await pause(page);
+  await dlg.locator(".mb .btn", { hasText: "취소" }).click();
+  await snap(page, info, "S2-same-edit-section");
+  await pause(page);
+  await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
+  await pause(page);
+  await page.locator('.modal[aria-label="보고서 확정"] .btn').filter({ hasText: /^확정$/ }).click();
+  await expect(page.locator(".banner.ok b")).toHaveText(/^보고서를 확정했습니다/);
+  const lead = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
+  const lg = guard(lead);
+  await lead.goto(LEAD_URL + "/");
+  await lead.getByLabel("ID").fill("lead.park");
+  await lead.getByLabel("비밀번호").fill(LEAD_PW);
+  await pause(lead);
+  await lead.locator(".lg-card button.lbtn").click();
+  await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
+  await expect(lead.locator(".fd-ex .fd-xk")).toHaveText([`같음 + 고침 · ${NAME}`]);
+  await expect(lead.locator('.fd-ex tr[data-item="edit-before"] td')).toHaveText(BEFORE_LINE); // 바뀌기 전 / 뒤 나란히
+  await expect(lead.locator('.fd-ex tr[data-item="edit-after"] td')).toHaveText(AFTER_LINE);
+  await lead.locator(".fd-ex").scrollIntoViewIfNeeded();
+  await snap(lead, info, "S3-same-edit-lead");
+  await pause(lead);
+  await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
+  await pause(lead);
+  await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
+  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  const rid = psql("select report_id from ops.reports");
+  const er = `from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`;
+  expect(psql(`select record->'exception_record'->'exception_review'->'edit'->'checks'->0->>'how' ${er}`)).toBe(EDIT_HOW); // same-edit.md 1절
+  expect(psql(`select record->'exception_record'->'exception_review'->'edit'->'actions'->1->>'what' ${er}`)).toBe(EDIT_ADD); // 보탠 조치 = 목록 끝
+  expect(psql(`select string_agg(k, ',' order by k) from knowledge.history_records, jsonb_object_keys(record->'exception_record'->'exception') k where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("actions,checks,topic"); // 적재기 꼴 그대로
   g.check(info);
   lg.check(info);
 });

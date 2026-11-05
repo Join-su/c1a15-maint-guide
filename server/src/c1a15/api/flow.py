@@ -760,14 +760,26 @@ def similar_matches(output: dict) -> list[dict]:
     for x in rows or []:
         try:
             if x.get("kind") in SIMILAR_KINDS and x.get("no"):
-                out.append(
-                    {
-                        "kind": x["kind"],
-                        "no": str(x["no"]),
-                        "name": str(x.get("name") or ""),
-                        "score": float(x["score"]),
-                    }
-                )
+                row = {
+                    "kind": x["kind"],
+                    "no": str(x["no"]),
+                    "name": str(x.get("name") or ""),
+                    "score": float(x["score"]),
+                }
+                # 예외 줄 지금 목록(선택 칸 · D-560 덧 10 — 같음 + 고침의 바탕) — 꼴 어긋난 줄은 빼고 둘 다 있을 때만
+                cks = [
+                    _check_of(c)
+                    for c in x.get("checks") or []
+                    if isinstance(c, dict) and str(c.get("what") or "").strip()
+                ]
+                acs = [
+                    _action_of(a)
+                    for a in x.get("actions") or []
+                    if isinstance(a, dict) and str(a.get("what") or "").strip()
+                ]
+                if x["kind"] == "예외" and cks and acs:
+                    row |= {"checks": cks[:EX_LIST_MAX], "actions": acs[:EX_LIST_MAX]}
+                out.append(row)
         except (KeyError, TypeError, ValueError, AttributeError):
             continue
     return out[:3]
@@ -794,11 +806,21 @@ def exception_review(text: str, split: dict | None, review: dict | None) -> dict
         same and (match["kind"], match["no"]) not in {(x["kind"], x["no"]) for x in matches}
     ):
         raise HTTPException(status_code=409, detail={"reason": "exception_review_invalid"})
+    edit = review.get("edit")
+    if (
+        edit is not None
+    ):  # same-edit.md 1절: same · 기존 예외(지금 목록이 온 줄)에만 · 고친 뒤 목록 전체 · 바뀐 것 있어야
+        target = next((x for x in matches if (x["kind"], x["no"]) == (match["kind"], match["no"])), {}) if same else {}
+        edit = {"checks": [_check_of(c) for c in edit["checks"]], "actions": [_action_of(a) for a in edit["actions"]]}
+        before = {"checks": target.get("checks"), "actions": target.get("actions")}
+        if not same or match["kind"] != "예외" or not target.get("checks") or edit == before:
+            raise HTTPException(status_code=409, detail={"reason": "exception_review_invalid"})
     return {
         "exception": {k: ex[k] for k in ("topic", "checks", "actions")},
         "exception_review": {
             "decision": review["decision"],
             "match": {"kind": match["kind"], "no": match["no"]} if same else None,
+            **({"edit": edit} if edit else {}),  # same-edit.md 1절 새 칸(같음 + 고침일 때만)
         },
         "exception_matches": matches,
     }
@@ -814,6 +836,7 @@ def exception_view(rec: dict) -> dict | None:
     return {
         **ex,
         "matches": rec.get("exception_matches") or [],
+        "edit": rv.get("edit") if same else None,  # same-edit.md 1절 · 정답지 30쪽 같음 + 고침(고친 뒤 목록)
         "decision": rv.get("decision"),
         "match": rv.get("match") if same else None,
         "kind": ("missed" if same else "new_exception") if rv.get("decision") else None,

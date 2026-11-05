@@ -31,10 +31,20 @@ function xkLabel(ex: XOne): string {
   if (ex.kind === "missed" && ex.match) {
     const m = (ex.matches ?? []).find((x) => x.kind === ex.match!.kind && x.no === ex.match!.no);
     const name = m ? (m.kind === "예외" ? `예외상황-${m.name}` : `${m.no} ${m.name}`) : `${ex.match.kind} ${ex.match.no}`;
-    return `같음 · ${name}`;
+    return `${ex.edit ? "같음 + 고침" : "같음"} · ${name}`; // 정답지 30쪽 2단계
   }
   return `새 예외 · 예외상황-${ex.topic}`;
 }
+
+type XList = { checks: XOne["checks"]; actions: XOne["actions"] };
+/** 같음 + 고침의 고침 전 = 그때 받은 대상 예외 지금 목록(비슷한 것 예외 줄 · same-edit.md). */
+function editBefore(ex: XOne): XList | null {
+  const t = ex.match ? (ex.matches ?? []).find((m) => m.kind === ex.match!.kind && m.no === ex.match!.no) : undefined;
+  return t?.checks && t.actions ? { checks: t.checks, actions: t.actions } : null;
+}
+/** 고침 전 · 뒤 한 줄: '점검 1 무엇 · 방법 / 조치 1 무엇'. */
+const listLine = (l: XList) =>
+  `점검 ${numbered(l.checks.map((c) => [c.what, c.how].filter(Boolean).join(" · ")))} / 조치 ${numbered(l.actions.map((a) => a.what))}`;
 
 /** 점검 · 조치 목록 한 줄(정답지 21쪽): '1 … · 기준 … · 2 …'. */
 const numbered = (xs: string[]) => xs.map((x, i) => `${i + 1} ${x}`).join(" · ");
@@ -225,7 +235,7 @@ export function FinalReport({ data }: { data: Final }) {
                         <th>예외</th>
                         <td>
                           예외상황-{xr.exception.topic}{" "}
-                          <span className={`fd-xk ${xr.exception.kind === "missed" ? "miss" : "new"}`}>{xkLabel(xr.exception)}</span>
+                          <span className={`fd-xk ${xr.exception.kind === "missed" ? (xr.exception.edit ? "miss edit" : "miss") : "new"}`}>{xkLabel(xr.exception)}</span>
                         </td>
                       </tr>
                       <tr data-item="checks">
@@ -236,6 +246,20 @@ export function FinalReport({ data }: { data: Final }) {
                         <th>조치</th>
                         <td>{numbered(xr.exception.actions.map((a) => join([a.what, a.parts.length > 0 && `부품 ${a.parts.join(", ")}`])))}</td>
                       </tr>
+                      {xr.exception.edit ? ( // 정답지 30쪽 파트장 승인: '같음 + 고침' · 바뀌기 전 / 뒤 나란히
+                        <>
+                          {editBefore(xr.exception) ? (
+                            <tr data-item="edit-before">
+                              <th>고침 전</th>
+                              <td>{listLine(editBefore(xr.exception)!)}</td>
+                            </tr>
+                          ) : null}
+                          <tr data-item="edit-after">
+                            <th>고침 뒤</th>
+                            <td>{listLine(xr.exception.edit)}</td>
+                          </tr>
+                        </>
+                      ) : null}
                     </>
                   ) : null}
                   {xr.split_error ? ( // 나누지 못함 → 적은 글 그대로 새 예외(약속 v10 2절)

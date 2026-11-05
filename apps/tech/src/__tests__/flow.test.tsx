@@ -517,7 +517,7 @@ describe("T09 보고서", () => {
     expect([...one.querySelectorAll(".exl")].map((x) => x.getAttribute("data-step"))).toEqual(["c1", "c2", "a1", "a2"]);
     expect(one.querySelector(".exh")?.textContent).toBe("비슷한 것 · 예외 통째로 견줌");
     expect([...one.querySelectorAll(".exr")].map((x) => texts(x, ".ch, .exn, .btn"))).toEqual([
-      ["예외", "예외상황-필터 덮개 나사", "같음"],
+      ["예외", "예외상황-필터 덮개 나사", "같음"], // 지금 목록이 안 온 예외 줄 = 고침/보탬 0(30쪽은 따로 시험)
       ["매뉴얼", "4.3 흡기 필터 육안 점검", "같음"],
     ]);
     expect(btn(popup(r.container)!, "보고서에 적용").className).toContain("dis"); // 고르기 전 잠김
@@ -532,6 +532,57 @@ describe("T09 보고서", () => {
       exception_record: { text: EXT },
       exception_review: { decision: "not", match: null },
     });
+  });
+
+  // 정답지 30쪽 · same-edit.md: 비슷한 것 예외 줄에 대상 예외 지금 목록(Pack 선택 칸) → 같음 + 고침/보탬 = 고친 뒤 목록 전체
+  const TGT = {
+    checks: [{ what: "필터 덮개 고정 나사", how: "나사 네 개를 손으로 돌려 본다", criteria: "네 개 모두 체결 = 정상", minutes: null }],
+    actions: [{ what: "나사를 새로 끼움", parts: [], minutes: null }],
+  };
+  const EXT1 = { ...EX1, matches: [{ ...SIM[0], ...TGT }, SIM[1]] };
+  const HOW = "덮개 고정 나사 네 개가 다 있는지 보고, 풀린 나사가 있으면 손으로 돌려 본다";
+  const ADD = "빠진 나사는 새로 끼우고 남은 나사도 다시 조인다";
+  const EDIT = { checks: [{ ...TGT.checks[0], how: HOW }], actions: [...TGT.actions, { what: ADD, parts: [], minutes: null }] };
+  it("같음 + 고침(정답지 30쪽): 지금 목록이 온 예외 줄만 「고침/보탬」 → 점검마다 방법 칸(미리 채움) + 보탤 조치 → 바뀐 것 0이면 잠김 → 적용 = 같음 + edit 목록 전체 · 「같음」이면 칸 닫힘", () => {
+    const send = vi.fn(() => Promise.resolve(true));
+    const r = render(<ReportScreen report={exReport({ exception_draft: { text: EXT }, exception_split: { text: EXT, exception: EXT1, error: null, similar_error: null } })} busy={false} send={send} onHome={() => {}} />);
+    const dlg = popup(r.container)!;
+    const rows = [...dlg.querySelectorAll(".exr")];
+    expect(rows.map((x) => texts(x, ".btn"))).toEqual([["같음", "고침/보탬"], ["같음"]]); // 매뉴얼 절은 고침 0
+    fireEvent.click(btn(rows[0], "고침/보탬"));
+    expect([btn(rows[0], "같음").className.includes("on"), btn(rows[0], "고침/보탬").className.includes("ghost xed xon")]).toEqual([true, true]);
+    const box = dlg.querySelector('[data-part="ex-edit"]')!;
+    expect(texts(box, "b")).toEqual(["고칠 점검방법", "보탤 조치"]);
+    const how = box.querySelector('input[aria-label="고칠 점검방법 1"]') as HTMLInputElement;
+    expect(how.value).toBe(TGT.checks[0].how); // 대상 지금 방법 미리 채움
+    expect(btn(dlg, "보고서에 적용").className).toContain("dis"); // 바뀐 것 0 = 잠김
+    fireEvent.change(how, { target: { value: ` ${HOW} ` } });
+    fireEvent.change(box.querySelector('input[aria-label="보탤 조치"]')!, { target: { value: ADD } });
+    fireEvent.click(btn(dlg, "보고서에 적용"));
+    expect(send).toHaveBeenLastCalledWith({ type: "exception_apply", exception_record: { text: EXT }, exception_review: { ...SAME, edit: EDIT } });
+    fireEvent.click(btn(rows[0], "같음")); // 고침 없이 같음 = 1단계 그대로
+    expect(dlg.querySelector('[data-part="ex-edit"]')).toBeNull();
+    fireEvent.click(btn(dlg, "보고서에 적용"));
+    expect(send).toHaveBeenLastCalledWith({ type: "exception_apply", exception_record: { text: EXT }, exception_review: SAME });
+    cleanup();
+    const bare = render(<ReportScreen report={exReport({ exception_draft: { text: EXT }, exception_split: { text: EXT, exception: EX1, error: null, similar_error: null } })} busy={false} send={send} onHome={() => {}} />).container;
+    expect(texts(popup(bare)!.querySelector(".exr")!, ".btn")).toEqual(["같음"]); // 지금 목록 안 온 줄은 고침 0
+  });
+
+  it("같음 + 고침 적용 뒤(정답지 30쪽): 보고서 구역 칩 '같음 + 고침 · 이름' · 고침 전 / 고침 뒤 줄 · 수정 팝업은 앞 글 그대로", () => {
+    const applied = { text: EXT, exception: { ...EXT1, edit: EDIT, decision: "same", match: SAME.match, kind: "missed" }, exception_review: { ...SAME, edit: EDIT }, split_error: null };
+    const r = render(<ReportScreen report={exReport({ exception_applied: applied, exception_split: { text: EXT, exception: EXT1, error: null, similar_error: null } })} busy={false} send={vi.fn()} onHome={() => {}} />);
+    const sec = r.container.querySelector('[data-part="ex-section"]')!;
+    expect(texts(sec, ".rxr .ch")).toEqual(["같음 + 고침 · 예외상황-필터 덮개 나사"]);
+    expect(texts(sec, ".rxr > span:first-child")).toEqual(["상황", "적은 글", "예외", "점검", "조치", "고침 전", "고침 뒤", "결과"]);
+    expect(sec.querySelector('[data-item="edit-before"] > span:last-child')?.textContent).toBe(`점검 1 필터 덮개 고정 나사 · ${TGT.checks[0].how} / 조치 1 나사를 새로 끼움`);
+    expect(sec.querySelector('[data-item="edit-after"] > span:last-child')?.textContent).toBe(`점검 1 필터 덮개 고정 나사 · ${HOW} / 조치 1 나사를 새로 끼움 · 2 ${ADD}`);
+    fireEvent.click(btn(sec, "예외 상황 수정"));
+    const dlg = popup(r.container)!;
+    expect((dlg.querySelector('input[aria-label="고칠 점검방법 1"]') as HTMLInputElement).value).toBe(HOW);
+    expect((dlg.querySelector('input[aria-label="보탤 조치"]') as HTMLInputElement).value).toBe(ADD);
+    expect(btn(dlg.querySelector(".exr")!, "같음").className).toContain("on"); // 정답지 30쪽: 같음 채움 + 고침/보탬 주황 테두리
+    expect(btn(dlg.querySelector(".exr")!, "고침/보탬").className).toContain("xon");
   });
 
   it("비슷한 것 0(정답지 18쪽): 고를 것 0 · 바로 새 예외 · 적용 가능(exception_review = 아님)", () => {

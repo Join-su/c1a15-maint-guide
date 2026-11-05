@@ -1943,6 +1943,44 @@
     "title": "ExceptionActionFields",
     "type": "object"
    },
+   "ExceptionActionIn": {
+    "additionalProperties": false,
+    "description": "약속 v10 1절 조치 칸(what만 필수).",
+    "properties": {
+     "minutes": {
+      "anyOf": [
+       {
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minutes"
+     },
+     "parts": {
+      "default": [],
+      "items": {
+       "type": "string"
+      },
+      "maxItems": 10,
+      "title": "Parts",
+      "type": "array"
+     },
+     "what": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "What",
+      "type": "string"
+     }
+    },
+    "required": [
+     "what"
+    ],
+    "title": "ExceptionActionIn",
+    "type": "object"
+   },
    "ExceptionApplied": {
     "additionalProperties": false,
     "description": "정답지 18 · 19쪽: 팝업에서 「보고서에 적용」한 예외 상황(확정 전).",
@@ -2067,6 +2105,47 @@
     "title": "ExceptionCheckFields",
     "type": "object"
    },
+   "ExceptionCheckIn": {
+    "additionalProperties": false,
+    "description": "약속 v10 1절 점검 칸(what만 필수).",
+    "properties": {
+     "criteria": {
+      "default": "",
+      "maxLength": 200,
+      "title": "Criteria",
+      "type": "string"
+     },
+     "how": {
+      "default": "",
+      "maxLength": 500,
+      "title": "How",
+      "type": "string"
+     },
+     "minutes": {
+      "anyOf": [
+       {
+        "minimum": 1.0,
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minutes"
+     },
+     "what": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "What",
+      "type": "string"
+     }
+    },
+    "required": [
+     "what"
+    ],
+    "title": "ExceptionCheckIn",
+    "type": "object"
+   },
    "ExceptionContext": {
     "additionalProperties": false,
     "description": "D-538 자동 정보 여덟 — 데이터에 없는 칸은 null(지어내기 0).",
@@ -2153,6 +2232,62 @@
      "text"
     ],
     "title": "ExceptionDraft",
+    "type": "object"
+   },
+   "ExceptionEdit": {
+    "additionalProperties": false,
+    "description": "same-edit.md 1절 exception_review.edit(정답지 30쪽 같음 + 고침/보탬):\n고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체.",
+    "properties": {
+     "actions": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionActionIn"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Actions",
+      "type": "array"
+     },
+     "checks": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionCheckIn"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Checks",
+      "type": "array"
+     }
+    },
+    "required": [
+     "checks",
+     "actions"
+    ],
+    "title": "ExceptionEdit",
+    "type": "object"
+   },
+   "ExceptionEditOut": {
+    "additionalProperties": false,
+    "description": "same-edit.md 1절 edit(정답지 30쪽 같음 + 고침): 고친 뒤 대상 예외의 점검 목록 · 조치 목록 전체.",
+    "properties": {
+     "actions": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionActionFields"
+      },
+      "title": "Actions",
+      "type": "array"
+     },
+     "checks": {
+      "items": {
+       "$ref": "#/components/schemas/ExceptionCheckFields"
+      },
+      "title": "Checks",
+      "type": "array"
+     }
+    },
+    "required": [
+     "checks",
+     "actions"
+    ],
+    "title": "ExceptionEditOut",
     "type": "object"
    },
    "ExceptionGuide": {
@@ -2470,6 +2605,16 @@
       ],
       "title": "Decision"
      },
+     "edit": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionEditOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "kind": {
       "anyOf": [
        {
@@ -2692,7 +2837,7 @@
    },
    "ExceptionReview": {
     "additionalProperties": false,
-    "description": "약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).",
+    "description": "약속 v10 3 · 6절 exception_review: 예외 전체에 한 번 같음(그 match = 놓침) / 아님(새 예외).\nedit = 2단계 같음 + 고침(same-edit.md 1절 · 기존 예외 match만 · 고친 뒤 목록 전체).",
     "properties": {
      "decision": {
       "enum": [
@@ -2701,6 +2846,16 @@
       ],
       "title": "Decision",
       "type": "string"
+     },
+     "edit": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionEdit"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "match": {
       "anyOf": [
@@ -2727,6 +2882,16 @@
       "title": "Decision",
       "type": "string"
      },
+     "edit": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionEditOut"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "match": {
       "anyOf": [
        {
@@ -2749,6 +2914,34 @@
     "additionalProperties": false,
     "description": "약속 v10 3절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.",
     "properties": {
+     "actions": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionActionFields"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Actions"
+     },
+     "checks": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionCheckFields"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Checks"
+     },
      "kind": {
       "title": "Kind",
       "type": "string"
