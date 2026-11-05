@@ -61,6 +61,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/internal/check-records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check Records
+         * @description 약속 v9 3절 기록 줄(헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검) — LLMOps가 읽음. 읽기만.
+         */
+        get: operations["check_records_api_internal_check_records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/lead/audit": {
         parameters: {
             query?: never;
@@ -945,6 +965,26 @@ export interface components {
             /** Value */
             value: string;
         };
+        /**
+         * CheckRecord
+         * @description 약속 v9 3절 기록 줄(앱 → LLMOps): 헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검.
+         */
+        CheckRecord: {
+            /** At Seq */
+            at_seq: number;
+            human_check: components["schemas"]["HumanCheck"] | null;
+            /** Kind */
+            kind: string;
+            /** Relation Id */
+            relation_id?: string | null;
+            /** Session Id */
+            session_id: number;
+        };
+        /** CheckRecordList */
+        CheckRecordList: {
+            /** Items */
+            items: components["schemas"]["CheckRecord"][];
+        };
         /** Correction */
         Correction: {
             /** After */
@@ -1046,12 +1086,16 @@ export interface components {
             /** Equipment Id */
             equipment_id?: string | null;
             exception_record?: components["schemas"]["ExceptionInput"] | null;
+            /** Exception Review */
+            exception_review?: components["schemas"]["ExceptionReview"][] | null;
             /** Exception Text */
             exception_text?: string | null;
             /** Field */
             field?: string | null;
             /** Memo */
             memo?: string | null;
+            /** Mode */
+            mode?: ("call_first" | "act_now") | null;
             /** Outcome */
             outcome?: ("within" | "outside") | null;
             /** Section */
@@ -1066,7 +1110,7 @@ export interface components {
              * Type
              * @enum {string}
              */
-            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft" | "exception_split" | "check_switch";
+            type: "alarm_ack" | "lock" | "equipment_change" | "precheck_done" | "b_checklist_done" | "result" | "confirm_answer" | "out_of_scope_choice" | "action_done" | "restart" | "restart_result" | "monitor_close" | "call_send" | "call_wait" | "report_edit" | "report_confirm" | "handover_request" | "exception_draft" | "exception_split" | "switch_check" | "exception_start";
             /** Value */
             value?: ("정상" | "이상" | "확인 불가") | null;
             /** Values */
@@ -1118,14 +1162,6 @@ export interface components {
             minutes: number | null;
             /** What */
             what: string;
-        };
-        /**
-         * ExceptionChoice
-         * @description D-556 1단계: AI 나눔 한 줄 — 같음 = 그 줄 KG 비슷한 것의 relation_id(놓침) · 아님 = null(새 예외).
-         */
-        ExceptionChoice: {
-            /** Same */
-            same?: string | null;
         };
         /**
          * ExceptionContext
@@ -1207,14 +1243,9 @@ export interface components {
         /**
          * ExceptionInput
          * @description D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.
-         *     확정 때는 그 글의 「AI 나눔」 줄마다 같음 / 아님(choices) — 상황 · 결과 · 자동 정보는 서버가 붙임.
+         *     확정 때는 그 글의 「AI 나눔」 item마다 같음 / 아님(exception_review) — 상황 · 결과 · 자동 정보는 서버가 붙임.
          */
         ExceptionInput: {
-            /**
-             * Choices
-             * @default []
-             */
-            choices: components["schemas"]["ExceptionChoice"][];
             /**
              * Text
              * @default
@@ -1223,17 +1254,41 @@ export interface components {
         };
         /**
          * ExceptionItem
-         * @description D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님).
+         * @description AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님.
          */
         ExceptionItem: {
             action: components["schemas"]["ExceptionActionFields"];
             check: components["schemas"]["ExceptionCheckFields"];
+            /** Decision */
+            decision?: string | null;
             /** Kind */
             kind?: string | null;
-            /** Same */
-            same?: string | null;
-            /** Similar */
-            similar: components["schemas"]["ExceptionSimilar"][];
+            match?: components["schemas"]["ExceptionMatchRef"] | null;
+            /**
+             * Matches
+             * @default []
+             */
+            matches: components["schemas"]["ExceptionSimilar"][];
+        };
+        /**
+         * ExceptionMatch
+         * @description 약속 v9 5절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).
+         */
+        ExceptionMatch: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "예외" | "매뉴얼";
+            /** No */
+            no: string;
+        };
+        /** ExceptionMatchRef */
+        ExceptionMatchRef: {
+            /** Kind */
+            kind: string;
+            /** No */
+            no: string;
         };
         /**
          * ExceptionNote
@@ -1267,12 +1322,16 @@ export interface components {
             /** Action */
             action?: string | null;
             context: components["schemas"]["ExceptionContext"];
+            /** Exception Review */
+            exception_review?: components["schemas"]["ExceptionReviewOut"][] | null;
             /** Items */
             items?: components["schemas"]["ExceptionItem"][] | null;
             /** Result */
             result?: string | null;
             /** Situation */
             situation: string;
+            /** Split Error */
+            split_error?: string | null;
             /** Text */
             text?: string | null;
         };
@@ -1295,16 +1354,43 @@ export interface components {
             items: components["schemas"]["ExceptionRecordItem"][];
         };
         /**
+         * ExceptionReview
+         * @description 약속 v9 5절 report_confirm.exception_review 한 줄: AI 나눔 item마다 같음(그 match = 놓침) / 아님(새 예외).
+         */
+        ExceptionReview: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "same" | "not";
+            /** Item */
+            item: number;
+            match?: components["schemas"]["ExceptionMatch"] | null;
+        };
+        /**
+         * ExceptionReviewOut
+         * @description 약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4).
+         */
+        ExceptionReviewOut: {
+            /** Decision */
+            decision: string;
+            /** Item */
+            item: number;
+            match: components["schemas"]["ExceptionMatchRef"] | null;
+        };
+        /**
          * ExceptionSimilar
-         * @description D-556 KG 비슷한 것(등록된 예외 관계 · 그 절).
+         * @description 약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.
          */
         ExceptionSimilar: {
-            /** Relation Id */
-            relation_id: string;
-            /** Section */
-            section: string;
-            /** Title */
-            title: string;
+            /** Kind */
+            kind: string;
+            /** Name */
+            name: string;
+            /** No */
+            no: string;
+            /** Score */
+            score: number;
         };
         /**
          * ExceptionSplit
@@ -1315,6 +1401,8 @@ export interface components {
             error: string | null;
             /** Items */
             items: components["schemas"]["ExceptionItem"][];
+            /** Similar Error */
+            similar_error?: string | null;
             /** Text */
             text: string;
         };
@@ -1524,6 +1612,13 @@ export interface components {
             recent_reports: components["schemas"]["RecentReport"][];
             shift: components["schemas"]["Shift"];
         };
+        /** HumanCheck */
+        HumanCheck: {
+            /** From Section */
+            from_section: string | null;
+            /** Section */
+            section: string;
+        };
         /** InProgress */
         InProgress: {
             /** Alarm Id */
@@ -1568,6 +1663,22 @@ export interface components {
             title: string;
             /** Unable */
             unable: components["schemas"]["Unable"][];
+        };
+        /**
+         * LeadActedRow
+         * @description 약속 v9 lead_notice acted_without_call: 정비자가 [예외] 바로 조치를 고른 세션 한 줄.
+         */
+        LeadActedRow: {
+            /** At */
+            at: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Group Name */
+            group_name: string;
+            /** Session Id */
+            session_id: number;
+            /** Tech Name */
+            tech_name: string | null;
         };
         /** LeadAudit */
         LeadAudit: {
@@ -1678,6 +1789,11 @@ export interface components {
         };
         /** LeadOverview */
         LeadOverview: {
+            /**
+             * Acted
+             * @default []
+             */
+            acted: components["schemas"]["LeadActedRow"][];
             /**
              * Held
              * @default []
@@ -2606,6 +2722,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: string | null;
                     };
+                };
+            };
+        };
+    };
+    check_records_api_internal_check_records_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckRecordList"];
                 };
             };
         };

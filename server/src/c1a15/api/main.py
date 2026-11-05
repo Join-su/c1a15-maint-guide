@@ -110,6 +110,16 @@ def exception_records(c: Connection = Depends(conn, scope="function")) -> dict:
     return lead.exception_record_list(c)
 
 
+@app.get(
+    "/api/internal/check-records",
+    dependencies=[Depends(internal_token)],
+    response_model=responses.CheckRecordList,
+)
+def check_records(c: Connection = Depends(conn, scope="function")) -> dict:
+    """약속 v9 3절 기록 줄(헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검) — LLMOps가 읽음. 읽기만."""
+    return sessions.check_record_list(c)
+
+
 @app.post("/api/internal/alarms", dependencies=[Depends(internal_token)])
 def register_alarm(body: AlarmBody, c: Connection = Depends(conn, scope="function")) -> dict:
     """시연 알람 발생기(FLOW-01)만 부른다. 경계 판정 · 증상군 = 서버, 시각 = 지금(AC-34-C1), 배정 = R9."""

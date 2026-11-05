@@ -1,6 +1,7 @@
 // D-556 1단계 [점검 바꾸기]를 사람 손 순서로: 첫 점검 안내(4.3) → 근거 줄 끝 「점검 바꾸기」 → 창(지금 추천 후보) → 「취소」
 // → 같은 화면 한 번 더(D-503 1) → 후보 하나 고름 → 그 점검 안내 · 다시 읽어도 그대로 → 결과 보내기 → 다음 판정.
-// 업무 기록 check_switch{from 4.3, to 고른 절, kind detour}(헛걸음). 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 PNG.
+// 약속 v9: judge 사건 switch_check{section 고른 절, from_section 4.3, choice candidate} → Pack(가짜 = engine 사본 + switch.py 사본)이
+// 그 점검을 엶 · 기록 줄 헛걸음(wasted_step). 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 PNG.
 
 import { mkdirSync } from "node:fs";
 import path from "node:path";
@@ -31,8 +32,9 @@ test("점검 바꾸기: 후보 창 → 취소 → 다시 → 고름 → 그 점�
   await link.click();
   const dlg = page.locator('.modal[aria-label="점검 바꾸기"]');
   await expect(dlg.locator(".swc").first()).toBeVisible();
-  const n = await dlg.locator(".swc").count();
+  const n = await dlg.locator(".swc[data-section]").count();
   expect(n).toBeGreaterThan(0);
+  await expect(dlg.locator(".swc.swx > b")).toHaveText("예외"); // 후보 뒤 [예외]
   await snap(page, info, "S1-switch-window");
   await pause(page);
   await dlg.locator(".mb .btn", { hasText: "취소" }).click(); // 같은 화면에서 취소 → 다시(D-503 1)
@@ -52,9 +54,10 @@ test("점검 바꾸기: 후보 창 → 취소 → 다시 → 고름 → 그 점�
   await snap(page, info, "S2-switched");
   await page.reload(); // 다시 읽어도 고른 점검 그대로
   await expect(page.locator(".ins-h h3")).toHaveText(title);
-  expect(psql("select payload->>'from' || '>' || (payload->>'to') || ':' || (payload->>'kind') from ops.session_events where type = 'check_switch'")).toBe(
-    `4.3>${section}:detour`,
+  expect(psql("select (payload->>'from_section') || '>' || (payload->>'section') || ':' || (payload->>'choice') from ops.session_events where type = 'switch_check'")).toBe(
+    `4.3>${section}:candidate`,
   );
+  expect(psql("select payload->'decision'->'switched'->>'to' from ops.session_events where type = 'step_opened' order by seq desc limit 1")).toBe(section); // Pack 결정 칸
   // 고른 점검 결과 → 다음 판정(체크리스트가 있으면 먼저)
   const cks = page.locator(".act.pre .ck");
   for (let i = 0; i < (await cks.count()); i++) {

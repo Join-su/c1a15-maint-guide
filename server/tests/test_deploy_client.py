@@ -311,7 +311,8 @@ def test_vc36_timeouts_by_kind():
         "start": 90.0,
         "judge": 30.0,
         "report": 90.0,
-        "exception_split": 90.0,  # D-556 1단계 임시 kind
+        "exception_split": 90.0,  # D-556 AI 나눔 앱 임시 kind
+        "exception_similar": 30.0,  # 약속 v9 5절
     } and BACKOFF == (
         2.0,
         5.0,

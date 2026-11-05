@@ -32,6 +32,7 @@ export function ApprovalList({
   const logs = (audit?.rows ?? []).slice(0, 5);
   const open = calls?.rows ?? [];
   const held = data.held ?? [];
+  const acted = data.acted ?? [];
   return (
     <>
       <Bar title="승인 대기" date={headDate(data.now)} />
@@ -111,6 +112,36 @@ export function ApprovalList({
                   <td className="n">{r.held_at ? hhmm(r.held_at) : ""}</td>
                   <td className="r">
                     <span className="tx warn">보류됨</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      {acted.length ? ( // 약속 v9 lead_notice acted_without_call: 정비자가 [예외] 바로 조치를 고른 세션 — 있을 때만
+        <div className="lsect" data-part="acted">
+          <div className="lsect-h">
+            호출 없이 조치함<span className="c">{acted.length}건</span>
+          </div>
+          <table className="lt">
+            <tbody>
+              <tr>
+                <th>설비 · 알람</th>
+                <th>정비자</th>
+                <th className="n">조치 시작</th>
+                <th />
+              </tr>
+              {acted.map((r) => (
+                <tr key={r.session_id} data-acted={r.session_id}>
+                  <td>
+                    <b>{r.equipment_id}</b>
+                    <div className="m">{r.group_name}</div>
+                  </td>
+                  <td>{r.tech_name ?? ""}</td>
+                  <td className="n">{hhmm(r.at)}</td>
+                  <td className="r">
+                    <span className="tx warn">호출 없이 조치함</span>
                   </td>
                 </tr>
               ))}

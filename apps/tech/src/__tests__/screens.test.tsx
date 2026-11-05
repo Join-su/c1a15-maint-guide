@@ -213,31 +213,59 @@ function instr(s: SessionView, over: Partial<Parameters<typeof InstructionScreen
 }
 
 describe("T06 점검 지시 · 결과 입력", () => {
-  it("[점검 바꾸기](D-556): 후보가 있으면 근거 줄 끝 링크 → 창(후보 줄: 제목 · 등급 · 절) → 고르면 onSwitch · 취소면 그대로 · 후보 0이면 링크 0", () => {
+  it("[점검 바꾸기](D-556 · 약속 v9): 점검 안내 중 근거 줄 끝 링크 → 창(후보 줄: 제목 · 등급 · 절 + [예외]) → 고르면 onSwitch · 취소면 그대로 · [예외] → 호출 후 조치 / 바로 조치 → onException · 후보 0이어도 [예외]", () => {
     const s = load<SessionView>("event-instruct");
+    expect(s.step.kind).toBe("instruct");
     const cands = [
       { section: "4.4", title: "냉각 팬 회전 확인", grade: "B" },
       { section: "4.6", title: "냉각 설정값 확인", grade: "C" },
     ];
     const onSwitch = vi.fn();
-    const { container } = instr({ ...s, switch_candidates: cands }, { onSwitch });
+    const onException = vi.fn();
+    const { container } = instr({ ...s, switch_candidates: cands }, { onSwitch, onException });
     const link = [...container.querySelectorAll(".refs .lk")].find((x) => x.textContent === "점검 바꾸기")!;
     expect(link).toBeTruthy();
     fireEvent.click(link);
-    const dlg = container.querySelector('.modal[aria-label="점검 바꾸기"]')!;
-    expect(texts(dlg, ".swc > b")).toEqual(["냉각 팬 회전 확인", "냉각 설정값 확인"]);
-    expect([...dlg.querySelectorAll(".swc")].map((x) => x.getAttribute("data-section"))).toEqual(["4.4", "4.6"]);
-    expect(dlg.querySelector(".note, p")).toBeNull(); // 설명 문장 0
-    fireEvent.click([...dlg.querySelectorAll(".mb .btn")].find((x) => x.textContent === "취소")!);
+    const dlg = () => container.querySelector('.modal[aria-label="점검 바꾸기"]')!;
+    expect(texts(dlg(), ".swc > b")).toEqual(["냉각 팬 회전 확인", "냉각 설정값 확인", "예외"]);
+    expect([...dlg().querySelectorAll(".swc[data-section]")].map((x) => x.getAttribute("data-section"))).toEqual(["4.4", "4.6"]);
+    expect(dlg().querySelector(".note, p")).toBeNull(); // 설명 문장 0
+    fireEvent.click([...dlg().querySelectorAll(".mb .btn")].find((x) => x.textContent === "취소")!);
     expect(container.querySelector(".modal")).toBeNull();
     expect(onSwitch).not.toHaveBeenCalled();
     fireEvent.click(link); // 같은 화면 한 번 더
     fireEvent.click(container.querySelector('.swc[data-section="4.6"]')!);
     expect(onSwitch).toHaveBeenCalledWith("4.6");
     expect(container.querySelector(".modal")).toBeNull();
+    // [예외] → 둘 중 하나(호출 후 조치 = C 승인 필요) · 취소면 그대로
+    fireEvent.click(link);
+    fireEvent.click(dlg().querySelector(".swc.swx")!);
+    expect(dlg().querySelector(".mh b")?.textContent).toBe("예외");
+    expect(texts(dlg(), ".swc > b")).toEqual(["호출 후 조치", "바로 조치"]);
+    expect([...dlg().querySelectorAll(".swc")].map((x) => x.getAttribute("data-mode"))).toEqual(["call_first", "act_now"]);
+    expect(dlg().querySelectorAll(".mh svg, .swc > b svg")).toHaveLength(0); // 정답지 15쪽: 이름만(아이콘 0)
+    expect(dlg().querySelector('.swc[data-mode="call_first"] .gb')).toBeTruthy();
+    fireEvent.click([...dlg().querySelectorAll(".mb .btn")].find((x) => x.textContent === "취소")!);
+    expect(onException).not.toHaveBeenCalled();
+    fireEvent.click(link);
+    fireEvent.click(dlg().querySelector(".swc.swx")!);
+    fireEvent.click(dlg().querySelector('.swc[data-mode="act_now"]')!);
+    expect(onException).toHaveBeenCalledWith("act_now");
+    expect(container.querySelector(".modal")).toBeNull();
     cleanup();
-    const none = instr({ ...s, switch_candidates: [] }, { onSwitch }).container;
-    expect([...none.querySelectorAll(".refs .lk")].map((x) => x.textContent)).not.toContain("점검 바꾸기");
+    const open = instr({ ...s, switch_candidates: cands }, { onSwitch, onException }); // 13쪽 보내는 중: 후보 · 예외 흐림 · 눌러도 0
+    fireEvent.click([...open.container.querySelectorAll(".refs .lk")].find((x) => x.textContent === "점검 바꾸기")!);
+    open.rerender(<InstructionScreen {...open.props} busy={true} />);
+    expect([...open.container.querySelectorAll(".modal .swc")].map((x) => x.classList.contains("dis"))).toEqual([true, true, true]);
+    fireEvent.click(open.container.querySelector(".modal .swc.swx")!);
+    expect(open.container.querySelector(".modal .mh b")?.textContent).toBe("점검 바꾸기"); // 예외 고름으로 안 바뀜
+    cleanup();
+    const none = instr({ ...s, switch_candidates: [] }, { onSwitch, onException }).container; // 후보 0 → 창엔 [예외]만
+    fireEvent.click([...none.querySelectorAll(".refs .lk")].find((x) => x.textContent === "점검 바꾸기")!);
+    expect(texts(none, ".modal .swc > b")).toEqual(["예외"]);
+    cleanup();
+    const pre = instr({ ...s, step: { ...s.step, kind: "precheck" } }, { onSwitch, onException }).container; // 점검 안내 밖 = 링크 0
+    expect([...pre.querySelectorAll(".refs .lk")].map((x) => x.textContent)).not.toContain("점검 바꾸기");
   });
 
   it("참고 알림(D-543 · 답장 001-zzz9 다 = A): 같은 설비 · 같은 증상군 승인 예외 기록이 있으면 잠금 줄 아래 한 줄(순서 그대로) · 없으면 0", () => {

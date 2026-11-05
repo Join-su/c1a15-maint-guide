@@ -128,9 +128,7 @@ def final_report(c: Connection, report_id: int) -> dict | None:
     alarm = flow.sessions_alarm(c, row)
     events = sessions.events_of(c, row.session_id)
     k = flow.knowledge_of(events)
-    _, grades, _ = flow.with_exception(
-        flow.exception_guide_of(events), grades, {}
-    )  # 예외 절 등급(C) — 3 · 4 권한 사용(덧 34)
+    _, grades, _ = flow.grades_of(events, grades, {})  # 예외 절 등급(C) — 3 · 4 권한 사용(덧 34 · v9 EX-NEW)
     state = session.fold(k, row.symptom_group, sessions.similar_of(row), sessions.fold_inputs(events))
     names = {u: n for u, n in c.execute(select(m.Account.user_id, m.Account.display_name)).all()}
     lock = next((e for e in events if e["type"] == "lock" and not e.get("void")), None)

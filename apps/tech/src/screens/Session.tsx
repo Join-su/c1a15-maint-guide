@@ -264,8 +264,9 @@ export function Session(p: SessionProps) {
             onContinueOriginal={() => setRepeatDismissed(true)}
             onHandover={() => void send({ type: "handover_request" })}
             onSwitch={(section) => {
-              void send({ type: "check_switch", section }).then((ok) => ok && setDraft({ ...emptyDraft(), section }));
+              void send({ type: "switch_check", section }).then((ok) => ok && setDraft({ ...emptyDraft(), section }));
             }}
+            onException={(mode) => void send({ type: "exception_start", mode })} // 호출 후 조치의 호출은 서버가 바로 보냄
           />
         ) : null}
         {pending ? (

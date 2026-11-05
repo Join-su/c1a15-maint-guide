@@ -427,21 +427,36 @@ class ExceptionDraft(_Out):
 
 
 class ExceptionSimilar(_Out):
-    """D-556 KG 비슷한 것(등록된 예외 관계 · 그 절)."""
+    """약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절."""
 
-    relation_id: str
-    section: str
-    title: str
+    kind: str  # 예외 | 매뉴얼
+    no: str
+    name: str
+    score: float
+
+
+class ExceptionMatchRef(_Out):
+    kind: str
+    no: str
+
+
+class ExceptionReviewOut(_Out):
+    """약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4)."""
+
+    item: int
+    decision: str  # same | not
+    match: ExceptionMatchRef | None
 
 
 class ExceptionItem(_Out):
-    """D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님)."""
+    """AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님."""
 
     check: ExceptionCheckFields
     action: ExceptionActionFields
-    similar: list[ExceptionSimilar]
-    same: str | None = None  # 확정 뒤: 같음 = relation_id(놓침) · 아님 = null(새 예외)
-    kind: str | None = None  # 확정 뒤: miss | new
+    matches: list[ExceptionSimilar] = []
+    decision: str | None = None  # 확정 뒤: same | not
+    match: ExceptionMatchRef | None = None  # 확정 뒤: 같다고 한 것
+    kind: str | None = None  # 확정 뒤 기록 이름(약속 v9 3절): missed | new_exception
 
 
 class ExceptionSplit(_Out):
@@ -450,6 +465,7 @@ class ExceptionSplit(_Out):
     text: str
     items: list[ExceptionItem]
     error: str | None
+    similar_error: str | None = None  # 비슷한 것 찾기 실패(item은 아님만 고름)
 
 
 class ExceptionAuto(_Out):
@@ -483,6 +499,8 @@ class ExceptionRecord(_Out):
     action: str | None = None  # 전 기록 = 무엇을 했나 글(D-556 기록은 없음)
     text: str | None = None  # D-556 정비자 글 그대로
     items: list[ExceptionItem] | None = None  # D-556 AI 나눔 줄 + 같음 / 아님
+    exception_review: list[ExceptionReviewOut] | None = None  # 약속 v9 5절 · 승인 편지 칸(D-556 덧 4)
+    split_error: str | None = None  # 나누지 못함(pack_unavailable | not_split | invalid_output) → 글 그대로 새 예외
     result: str | None = None  # D-556 자동(재가동 판정)
 
 
@@ -659,11 +677,22 @@ class LeadHeldRow(_Out):
     held_at: str | None
 
 
+class LeadActedRow(_Out):
+    """약속 v9 lead_notice acted_without_call: 정비자가 [예외] 바로 조치를 고른 세션 한 줄."""
+
+    session_id: int
+    equipment_id: str
+    group_name: str
+    tech_name: str | None
+    at: str
+
+
 class LeadOverview(_Out):
     now: str
     tiles: LeadTiles
     rows: list[LeadReportRow]
     held: list[LeadHeldRow] = []  # D-554 ① 신호 폴더(C1A15_KG_STATUS)가 없으면 빈 목록
+    acted: list[LeadActedRow] = []  # 약속 v9 '호출 없이 조치함'(최근 순)
 
 
 class LeadField(_Out):
@@ -761,6 +790,25 @@ class ExceptionRecordItem(_Out):
     report_id: int
     approved_at: str | None
     exception_record: ExceptionRecord
+
+
+class HumanCheck(_Out):
+    section: str
+    from_section: str | None
+
+
+class CheckRecord(_Out):
+    """약속 v9 3절 기록 줄(앱 → LLMOps): 헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검."""
+
+    kind: str  # wasted_step | missed | new_exception
+    session_id: int
+    human_check: HumanCheck | None
+    relation_id: str | None = None  # 놓침이면 같다고 한 항목(예외 · 매뉴얼 절 번호)
+    at_seq: int
+
+
+class CheckRecordList(_Out):
+    items: list[CheckRecord]
 
 
 class ExceptionRecordList(_Out):

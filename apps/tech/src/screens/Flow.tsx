@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
-import { Proc, SecChip } from "./Lock";
+import { EX_NEW, Proc, SecChip } from "./Lock";
 
 type Call = Schemas["CallBlock"];
 type Report = Schemas["ReportBlock"];
@@ -34,6 +34,21 @@ export function PathCard({ path }: { path: SessionView["path"] }) {
 
 // 답장 001-zzx 가(가이드 14쪽): '원인 확정' 카드 — 머리 오른쪽 원인 칩 · '근거 사례' 한 줄.
 function CauseCard({ a }: { a: NonNullable<SessionView["action"]> }) {
+  if (a.section === EX_NEW)
+    // 정답지 17쪽: 예외 진행 = 원인은 보고서 예외 칸에서
+    return (
+      <div className="cd">
+        <div className="cd-h">
+          <Icon name="circle-alert" />
+          <b>원인</b>
+          <span className="ch red">예외</span>
+        </div>
+        <div className="kvr">
+          <span>원인</span>
+          <b>보고서 예외 칸에서</b>
+        </div>
+      </div>
+    );
   return (
     <div className="cd">
       <div className="cd-h">
@@ -104,11 +119,13 @@ function Btn({
   );
 }
 
-// D-556 1단계 예외 기록: 자유 글(자리글 = 안내 문구) → 「AI 나눔」(점검 1 + 조치 1 × n) → 줄마다 KG 비슷한 것 같음 / 아님
+// D-556 예외 기록: 자유 글(자리글 = 안내 문구) → 「AI 나눔」(점검 1 + 조치 1 × n) → item마다 비슷한 것(약속 v9 5절 상위 3 ·
+// 예외 | 매뉴얼) 중 같음 하나 / 아님 → report_confirm.exception_review(같음 = missed 놓침 · 아님 = new_exception 새 예외)
 export const EX_HINT = "점검한 것과 조치한 것을 모두 적어 주세요";
 type ExItem = Schemas["ExceptionItem"];
+const matchKey = (m: { kind: string; no: string }) => `${m.kind}|${m.no}`;
 
-/** 나눔 한 줄: 점검 · 조치 · (비슷한 예외 기록 + 같음 / 아님 | 확정 뒤 같음 · 새 예외). */
+/** 나눔 한 item: 점검 · 조치 · (비슷한 것마다 「같음」 + 「아님」 | 확정 뒤 같음 · 새 예외). pick = 같음이면 matchKey · 아님 null. */
 function ExItemRow({
   it,
   i,
@@ -120,8 +137,7 @@ function ExItemRow({
   pick?: string | null; // 고른 값(undefined = 아직)
   onPick?: (v: string | null) => void; // 없으면 보기만
 }) {
-  const sim = it.similar[0];
-  const done = it.kind ?? (onPick ? undefined : null);
+  const matches = it.matches ?? [];
   return (
     <div className="exi" data-item={i}>
       <div className="exl">
@@ -134,21 +150,30 @@ function ExItemRow({
         <span className="ch gray">조치</span>
         {[it.action.what, it.action.parts.length ? `부품 ${it.action.parts.join(", ")}` : ""].filter(Boolean).join(" · ") || "-"}
       </div>
-      {done ? (
+      {it.kind ? (
         <div className="exs">
-          <span className={`ch ${done === "miss" ? "gray" : "blue"}`}>{done === "miss" ? `같음 · ${it.same}` : "새 예외"}</span>
-        </div>
-      ) : sim ? (
-        <div className="exs">
-          <span className="ch amber">
-            비슷한 예외 기록 · {sim.relation_id} {sim.title}
-          </span>
-          {onPick ? (
-            <span className="exb">
-              <Btn cls={pick === sim.relation_id ? "on" : "ghost"} label="같음" onClick={() => onPick(sim.relation_id)} />
-              <Btn cls={pick === null ? "on" : "ghost"} label="아님" onClick={() => onPick(null)} />
+          {it.kind === "missed" && it.match ? (
+            <span className="ch gray">
+              같음 · {it.match.kind} {it.match.no}
             </span>
-          ) : null}
+          ) : (
+            <span className="ch blue">새 예외</span>
+          )}
+        </div>
+      ) : matches.length && onPick ? (
+        <div className="exs exm">
+          {matches.map((m) => (
+            <div className="exr" key={matchKey(m)} data-match={matchKey(m)}>
+              <span className={`ch ${m.kind === "예외" ? "amber" : "gray"}`}>{m.kind}</span>
+              <span className="exn">
+                {m.no} {m.name}
+              </span>
+              <Btn cls={pick === matchKey(m) ? "on" : "ghost"} label="같음" onClick={() => onPick(matchKey(m))} />
+            </div>
+          ))}
+          <span className="exb">
+            <Btn cls={pick === null ? "on" : "ghost"} label="아님" onClick={() => onPick(null)} />
+          </span>
         </div>
       ) : (
         <div className="exs">
@@ -199,9 +224,7 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
           {a ? (
             <div className="cd act">
               <div className="act-h">
-                <b>
-                  조치 · {a.section} {a.title}
-                </b>
+                <b>조치 · {a.section === EX_NEW ? a.title : `${a.section} ${a.title}`}</b>
                 <GradeBadge grade={a.grade} />
                 {a.done_at ? <span className="ch green">완료</span> : null}
               </div>
@@ -503,7 +526,9 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             <div className="warn-h">
               <Icon name="hand" />
               <div>
-                <span className="sm">{ex ? "예외 기록에서 온 점검" : "다음 점검은 혼자 진행할 수 없습니다"}</span>
+                <span className="sm">
+                  {ex ? "예외 기록에서 온 점검" : call.section === EX_NEW ? "예외 진행" : "다음 점검은 혼자 진행할 수 없습니다"}
+                </span>
                 <h3>{call.title}</h3>
                 <div className="tags">
                   <GradeBadge grade={call.grade} />
@@ -583,7 +608,12 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                   </div>
                 </>
               ) : null
-            ) : cor ? null : ( // 정정 확인은 조치 뒤라 남은 후보 칸 없음(가이드 24쪽)
+            ) : cor ? null : call.section === EX_NEW ? ( // 정답지 16쪽: 예외 진행 호출 = 승인 전 조치 잠김
+              <>
+                <div className="sub">조치</div>
+                <Btn label="조치 잠김 · 파트장 승인 뒤" off onClick={() => {}} />
+              </>
+            ) : ( // 정정 확인은 조치 뒤라 남은 후보 칸 없음(가이드 24쪽)
               <>
                 <div className="sub">남은 후보</div>
                 <div className="tags">
@@ -726,10 +756,11 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
   const [ex, setEx] = useState(rec?.text ?? report.exception_draft?.text ?? "");
   const split = report.exception_split; // D-556 「AI 나눔」 마지막 결과(확정 전)
   const fresh = split && !split.error && split.text === ex.trim() ? split.items : null; // 글이 바뀌면 다시 나눔
+  const unsplit = !!split?.error && split.text === ex.trim(); // 나누지 못함(Run 실패 · 빈 items) → 글 그대로 새 예외(D-556 덧 7)
   const splitKey = JSON.stringify(fresh);
   const [picks, setPicks] = useState<{ key: string; v: (string | null | undefined)[] }>({ key: "", v: [] });
-  const chosen = (fresh ?? []).map((it, i) => (it.similar.length ? (picks.key === splitKey ? picks.v[i] : undefined) : null));
-  const exReady = !ex.trim() || (fresh !== null && fresh.length > 0 && chosen.every((v) => v !== undefined)); // 확정 가능
+  const chosen = (fresh ?? []).map((it, i) => (it.matches?.length ? (picks.key === splitKey ? picks.v[i] : undefined) : null));
+  const exReady = !ex.trim() || unsplit || (fresh !== null && fresh.length > 0 && chosen.every((v) => v !== undefined)); // 확정 가능
   const rej = report.rejection;
   const draft = report.status === "draft";
   const save = () => {
@@ -831,7 +862,8 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                       onChange={(e) => setEx(e.target.value)}
                     />
                     <div className="exa">
-                      {split?.error && split.text === ex.trim() ? <span className="ch fb">나누지 못함</span> : null}
+                      {unsplit ? <span className="ch fb">나누지 못함</span> : null}
+                      {fresh && split?.similar_error ? <span className="ch fb">비슷한 것 못 찾음</span> : null}
                       <Btn
                         cls="ghost"
                         label="AI 나눔"
@@ -841,6 +873,13 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                       />
                     </div>
                   </div>
+                  {unsplit ? (
+                    <div className="khf" data-part="ex-items">
+                      <div className="exs">
+                        <span className="ch blue">새 예외</span>
+                      </div>
+                    </div>
+                  ) : null}
                   {fresh?.length ? (
                     <div className="khf" data-part="ex-items">
                       {fresh.map((it, i) => (
@@ -883,6 +922,11 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                     {rec.items.map((it, i) => (
                       <ExItemRow key={i} it={it} i={i} />
                     ))}
+                    {rec.split_error ? (
+                      <div className="exs">
+                        <span className="ch blue">나누지 못함 · 새 예외</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="khf">
                     <span className="sm">결과</span>
@@ -983,7 +1027,15 @@ export function ReportScreen({ report, busy, send, onHome, onFinal }: ReportProp
                   const text = ex.trim();
                   void send({
                     type: "report_confirm",
-                    ...(text ? { exception_record: { text, choices: chosen.map((v) => ({ same: v ?? null })) } } : {}),
+                    ...(text
+                      ? {
+                          exception_record: { text },
+                          exception_review: unsplit ? [] : chosen.map((v, item) => {
+                            const m = v ? fresh?.[item].matches?.find((x) => matchKey(x) === v) : undefined;
+                            return m ? { item, decision: "same", match: { kind: m.kind, no: m.no } } : { item, decision: "not", match: null };
+                          }),
+                        }
+                      : {}),
                   });
                 }}
               >

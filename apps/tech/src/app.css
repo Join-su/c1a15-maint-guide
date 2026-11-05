@@ -188,6 +188,10 @@
 .ap .kh .exs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; }
 .ap .kh .exb { display: inline-flex; gap: 6px; margin-left: auto; }
 .ap .kh .exb .btn { height: 36px; padding: 0 14px; }
+.ap .kh .exm { flex-direction: column; align-items: stretch; gap: 6px; }
+.ap .kh .exr { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.ap .kh .exr .exn { flex: 1; min-width: 0; }
+.ap .kh .exr .btn { height: 32px; padding: 0 12px; }
 .ap .xkf .memo { min-height: 96px; }
 /* D-556 [점검 바꾸기]: 점검 안내 아래 링크 · 창(지금 추천 후보 줄) */
 .ap .refs .lk.sw { margin-left: auto; }
@@ -197,3 +201,4 @@
 .ap .swm .swc:hover { border-color: var(--pri); }
 .ap .swm .swc.dis { opacity: .5; cursor: default; }
 .ap .swm .swc .tags { display: inline-flex; gap: 6px; }
+.ap .swm .swc.swx { border-style: dashed; color: #7a4a00; background: var(--warn-s); }

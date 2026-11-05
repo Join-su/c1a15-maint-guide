@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { GradeBadge, Icon, type Instruction, type SessionView } from "@c1a15/ui";
 import type { Draft } from "../device";
-import { isException, LockOk, Proc, SecChip } from "./Lock";
+import { isException, LockOk, Proc, SecChip, secName } from "./Lock";
 
 const RESULT: { v: "정상" | "이상" | "확인 불가"; icon: string; cls: string }[] = [
   { v: "정상", icon: "circle-check", cls: "ok" },
@@ -26,13 +26,21 @@ export interface InstructionProps {
   onRecord: (id: string) => void;
   onContinueOriginal: () => void;
   onHandover: () => void;
-  onSwitch?: (section: string) => void; // D-556 [점검 바꾸기] 후보 고름
+  onSwitch?: (section: string) => void; // 약속 v9 [점검 바꾸기] 후보 고름(switch_check)
+  onException?: (mode: "call_first" | "act_now") => void; // 약속 v9 [예외] 호출 후 조치 / 바로 조치(exception_start)
 }
+
+const SWITCHABLE = new Set(["instruct", "instruct_after_checklist"]); // 점검 안내 중만(서버 not_switchable과 같음)
+const EX_MODES = [
+  { mode: "call_first", label: "호출 후 조치" },
+  { mode: "act_now", label: "바로 조치" },
+] as const;
 
 export function InstructionScreen(p: InstructionProps) {
   const { ins, draft } = p;
-  const [switching, setSwitching] = useState(false); // D-556 [점검 바꾸기] 창
+  const [switching, setSwitching] = useState<"list" | "exception" | null>(null); // [점검 바꾸기] 창 · [예외] 고름
   const cands = p.s.switch_candidates ?? [];
+  const canSwitch = SWITCHABLE.has(p.s.step.kind ?? "") && !!p.onSwitch;
   const needsChecklist = ins.checklist.length > 0 && !ins.checklist_done;
   const ready = !needsChecklist && !p.busy && (draft.value !== null || draft.memo.trim() !== "");
   const unable = ins.unable.filter((u) => u.section !== ins.section); // 앞에서 확인 불가였던 다른 점검
@@ -155,8 +163,8 @@ export function InstructionScreen(p: InstructionProps) {
                 ))}
               </span>
             ) : null}
-            {cands.length && p.onSwitch ? ( // D-556: 점검 안내 중 아무 때나 — 지금 추천 후보로 바꿈
-              <span className="lk sw" role="button" tabIndex={0} onClick={() => !p.busy && setSwitching(true)}>
+            {canSwitch ? ( // D-556: 점검 안내 중 아무 때나 — 지금 추천 후보 · [예외]
+              <span className="lk sw" role="button" tabIndex={0} onClick={() => !p.busy && setSwitching("list")}>
                 <Icon name="arrow-left-right" />
                 점검 바꾸기
               </span>
@@ -200,33 +208,61 @@ export function InstructionScreen(p: InstructionProps) {
           <div className="dim" />
           <div className="modal swm" role="dialog" aria-label="점검 바꾸기">
             <div className="mh">
-              <Icon name="arrow-left-right" />
-              <b>점검 바꾸기</b>
+              {switching === "list" ? <Icon name="arrow-left-right" /> : null}
+              <b>{switching === "list" ? "점검 바꾸기" : "예외"}</b>
             </div>
-            <div className="swl">
-              {cands.map((c) => (
-                <span
-                  key={c.section}
-                  className={`swc${p.busy ? " dis" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  data-section={c.section}
-                  onClick={() => {
-                    if (p.busy || !p.onSwitch) return;
-                    setSwitching(false);
-                    p.onSwitch(c.section);
-                  }}
-                >
-                  <b>{c.title}</b>
-                  <span className="tags">
-                    {c.grade ? <GradeBadge grade={c.grade} /> : null}
-                    <SecChip section={c.section} />
+            {switching === "list" ? (
+              <div className="swl">
+                {cands.map((c) => (
+                  <span
+                    key={c.section}
+                    className={`swc${p.busy ? " dis" : ""}`}
+                    role="button"
+                    tabIndex={0}
+                    data-section={c.section}
+                    onClick={() => {
+                      if (p.busy || !p.onSwitch) return;
+                      setSwitching(null);
+                      p.onSwitch(c.section);
+                    }}
+                  >
+                    <b>{c.title}</b>
+                    <span className="tags">
+                      {c.grade ? <GradeBadge grade={c.grade} /> : null}
+                      <SecChip section={c.section} />
+                    </span>
                   </span>
-                </span>
-              ))}
-            </div>
+                ))}
+                {p.onException ? (
+                  <span className={`swc swx${p.busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={() => !p.busy && setSwitching("exception")}>
+                    <b>예외</b>
+                    <Icon name="chevron-right" />
+                  </span>
+                ) : null}
+              </div>
+            ) : (
+              <div className="swl">
+                {EX_MODES.map((x) => (
+                  <span
+                    key={x.mode}
+                    className={`swc swe${p.busy ? " dis" : ""}`}
+                    role="button"
+                    tabIndex={0}
+                    data-mode={x.mode}
+                    onClick={() => {
+                      if (p.busy || !p.onException) return;
+                      setSwitching(null);
+                      p.onException(x.mode);
+                    }}
+                  >
+                    <b>{x.label}</b>
+                    {x.mode === "call_first" ? <GradeBadge grade="C" /> : null}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="mb">
-              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSwitching(false)}>
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSwitching(null)}>
                 취소
               </span>
             </div>
@@ -369,7 +405,7 @@ export function NextStageScreen({ s }: { s: SessionView }) {
             <Icon name="info" />
             <div>
               <b>다음: {label[st.kind ?? ""] ?? st.kind}</b>
-              {st.section ? (isException(st.section) ? st.section : `${st.section}절`) : ""}
+              {st.section ? secName(st.section) : ""}
               {st.grade ? ` · ${st.grade}등급` : ""}
             </div>
           </div>

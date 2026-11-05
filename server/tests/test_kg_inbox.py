@@ -14,7 +14,7 @@ from sqlalchemy import text
 
 from test_api import LEAD_PW, login, ok, start, to_instruct  # noqa: F401
 from test_deploy_path import api, count, db, reset_ops  # noqa: F401
-from test_exception_record import TEXT
+from test_exception_record import REVIEW, TEXT
 from test_r12_inbox import approve, audits, confirmed_report
 
 pytestmark = pytest.mark.db
@@ -89,7 +89,8 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
         tech,
         s,
         type="report_confirm",
-        exception_record={"text": TEXT, "choices": [{"same": "EX-R-0001"}, {"same": None}]},
+        exception_record={"text": TEXT},
+        exception_review=list(REVIEW),
     )
     lc, _ = login(api, "lead", "lead.park", LEAD_PW)
     rid = count(db, "select report_id from ops.reports where session_id = :s", s=s["session_id"])
@@ -100,8 +101,9 @@ def test_exception_record_same_shape_with_exception_record(api, db, tmp_path, mo
     ex = rec[
         "exception_record"
     ]  # D-556: 글 · 나눔 줄(check · action = Pack fields-gate 꼴) · 같음/아님 · 자동 상황 · 결과
-    assert ex["text"] == TEXT and [it["kind"] for it in ex["items"]] == ["miss", "new"]
-    assert set(ex["items"][0]) == {"check", "action", "similar", "same", "kind"}
+    assert ex["text"] == TEXT and [it["kind"] for it in ex["items"]] == ["missed", "new_exception"]  # 약속 v9 3절
+    assert set(ex["items"][0]) == {"check", "action", "matches", "decision", "match", "kind"}
+    assert ex["exception_review"] == list(REVIEW)  # 편지 칸 이름(D-556 덧 4 · deploy 848449d)
     assert ex["situation"].startswith("M-01 · ") and ex["result"] == "재가동 정상(경계 이내)"
     assert set(rec["exception_record"]["context"]) >= {"equipment_id", "sensor_values", "symptom_group"}
     note = next(x["note"] for x in rec["steps"] if x.get("section") == "4.3")

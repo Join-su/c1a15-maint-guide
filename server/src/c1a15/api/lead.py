@@ -124,6 +124,7 @@ def overview(user: User = Depends(lead_user), c: Connection = Depends(conn, scop
     calls_open = c.execute(text("select count(*) from ops.calls where answer is null")).scalar()
     return {
         "held": held_rows(c),  # D-554 ① 그래프 반영 보류(신호 폴더가 있을 때만)
+        "acted": acted_rows(c),  # 약속 v9 '호출 없이 조치함'
         "now": datetime.now(UTC).isoformat(),
         "tiles": {
             "awaiting": len(rows),
@@ -151,6 +152,30 @@ def held_rows(c: Connection) -> list[dict]:
         for r in rows
     ]
     return sorted(out, key=lambda x: x["held_at"] or "", reverse=True)
+
+
+def acted_rows(c: Connection, limit: int = 20) -> list[dict]:
+    """약속 v9 '호출 없이 조치함': 판정이 lead_notice acted_without_call을 낸 세션(첫 그 단계 시각) — 최근 순."""
+    rows = c.execute(
+        text(
+            "select distinct on (e.session_id) e.session_id, e.created_at, a.equipment_id, a.symptom_group, "
+            "u.display_name from ops.session_events e join ops.diag_sessions s on s.session_id = e.session_id "
+            "join ops.alarms a on a.alarm_id = s.alarm_id left join ops.accounts u on u.user_id = s.user_id "
+            "where e.type = 'step_opened' and e.payload->'decision'->>'lead_notice' = 'acted_without_call' "
+            "order by e.session_id, e.seq"
+        )
+    ).all()
+    out = [
+        {
+            "session_id": r.session_id,
+            "equipment_id": r.equipment_id,
+            "group_name": deps.group_names()[r.symptom_group],
+            "tech_name": r.display_name,
+            "at": r.created_at.isoformat(),
+        }
+        for r in rows
+    ]
+    return sorted(out, key=lambda x: x["at"], reverse=True)[:limit]
 
 
 def _report(c: Connection, report_id: int):

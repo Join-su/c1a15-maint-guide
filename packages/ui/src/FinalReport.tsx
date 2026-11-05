@@ -142,7 +142,7 @@ export function FinalReport({ data }: { data: Final }) {
                 <td className="n">{t(x.at)}</td>
                 <td>{x.who}</td>
                 <td>{x.text}</td>
-                <td>{x.section ? (x.section.startsWith("EX-") ? x.section : `${x.section}절`) : "—"}</td>
+                <td>{x.section ? (x.section === "EX-NEW" ? "예외" : x.section.startsWith("EX-") ? x.section : `${x.section}절`) : "—"}</td>
                 <td>{x.grade ? <span className="fd-g">{x.grade}</span> : "—"}</td>
               </tr>
             ))}
@@ -208,12 +208,20 @@ export function FinalReport({ data }: { data: Final }) {
                       <th>나눔 {i + 1}</th>
                       <td>
                         {join([`점검 ${it.check.what}`, it.action.what && `조치 ${it.action.what}`])}{" "}
-                        <span className={`fd-xk ${it.kind === "miss" ? "miss" : "new"}`}>
-                          {it.kind === "miss" ? `같음 · ${it.same}` : "새 예외"}
+                        <span className={`fd-xk ${it.kind === "missed" ? "miss" : "new"}`}>
+                          {it.kind === "missed" && it.match ? `같음 · ${it.match.kind} ${it.match.no}` : "새 예외"}
                         </span>
                       </td>
                     </tr>
                   ))}
+                  {xr.split_error ? ( // 나누지 못함 → 적은 글 그대로 새 예외(D-556 덧 7)
+                    <tr data-item="none">
+                      <th>나눔</th>
+                      <td>
+                        <span className="fd-xk new">나누지 못함 · 새 예외</span>
+                      </td>
+                    </tr>
+                  ) : null}
                   <tr>
                     <th>결과</th>
                     <td>{xr.result}</td>

@@ -34,14 +34,17 @@ REQUIRED = {
     "start": {"session_id", "event_id", "group", "query", "events", "grades", "minutes"},
     "judge": {"session_id", "group", "similar", "events", "grades", "minutes"},
     "report": {"session_id", "group", "similar", "report_draft", "allowed_sections"},  # 약속 v3(EV-001 ES-10)
-    "exception_split": {"session_id", "group", "text"},  # D-556 1단계 임시 kind(Pack 약속 v9 전)
+    "exception_split": {"session_id", "group", "text"},  # 약속 v9 4절 Pack run kind(D-556 덧 7 · 9745f54)
+    "exception_similar": {"session_id", "group", "items"},  # 약속 v9 5절
 }
 FORBIDDEN = {
     "alarm": {"session_id", "group", "similar", "events", "grades", "minutes", "query"},
     "start": {"event_card", "settings"},
     "judge": {"event_card", "settings", "event_id", "query"},
     "report": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes"},
-    "exception_split": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "similar"},
+    "exception_split": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "similar"}
+    | {"equipment_id", "occurred_at", "line_id", "items"},  # Pack v9 schema: kind · session_id · group · text만
+    "exception_similar": {"event_card", "settings", "event_id", "query", "events", "grades", "minutes", "text"},
 }
 
 
@@ -331,18 +334,63 @@ def engine_answer(body: dict) -> dict:
         }
     if body["kind"] == "exception_split":
         return {"output": split_answer(body["text"])}
+    if body["kind"] == "exception_similar":
+        return {"output": similar_answer(body)}
     return {"output": _judge_output(body)}
 
 
-# D-556 1단계 가짜 AI 나눔(Pack 약속 v9 전): 글 줄(마침표 · 줄바꿈)의 '점검 …' · '조치 …'를 짝지어
-# 점검 1 + 조치 1 × n.
-# 줄에 '나사'가 있으면 KG 비슷한 것 하나(시험 · e2e가 같음 / 아님 둘 다 걷게) — 실제 AI · 그래프 호출 0
-SPLIT_SIMILAR = {"relation_id": "EX-R-0001", "section": "EX-R-0001", "title": "필터 덮개 고정 나사 확인"}
+# D-556 가짜 AI 나눔: 글 줄(마침표 · 줄바꿈)의 '점검 …' · '조치 …'를 짝지어 점검 1 + 조치 1 × n — 실제 AI 호출 0
+# 가짜 비슷한 것 찾기(약속 v9 5절 꼴): Pack custom/similar.py와 같은 셈(글자 두 개 묶음 코사인 · 상위 3 · 최소 점수)을
+# 그 증상군 매뉴얼 점검 · 조치 절 + 가짜 등록 예외 절 하나(CL · 그래프 대신)에 — 시험 · e2e가 같음 / 아님 둘 다 걷게
+SIMILAR_EXCEPTION = {"CL": [("EX-R-0001", "필터 덮개 고정 나사 확인", "필터 덮개 고정 나사 네 개 체결 확인")]}
+SIMILAR_MIN = 0.15  # Pack similar.py MIN_SCORE(c1a15-pack 69ebdd1 · D-556 덧 5 · 6) — 빈 matches = 비슷한 것 없음
+
+
+def _grams(t: str):
+    import re
+    from collections import Counter
+
+    t = re.sub(r"[\s\W_]+", "", t or "")
+    return Counter(t[i : i + 2] for i in range(len(t) - 1)) if len(t) > 1 else Counter(t)
+
+
+def _cos(a, b) -> float:
+    import math
+
+    num = sum(v * b.get(k, 0) for k, v in a.items())
+    den = math.sqrt(sum(v * v for v in a.values())) * math.sqrt(sum(v * v for v in b.values()))
+    return num / den if den else 0.0
+
+
+def similar_answer(body: dict) -> dict:
+    from c1a15.api import deps
+
+    k = deps.manual()
+    group = body["group"]
+    secs = [x.section_id for x in k.checks.get(group, [])] + [x.action_section for x in k.causes.get(group, [])]
+    pool = [("매뉴얼", s, k.sections[s]["title"], f"{k.sections[s]['title']} {k.sections[s]['text']}") for s in secs]
+    pool += [("예외", no, name, f"{name} {txt}") for no, name, txt in SIMILAR_EXCEPTION.get(group, [])]
+    grams = [(kind, no, name, _grams(txt)) for kind, no, name, txt in pool]
+    out = []
+    for i, it in enumerate(body["items"]):
+        c, a = it["check"], it["action"]
+        q = _grams(" ".join([c["what"], c["how"], c["criteria"], a["what"], *(a.get("parts") or [])]))
+        hits = sorted(((round(_cos(q, g), 4), kind, no, nm) for kind, no, nm, g in grams), key=lambda h: (-h[0], h[2]))
+        top = [{"kind": kd, "no": no, "name": nm, "score": sc} for sc, kd, no, nm in hits[:3] if sc >= SIMILAR_MIN]
+        out.append({"item": i, "matches": top})
+    return {"exception_similar": out}
 
 
 def split_answer(text: str) -> dict:
+    """Pack 9745f54 꼴 흉내: {exception_split: {items, reason}} — 빈 글 칸 짝은 뺌 · 남은 짝 0이면 빈 items + reason.
+    표지(Pack tools/fake/rule.py와 같은 이름): [시험:나눔없음] → 빈 items(not_split) ·
+    [시험:꼴깨짐] → 빈 칸 짝뿐(invalid_output)."""
     import re
 
+    if "[시험:나눔없음]" in text:
+        return {"exception_split": {"items": [], "reason": "not_split"}}
+    if "[시험:꼴깨짐]" in text:
+        return {"exception_split": {"items": [], "reason": "invalid_output"}}
     lines = [x.strip() for x in re.split(r"[.\n]+", text) if x.strip()]
     checks = [x.removeprefix("점검").strip() for x in lines if x.startswith("점검")]
     actions = [x.removeprefix("조치").strip() for x in lines if x.startswith("조치")]
@@ -351,14 +399,14 @@ def split_answer(text: str) -> dict:
     items = []
     for i in range(max(len(checks), len(actions))):
         ck, ac = (checks[i] if i < len(checks) else ""), (actions[i] if i < len(actions) else "")
-        items.append(
-            {
-                "check": {"what": ck[:40], "how": ck, "criteria": "정상 범위", "minutes": None},
-                "action": {"what": ac[:40], "parts": [], "minutes": None},
-                "similar": [SPLIT_SIMILAR] if "나사" in ck + ac else [],
-            }
-        )
-    return {"exception_split": {"items": items}}
+        if ck and ac:  # 빈 칸 짝은 뺌(Pack custom/split.py)
+            items.append(
+                {
+                    "check": {"what": ck[:40], "how": ck, "criteria": "정상 범위", "minutes": None},
+                    "action": {"what": ac[:40], "parts": [], "minutes": None},
+                }
+            )
+    return {"exception_split": {"items": items[:10], "reason": None if items else "not_split"}}
 
 
 def _judge_output(body: dict, opts: dict | None = None) -> dict:
@@ -367,7 +415,7 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
     opts가 없으면 지금 그대로(약속 v4 — preview · manual_support 칸 없음).
     """
     from c1a15.api import deps
-    from c1a15.engine import exception, rules, session
+    from c1a15.engine import exception, rules, session, switch
 
     opts = opts or {}
     k = deps.manual()
@@ -394,6 +442,8 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         d = session.decide(state, k, body["grades"], body["minutes"], **kw)
         if ex:
             d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"))
+        if body["kind"] == "judge":  # 약속 v9 = Pack custom/judge.py 차례: 판정 뒤 점검 바꾸기 · 예외 진행 덧층(사본)
+            d = switch.apply(d, k, {"events": events, "grades": body["grades"], "group": body["group"]})
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 
     out = {"decision": decide(body["events"])}

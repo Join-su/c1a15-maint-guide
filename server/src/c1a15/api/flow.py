@@ -18,7 +18,7 @@ from c1a15.api import deps, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import exception, rules, session
+from c1a15.engine import exception, rules, session, switch
 from c1a15.engine.knowledge import ManualKnowledge
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Draft, Facts
@@ -199,7 +199,10 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
 
 
 def sec_text(sec: str) -> str:
-    """경로 글의 절 표시 — 매뉴얼 절은 '4.3절', 예외 절(약속 v8 EX-…)은 번호 그대로(매뉴얼 절이 아님)."""
+    """경로 글의 절 표시 — 매뉴얼 절은 '4.3절', 예외 절(약속 v8 EX-…)은 번호 그대로(매뉴얼 절이 아님),
+    약속 v9 예외 진행 절(EX-NEW)은 '예외'(정답지 묶음 ① 17쪽)."""
+    if sec == switch.NEW:
+        return "예외"
     return sec if sec.startswith(exception.PREFIX) else f"{sec}절"
 
 
@@ -331,7 +334,10 @@ def call_summary(
             else f"확인에 {title}({sec}절, {step.get('grade')}등급) 필요"
         )
         cand_text = f"1순위 후보 {top['name']}({top['pct']}%), " if top else ""
-        template = f"{head} {done_text}. {cand_text}{need}. 설비는 정지 상태로 대기 중."
+        if sec == switch.NEW:  # 정답지 묶음 ① 16쪽: 예외 진행 호출 요약('매뉴얼 후보 밖 — 예외 조치(C등급) 승인 요청')
+            done_text, cand_text, need = "매뉴얼 후보 밖", "", f"{title}({step.get('grade') or 'C'}등급) 승인 요청"
+        sep = " — " if sec == switch.NEW else ". "
+        template = f"{head} {done_text}{sep}{cand_text}{need}. 설비는 정지 상태로 대기 중."
         facts_vals = {"kind": "call", "head": head, "done": done_text, "candidate": cand_text, "need": need}
         sections = {sec} | {d["section"] for d in done}
     g = grounding.Grounding(
@@ -480,7 +486,7 @@ def report_draft(
     grades = {}면 등급 글 없이(초안 열쇠용). for_pack = Pack report 본문용 — 미확인 칸에서 파트장 답 메모를 뺀다(D-294).
     """
     k = knowledge_of(events)
-    g = with_exception(exception_guide_of(events), deps.grades(c)[0], {})[1] if grades is None else grades
+    g = grades_of(events, deps.grades(c)[0], {})[1] if grades is None else grades
     group = deps.group_names()[alarm.symptom_group]
     system = deps.group_systems()[alarm.symptom_group]
     end = confirmed_at or datetime.now(UTC)
@@ -657,8 +663,8 @@ def exception_of(events: list[dict]) -> dict | None:
     return (last or {}).get("exception_record") or None
 
 
-# D-556 1단계 예외 기록 = 자유 글 → AI 나눔(점검 1 + 조치 1 × n · check · action = c1a15-pack fields-gate 1절 꼴)
-# → 줄마다 KG 비슷한 것 · 정비자 같음(놓침) / 아님(새 예외). 칸 이름은 앱 임시(Pack 약속 v9 전).
+# D-556 예외 기록 = 자유 글 → AI 나눔(점검 1 + 조치 1 × n · 약속 v9 4절) → Pack 비슷한 것 찾기(v9 5절 exception_similar)
+# → item마다 정비자 같음(missed · 놓침) / 아님(new_exception · 새 예외) = report_confirm.exception_review.
 EX_TEXT_MAX = 2000
 
 
@@ -677,55 +683,106 @@ def exception_split_of(events: list[dict]) -> dict | None:
     """마지막 확정 뒤 마지막 「AI 나눔」 결과 {text, items, error} — 없으면 None."""
     last_confirm = max((e["seq"] for e in events if e["type"] == "report_confirm"), default=0)
     hit = next((e for e in reversed(events) if e["type"] == "exception_split" and e["seq"] > last_confirm), None)
-    return {k: hit.get(k) for k in ("text", "items", "error")} if hit else None
+    return {k: hit.get(k) for k in ("text", "items", "error", "similar_error")} if hit else None
 
 
 def split_items(output: dict) -> list[dict]:
-    """배포 exception_split 출력 → 화면 줄(모르는 칸 · 꼴 어긋남은 그 줄을 뺌 · 지어내기 0)."""
+    """배포 exception_split 출력(약속 v9 4절 · Pack 9745f54) → item(꼴 어긋남 · 빈 글 칸은 그 짝을 뺌 · 지어내기 0)."""
     out = []
     for it in (output.get("exception_split") or {}).get("items") or []:
         try:
             ck, ac = it["check"], it["action"]
-            out.append(
-                {
-                    "check": {
-                        k: ck.get(k) if k == "minutes" else str(ck.get(k) or "")
-                        for k in ("what", "how", "criteria", "minutes")
-                    },
-                    "action": {
-                        "what": str(ac.get("what") or ""),
-                        "parts": [str(x) for x in ac.get("parts") or []],
-                        "minutes": ac.get("minutes"),
-                    },
-                    "similar": [
-                        {k: str(x[k]) for k in ("relation_id", "section", "title")} for x in it.get("similar") or []
-                    ],
-                }
-            )
+            item = {
+                "check": {
+                    k: ck.get(k) if k == "minutes" else str(ck.get(k) or "").strip()
+                    for k in ("what", "how", "criteria", "minutes")
+                },
+                "action": {
+                    "what": str(ac.get("what") or "").strip(),
+                    "parts": [str(x) for x in ac.get("parts") or []],
+                    "minutes": ac.get("minutes"),
+                },
+            }
         except (KeyError, TypeError, AttributeError):
+            continue
+        if all(item["check"][k] for k in ("what", "how", "criteria")) and item["action"]["what"]:
+            out.append(item)
+    return out[:10]
+
+
+def split_reason(output: dict) -> str:
+    """나누지 못한 까닭(약속 v9 4절 reason not_split | invalid_output) — 없거나 모르는 값이면 not_split."""
+    reason = (output.get("exception_split") or {}).get("reason")
+    return reason if reason in {"not_split", "invalid_output"} else "not_split"
+
+
+SIMILAR_KINDS = {"예외", "매뉴얼"}
+
+
+def similar_query(items: list[dict]) -> list[int]:
+    """비슷한 것 찾기에 보낼 item 번호 — 약속 v9 요청 꼴(점검 what · how · criteria · 조치 what 글 있음 · 10개까지)."""
+    ok = [
+        i
+        for i, it in enumerate(items)
+        if all(it["check"].get(k) for k in ("what", "how", "criteria")) and it["action"].get("what")
+    ]
+    return ok[:10]
+
+
+def similar_matches(output: dict, sent: list[int], n: int) -> list[list[dict]]:
+    """배포 exception_similar 출력 → item마다 비슷한 것(상위 3 · 꼴 어긋남은 뺌 · 보내지 않은 item은 빈 목록)."""
+    out: list[list[dict]] = [[] for _ in range(n)]
+    for row in output.get("exception_similar") or []:
+        try:
+            i = sent[int(row["item"])]
+            out[i] = [
+                {"kind": x["kind"], "no": str(x["no"]), "name": str(x.get("name") or ""), "score": float(x["score"])}
+                for x in row.get("matches") or []
+                if x.get("kind") in SIMILAR_KINDS and x.get("no")
+            ][:3]
+        except (KeyError, TypeError, ValueError, IndexError):
             continue
     return out
 
 
-def exception_choose(text: str, split: dict | None, choices: list[dict]) -> list[dict]:
-    """확정 때: 지금 글을 나눈 결과가 있고 줄마다 같음(그 줄 비슷한 것 하나) / 아님(null)을 골랐어야 함 — 아니면 409."""
-    if split is None or split.get("error") or (split.get("text") or "") != text or not split.get("items"):
+def exception_review(text: str, split: dict | None, review: list[dict]) -> list[dict]:
+    """확정 때(약속 v9 5절): 지금 글을 나눈 결과가 있고 item마다 한 번 같음(그 item 비슷한 것 하나) / 아님(match null)
+    — 아니면 409. 기록 이름(약속 v9 3절): 같음 = missed(놓침) · 아님 = new_exception(새 예외 · 관문).
+    지금 글을 나누지 못했으면(Run 실패 · 빈 items — D-556 덧 7 Pack 제안 3) 고를 것 0 · 글 그대로 새 예외(item 0)."""
+    if split is None or (split.get("text") or "") != text:
         raise HTTPException(status_code=409, detail={"reason": "exception_split_needed"})
+    if split.get("error"):
+        if review:
+            raise HTTPException(status_code=409, detail={"reason": "exception_review_invalid"})
+        return []
     items = split["items"]
-    if len(choices) != len(items):
-        raise HTTPException(status_code=409, detail={"reason": "exception_choice_needed", "items": len(items)})
+    by_item = {r["item"]: r for r in review}
+    if len(by_item) != len(review) or set(by_item) != set(range(len(items))):
+        raise HTTPException(status_code=409, detail={"reason": "exception_review_needed", "items": len(items)})
     out = []
-    for it, ch in zip(items, choices, strict=True):
-        same = ch.get("same")
-        if same is not None and same not in {x["relation_id"] for x in it["similar"]}:
-            raise HTTPException(status_code=409, detail={"reason": "exception_choice_invalid"})
-        out.append({**it, "same": same, "kind": "miss" if same else "new"})  # 놓침(KG에 있음) · 새 예외(관문)
+    for i, it in enumerate(items):
+        r = by_item[i]
+        match = r.get("match")
+        same = r["decision"] == "same"
+        known = {(x["kind"], x["no"]) for x in it.get("matches") or []}
+        if same != (match is not None) or (same and (match["kind"], match["no"]) not in known):
+            raise HTTPException(status_code=409, detail={"reason": "exception_review_invalid", "item": i})
+        out.append(
+            {
+                **it,
+                "decision": r["decision"],
+                "match": {"kind": match["kind"], "no": match["no"]} if same else None,
+                "kind": "missed" if same else "new_exception",
+            }
+        )
     return out
 
 
 def exception_text(ex: dict) -> str:
-    """기록 한 글(참고 알림): 나눈 기록 = 줄마다 '점검 … · 조치 …', 전 기록 = 조치 글."""
+    """기록 한 글(참고 알림): 나눈 기록 = 줄마다 '점검 … · 조치 …', 나누지 못한 기록 = 적은 글, 전 기록 = 조치 글."""
     if not ex.get("items"):
+        if ex.get("text"):
+            return ex["text"]
         return ex.get("action") if isinstance(ex.get("action"), str) else _legacy_text(ex)
     return ". ".join(
         " · ".join(
@@ -772,7 +829,7 @@ def exception_notes(c: Connection, alarm: m.Alarm, limit: int = 3) -> list[dict]
             "situation": r.ex.get("situation", ""),
             "action": exception_text(r.ex),
             # 알림에 보일 한 줄: D-556 나눈 기록은 줄을 이은 글(상황은 자동이라 머리와 겹침) · 전 기록은 상황 글
-            "text": exception_text(r.ex) if r.ex.get("items") else r.ex.get("situation", ""),
+            "text": exception_text(r.ex) if r.ex.get("items") or r.ex.get("text") else r.ex.get("situation", ""),
         }
         for r in rows
     ]
@@ -794,13 +851,42 @@ def with_exception(eg: dict | None, grades: dict, minutes: dict) -> tuple[str | 
     return eg["relation_id"], {**grades, sec: grades.get(sec, eg["grade"])}, minutes
 
 
+PROGRESS_TITLE = "예외 조치"  # 약속 v9 예외 진행 절 EX-NEW 이름(매뉴얼 · 그래프에 없는 절)
+
+
+def progress_of(events: list[dict]) -> str | None:
+    """약속 v9 [예외] 진행 방식(call_first | act_now) — exception_start가 없으면 None."""
+    st = [e for e in events if e["type"] == "exception_start" and not e.get("void")]
+    return st[-1].get("mode") if st else None
+
+
+def grades_of(events: list[dict], g: dict, minutes: dict) -> tuple[str | None, dict, dict]:
+    """화면용 등급표 · 분 표: v8 예외 절 줄 + 약속 v9 예외 진행 절 EX-NEW(등급 C)."""
+    rel, g, minutes = with_exception(exception_guide_of(events), g, minutes)
+    return rel, ({**g, switch.NEW: g.get(switch.NEW, "C")} if progress_of(events) else g), minutes
+
+
 def knowledge_of(events: list[dict]) -> ManualKnowledge:
     """약속 v8: 세션에 예외 안내가 있으면 매뉴얼 밖 예외 절(EX-…)을 이 세션 지식에 덧붙임 — 지시 · 조치 · 경로 ·
-    보고서 · 파트장 화면이 매뉴얼 절과 같은 길로 읽음(본문 = Pack 응답 글 그대로 · 매뉴얼 표는 손 0)."""
+    보고서 · 파트장 화면이 매뉴얼 절과 같은 길로 읽음(본문 = Pack 응답 글 그대로 · 매뉴얼 표는 손 0).
+    약속 v9: [예외] 진행이면 절 EX-NEW(본문 없음 · 등급 C)도 덧붙임."""
     k = deps.manual()
     eg = exception_guide_of(events)
+    extra = {}
+    if progress_of(events):
+        extra[switch.NEW] = {
+            "id": switch.NEW,
+            "title": PROGRESS_TITLE,
+            "kind": "exception",
+            "chapter": None,
+            "group": None,
+            "grade": "C",
+            "minutes": None,
+            "parent": None,
+            "text": "",
+        }
     if not eg:
-        return k
+        return dataclasses.replace(k, sections={**k.sections, **extra}) if extra else k
     sec = eg["section"]
     steps = "\n".join(f"{i}. {x}" for i, x in enumerate(eg.get("steps") or [], 1))
     crit = f"\n\n**판정 기준** {eg['criteria']}" if eg.get("criteria") else ""
@@ -815,7 +901,7 @@ def knowledge_of(events: list[dict]) -> ManualKnowledge:
         "parent": None,
         "text": f"#### {sec} 점검 방법\n{eg.get('text') or ''}\n\n{steps}{crit}",
     }
-    return dataclasses.replace(k, sections={**k.sections, sec: row})
+    return dataclasses.replace(k, sections={**k.sections, sec: row, **extra})
 
 
 def exception_action(c: Connection, events: list[dict], g: dict, minutes: dict) -> dict | None:
@@ -843,6 +929,29 @@ def exception_action(c: Connection, events: list[dict], g: dict, minutes: dict) 
         "checklist": [],
         "checklist_done": False,
         "steps": list(eg.get("steps") or []),
+    }
+
+
+def progress_action(events: list[dict], step: dict) -> dict | None:
+    """약속 v9 예외 진행 조치 카드(절 EX-NEW · 절차 없음 — 정비자가 판단해 조치 · 보고서 예외 칸에 적음)."""
+    if not progress_of(events):
+        return None
+    done_e = next((e for e in events if e["type"] == "action_done" and e.get("section") == switch.NEW), None)
+    if done_e is None and (step.get("kind"), step.get("section")) != ("action", switch.NEW):
+        return None
+    return {
+        "cause_code": "",
+        "cause_name": "예외",
+        "evidence_record_ids": [],
+        "section": switch.NEW,
+        "title": PROGRESS_TITLE,
+        "verb": "조치",
+        "grade": "C",
+        "minutes": None,
+        "done_at": (done_e or {}).get("_at"),
+        "checklist": [],
+        "checklist_done": False,
+        "steps": [],
     }
 
 
@@ -1080,7 +1189,24 @@ def accept(
             res = runs.split(alarm, row.symptom_group, text, seq)
         except PackUnavailable as e:  # 나누지 못함 — 보고서는 막히지 않음(글을 지우면 확정 가능 · 다시 누르면 새 Run)
             return "exception_split", {"text": text, "items": [], "error": "pack_unavailable", "run_id": e.run_id}
-        return "exception_split", {"text": text, "items": split_items(res.output), "error": None, "run_id": res.run_id}
+        items = split_items(res.output)
+        if not items:  # 나누지 못함(빈 items · 꼴 밖 짝뿐) — Run 실패와 같이 받음(D-556 덧 7)
+            reason = split_reason(res.output)
+            return "exception_split", {"text": text, "items": [], "error": reason, "run_id": res.run_id}
+        out = {"text": text, "items": items, "error": None, "similar_error": None, "run_id": res.run_id}
+        sent = similar_query(items)
+        found: list[list[dict]] = [[] for _ in items]
+        if sent:  # 약속 v9 5절: Pack 비슷한 것 찾기(실패하면 비슷한 것 없이 — item은 아님만 고를 수 있음)
+            try:
+                sim = runs.exception_similar(
+                    alarm, row.symptom_group, [{k: items[i][k] for k in ("check", "action")} for i in sent], seq
+                )
+                found = similar_matches(sim.output, sent, len(items))
+                out["similar_run_id"] = sim.run_id
+            except PackUnavailable as e:
+                out["similar_error"], out["similar_run_id"] = "pack_unavailable", e.run_id
+        out["items"] = [{**it, "matches": m_} for it, m_ in zip(items, found, strict=True)]
+        return "exception_split", out
     if etype == "handover_request":  # AC-31-C2 · S6: 문장 생성 3회 연속 실패로 인계를 권할 때만 정비자가 고른다
         from c1a15.api import sessions as svc
 
@@ -1162,7 +1288,9 @@ def accept(
             raise HTTPException(status_code=409, detail={"reason": "precheck_failed", "checks": view["checks"]})
         ex_in = payload.get("exception_record") or {}
         ex_text = (ex_in.get("text") or "").strip()
-        items = exception_choose(ex_text, exception_split_of(events), ex_in.get("choices") or []) if ex_text else []
+        review = payload.get("exception_review") or []
+        split = exception_split_of(events)
+        items = exception_review(ex_text, split, review) if ex_text else []
         now = datetime.now(UTC)
         fields = view["fields"]
         for f in fields:  # 확정 때 정지 시간 · 시각을 확정 시각으로 고정
@@ -1199,7 +1327,12 @@ def accept(
             out["exception_record"] = {
                 "situation": auto["situation"],
                 "text": ex_text,  # 정비자 글 그대로
-                "items": items,  # D-556 AI 나눔 줄 + 같음(놓침) / 아님(새 예외)
+                "items": items,  # AI 나눔 item + 비슷한 것 + 같음(missed) / 아님(new_exception) — 약속 v9 3 · 5절
+                # 승인 편지 칸 이름(D-556 덧 4 · deploy 848449d): exception_record.items · .exception_review
+                "exception_review": [
+                    {"item": i, "decision": it["decision"], "match": it["match"]} for i, it in enumerate(items)
+                ],
+                **({"split_error": split["error"]} if split and split.get("error") else {}),  # 나누지 못함 → 새 예외
                 "result": auto["result"],
                 "context": exception_context(c, alarm, events, cause, rid),
             }
@@ -1218,7 +1351,7 @@ def sessions_alarm(c: Connection, row: m.DiagSession) -> m.Alarm:
 def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, step: dict, events: list[dict]) -> dict:
     k = knowledge_of(events)
     g, minutes = deps.grades(c)
-    _, g, minutes = with_exception(exception_guide_of(events), g, minutes)
+    _, g, minutes = grades_of(events, g, minutes)
     alarm = sessions_alarm(c, row)
     kind = step.get("kind")
     out: dict = {"path": path(events, k, step, alarm)}
@@ -1258,8 +1391,8 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
                 k, ac
             ),  # D-530 답장 001-zzy(가이드 14쪽): 조치 카드 절차 — 매뉴얼 번호 줄 그대로
         }
-    elif (ex_act := exception_action(c, events, g, minutes)) is not None:  # 약속 v8 예외 절 이상 → 조치
-        out["action"] = ex_act
+    elif (ex_act := exception_action(c, events, g, minutes) or progress_action(events, step)) is not None:
+        out["action"] = ex_act  # 약속 v8 예외 절 이상 → 조치 · v9 예외 진행 조치
     if kind in {"restart_check", "restart_value", "monitor_close", "report"} or state.restarted:
         restart_e, result_e = _restart_events(events)
         out["restart"] = {

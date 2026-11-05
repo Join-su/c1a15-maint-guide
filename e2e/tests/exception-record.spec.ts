@@ -1,5 +1,6 @@
 // D-538 · D-556 예외 상황 기록을 사람 손 순서로: 정비자 보고서 화면 '예외 상황 기록'(선택) 글 하나(자리글 = 안내 문구)
-// → 「AI 나눔」(가짜 배포 서버 — 점검 1 + 조치 1 × 2) → 「AI 나눔」 한 번 더(같은 화면 · D-503 1) → 줄마다 같음 / 아님
+// → 「AI 나눔」(가짜 배포 서버 — 점검 1 + 조치 1 × 2 · 약속 v9 exception_similar 비슷한 것 상위 3) → 「AI 나눔」 한 번 더
+// (같은 화면 · D-503 1) → item마다 비슷한 것 하나 「같음」(놓침 missed) / 「아님」(새 예외 new_exception)
 // → 「보고서 확정」 → 확인 창 「취소」(글 · 고름 그대로) → 다시 확정 → 확정 뒤 칸은 읽기만
 // → 파트장 최종본 '6. 예외 상황 기록'(글 · 나눔 줄 + 자동 정보 · 보기만) → 승인
 // → 정비 이력 원본 층(record.exception_record)에 같이 저장.
@@ -59,13 +60,16 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
     await expect(rows).toHaveCount(2);
   }
   await expect(rows.nth(0).locator(".exl")).toHaveText(["점검필터 덮개 고정 나사를 손으로 확인 · 기준 정상 범위", "조치나사를 새로 끼움"]);
-  await expect(rows.nth(0).locator(".exs .ch")).toHaveText("비슷한 예외 기록 · EX-R-0001 필터 덮개 고정 나사 확인");
-  await expect(rows.nth(1).locator(".exs .ch")).toHaveText("새 예외");
+  const sim0 = rows.nth(0).locator(".exr");
+  await expect(sim0.first()).toHaveText("예외EX-R-0001 필터 덮개 고정 나사 확인같음"); // 나사 item = 등록 예외가 맨 위
+  expect(await sim0.count()).toBeLessThanOrEqual(3);
+  await expect(rows.nth(1).locator(".exs .ch")).toHaveText("새 예외"); // 비슷한 것 0 → 같음 / 아님 없이(D-556 덧 5)
+  await expect(rows.nth(1).locator(".exr, .btn")).toHaveCount(0);
   await pause(page);
   await rows.nth(0).locator(".exb .btn", { hasText: "아님" }).click();
   await pause(page);
-  await rows.nth(0).locator(".exb .btn", { hasText: "같음" }).click(); // 다시 고름 — 마지막이 이김
-  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).not.toHaveClass(/dis/);
+  await sim0.first().locator(".btn", { hasText: "같음" }).click(); // 다시 고름 — 마지막이 이김
+  await expect(page.locator(".cta2 .btn", { hasText: "보고서 확정" })).not.toHaveClass(/dis/); // 둘째 item은 고를 것 0
   await snap(page, info, "X1-report-exception");
   await pause(page);
   await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
@@ -73,7 +77,7 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
   await pause(page);
   await dlg.locator(".btn", { hasText: "취소" }).click(); // 같은 화면에서 취소 → 다시(D-503 1)
   await expect(ta).toHaveValue(TEXT); // 취소해도 글 · 고름 그대로
-  await expect(rows.nth(0).locator(".exb .btn", { hasText: "같음" })).not.toHaveClass(/ghost/);
+  await expect(sim0.first().locator(".btn", { hasText: "같음" })).not.toHaveClass(/ghost/);
   await pause(page);
   await page.locator(".cta2 .btn", { hasText: "보고서 확정" }).click();
   await pause(page);
@@ -84,7 +88,7 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
   const situation = (await kh.locator('[data-part="ex-situation"]').textContent()) ?? "";
   expect(situation).toMatch(/^M-01 · 온도 차 저하 · .+ · 온도 차 /);
   await expect(kh.locator(".khf > .sm")).toHaveText(["상황", "적은 글", "결과"]);
-  await expect(kh.locator(".exs .ch")).toHaveText(["같음 · EX-R-0001", "새 예외"]);
+  await expect(kh.locator(".exs .ch")).toHaveText(["같음 · 예외 EX-R-0001", "새 예외"]);
   await snap(page, info, "X2-confirmed");
 
   const lead = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
@@ -101,7 +105,7 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
   await expect(lead.locator(".fd-ex th")).toHaveText(["상황", "적은 글", "나눔 1", "나눔 2", "결과", "설비 · 증상", "센서값", "직전 정비", "AI 첫 안내", "확정 원인"]);
   await expect(lead.locator(".fd-ex td").nth(0)).toHaveText(situation);
   await expect(lead.locator(".fd-ex td").nth(1)).toHaveText(TEXT);
-  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText("점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움 같음 · EX-R-0001");
+  await expect(lead.locator(".fd-ex td").nth(2)).toHaveText("점검 필터 덮개 고정 나사를 손으로 확인 · 조치 나사를 새로 끼움 같음 · 예외 EX-R-0001");
   await expect(lead.locator(".fd-ex td").nth(3)).toHaveText("점검 흡기 덕트 이음매 · 조치 밴드를 다시 조임 새 예외");
   await expect(lead.locator(".fd-ex td").nth(4)).toHaveText(RESULT);
   await expect(lead.locator(".fd-ex td").nth(8)).toHaveText("4.3 흡기 필터 육안 점검"); // 자동: AI 첫 안내
@@ -115,7 +119,7 @@ test("예외 상황 기록: 보고서 확정과 함께 → 파트장 최종본 6
   await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
   // 승인 = 정비 이력 원본 층에 같이(record.exception_record)
   expect(psql("select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report'")).toBe(situation);
-  expect(psql("select string_agg(i->>'kind', ',') from knowledge.history_records, jsonb_array_elements(record->'exception_record'->'items') i where source = 'approved_report'")).toBe("miss,new");
+  expect(psql("select string_agg(i->>'kind', ',') from knowledge.history_records, jsonb_array_elements(record->'exception_record'->'items') i where source = 'approved_report'")).toBe("missed,new_exception"); // 약속 v9 3절 기록 이름
   expect(psql("select record->'exception_record'->'context'->>'equipment_id' from knowledge.history_records where source = 'approved_report'")).toBe("M-01");
   if (process.env.SHOT_DIR) {
     // D-503 2: 이력 원본 층에 실제로 저장된 꼴 한 건

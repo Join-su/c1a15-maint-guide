@@ -1337,6 +1337,70 @@
     "title": "CheckDone",
     "type": "object"
    },
+   "CheckRecord": {
+    "additionalProperties": false,
+    "description": "약속 v9 3절 기록 줄(앱 → LLMOps): 헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검.",
+    "properties": {
+     "at_seq": {
+      "title": "At Seq",
+      "type": "integer"
+     },
+     "human_check": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/HumanCheck"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "relation_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Relation Id"
+     },
+     "session_id": {
+      "title": "Session Id",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "kind",
+     "session_id",
+     "human_check",
+     "at_seq"
+    ],
+    "title": "CheckRecord",
+    "type": "object"
+   },
+   "CheckRecordList": {
+    "additionalProperties": false,
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/CheckRecord"
+      },
+      "title": "Items",
+      "type": "array"
+     }
+    },
+    "required": [
+     "items"
+    ],
+    "title": "CheckRecordList",
+    "type": "object"
+   },
    "Correction": {
     "additionalProperties": false,
     "properties": {
@@ -1648,6 +1712,21 @@
        }
       ]
      },
+     "exception_review": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionReview"
+        },
+        "maxItems": 20,
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Review"
+     },
      "exception_text": {
       "anyOf": [
        {
@@ -1681,6 +1760,21 @@
        }
       ],
       "title": "Memo"
+     },
+     "mode": {
+      "anyOf": [
+       {
+        "enum": [
+         "call_first",
+         "act_now"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mode"
      },
      "outcome": {
       "anyOf": [
@@ -1755,7 +1849,8 @@
        "handover_request",
        "exception_draft",
        "exception_split",
-       "check_switch"
+       "switch_check",
+       "exception_start"
       ],
       "title": "Type",
       "type": "string"
@@ -1921,25 +2016,6 @@
      "minutes"
     ],
     "title": "ExceptionCheckFields",
-    "type": "object"
-   },
-   "ExceptionChoice": {
-    "additionalProperties": false,
-    "description": "D-556 1단계: AI 나눔 한 줄 — 같음 = 그 줄 KG 비슷한 것의 relation_id(놓침) · 아님 = null(새 예외).",
-    "properties": {
-     "same": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Same"
-     }
-    },
-    "title": "ExceptionChoice",
     "type": "object"
    },
    "ExceptionContext": {
@@ -2187,17 +2263,8 @@
    },
    "ExceptionInput": {
     "additionalProperties": false,
-    "description": "D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.\n확정 때는 그 글의 「AI 나눔」 줄마다 같음 / 아님(choices) — 상황 · 결과 · 자동 정보는 서버가 붙임.",
+    "description": "D-538 · D-556 예외 상황 기록: 정비자가 예외라고 판단할 때만 적는 글 하나.\n확정 때는 그 글의 「AI 나눔」 item마다 같음 / 아님(exception_review) — 상황 · 결과 · 자동 정보는 서버가 붙임.",
     "properties": {
-     "choices": {
-      "default": [],
-      "items": {
-       "$ref": "#/components/schemas/ExceptionChoice"
-      },
-      "maxItems": 20,
-      "title": "Choices",
-      "type": "array"
-     },
      "text": {
       "default": "",
       "maxLength": 2000,
@@ -2210,13 +2277,24 @@
    },
    "ExceptionItem": {
     "additionalProperties": false,
-    "description": "D-556 AI 나눔 한 줄 = 점검 1 + 조치 1(+ 확정 뒤 같음 / 아님).",
+    "description": "AI 나눔 item = 점검 1 + 조치 1(약속 v9 4절) + 비슷한 것(5절) + 확정 뒤 같음 / 아님.",
     "properties": {
      "action": {
       "$ref": "#/components/schemas/ExceptionActionFields"
      },
      "check": {
       "$ref": "#/components/schemas/ExceptionCheckFields"
+     },
+     "decision": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Decision"
      },
      "kind": {
       "anyOf": [
@@ -2229,31 +2307,74 @@
       ],
       "title": "Kind"
      },
-     "same": {
+     "match": {
       "anyOf": [
        {
-        "type": "string"
+        "$ref": "#/components/schemas/ExceptionMatchRef"
        },
        {
         "type": "null"
        }
-      ],
-      "title": "Same"
+      ]
      },
-     "similar": {
+     "matches": {
+      "default": [],
       "items": {
        "$ref": "#/components/schemas/ExceptionSimilar"
       },
-      "title": "Similar",
+      "title": "Matches",
       "type": "array"
      }
     },
     "required": [
      "check",
-     "action",
-     "similar"
+     "action"
     ],
     "title": "ExceptionItem",
+    "type": "object"
+   },
+   "ExceptionMatch": {
+    "additionalProperties": false,
+    "description": "약속 v9 5절: 비슷한 것 하나(exception_similar 결과 matches 줄의 kind · no).",
+    "properties": {
+     "kind": {
+      "enum": [
+       "예외",
+       "매뉴얼"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "no": {
+      "maxLength": 40,
+      "title": "No",
+      "type": "string"
+     }
+    },
+    "required": [
+     "kind",
+     "no"
+    ],
+    "title": "ExceptionMatch",
+    "type": "object"
+   },
+   "ExceptionMatchRef": {
+    "additionalProperties": false,
+    "properties": {
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "no": {
+      "title": "No",
+      "type": "string"
+     }
+    },
+    "required": [
+     "kind",
+     "no"
+    ],
+    "title": "ExceptionMatchRef",
     "type": "object"
    },
    "ExceptionNote": {
@@ -2351,6 +2472,20 @@
      "context": {
       "$ref": "#/components/schemas/ExceptionContext"
      },
+     "exception_review": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionReviewOut"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Review"
+     },
      "items": {
       "anyOf": [
        {
@@ -2379,6 +2514,17 @@
      "situation": {
       "title": "Situation",
       "type": "string"
+     },
+     "split_error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Split Error"
      },
      "text": {
       "anyOf": [
@@ -2452,27 +2598,99 @@
     "title": "ExceptionRecordList",
     "type": "object"
    },
-   "ExceptionSimilar": {
+   "ExceptionReview": {
     "additionalProperties": false,
-    "description": "D-556 KG 비슷한 것(등록된 예외 관계 · 그 절).",
+    "description": "약속 v9 5절 report_confirm.exception_review 한 줄: AI 나눔 item마다 같음(그 match = 놓침) / 아님(새 예외).",
     "properties": {
-     "relation_id": {
-      "title": "Relation Id",
+     "decision": {
+      "enum": [
+       "same",
+       "not"
+      ],
+      "title": "Decision",
       "type": "string"
      },
-     "section": {
-      "title": "Section",
-      "type": "string"
+     "item": {
+      "maximum": 19.0,
+      "minimum": 0.0,
+      "title": "Item",
+      "type": "integer"
      },
-     "title": {
-      "title": "Title",
-      "type": "string"
+     "match": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionMatch"
+       },
+       {
+        "type": "null"
+       }
+      ]
      }
     },
     "required": [
-     "relation_id",
-     "section",
-     "title"
+     "item",
+     "decision"
+    ],
+    "title": "ExceptionReview",
+    "type": "object"
+   },
+   "ExceptionReviewOut": {
+    "additionalProperties": false,
+    "description": "약속 v9 5절 report_confirm.exception_review 한 줄(확정 기록 · 승인 편지에 그대로 · D-556 덧 4).",
+    "properties": {
+     "decision": {
+      "title": "Decision",
+      "type": "string"
+     },
+     "item": {
+      "title": "Item",
+      "type": "integer"
+     },
+     "match": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ExceptionMatchRef"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "item",
+     "decision",
+     "match"
+    ],
+    "title": "ExceptionReviewOut",
+    "type": "object"
+   },
+   "ExceptionSimilar": {
+    "additionalProperties": false,
+    "description": "약속 v9 5절 비슷한 것 하나(exception_similar matches 줄): 등록 예외 절 · 매뉴얼 점검 · 조치 절.",
+    "properties": {
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     },
+     "no": {
+      "title": "No",
+      "type": "string"
+     },
+     "score": {
+      "title": "Score",
+      "type": "number"
+     }
+    },
+    "required": [
+     "kind",
+     "no",
+     "name",
+     "score"
     ],
     "title": "ExceptionSimilar",
     "type": "object"
@@ -2498,6 +2716,17 @@
       },
       "title": "Items",
       "type": "array"
+     },
+     "similar_error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Similar Error"
      },
      "text": {
       "title": "Text",
@@ -3130,6 +3359,32 @@
     "title": "Home",
     "type": "object"
    },
+   "HumanCheck": {
+    "additionalProperties": false,
+    "properties": {
+     "from_section": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "From Section"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     }
+    },
+    "required": [
+     "section",
+     "from_section"
+    ],
+    "title": "HumanCheck",
+    "type": "object"
+   },
    "InProgress": {
     "additionalProperties": false,
     "properties": {
@@ -3292,6 +3547,48 @@
      "unable"
     ],
     "title": "Instruction",
+    "type": "object"
+   },
+   "LeadActedRow": {
+    "additionalProperties": false,
+    "description": "약속 v9 lead_notice acted_without_call: 정비자가 [예외] 바로 조치를 고른 세션 한 줄.",
+    "properties": {
+     "at": {
+      "title": "At",
+      "type": "string"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "group_name": {
+      "title": "Group Name",
+      "type": "string"
+     },
+     "session_id": {
+      "title": "Session Id",
+      "type": "integer"
+     },
+     "tech_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Tech Name"
+     }
+    },
+    "required": [
+     "session_id",
+     "equipment_id",
+     "group_name",
+     "tech_name",
+     "at"
+    ],
+    "title": "LeadActedRow",
     "type": "object"
    },
    "LeadAudit": {
@@ -3626,6 +3923,14 @@
    "LeadOverview": {
     "additionalProperties": false,
     "properties": {
+     "acted": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/LeadActedRow"
+      },
+      "title": "Acted",
+      "type": "array"
+     },
      "held": {
       "default": [],
       "items": {
@@ -7083,6 +7388,25 @@
      }
     },
     "summary": "Register Alarm"
+   }
+  },
+  "/api/internal/check-records": {
+   "get": {
+    "description": "약속 v9 3절 기록 줄(헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검) — LLMOps가 읽음. 읽기만.",
+    "operationId": "check_records_api_internal_check_records_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CheckRecordList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Check Records"
    }
   },
   "/api/internal/exception-records": {

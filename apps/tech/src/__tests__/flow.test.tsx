@@ -46,6 +46,20 @@ describe("T08 조치 · 재가동", () => {
     expect(container.querySelector(".g64 > .cd:last-child .cd-h b")?.textContent).toBe("지금까지 점검 · 조치");
   });
 
+  it("예외 진행 조치(정답지 묶음 ① 17쪽): 원인 카드 '원인 · 예외 · 보고서 예외 칸에서' · 조치 · 예외 조치(C) · 절차 줄 0 · 「조치 완료」", () => {
+    const s = load("s03-action-a");
+    s.action = { cause_code: "", cause_name: "예외", evidence_record_ids: [], section: "EX-NEW", title: "예외 조치", verb: "조치", grade: "C", minutes: null, done_at: null, checklist: [], checklist_done: false, steps: [] };
+    s.step = { ...s.step, kind: "action", section: "EX-NEW", grade: "C" };
+    const send = vi.fn();
+    const { container } = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={() => {}} send={send} />);
+    const [cause, act] = cards(container);
+    expect(texts(cause, ".cd-h > b, .cd-h > .ch, .kvr > *")).toEqual(["원인", "예외", "원인", "보고서 예외 칸에서"]);
+    expect(act.querySelector(".act-h b")?.textContent).toBe("조치 · 예외 조치");
+    expect(act.querySelector(".proc")).toBeNull();
+    fireEvent.click(btn(act, "조치 완료"));
+    expect(send).toHaveBeenCalledWith({ type: "action_done", section: "EX-NEW" });
+  });
+
   it("checklist_b: B 조치는 체크리스트를 모두 확인해야 「조치 진행」이 열린다(AC-32-C2 · AC-43-C4)", () => {
     const s = load("s03-action-b");
     const a = s.action!;
@@ -232,6 +246,21 @@ describe("T10 파트장 호출", () => {
     expect(container.querySelector(".xkr")).toBeNull();
   });
 
+  it("예외 진행 호출 후 조치(정답지 묶음 ① 16쪽): 머리 '예외 진행' · 예외 조치 · C · '예외' · 조치 잠김 · 파트장 승인 뒤 · 남은 후보 0", () => {
+    const s = load("s03-call-summary");
+    Object.assign(s.call!, { section: "EX-NEW", title: "예외 조치", grade: "C", minutes: null, exception_guide: null });
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={vi.fn()} />,
+    );
+    const left = container.querySelector(".g64 > .cd")!;
+    expect(left.querySelector(".warn-h .sm")?.textContent).toBe("예외 진행");
+    expect(left.querySelector(".warn-h h3")?.textContent).toBe("예외 조치");
+    expect(texts(left, ".warn-h .tags > *")).toEqual(["C승인 필요", "예외"]);
+    expect(texts(left, ".sub")).toEqual(["지금까지 점검", "조치"]);
+    expect(btn(left, "조치 잠김 · 파트장 승인 뒤").className).toContain("dis");
+    expect(left.querySelector(".xkr")).toBeNull(); // 노하우 등록은 예외 기록 안내에만
+  });
+
   it("예외 안내 출처가 앱 원본에 없으면 기록 번호만 · 다음 없으면 그 줄 없음 · 보통 호출엔 등록 버튼 없음", () => {
     const s = exceptionCall();
     s.call!.exception_guide = { ...s.call!.exception_guide!, source: null, next: null };
@@ -388,13 +417,16 @@ describe("T09 보고서", () => {
     expect(container.querySelector(".modal")).toBeNull();
   });
 
-  it("예외 상황 기록 칸(D-556): 확정 전 확인 위 · 선택 · 상황(자동) · 글(자리글 = 안내 문구) · 「AI 나눔」 · 줄마다 같음 / 아님 · 결과(자동) · 다 고르면 「확정」과 함께 · 확정 뒤 읽기만 · 비면 칸 없음", () => {
+  it("예외 상황 기록 칸(D-556 · 약속 v9): 확정 전 확인 위 · 선택 · 상황(자동) · 글(자리글 = 안내 문구) · 「AI 나눔」 · item마다 비슷한 것(예외 | 매뉴얼)의 같음 / 아님 · 결과(자동) · 다 고르면 「확정」과 exception_review · 확정 뒤 읽기만 · 비면 칸 없음", () => {
     const AUTO = { situation: "M-01 · 온도 차 저하 · 14:50 ~ 15:20 · 온도 차 7.8 K(경계 8.2 K 미만)", result: "재가동 정상(경계 이내)" };
     const TEXT = "점검 덮개 나사. 조치 나사 새로 끼움. 점검 덕트 이음매. 조치 밴드 조임";
-    const SIM = { relation_id: "EX-R-0001", section: "EX-R-0001", title: "필터 덮개 고정 나사 확인" };
+    const SIM = [
+      { kind: "예외", no: "EX-R-0001", name: "필터 덮개 고정 나사 확인", score: 0.7 },
+      { kind: "매뉴얼", no: "4.3", name: "흡기 필터 육안 점검", score: 0.3 },
+    ];
     const ITEMS = [
-      { check: { what: "덮개 나사", how: "덮개 나사", criteria: "정상 범위", minutes: null }, action: { what: "나사 새로 끼움", parts: ["M6 나사"], minutes: null }, similar: [SIM] },
-      { check: { what: "덕트 이음매", how: "덕트 이음매", criteria: "정상 범위", minutes: null }, action: { what: "밴드 조임", parts: [], minutes: null }, similar: [] },
+      { check: { what: "덮개 나사", how: "덮개 나사", criteria: "정상 범위", minutes: null }, action: { what: "나사 새로 끼움", parts: ["M6 나사"], minutes: null }, matches: SIM },
+      { check: { what: "덕트 이음매", how: "덕트 이음매", criteria: "정상 범위", minutes: null }, action: { what: "밴드 조임", parts: [], minutes: null }, matches: [] },
     ];
     const s = load("s03-report-draft");
     const send = vi.fn();
@@ -416,41 +448,56 @@ describe("T09 보고서", () => {
     fireEvent.click(btn(r.container, "AI 나눔"));
     expect(send).toHaveBeenLastCalledWith({ type: "exception_split", exception_text: TEXT });
     // 서버 응답 = 나눔 결과(같은 글)
-    r.rerender(<ReportScreen report={{ ...base, exception_split: { text: TEXT, items: ITEMS, error: null } }} busy={false} send={send} onHome={() => {}} />);
+    r.rerender(<ReportScreen report={{ ...base, exception_split: { text: TEXT, items: ITEMS, error: null, similar_error: null } }} busy={false} send={send} onHome={() => {}} />);
     const rows = [...r.container.querySelectorAll('[data-part="ex-items"] .exi')];
     expect(rows.map((x) => texts(x, ".exl"))).toEqual([
       ["점검덮개 나사 · 기준 정상 범위", "조치나사 새로 끼움 · 부품 M6 나사"],
       ["점검덕트 이음매 · 기준 정상 범위", "조치밴드 조임"],
     ]);
-    expect(texts(rows[0], ".exs .ch")).toEqual(["비슷한 예외 기록 · EX-R-0001 필터 덮개 고정 나사 확인"]);
-    expect(texts(rows[0], ".exb .btn")).toEqual(["같음", "아님"]);
+    const sims = [...rows[0].querySelectorAll(".exr")];
+    expect(sims.map((x) => texts(x, ".ch, .exn, .btn"))).toEqual([
+      ["예외", "EX-R-0001 필터 덮개 고정 나사 확인", "같음"],
+      ["매뉴얼", "4.3 흡기 필터 육안 점검", "같음"],
+    ]); // 높은 점수 먼저 · 점수 숫자는 안 보임
+    expect(texts(rows[0], ".exb .btn")).toEqual(["아님"]);
     expect(texts(rows[1], ".exs .ch")).toEqual(["새 예외"]); // 비슷한 것 없으면 고를 것 0
-    expect(btn(r.container, "보고서 확정").className).toContain("dis"); // 첫 줄 아직 안 고름
+    expect(btn(r.container, "보고서 확정").className).toContain("dis"); // 첫 item 아직 안 고름
     fireEvent.click(btn(rows[0], "아님"));
-    fireEvent.click(btn(rows[0], "같음")); // 같은 화면에서 다시 고름 — 마지막이 이김
-    expect(btn(rows[0], "같음").className).not.toContain("ghost");
+    fireEvent.click(btn(sims[1], "같음"));
+    fireEvent.click(btn(sims[0], "같음")); // 같은 화면에서 다시 고름 — 마지막이 이김
+    expect([btn(sims[0], "같음").className, btn(sims[1], "같음").className, btn(rows[0], "아님").className].map((c) => c.includes("ghost"))).toEqual([false, true, true]);
     expect(btn(r.container, "보고서 확정").className).not.toContain("dis");
     fireEvent.click(btn(r.container, "보고서 확정"));
     fireEvent.click(btn(r.container.querySelector(".modal")!, "확정"));
     expect(send).toHaveBeenLastCalledWith({
       type: "report_confirm",
-      exception_record: { text: TEXT, choices: [{ same: "EX-R-0001" }, { same: null }] },
+      exception_record: { text: TEXT },
+      exception_review: [
+        { item: 0, decision: "same", match: { kind: "예외", no: "EX-R-0001" } },
+        { item: 1, decision: "not", match: null },
+      ],
     });
     fireEvent.change(ta, { target: { value: TEXT + " 더" } }); // 글이 바뀌면 나눔 줄 숨김 · 다시 나눔까지 확정 잠금
     expect(r.container.querySelector('[data-part="ex-items"]')).toBeNull();
     expect(btn(r.container, "보고서 확정").className).toContain("dis");
     r.unmount();
-    const fail = render(<ReportScreen report={{ ...base, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: [], error: "pack_unavailable" } }} busy={false} send={send} onHome={() => {}} />);
+    const fail = render(<ReportScreen report={{ ...base, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: [], error: "pack_unavailable", similar_error: null } }} busy={false} send={send} onHome={() => {}} />);
     expect(texts(fail.container, ".exa .ch")).toEqual(["나누지 못함"]); // 초안 글 그대로 · 다시 누를 수 있음
     expect(btn(fail.container, "AI 나눔").className).not.toContain("dis");
     fail.unmount();
+    const noSim = ITEMS.map((it) => ({ ...it, matches: [] }));
+    const sf = render(<ReportScreen report={{ ...base, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: noSim, error: null, similar_error: "pack_unavailable" } }} busy={false} send={send} onHome={() => {}} />);
+    expect(texts(sf.container, ".exa .ch")).toEqual(["비슷한 것 못 찾음"]); // 비슷한 것 찾기 실패 — item은 모두 새 예외
+    expect(texts(sf.container, ".exs .ch")).toEqual(["새 예외", "새 예외"]);
+    expect(btn(sf.container, "보고서 확정").className).not.toContain("dis");
+    sf.unmount();
     const c = load("s03-report-confirmed");
     const CTX = {"equipment_id": "M-01", "symptom_group": {"code": "CL", "name": "온도 차 저하"}, "occurred_at": "2026-11-03T05:50:00+00:00", "sensor_values": {"alarm": {"sensor": "온도 차", "value": 7.8, "unit": "K", "boundary": 8.2, "direction": "경계 아래"}, "snapshot": {"temp_diff_k": 7.8}}, "previous_maintenance": {"record_id": "H-0279", "occurred_at": "2026-10-28T01:10:00+09:00", "outcome": "냉각수 부족", "action": "냉각수 보충(4.5.2)"}, "ai_first_check": {"section": "4.3", "title": "흡기 필터 육안 점검"}, "confirmed_cause": "냉각 필터 막힘", "report_id": 1};
-    const REC = { ...AUTO, text: TEXT, context: CTX, items: [{ ...ITEMS[0], same: "EX-R-0001", kind: "miss" }, { ...ITEMS[1], same: null, kind: "new" }] };
+    const REC = { ...AUTO, text: TEXT, context: CTX, items: [{ ...ITEMS[0], decision: "same", match: { kind: "예외", no: "EX-R-0001" }, kind: "missed" }, { ...ITEMS[1], decision: "not", match: null, kind: "new_exception" }] };
     const done = render(<ReportScreen report={{ ...c.report!, exception_record: REC }} busy={false} send={() => {}} onHome={() => {}} />);
     expect(done.container.querySelector(".kh textarea, .kh .exb")).toBeNull(); // 읽기만
     expect(texts(done.container, ".kh .khf > .sm")).toEqual(["상황", "적은 글", "결과"]);
-    expect(texts(done.container, ".kh .exs .ch")).toEqual(["같음 · EX-R-0001", "새 예외"]);
+    expect(texts(done.container, ".kh .exs .ch")).toEqual(["같음 · 예외 EX-R-0001", "새 예외"]);
     done.unmount();
     const OLD = { situation: "바닥에 절삭유가 고여 있었음", action: "나사를 새로 끼움", context: CTX }; // D-556 전 기록(두 글)
     const old = render(<ReportScreen report={{ ...c.report!, exception_record: OLD }} busy={false} send={() => {}} onHome={() => {}} />);
@@ -459,6 +506,49 @@ describe("T09 보고서", () => {
     old.unmount();
     const none = render(<ReportScreen report={{ ...c.report!, exception_record: null }} busy={false} send={() => {}} onHome={() => {}} />);
     expect(none.container.querySelector(".kh")).toBeNull();
+  });
+
+  it("비슷한 것 빈 목록(D-556 덧 5 · Pack 최소 점수 밑 뺌): 그 item은 같음 / 아님 없이 바로 '새 예외' · 고를 것 0 → 확정 = 아님", () => {
+    const TEXT = "점검 바닥 배수구. 조치 걸레로 닦음";
+    const item = { check: { what: "바닥 배수구", how: "바닥 배수구", criteria: "정상 범위", minutes: null }, action: { what: "걸레로 닦음", parts: [], minutes: null }, matches: [] };
+    const s = load("s03-report-draft");
+    const send = vi.fn();
+    const report = { ...s.report!, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: [item], error: null, similar_error: null } };
+    const { container } = render(<ReportScreen report={report} busy={false} send={send} onHome={() => {}} />);
+    const row = container.querySelector('[data-part="ex-items"] .exi')!;
+    expect(texts(row, ".exs .ch")).toEqual(["새 예외"]);
+    expect(row.querySelectorAll(".exr, .btn")).toHaveLength(0); // 같음 · 아님 버튼 0
+    expect(texts(container, ".exa .ch")).toEqual([]); // 실패 칩 0(빈 목록은 실패가 아님)
+    expect(btn(container, "보고서 확정").className).not.toContain("dis");
+    fireEvent.click(btn(container, "보고서 확정"));
+    fireEvent.click(btn(container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenLastCalledWith({
+      type: "report_confirm",
+      exception_record: { text: TEXT },
+      exception_review: [{ item: 0, decision: "not", match: null }],
+    });
+  });
+
+  it.each([
+    ["Run 실패(provider 오류 · 시간 넘김)", "pack_unavailable"],
+    ["빈 items(Pack 짝 0)", "not_split"],
+  ])("나누지 못함(D-556 덧 7 · %s): '나누지 못함' · 고를 것 0 · 새 예외 → 글 그대로 확정(exception_review 빈 목록) · 다시 나눌 수 있음", (_, error) => {
+    const TEXT = "덮개 나사 풀림 다시 조임";
+    const s = load("s03-report-draft");
+    const send = vi.fn();
+    const report = { ...s.report!, exception_draft: { text: TEXT }, exception_split: { text: TEXT, items: [], error, similar_error: null } };
+    const { container } = render(<ReportScreen report={report} busy={false} send={send} onHome={() => {}} />);
+    expect(texts(container, ".exa .ch")).toEqual(["나누지 못함"]);
+    expect(texts(container, '[data-part="ex-items"] .ch')).toEqual(["새 예외"]);
+    expect(container.querySelectorAll('[data-part="ex-items"] .btn')).toHaveLength(0);
+    expect(btn(container, "AI 나눔").className).not.toContain("dis"); // 고쳐 적고 다시 나눌 수 있음
+    expect(btn(container, "보고서 확정").className).not.toContain("dis");
+    fireEvent.click(btn(container, "보고서 확정"));
+    fireEvent.click(btn(container.querySelector(".modal")!, "확정"));
+    expect(send).toHaveBeenLastCalledWith({ type: "report_confirm", exception_record: { text: TEXT }, exception_review: [] });
+    fireEvent.change(container.querySelector('textarea[aria-label="예외 글"]')!, { target: { value: TEXT + " 더" } });
+    expect(texts(container, ".exa .ch")).toEqual([]); // 글이 바뀌면 그 실패는 지난 글 것
+    expect(btn(container, "보고서 확정").className).toContain("dis");
   });
 
   it("「노하우 등록」 초안(D-543)이 있으면 보고서 예외 글 칸에 미리 채움", () => {

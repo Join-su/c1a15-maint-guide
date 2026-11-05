@@ -13,7 +13,7 @@ from c1a15.api import deps, flow, screen
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
-from c1a15.engine import exception, rules, session
+from c1a15.engine import exception, rules, session, switch
 from c1a15.llm import adapter_for_mode, grounding
 from c1a15.llm.base import AdapterError, Facts
 
@@ -37,10 +37,11 @@ CLIENT_TYPES = {
     "result",
     "confirm_answer",
     "out_of_scope_choice",
-    "check_switch",  # D-556 1단계 [점검 바꾸기](후보 고름) — 판정 입력 아님(Pack 약속 v9 전 · 앱이 고른 점검을 엶)
+    "switch_check",  # 약속 v9 1절 [점검 바꾸기] 후보 고름{section, from_section, choice} — judge 사건
+    "exception_start",  # 약속 v9 1절 [예외]{mode call_first | act_now} — judge 사건(뒤 사건 절 EX-NEW)
 } | flow.CLIENT_TYPES
 INPUT_TYPES = (
-    CLIENT_TYPES - flow.CLIENT_TYPES - {"alarm_ack", "check_switch"}  # 알람 확인 · 점검 바꾸기는 판정 입력이 아님
+    CLIENT_TYPES - flow.CLIENT_TYPES - {"alarm_ack"}  # 알람 확인은 판정 입력이 아님
     | {  # 판정 엔진이 접는 업무 기록(S-03 · 파트장 답 포함)
         "lock",
         "equipment_change",
@@ -204,8 +205,8 @@ def _open_step(
             {"section": decision.get("section"), "grade": decision.get("grade"), "kind": decision["kind"]},
         )
     if (
-        decision["kind"] in INSTRUCTION_KINDS
-    ):  # R8 '지시문': 열 때 한 번 쓰고 근거 검사 결과를 남긴다(주기 조회마다 다시 쓰지 않음)
+        decision["kind"] in INSTRUCTION_KINDS and decision.get("section") != switch.NEW
+    ):  # R8 '지시문': 열 때 한 번 쓰고 근거 검사 결과를 남긴다(주기 조회마다 다시 쓰지 않음) · v9 EX-NEW는 절차 글 없음
         guide = screen.instruction_guide(flow.knowledge_of(events_of(c, sid)), decision["section"], row.similar)
         payload = {k2: guide[k2] for k2 in ("section", "steps", "label", "original")} | {
             "llm_fallback": guide["fallback"]
@@ -501,7 +502,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
     events = events_of(c, row.session_id)
     k = flow.knowledge_of(events)
     g, minutes = deps.grades(c)
-    _, g, minutes = flow.with_exception(flow.exception_guide_of(events), g, minutes)
+    _, g, minutes = flow.grades_of(events, g, minutes)
     state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
     step = current_step(events) or {}
     order = [x.code for x in rules.ordered_causes(k, row.symptom_group)]
@@ -681,11 +682,14 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         deny("precheck_values_required")  # D-422: 사전 확인 값 없이 다음으로 가지 않음
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
-    elif etype == "check_switch":  # D-556 1단계 [점검 바꾸기]: 지금 추천 후보 중 하나 → 그 점검을 엶 · 기록 헛걸음
+    elif etype == "switch_check":  # 약속 v9 [점검 바꾸기]: 지금 추천 후보 중 하나 → 판정 Run(Pack이 그 점검을 엶)
         cands = {x["section"] for x in switch_candidates(k, step)}
         if step.get("kind") not in SWITCHABLE or payload.get("section") not in cands:
             deny("not_switchable")
-        return _switch(c, row, actor, k, state, step, last, payload["section"])
+        payload = {"section": payload["section"], "from_section": step["section"], "choice": "candidate"}
+    elif etype == "exception_start":  # 약속 v9 [예외]: 호출 후 조치 / 바로 조치 → 판정 Run(절 EX-NEW)
+        if step.get("kind") not in SWITCHABLE or flow.progress_of(events):
+            deny("not_switchable")
     elif etype in flow.CLIENT_TYPES:  # S-03: 조치 · 재가동 · 마감 · 호출 · 보고서(P-09)
         try:
             stype, spayload = flow.accept(c, row, actor, step, state, events, etype, payload)
@@ -709,8 +713,22 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         f"session:{row.session_id}",
         {"seq": last + 1, **payload},
     )
-    _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
+    decision = _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
+    if etype == "exception_start" and payload["mode"] == "call_first" and decision["kind"] == "call":
+        _auto_call(c, row, actor)  # 정답지 묶음 ① 16쪽: 호출 후 조치는 호출이 자동으로 나감
     return view(c, row)
+
+
+def _auto_call(c: Connection, row: m.DiagSession, actor: str) -> None:
+    """지금 열린 호출 단계에 정비자가 「파트장 호출」을 누른 것과 같은 기록(call_send → 판정 Run)."""
+    events = events_of(c, row.session_id)
+    k = flow.knowledge_of(events)
+    state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
+    stype, spayload = flow.accept(c, row, actor, current_step(events) or {}, state, events, "call_send", {})
+    seq = events[-1]["seq"] + 1
+    _store(c, row.session_id, seq, stype, {**spayload, "_client_type": "call_send", "_client": {}}, actor)
+    audit(c, actor, "call_send", f"session:{row.session_id}", {"seq": seq, **spayload})
+    _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
 
 
 SWITCHABLE = {"instruct", "instruct_after_checklist"}  # 점검 안내 중(사전 확인 · 조치 · 호출 · 보고서 단계는 0)
@@ -728,28 +746,41 @@ def switch_candidates(k, step: dict) -> list[dict]:
     ]
 
 
-def _switch(c: Connection, row: m.DiagSession, actor: str, k, state, step: dict, last: int, section: str) -> dict:
-    """고른 점검을 앱이 엶(판정 Run 0 · Pack 약속 v9 전) — 등급 그대로(A 지시 · B 체크리스트 뒤 · C · D 호출).
-    업무 기록 check_switch{from, to, kind: detour} = 헛걸음(바꾸기 전 점검 · 사람이 고른 점검)."""
-    grades, _ = deps.grades(c)
-    grade = rules.effective_grade(section, grades, state.approvals)
-    kind = {"A": "instruct", "B": "instruct_after_checklist"}.get(grade, "call")
-    _store(
-        c, row.session_id, last + 1, "check_switch", {"from": step["section"], "to": section, "kind": "detour"}, actor
-    )
-    audit(c, actor, "check_switch", f"session:{row.session_id}", {"from": step["section"], "to": section})
-    base = {x: step[x] for x in ("probabilities", "evidence", "low_evidence") if x in step}
-    decision = {
-        **base,
-        "kind": kind,
-        "section": section,
-        "cause": k.check(section).cause,
-        "grade": grades[section],
-        "switched_from": step["section"],
-        **({"reason": "switched"} if kind == "call" else {}),
-    }
-    _open_step(c, row.session_id, row, events_of(c, row.session_id), actor, decided=(decision, {"via": "switch"}))
-    return view(c, _row(c, row.session_id))
+def check_records(sid: int, events: list[dict]) -> list[dict]:
+    """약속 v9 3절 기록 줄: 헛걸음(switch_check) · 놓침 / 새 예외(마지막 확정 예외 칸 item) + 사람이 고른 점검.
+    사람이 고른 점검 = 예외 진행이면 {EX-NEW, 그때 점검} · 아니면 마지막 바꾼 점검 · 없으면 None."""
+    live = [e for e in events if not e.get("void")]
+    out, human = [], None
+    for e in live:
+        if e["type"] == "switch_check":
+            human = {"section": e["section"], "from_section": e.get("from_section")}
+            out.append({"kind": "wasted_step", "session_id": sid, "human_check": human, "at_seq": e["seq"]})
+        elif e["type"] == "exception_start":
+            before = current_step([x for x in live if x["seq"] < e["seq"]]) or {}
+            human = {"section": switch.NEW, "from_section": before.get("section")}
+    last = next((e for e in reversed(live) if e["type"] == "report_confirm"), None)
+    for it in ((last or {}).get("exception_record") or {}).get("items") or []:
+        out.append(
+            {
+                "kind": it["kind"],
+                "session_id": sid,
+                "human_check": human,
+                "relation_id": (it.get("match") or {}).get("no"),
+                "at_seq": last["seq"],
+            }
+        )
+    return out
+
+
+def check_record_list(c: Connection) -> dict:
+    """약속 v9 기록 줄 전체(세션 · 순번 순) — LLMOps가 읽음(내부 토큰)."""
+    sids = c.execute(
+        text(
+            "select distinct session_id from ops.session_events "
+            "where type in ('switch_check', 'exception_start', 'report_confirm') order by session_id"
+        )
+    ).scalars()
+    return {"items": [r for sid in sids for r in check_records(sid, events_of(c, sid))]}
 
 
 def open_alarm_counts(c: Connection) -> dict[str, int]:
