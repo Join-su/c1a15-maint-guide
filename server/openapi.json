@@ -3878,48 +3878,6 @@
     "title": "LeadGrades",
     "type": "object"
    },
-   "LeadHeldRow": {
-    "additionalProperties": false,
-    "description": "D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄.",
-    "properties": {
-     "cause": {
-      "title": "Cause",
-      "type": "string"
-     },
-     "equipment_id": {
-      "title": "Equipment Id",
-      "type": "string"
-     },
-     "group_name": {
-      "title": "Group Name",
-      "type": "string"
-     },
-     "held_at": {
-      "anyOf": [
-       {
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Held At"
-     },
-     "report_id": {
-      "title": "Report Id",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "report_id",
-     "equipment_id",
-     "group_name",
-     "cause",
-     "held_at"
-    ],
-    "title": "LeadHeldRow",
-    "type": "object"
-   },
    "LeadOverview": {
     "additionalProperties": false,
     "properties": {
@@ -3929,14 +3887,6 @@
        "$ref": "#/components/schemas/LeadActedRow"
       },
       "title": "Acted",
-      "type": "array"
-     },
-     "held": {
-      "default": [],
-      "items": {
-       "$ref": "#/components/schemas/LeadHeldRow"
-      },
-      "title": "Held",
       "type": "array"
      },
      "now": {

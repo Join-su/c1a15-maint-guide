@@ -1771,22 +1771,6 @@ export interface components {
             /** Total */
             total: number;
         };
-        /**
-         * LeadHeldRow
-         * @description D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄.
-         */
-        LeadHeldRow: {
-            /** Cause */
-            cause: string;
-            /** Equipment Id */
-            equipment_id: string;
-            /** Group Name */
-            group_name: string;
-            /** Held At */
-            held_at: string | null;
-            /** Report Id */
-            report_id: number;
-        };
         /** LeadOverview */
         LeadOverview: {
             /**
@@ -1794,11 +1778,6 @@ export interface components {
              * @default []
              */
             acted: components["schemas"]["LeadActedRow"][];
-            /**
-             * Held
-             * @default []
-             */
-            held: components["schemas"]["LeadHeldRow"][];
             /** Now */
             now: string;
             /** Rows */

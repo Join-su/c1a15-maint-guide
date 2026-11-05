@@ -117,21 +117,6 @@ describe("파트장 2 승인 대기", () => {
     expect(texts(container, ".lnone")).toEqual(["기록이 없습니다", "처리할 호출이 없습니다"]);
   });
 
-  it("그래프 반영 보류(D-554 ①): deploy 신호 held 보고서가 있으면 확정된 보고서 아래 한 구역 · 줄마다 '보류됨' · 없으면 구역 없음", () => {
-    const o = load<Schemas["LeadOverview"]>("overview-list");
-    const none = render(<ApprovalList data={o} audit={null} calls={null} {...props} />).container;
-    expect(none.querySelector('[data-part="held"]')).toBeNull(); // 신호 없음 = 지금 화면 그대로
-    cleanup();
-    const held = [{ report_id: 2, equipment_id: "M-05", group_name: "온도 차 저하", cause: "흡기 덕트 이음매 빠짐", held_at: "2026-11-05T05:02:11+00:00" }];
-    const { container } = render(<ApprovalList data={{ ...o, held }} audit={null} calls={null} {...props} />);
-    const sec = container.querySelector('[data-part="held"]')!;
-    expect(sec.previousElementSibling?.querySelector(".lsect-h")?.textContent).toBe(`확정된 보고서${o.rows.length}건`);
-    expect(sec.querySelector(".lsect-h")?.textContent).toBe("그래프 반영 보류1건");
-    expect(texts(sec, "th")).toEqual(["설비 · 알람", "확정 원인", "보류", ""]);
-    expect(texts(sec, "tr[data-held] td")).toEqual(["M-05온도 차 저하", "흡기 덕트 이음매 빠짐", "14:02", "보류됨"]);
-    expect(sec.querySelector("button, .lbtn")).toBeNull(); // 보기만(누를 것 0)
-  });
-
   it("호출 없이 조치함(약속 v9 lead_notice): 정비자가 [예외] 바로 조치를 고른 세션이 있으면 한 구역 · 없으면 구역 없음", () => {
     const o = load<Schemas["LeadOverview"]>("overview-list");
     const none = render(<ApprovalList data={o} audit={null} calls={null} {...props} />).container;

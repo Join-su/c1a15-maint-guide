@@ -667,16 +667,6 @@ class LeadReportRow(_Out):
     violations: int
 
 
-class LeadHeldRow(_Out):
-    """D-554 ① 그래프 반영 보류(deploy 신호 held) 한 줄."""
-
-    report_id: int
-    equipment_id: str
-    group_name: str
-    cause: str
-    held_at: str | None
-
-
 class LeadActedRow(_Out):
     """약속 v9 lead_notice acted_without_call: 정비자가 [예외] 바로 조치를 고른 세션 한 줄."""
 
@@ -691,7 +681,6 @@ class LeadOverview(_Out):
     now: str
     tiles: LeadTiles
     rows: list[LeadReportRow]
-    held: list[LeadHeldRow] = []  # D-554 ① 신호 폴더(C1A15_KG_STATUS)가 없으면 빈 목록
     acted: list[LeadActedRow] = []  # 약속 v9 '호출 없이 조치함'(최근 순)
 
 

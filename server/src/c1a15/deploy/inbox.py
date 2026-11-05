@@ -89,20 +89,3 @@ def write(folder: str, doc: dict) -> str:
     finally:
         tmp.unlink(missing_ok=True)
     return "written"
-
-
-def held(folder: str | None) -> dict[int, dict]:
-    """D-554 ① 그래프 반영 보류(deploy 신호 kg-apply/status@1 · `<report_id>.json` = 그 승인 건 마지막 상태 한 장):
-    status == "held"인 보고서 번호 → {at, reason}. 폴더 없음 · 꼴 다름 · 읽기 실패는 건너뜀(읽기만 · 쓰기 0)."""
-    out: dict[int, dict] = {}
-    if not folder or not Path(folder).is_dir():
-        return out
-    for f in sorted(Path(folder).glob("RPT-*.json")):
-        try:
-            doc = json.loads(f.read_text(encoding="utf-8"))
-            rid = int(str(doc["report_id"]).removeprefix("RPT-"))
-        except (OSError, ValueError, KeyError, TypeError):
-            continue
-        if doc.get("format") == "kg-apply/status@1" and doc.get("status") == "held":
-            out[rid] = {"at": doc.get("at"), "reason": doc.get("reason")}
-    return out

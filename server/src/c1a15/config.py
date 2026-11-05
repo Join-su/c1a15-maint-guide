@@ -28,17 +28,6 @@ def kg_inbox(env=os.environ) -> str | None:
     return folder
 
 
-def kg_status(env=os.environ) -> str | None:
-    """D-554 ① 그래프 반영 신호 폴더(deploy KG_SIGNAL_DIR · kg-apply/status@1 · 읽기만): C1A15_KG_STATUS
-    — 없으면 None(보류 줄 0 = 지금 동작). 절대 경로만."""
-    folder = env.get("C1A15_KG_STATUS", "")
-    if not folder:
-        return None
-    if not os.path.isabs(folder):
-        raise ConfigError(f"C1A15_KG_STATUS 는 절대 경로: {folder!r}")
-    return folder
-
-
 def r12_inbox(env=os.environ) -> str | None:
     """R12 받은 편지 폴더(EV-001 CH-23): C1A15_R12_INBOX — 없으면 None(쓰지 않음 = 지금 동작). 절대 경로만."""
     folder = env.get("C1A15_R12_INBOX", "")
