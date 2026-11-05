@@ -202,6 +202,84 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   lg.check(info);
 });
 
+// D-566 약속 v10 걸음 길(Pack 3502e29 engine 사본 · 정답지 26쪽): 예외 절에 점검 목록 · 조치 목록 → 승인 한 번 →
+// 점검 1 → 점검 2 → 조치 1 → 조치 2(결과로 건너뛰지 않음 · 사건 step 칸) → 재가동 → 경계 이내 → 보고서
+const WALK_CHECKS = [
+  { what: "필터 덮개 고정 나사 확인", how: "손으로 돌려 봄", criteria: "모두 체결 = 정상", minutes: 5 },
+  { what: "흡기 덕트 이음매", how: "", criteria: "", minutes: null },
+];
+const WALK_ACTIONS = [
+  { what: "나사를 새로 끼움", parts: ["M6 나사"], minutes: 5 },
+  { what: "밴드를 다시 조임", parts: [], minutes: null },
+];
+const WALK_ROWS = ["1 점검 필터 덮개 고정 나사 확인", "2 점검 흡기 덕트 이음매", "3 조치 나사를 새로 끼움", "4 조치 밴드를 다시 조임"];
+const walkNow = (n: number) => WALK_ROWS.map((r, i) => (i === n ? `${r} · 지금` : r));
+
+test("예외 안내 걸음마다(정답지 26쪽): 안내 차례 넷 · 승인 한 번 → 점검 1 → 점검 2 → 조치 1 → 조치 2 → 재가동 → 보고서(사람 손 순서)", async ({ page, browser }, info) => {
+  await answer({ exception_guide: guide({ minutes: 15, next_section: "4.3", checks: WALK_CHECKS, actions: WALK_ACTIONS }) });
+  const g = guard(page);
+  await toExceptionCall(page);
+  const left = page.locator(".g64 > .cd").first();
+  await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검");
+  await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인"); // 첫 걸음 무엇
+  const wk = left.locator('[data-part="ex-walk"]');
+  await expect(wk.locator("b")).toHaveText("안내 차례 · 적은 순서 그대로");
+  await expect(wk.locator(".xwr")).toHaveText(walkNow(0));
+  await expect(left.locator(".sub")).toHaveText(["점검방법", "지금까지 점검"]); // 차례 다음 점검방법 · '원래 순서 다음' 0(26쪽)
+  await snap(page, info, "W1-walk-call");
+  await page.reload(); // 같은 화면 한 번 더(D-503 1)
+  await expect(wk.locator(".xwr")).toHaveText(walkNow(0));
+  await pause(page);
+  await page.locator(".g64 > .cd").nth(1).locator(".btn", { hasText: "파트장 호출" }).click();
+  await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
+  const lead = await leadPage(browser);
+  const lg = guard(lead);
+  await lead.locator(".lnav a", { hasText: "호출" }).click();
+  await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+  await lead.locator(".lopts button", { hasText: "승인 후 진행" }).click();
+  await lead.getByLabel("처리 메모").fill("예외 안내 승인");
+  await lead.locator("button.lbtn", { hasText: "답 저장" }).click();
+  await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
+  await page.reload();
+  await expect(page.locator(".banner.ok b")).toHaveText(/^파트장 답 · 승인 후 진행 · /);
+  await pause(page);
+  await page.getByText("점검 시작").click();
+  // 점검 1(승인은 예외 전체에 한 번 — 다음 걸음마다 다시 묻지 않음)
+  await expect(page.locator(".ins-h h3")).toHaveText(WALK_CHECKS[0].what);
+  await expect(page.locator(".proc li")).toHaveText(["1손으로 돌려 봄"]);
+  await expect(page.locator('[data-part="ex-walk"] .xwr')).toHaveText(walkNow(0));
+  await snap(page, info, "W2-walk-check1");
+  await pause(page);
+  await result(page, "정상"); // 정상이어도 다음 걸음(건너뛰지 않음)
+  await expect(page.locator(".ins-h h3")).toHaveText(WALK_CHECKS[1].what);
+  await expect(page.locator('[data-part="ex-walk"] .xwr')).toHaveText(walkNow(1));
+  await expect(page.locator('[data-part="ex-walk"] .xwr.done')).toHaveText([WALK_ROWS[0]]);
+  await pause(page);
+  await result(page, "이상", "이음매 벌어짐");
+  await expect(page.locator(".act-h b").first()).toHaveText(`조치 · EX-${rid} ${WALK_ACTIONS[0].what}`);
+  await expect(page.locator(".act .proc li")).toHaveText(["1부품 M6 나사"]);
+  await expect(page.locator('.act [data-part="ex-walk"] .xwr')).toHaveText(walkNow(2));
+  await snap(page, info, "W3-walk-action1");
+  await pause(page);
+  await page.locator(".btn", { hasText: "조치 완료" }).click();
+  await expect(page.locator(".act-h b").first()).toHaveText(`조치 · EX-${rid} ${WALK_ACTIONS[1].what}`);
+  await expect(page.locator('.act [data-part="ex-walk"] .xwr')).toHaveText(walkNow(3));
+  await pause(page);
+  await page.locator(".btn", { hasText: "조치 완료" }).click();
+  await restartWithin(page);
+  await page.locator(".btn", { hasText: "경계 이내" }).click();
+  await expect(page.locator(".btn", { hasText: "보고서 확정" })).toBeVisible(); // 안(정상) → 보고서
+  await expect(page.locator('[data-field="check_path"] .rv2')).toContainText(`${WALK_CHECKS[0].what}(EX-${rid}, 정상) → ${WALK_CHECKS[1].what}(EX-${rid}, 이상: 이음매 벌어짐)`);
+  await snap(page, info, "W4-walk-report");
+  const ev = psql(
+    `select string_agg(type || ':' || coalesce(payload->>'step', ''), ',' order by seq) from ops.session_events ` +
+      `where type in ('result', 'action_done') and payload->>'section' like 'EX-%'`,
+  );
+  expect(ev).toBe("result:c1,result:c2,action_done:a1,action_done:a2"); // 사건 step 칸(약속 v10 5절)
+  g.check(info);
+  lg.check(info);
+});
+
 test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 시작」 → 진단 '다음 점검' = 예외 절 호출 → 잠금 · 사전 확인 → 예외 카드(F1 걷기 결함 덧 33)", async ({ page }, info) => {
   const g = guard(page);
   await answer({ exception_guide: guide({ minutes: 5, next_section: "4.3" }), preview: true }); // Pack처럼 start 결과에 preview = call EX-…

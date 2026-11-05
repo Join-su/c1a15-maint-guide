@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
-import { EX_NEW, Proc, SecChip } from "./Lock";
+import { EX_NEW, ExWalk, isException, Proc, SecChip } from "./Lock";
 
 type Call = Schemas["CallBlock"];
 type Report = Schemas["ReportBlock"];
@@ -422,6 +422,7 @@ export function ActionScreen({ s, busy, checked, onCheck, send }: ActionProps) {
                 <GradeBadge grade={a.grade} />
                 {a.done_at ? <span className="ch green">완료</span> : null}
               </div>
+              {isException(a.section) && s.exception_walk ? <ExWalk walk={s.exception_walk} /> : null}
               {a.steps.length ? <Proc steps={a.steps} /> : null}
               {actionOpen && needs ? <Checks items={actionChecks} on={(x) => checked.includes(x)} onToggle={toggle} /> : null}
               {actionOpen ? (
@@ -735,6 +736,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
               </div>
             </div>
           )}
+          {ex ? <ExWalk walk={s.exception_walk} /> : null}
           {ex ? (
             // 답장 001-zzz10(사용자): 점검방법 글 = 안내 글 + 출처 한 줄(정답지 고침A 26쪽 — 출처 = 그 예외 이름 · 날짜 · 상황)
             <>

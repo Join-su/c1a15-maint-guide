@@ -1,7 +1,7 @@
 // T05 잠금(R1): 잠금 전에는 1.2절 절차만 보이고 지시 내용은 내려받지 않는다(뒤 칸은 비어 있음).
 // 잠금 뒤에는 사전 확인 절(점수 없이 항상 먼저 — 화면 문구는 D-528로 뺌).
 
-import { GradeBadge, hhmm, Icon, type SessionWithPreview } from "@c1a15/ui";
+import { GradeBadge, hhmm, Icon, type SessionView, type SessionWithPreview } from "@c1a15/ui";
 
 /** 약속 v8 예외 절(EX-<이력 번호>) · v9 예외 진행 절(EX-NEW) — 매뉴얼 밖 절. */
 export const isException = (section: string) => section.startsWith("EX-");
@@ -16,6 +16,22 @@ export function SecChip({ section, topic }: { section: string; topic?: string | 
   const ex = topic ? `예외상황-${topic}` : `예외 기록 ${section.slice(3)}`;
   const label = section === EX_NEW ? "예외" : isException(section) ? ex : `매뉴얼 ${section}절`;
   return <span className="ch blue">{label}</span>;
+}
+
+/** 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길): 점검 c1 … → 조치 a1 … · 지금 걸음 굵게 · 끝낸 걸음 흐리게. */
+export function ExWalk({ walk }: { walk?: SessionView["exception_walk"] }) {
+  if (!walk?.length) return null;
+  return (
+    <div className="xwk" data-part="ex-walk">
+      <b>안내 차례 · 적은 순서 그대로</b>
+      {walk.map((w, i) => (
+        <div className={`xwr${w.now ? " now" : ""}${w.done ? " done" : ""}`} key={w.step} data-step={w.step}>
+          {i + 1} {w.side === "check" ? "점검" : "조치"} {w.what}
+          {w.now ? " · 지금" : ""}
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function Proc({ steps }: { steps: string[] }) {

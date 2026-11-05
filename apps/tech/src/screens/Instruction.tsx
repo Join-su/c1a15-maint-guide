@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { GradeBadge, Icon, type Instruction, type SessionView } from "@c1a15/ui";
 import type { Draft } from "../device";
-import { isException, LockOk, Proc, SecChip, secName } from "./Lock";
+import { ExWalk, isException, LockOk, Proc, SecChip, secName } from "./Lock";
 
 const RESULT: { v: "정상" | "이상" | "확인 불가"; icon: string; cls: string }[] = [
   { v: "정상", icon: "circle-check", cls: "ok" },
@@ -74,6 +74,7 @@ export function InstructionScreen(p: InstructionProps) {
               {ins.fallback ? <span className="ch fb">{ins.fallback_label}</span> : null}
             </div>
           </div>
+          {p.s.step.step ? <ExWalk walk={p.s.exception_walk} /> : null}
           {ins.fallback && !(p.s.recommend_handover && !p.repeatDismissed) ? (
             <div className="banner info">
               <Icon name="info" />

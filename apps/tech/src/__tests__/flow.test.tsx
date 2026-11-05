@@ -215,6 +215,45 @@ describe("T10 파트장 호출", () => {
     expect(send).toHaveBeenLastCalledWith({ type: "call_send" });
   });
 
+  // D-566 약속 v10 걸음 길(정답지 26쪽): 호출 카드 머리 아래 '안내 차례 · 적은 순서 그대로' — 점검 둘 → 조치 둘 · 지금 걸음 굵게
+  const WALK = [
+    { step: "c1", side: "check", what: "필터 덮개 고정 나사 확인", done: false, now: true },
+    { step: "c2", side: "check", what: "흡기 덕트 이음매", done: false, now: false },
+    { step: "a1", side: "action", what: "나사를 새로 끼움", done: false, now: false },
+    { step: "a2", side: "action", what: "밴드를 다시 조임", done: false, now: false },
+  ];
+  it("예외 안내 걸음 길(정답지 26쪽): '안내 차례 · 적은 순서 그대로' 넷 · 1 점검 … · 지금 · 그 아래 점검방법 · 옛 길(목록 없음)은 차례 0", () => {
+    const s = { ...exceptionCall(), exception_walk: WALK, exception_topic: "필터 덮개 나사" };
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={vi.fn()} />,
+    );
+    const wk = container.querySelector('[data-part="ex-walk"]')!;
+    expect(wk.querySelector("b")?.textContent).toBe("안내 차례 · 적은 순서 그대로");
+    expect(texts(wk, ".xwr")).toEqual(["1 점검 필터 덮개 고정 나사 확인 · 지금", "2 점검 흡기 덕트 이음매", "3 조치 나사를 새로 끼움", "4 조치 밴드를 다시 조임"]);
+    expect(texts(wk, ".xwr.now")).toEqual(["1 점검 필터 덮개 고정 나사 확인 · 지금"]);
+    expect(wk.nextElementSibling?.textContent).toBe("점검방법"); // 차례 다음 점검방법(26쪽 순서)
+    cleanup();
+    const old = render(
+      <CallScreen s={{ ...exceptionCall(), exception_walk: null }} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={vi.fn()} />,
+    ).container;
+    expect(old.querySelector('[data-part="ex-walk"]')).toBeNull();
+  });
+
+  it("예외 조치 걸음(약속 v10): 조치 카드에 안내 차례(끝낸 걸음 흐리게 · 지금 굵게) · 「조치 완료」 → action_done(절만 · 걸음은 서버가)", () => {
+    const s = load("s03-action-a");
+    const walk = WALK.map((w, i) => ({ ...w, done: i < 2, now: i === 2 }));
+    Object.assign(s, { exception_walk: walk, step: { ...s.step, kind: "action", section: "EX-R-0012", step: "a1", step_index: 3, steps_total: 4 } });
+    s.action = { ...s.action!, section: "EX-R-0012", title: "나사를 새로 끼움", cause_name: "예외상황-필터 덮개 나사", steps: ["부품 M6 나사"], done_at: null, checklist: [] };
+    const send = vi.fn();
+    const { container } = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={() => {}} send={send} />);
+    const card = container.querySelector(".cd.act")!;
+    expect(texts(card, ".xwr.done")).toEqual(["1 점검 필터 덮개 고정 나사 확인", "2 점검 흡기 덕트 이음매"]);
+    expect(texts(card, ".xwr.now")).toEqual(["3 조치 나사를 새로 끼움 · 지금"]);
+    expect(texts(card, ".proc li")).toEqual(["1부품 M6 나사"]);
+    fireEvent.click(btn(card, "조치 완료"));
+    expect(send).toHaveBeenLastCalledWith({ type: "action_done", section: "EX-R-0012" });
+  });
+
   it("「점검방법 등록」(D-556): 같은 카드에 글 하나(자리글 = 안내 문구) · 목록 접힘 → 등록이면 exception_draft · 취소면 그대로", () => {
     const s = exceptionCall();
     s.exception_draft = { text: "덮개 나사 확인" };

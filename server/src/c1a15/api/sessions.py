@@ -134,7 +134,13 @@ def events_of(c: Connection, sid: int) -> list[dict]:
 def fold_inputs(events: list[dict]) -> list[dict]:
     """앱 안 접기(화면 · 검사용 상태)에 넣는 업무 기록 — 예외 절 사건은 뺌(engine 사본은 예외 절을 모름, 약속 v8).
     Pack judge 요청 입력은 예외 절 사건까지 그대로."""
-    return exception.without([e for e in events if e["type"] in INPUT_TYPES])
+    ins = [e for e in events if e["type"] in INPUT_TYPES]
+    eg = flow.exception_guide_of(events)
+    if flow.walks(
+        eg
+    ):  # 약속 v10 걸음 길(Pack 3502e29): 안내 뒤 첫 재가동 · 재가동 값은 예외 몫 — 원래 순서 접기에서 뺌
+        return exception.base_events(ins, flow.guide_ex(eg))
+    return exception.without(ins)
 
 
 def similar_of(row: m.DiagSession) -> list[rules.Similar]:
@@ -205,8 +211,9 @@ def _open_step(
             {"section": decision.get("section"), "grade": decision.get("grade"), "kind": decision["kind"]},
         )
     if (
-        decision["kind"] in INSTRUCTION_KINDS and decision.get("section") != switch.NEW
+        decision["kind"] in INSTRUCTION_KINDS and decision.get("section") != switch.NEW and not decision.get("step")
     ):  # R8 '지시문': 열 때 한 번 쓰고 근거 검사 결과를 남긴다(주기 조회마다 다시 쓰지 않음) · v9 EX-NEW는 절차 글 없음
+        # · 약속 v10 걸음(c1 · a1 …)은 기록에 적힌 글 그대로(지시문 생성 0)
         guide = screen.instruction_guide(flow.knowledge_of(events_of(c, sid)), decision["section"], row.similar)
         payload = {k2: guide[k2] for k2 in ("section", "steps", "label", "original")} | {
             "llm_fallback": guide["fallback"]
@@ -545,8 +552,11 @@ def view(c: Connection, row: m.DiagSession) -> dict:
                 "outcome",
                 "call_status",
                 "corrected",
+                "step",
+                "step_index",
+                "steps_total",
             )
-            if key != "corrected" or step.get("corrected")
+            if key not in {"corrected", "step", "step_index", "steps_total"} or step.get(key)
         },
         "last_seq": events[-1]["seq"] if events else 0,
         "recommend_handover": grounding.should_recommend_handover(
@@ -586,12 +596,26 @@ def view(c: Connection, row: m.DiagSession) -> dict:
                 {"section": s, "title": k.sections[s]["title"], "count": n} for s, n in sorted(state.unable.items())
             ],
         }
+        item = step.get("check") or step.get("action") if step.get("step") else None
+        if item:  # 약속 v10 걸음: 그 점검 · 조치 칸 그대로(무엇 = 제목 · 방법 = 절차 · 기준 · 분)
+            how = item.get("how") if step.get("check") else ", ".join(item.get("parts") or [])
+            out["instruction"].update(
+                title=item["what"],
+                text="",
+                steps=[how if step.get("check") else f"부품 {how}"] if how else [],
+                fallback=False,
+                fallback_label=None,
+                original=None,
+                criterion=item.get("criteria") or None if step.get("check") else None,
+                minutes=item.get("minutes"),
+            )
     if state.locked:  # D-556 [점검 바꾸기] 후보(점검 안내 중만 · 그 밖엔 빈 목록)
         out["switch_candidates"] = switch_candidates(k, step, events)
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
     out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「점검방법 등록」 초안
     eg = flow.exception_guide_of(events) or {}
     out["exception_topic"] = eg.get("topic") or eg.get("title")  # 고침A '예외상황-{주제}'(예외 절 칩 · 이름)
+    out["exception_walk"] = flow.walk_of(events, step)  # 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길만)
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
     return out
 
@@ -661,6 +685,8 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
             payload["llm_fallback"] = failed  # 서버만 쓰는 필드(요청 스키마는 받지 않음)
             if sig:
                 payload["signal"] = sig
+        if step.get("step") and payload.get("section") == step.get("section"):
+            payload["step"] = step["step"]  # 약속 v10 5절: 예외 안내 점검 걸음(c1 …) — 판정 결정이 정한 것을 그대로
         try:
             session.validate_result(state, step, {"type": "result", **payload})
         except session.EventRejected as exc:

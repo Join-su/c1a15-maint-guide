@@ -143,6 +143,10 @@
 .ap .g64 > .cd:has(.xkh) { position: relative; }
 .ap .g64 > .cd:has(.xkr) { padding-bottom: 80px; }
 .ap .xkh p { font-size: 16px; line-height: 1.75; margin: 0; }
+.ap .xwk { margin-top: 12px; padding: 10px 14px; border: 1px solid #f5d0a9; border-radius: 10px; background: #fffaf3; font-size: 14px; line-height: 1.7; }
+.ap .xwk > b { display: block; font-size: 13px; color: #b45309; }
+.ap .xwk .xwr.now { font-weight: 700; color: var(--ink); }
+.ap .xwk .xwr.done { color: var(--sub); }
 .ap .xkh .xsrc { display: block; margin-top: 8px; font-size: 13px; color: var(--sub); }
 .ap .xkr { position: absolute; right: 20px; bottom: 18px; }
 .ap .xkr .btn, .ap .xkf .mb .btn { height: 44px; padding: 0 22px; }

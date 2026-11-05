@@ -145,9 +145,10 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   // 승인 = 정비 이력 원본 층에 같이(record.exception_record)
   const rid = psql("select report_id from ops.reports"); // 이번 보고서(앞 반복이 남긴 승인 이력과 가름 — 지식 schema는 초기화 밖)
   expect(psql(`select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe(situation);
-  // 승인 기록 파일 칸(약속 v10 6절): exception 하나(kind = 약속 v9 3절 이름) · exception_review 한 번
+  // 승인 기록 파일 칸(약속 v10 6절): exception = 1절 꼴 그대로(주제 · 점검 · 조치만 — llmops-2 적재기는 그 밖 칸 거절) ·
+  // exception_review 한 번(같음 = 놓침)
   const er = `from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`;
-  expect(psql(`select record->'exception_record'->'exception'->>'kind' ${er}`)).toBe("missed");
+  expect(psql(`select string_agg(k, ',' order by k) from knowledge.history_records, jsonb_object_keys(record->'exception_record'->'exception') k where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("actions,checks,topic");
   expect(psql(`select jsonb_array_length(record->'exception_record'->'exception'->'checks') || ',' || jsonb_array_length(record->'exception_record'->'exception'->'actions') ${er}`)).toBe("2,2");
   expect(psql(`select record->'exception_record'->'exception_review'->>'decision' ${er}`)).toBe("same");
   expect(psql(`select (record->'exception_record' ? 'items')::text ${er}`)).toBe("false");

@@ -2159,11 +2159,27 @@
     "additionalProperties": false,
     "description": "D-543 예외 안내(호출 단계) = 약속 v8 결과 exception_guide 칸 그대로 + 출처(앱 원본) · 원래 순서 다음(null).",
     "properties": {
+     "actions": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionActionFields"
+      },
+      "title": "Actions",
+      "type": "array"
+     },
      "basis": {
       "items": {
        "type": "string"
       },
       "title": "Basis",
+      "type": "array"
+     },
+     "checks": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/ExceptionCheckFields"
+      },
+      "title": "Checks",
       "type": "array"
      },
      "criteria": {
@@ -2806,6 +2822,41 @@
      "error"
     ],
     "title": "ExceptionSplit",
+    "type": "object"
+   },
+   "ExceptionWalkStep": {
+    "additionalProperties": false,
+    "description": "정답지 26쪽 '안내 차례' 한 줄(약속 v10 5절 걸음): c1 … 점검 → a1 … 조치.",
+    "properties": {
+     "done": {
+      "title": "Done",
+      "type": "boolean"
+     },
+     "now": {
+      "title": "Now",
+      "type": "boolean"
+     },
+     "side": {
+      "title": "Side",
+      "type": "string"
+     },
+     "step": {
+      "title": "Step",
+      "type": "string"
+     },
+     "what": {
+      "title": "What",
+      "type": "string"
+     }
+    },
+    "required": [
+     "step",
+     "side",
+     "what",
+     "done",
+     "now"
+    ],
+    "title": "ExceptionWalkStep",
     "type": "object"
    },
    "FinalCause": {
@@ -6590,6 +6641,20 @@
       ],
       "title": "Exception Topic"
      },
+     "exception_walk": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionWalkStep"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Walk"
+     },
      "instruction": {
       "anyOf": [
        {
@@ -6842,6 +6907,20 @@
        }
       ],
       "title": "Exception Topic"
+     },
+     "exception_walk": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/ExceptionWalkStep"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Walk"
      },
      "instruction": {
       "anyOf": [
@@ -7167,6 +7246,39 @@
        }
       ],
       "title": "Section"
+     },
+     "step": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Step"
+     },
+     "step_index": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Step Index"
+     },
+     "steps_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Steps Total"
      },
      "unable_before": {
       "anyOf": [

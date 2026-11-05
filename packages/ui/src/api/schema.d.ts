@@ -1216,8 +1216,18 @@ export interface components {
          * @description D-543 예외 안내(호출 단계) = 약속 v8 결과 exception_guide 칸 그대로 + 출처(앱 원본) · 원래 순서 다음(null).
          */
         ExceptionGuide: {
+            /**
+             * Actions
+             * @default []
+             */
+            actions: components["schemas"]["ExceptionActionFields"][];
             /** Basis */
             basis: string[];
+            /**
+             * Checks
+             * @default []
+             */
+            checks: components["schemas"]["ExceptionCheckFields"][];
             /** Criteria */
             criteria: string | null;
             /** Grade */
@@ -1423,6 +1433,22 @@ export interface components {
             similar_error?: string | null;
             /** Text */
             text: string;
+        };
+        /**
+         * ExceptionWalkStep
+         * @description 정답지 26쪽 '안내 차례' 한 줄(약속 v10 5절 걸음): c1 … 점검 → a1 … 조치.
+         */
+        ExceptionWalkStep: {
+            /** Done */
+            done: boolean;
+            /** Now */
+            now: boolean;
+            /** Side */
+            side: string;
+            /** Step */
+            step: string;
+            /** What */
+            what: string;
         };
         /** FinalCause */
         FinalCause: {
@@ -2479,6 +2505,8 @@ export interface components {
             exception_notes: components["schemas"]["ExceptionNote"][];
             /** Exception Topic */
             exception_topic?: string | null;
+            /** Exception Walk */
+            exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2548,6 +2576,8 @@ export interface components {
             exception_notes: components["schemas"]["ExceptionNote"][];
             /** Exception Topic */
             exception_topic?: string | null;
+            /** Exception Walk */
+            exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2637,6 +2667,12 @@ export interface components {
             reason: string | null;
             /** Section */
             section: string | null;
+            /** Step */
+            step?: string | null;
+            /** Step Index */
+            step_index?: number | null;
+            /** Steps Total */
+            steps_total?: number | null;
             /** Unable Before */
             unable_before: number | null;
         };

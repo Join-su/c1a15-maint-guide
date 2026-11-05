@@ -127,6 +127,7 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
     """시각 · 점 색(ok · bad · void · now) · 단계 이름 · 결과. 정정으로 무효인 기록은 지우지 않고 void로 보인다."""
     out = []
     unable: dict[str, int] = {}
+    eg = exception_guide_of(events)
     for e in events:
         at, void = e.get("_at"), bool(e.get("void"))
         t = e["type"]
@@ -159,12 +160,12 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
             elif e.get("memo") and unable.get(sec, 0) < 2:
                 detail += f" · {memo_summary(e['memo'])}"
             status = "void" if void else ("ok" if val == "정상" else "bad")
-            out.append({"at": at, "title": k.sections[sec]["title"], "detail": detail, "status": status})
+            out.append({"at": at, "title": step_title(e, k, eg), "detail": detail, "status": status})
         elif t == "action_done":
             out.append(
                 {
                     "at": at,
-                    "title": k.sections[e["section"]]["title"],
+                    "title": step_title(e, k, eg),
                     "detail": sec_text(e["section"]),
                     "status": "void" if void else "ok",
                 }
@@ -193,7 +194,7 @@ def path(events: list[dict], k: ManualKnowledge, step: dict, alarm: m.Alarm) -> 
             out.append(
                 {"at": at, "title": k.sections[session.MONITOR_SECTION]["title"], "detail": "6.2절", "status": "ok"}
             )
-    now = _now_entry(step, k)
+    now = _now_entry(step, k, eg)
     if now:
         out.append(now)
     return out
@@ -207,12 +208,12 @@ def sec_text(sec: str) -> str:
     return sec if sec.startswith(exception.PREFIX) else f"{sec}절"
 
 
-def _now_entry(step: dict, k: ManualKnowledge) -> dict | None:
+def _now_entry(step: dict, k: ManualKnowledge, eg: dict | None = None) -> dict | None:
     kind = step.get("kind")
     if kind in {"action", "action_after_checklist"}:
         return {
             "at": None,
-            "title": k.sections[step["section"]]["title"],
+            "title": step_title(step, k, eg),
             "detail": sec_text(step["section"]),
             "status": "now",
         }
@@ -236,25 +237,29 @@ def checks_done(events: list[dict], k: ManualKnowledge) -> list[dict]:
 
     점검마다 한 줄 = 마지막 결과, 확인 불가 반복은 '확인 불가 n회'.
     """
-    last: dict[str, str] = {}
-    notes: dict[str, str | None] = {}
-    unable: dict[str, int] = {}
+    last: dict[tuple, str] = {}
+    notes: dict[tuple, str | None] = {}
+    unable: dict[tuple, int] = {}
+    rows: dict[tuple, dict] = {}
+    eg = exception_guide_of(events)
     for e in events:
         if e["type"] == "result" and e.get("value") and not e.get("void"):
-            last[e["section"]] = e["value"]
+            key = (e["section"], e.get("step"))  # 약속 v10 걸음마다 한 줄(같은 예외 절 c1 · c2)
+            rows[key] = e
+            last[key] = e["value"]
             cf = e.get("corrected_from") or {}
             changed = cf and cf.get("value") != e["value"]
-            notes[e["section"]] = f"정정 {cf.get('count', 1)}회, 원래 {cf.get('value')}" if changed else None
+            notes[key] = f"정정 {cf.get('count', 1)}회, 원래 {cf.get('value')}" if changed else None
             if e["value"] == "확인 불가":
-                unable[e["section"]] = unable.get(e["section"], 0) + 1
+                unable[key] = unable.get(key, 0) + 1
     return [
         {
-            "section": sec,
-            "title": k.sections[sec]["title"],
-            "value": f"확인 불가 {unable[sec]}회" if v == "확인 불가" and unable.get(sec, 0) >= 2 else v,
-            "note": notes.get(sec),
+            "section": key[0],
+            "title": step_title(rows[key], k, eg),
+            "value": f"확인 불가 {unable[key]}회" if v == "확인 불가" and unable.get(key, 0) >= 2 else v,
+            "note": notes.get(key),
         }
-        for sec, v in last.items()
+        for key, v in last.items()
     ]
 
 
@@ -373,9 +378,10 @@ def correction_of(events: list[dict], step: dict) -> dict | None:
 
 
 def actions_of(events: list[dict], k: ManualKnowledge) -> list[dict]:
-    """마친 조치(정정으로 무효 제외): 절 · 이름 · 완료 시각."""
+    """마친 조치(정정으로 무효 제외): 절 · 이름(약속 v10 걸음이면 그 조치 무엇) · 완료 시각."""
+    eg = exception_guide_of(events)
     return [
-        {"section": e["section"], "title": k.sections[e["section"]]["title"], "at": e.get("_at")}
+        {"section": e["section"], "title": step_title(e, k, eg), "at": e.get("_at")}
         for e in events
         if e["type"] == "action_done" and not e.get("void")
     ]
@@ -503,6 +509,8 @@ def report_draft(
         sensor = f"{first['name']} {first['value_text']} ({screen.LEAD_PROMOTED})"
     sensor += "".join(f" · {r['value_text']}" for r in others[:1]) + f" → {system} 쪽"
     parts = ["잠금 확인(1.2)"]
+    eg = exception_guide_of(events)
+    walk_sec = {x["what"]: eg["section"] for x in [*eg.get("checks", []), *eg.get("actions", [])]} if walks(eg) else {}
     for p in path(events, k, {}, alarm):
         if p["title"] in {
             k.sections["1.2"]["title"],
@@ -518,7 +526,7 @@ def report_draft(
         if p["title"] == k.sections[session.MONITOR_SECTION]["title"]:
             parts.append(f"{p['title']}(6.2)")
             continue
-        sec = next((s for s in k.sections if k.sections[s]["title"] == p["title"]), "")
+        sec = next((s for s in k.sections if k.sections[s]["title"] == p["title"]), "") or walk_sec.get(p["title"], "")
         if k.sections.get(sec, {}).get("kind") == "action":
             continue
         detail = p["detail"].replace(sec_text(sec), "").strip(" ·") if sec else p["detail"]
@@ -928,6 +936,53 @@ def exception_guide_of(events: list[dict]) -> dict | None:
     return next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
 
 
+def walks(eg: dict | None) -> bool:
+    """약속 v10 걸음 길: 예외 절에 점검 목록 · 조치 목록이 둘 다 있을 때만(없으면 v8 옛 길)."""
+    return bool(eg and eg.get("checks") and eg.get("actions"))
+
+
+def guide_ex(eg: dict) -> tuple[dict, dict]:
+    """engine 사본 함수(walk · base_events)에 넘길 (관계 줄, 절 줄) — exception_guide 칸에서."""
+    return {"id": eg["relation_id"]}, {"no": eg["section"], **{f: eg[f] for f in ("checks", "actions") if eg.get(f)}}
+
+
+def walk_item(eg: dict | None, name: str | None) -> dict | None:
+    """걸음 이름(c1 · a2 …) → 그 점검 · 조치 칸(없으면 None)."""
+    if not eg or not name or not re.fullmatch(r"[ca][0-9]{1,2}", name):
+        return None
+    rows = eg.get("checks" if name[0] == "c" else "actions") or []
+    i = int(name[1:]) - 1
+    return rows[i] if 0 <= i < len(rows) else None
+
+
+def walk_of(events: list[dict], step: dict) -> list[dict] | None:
+    """정답지 26쪽 '안내 차례 · 적은 순서 그대로': 점검 c1 … → 조치 a1 …(약속 v10 5절).
+    한 걸음 = 이름 · 무엇 · 끝남 · 지금.
+    지금 = 그 걸음 결정 · 승인 전 호출이면 첫 남은 걸음."""
+    eg = exception_guide_of(events)
+    if not walks(eg):
+        return None
+    sec = eg["section"]
+    done = {
+        e.get("step")
+        for e in events
+        if e.get("section") == sec and not e.get("void") and e["type"] in {"result", "action_done"} and e.get("step")
+    }
+    rows = exception.walk(guide_ex(eg)[1])
+    now = step.get("step") if step.get("section") == sec else None
+    if now is None and step.get("section") == sec and step.get("kind") == "call":
+        now = next((n for n, _, _ in rows if n not in done), None)
+    return [
+        {"step": n, "side": side, "what": item["what"], "done": n in done, "now": n == now} for n, side, item in rows
+    ]
+
+
+def step_title(e: dict, k: ManualKnowledge, eg: dict | None) -> str:
+    """경로 · 지금까지 점검 줄 이름: 걸음 사건이면 그 점검 · 조치 무엇, 아니면 절 이름."""
+    item = walk_item(eg, e.get("step")) if e.get("section") == (eg or {}).get("section") else None
+    return item["what"] if item else k.sections[e["section"]]["title"]
+
+
 def with_exception(eg: dict | None, grades: dict, minutes: dict) -> tuple[str | None, dict, dict]:
     """judge 요청 덧칸: 예외 관계 id + 등급표 · 분 표 EX 줄(표에 줄이 없으면 안내 값 = 처음 값 · 표 값이 이김 R13).
     분은 v8 exception_guide.minutes(없으면 줄 없음)."""
@@ -997,6 +1052,8 @@ def exception_action(c: Connection, events: list[dict], g: dict, minutes: dict) 
     eg = exception_guide_of(events)
     if not eg:
         return None
+    if walks(eg):
+        return _walk_action(events, eg, g, minutes)
     sec = eg["section"]
     mine = [e for e in events if e.get("section") == sec and not e.get("void")]
     results = [e.get("value") for e in mine if e["type"] == "result"]
@@ -1018,6 +1075,44 @@ def exception_action(c: Connection, events: list[dict], g: dict, minutes: dict) 
         "checklist_done": False,
         "steps": list(eg.get("steps") or []),
     }
+
+
+def _walk_action(events: list[dict], eg: dict, g: dict, minutes: dict) -> dict | None:
+    """약속 v10 걸음 조치 카드: 지금 열린 조치 걸음(a1 …) — 없으면 마지막 끝낸 조치 걸음(재가동 중 보기) ·
+    조치 전이면 None.
+    절차 = 부품 한 줄(있을 때만) · 분 = 그 조치 칸."""
+    sec = eg["section"]
+    step = next((e["decision"] for e in reversed(events) if e["type"] == "step_opened"), {})
+    done = [
+        e
+        for e in events
+        if e["type"] == "action_done" and e.get("section") == sec and e.get("step") and not e.get("void")
+    ]
+    name = step.get("step") if step.get("section") == sec and step.get("action") else None
+    hit = None if name else (done[-1] if done else None)
+    name = name or (hit or {}).get("step")
+    item = walk_item(eg, name)
+    if not item:
+        return None
+    return {
+        "cause_code": "",
+        "cause_name": ex_name_of(eg),
+        "evidence_record_ids": list(eg.get("basis") or []),
+        "section": sec,
+        "title": item["what"],
+        "verb": "조치",
+        "grade": g.get(sec, eg.get("grade")),
+        "minutes": item.get("minutes"),
+        "done_at": (hit or {}).get("_at"),
+        "checklist": [],
+        "checklist_done": False,
+        "steps": [f"부품 {', '.join(item['parts'])}"] if item.get("parts") else [],
+    }
+
+
+def ex_name_of(eg: dict) -> str:
+    """예외 이름 '예외상황-{주제}'(주제 없으면 이름)."""
+    return f"예외상황-{eg.get('topic') or eg.get('title') or ''}"
 
 
 def progress_action(events: list[dict], step: dict) -> dict | None:
@@ -1050,7 +1145,8 @@ def exception_guide_view(c: Connection, eg: dict) -> dict:
     원본에 없는 기록은 None(지어내기 0).
     """
     basis = list(eg.get("basis") or [])
-    nxt = eg.get("next_section")
+    # 약속 v10 걸음 길은 정상이어도 다음 걸음 — '원래 순서 다음' 줄 0(정답지 26쪽 · 덧 2: 재가동 밖일 때만 원래 순서)
+    nxt = None if walks(eg) else eg.get("next_section")
     titles = {s: v["title"] for s, v in deps.manual().sections.items()} if nxt else {}
     row = c.execute(
         text(
@@ -1064,6 +1160,8 @@ def exception_guide_view(c: Connection, eg: dict) -> dict:
         **{f: eg.get(f) for f in ("section", "relation_id", "grade", "title", "text", "criteria")},
         "topic": eg.get("topic") or eg.get("title"),  # 고침A '예외상황-{주제}'(Pack 칸 오기 전 = 이름)
         "steps": list(eg.get("steps") or []),
+        "checks": list(eg.get("checks") or []),  # 약속 v10 4절: 그 절 점검 목록 · 조치 목록 그대로
+        "actions": list(eg.get("actions") or []),
         "basis": basis,
         "source": {
             "record_id": row.record_id,
@@ -1325,7 +1423,8 @@ def accept(
             reject("b_checklist_required")  # AC-32-C2 · AC-43-C4
         if step["section"] in state.actions_done:
             reject("already_done")
-        return "action_done", {"section": step["section"]}
+        # 약속 v10 5절: 예외 안내 조치 걸음이면 사건에 그 걸음 이름(a1 …) — 판정 결정이 정한 것을 그대로
+        return "action_done", {"section": step["section"], **({"step": step["step"]} if step.get("step") else {})}
     if etype == "restart":
         if kind != "restart_check":
             reject("no_restart_step")
@@ -1454,6 +1553,14 @@ def sessions_alarm(c: Connection, row: m.DiagSession) -> m.Alarm:
 # ---------------------------------------------------------------- 세션 응답의 S-03 블록
 
 
+def _call_title(events: list[dict], step: dict, k: ManualKnowledge, eg: dict, sec: str | None) -> str | None:
+    """호출 카드 제목: 절 이름 · 약속 v10 걸음 길 예외 절이면 지금(첫 남은) 걸음 무엇(정답지 26쪽)."""
+    now = next((w for w in walk_of(events, step) or [] if w["now"]), None) if sec == eg.get("section") else None
+    if now:
+        return now["what"]
+    return k.sections[sec]["title"] if sec in k.sections else (eg if eg.get("section") == sec else {}).get("title")
+
+
 def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, step: dict, events: list[dict]) -> dict:
     k = knowledge_of(events)
     g, minutes = deps.grades(c)
@@ -1574,9 +1681,7 @@ def flow_view(c: Connection, row: m.DiagSession, state: session.SessionState, st
             "reason": step.get("reason"),
             "head": handover_head(step, state, k) if kind == "handover" else None,
             "section": sec,
-            "title": k.sections[sec]["title"]
-            if sec in k.sections
-            else (eg if eg.get("section") == sec else {}).get("title"),
+            "title": _call_title(events, step, k, eg, sec),
             "grade": (call_e or {}).get("grade")
             if approved_open
             else step.get("grade") or (call_e or {}).get("grade") or (g.get(sec) if sec else None),

@@ -17,6 +17,7 @@ from c1a15.deploy.ledger import DbLedger
 SENSORS5 = ("air_temperature_k", "process_temperature_k", "rotational_speed_rpm", "torque_nm", "tool_wear_min")
 EVENT_KEYS = ("seq", "type", "void", "section", "value", "judged_value", "yes", "outcome", "corrected")
 EVENT_KEYS += ("kind", "answer", "mode", "choice", "from_section")  # from_section = 약속 v9 switch_check
+EVENT_KEYS += ("step",)  # 약속 v10 5절 예외 안내 걸음(result · action_done만 · 없으면 칸 0)
 SIGNAL_KEYS = ("out_of_scope_finding", "conflicts_with_button", "interpretation", "quote")
 HANDOVER_REASONS = {"llm_failure", "out_of_scope_finding"}  # 정본 event.reason enum — 자유 문장 사유는 넣지 않음
 

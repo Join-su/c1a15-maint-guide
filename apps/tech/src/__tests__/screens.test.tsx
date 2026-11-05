@@ -213,6 +213,22 @@ function instr(s: SessionView, over: Partial<Parameters<typeof InstructionScreen
 }
 
 describe("T06 점검 지시 · 결과 입력", () => {
+  it("예외 점검 걸음(약속 v10 · 정답지 26쪽): 지시 머리 아래 안내 차례 · 지금 걸음 굵게 — 걸음 아닌 지시엔 차례 0", () => {
+    const s = load<SessionView>("event-instruct");
+    const walk = [
+      { step: "c1", side: "check", what: "필터 덮개 고정 나사 확인", done: true, now: false },
+      { step: "c2", side: "check", what: "흡기 덕트 이음매", done: false, now: true },
+      { step: "a1", side: "action", what: "나사를 새로 끼움", done: false, now: false },
+    ];
+    const ws = { ...s, exception_walk: walk, step: { ...s.step, section: "EX-R-0012", step: "c2", step_index: 2, steps_total: 3 } };
+    const { container } = instr(ws, { ins: { ...(s.instruction as Instruction), section: "EX-R-0012", title: "흡기 덕트 이음매", steps: [] } });
+    expect(container.querySelector(".ins-h h3")?.textContent).toBe("흡기 덕트 이음매");
+    expect(texts(container, ".xwr")).toEqual(["1 점검 필터 덮개 고정 나사 확인", "2 점검 흡기 덕트 이음매 · 지금", "3 조치 나사를 새로 끼움"]);
+    cleanup();
+    const plain = instr({ ...s, exception_walk: walk }).container; // 걸음 칸 없는 지시(밖 → 원래 순서 4.3)
+    expect(plain.querySelector('[data-part="ex-walk"]')).toBeNull();
+  });
+
   it("[점검 바꾸기](D-556 · 약속 v9): 점검 안내 중 근거 줄 끝 링크 → 창(후보 줄: 제목 · 등급 · 절 + [예외]) → 고르면 onSwitch · 취소면 그대로 · [예외] → 호출 후 조치 / 바로 조치 → onException · 후보 0이어도 [예외]", () => {
     const s = load<SessionView>("event-instruct");
     expect(s.step.kind).toBe("instruct");

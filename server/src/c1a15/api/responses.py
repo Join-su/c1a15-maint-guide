@@ -218,6 +218,9 @@ class Step(_Out):
     outcome: str | None
     call_status: str | None
     corrected: bool | None = None  # S-05: 조치 뒤 정정 호출(T10 / summary_corrected)
+    step: str | None = None  # 약속 v10 5절 예외 안내 걸음(c1 · a1 …) — 걸음 결정만
+    step_index: int | None = None
+    steps_total: int | None = None
 
 
 class PathEntry(_Out):
@@ -306,6 +309,23 @@ class CallAnswer(_Out):
     note: str | None
 
 
+class ExceptionCheckFields(_Out):
+    """D-554 ④ 한 점검(c1a15-pack 꼴 정본 fields-gate 1절)."""
+
+    what: str
+    how: str
+    criteria: str
+    minutes: int | None
+
+
+class ExceptionActionFields(_Out):
+    """D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절)."""
+
+    what: str
+    parts: list[str]
+    minutes: int | None
+
+
 class ExceptionGuideNext(_Out):
     section: str
     title: str
@@ -334,6 +354,18 @@ class ExceptionGuide(_Out):
     source: ExceptionGuideSource | None
     next: ExceptionGuideNext | None
     topic: str | None = None  # 고침A '예외상황-{주제}'의 주제(Pack 결과 칸 임시 이름 · 없으면 title)
+    checks: list[ExceptionCheckFields] = []  # 약속 v10 4절: 그 절 점검 목록(걸음 길 · 없으면 옛 길)
+    actions: list[ExceptionActionFields] = []  # 약속 v10 4절: 그 절 조치 목록
+
+
+class ExceptionWalkStep(_Out):
+    """정답지 26쪽 '안내 차례' 한 줄(약속 v10 5절 걸음): c1 … 점검 → a1 … 조치."""
+
+    step: str
+    side: str  # check | action
+    what: str
+    done: bool
+    now: bool
 
 
 class CallBlock(_Out):
@@ -403,23 +435,6 @@ class ExceptionContext(_Out):
     ai_first_check: ExceptionCheck | None
     confirmed_cause: str
     report_id: int | None
-
-
-class ExceptionCheckFields(_Out):
-    """D-554 ④ 한 점검(c1a15-pack 꼴 정본 fields-gate 1절)."""
-
-    what: str
-    how: str
-    criteria: str
-    minutes: int | None
-
-
-class ExceptionActionFields(_Out):
-    """D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절)."""
-
-    what: str
-    parts: list[str]
-    minutes: int | None
 
 
 class ExceptionDraft(_Out):
@@ -622,6 +637,7 @@ class SessionView(_Out):
     exception_notes: list[ExceptionNote] = []  # D-543 참고 알림(같은 설비 · 같은 증상군 승인 예외 기록)
     switch_candidates: list[SwitchCandidate] = []  # D-556 [점검 바꾸기] 지금 추천 후보(점검 안내 중만)
     exception_topic: str | None = None  # 고침A '예외상황-{주제}' — 이 세션 예외 안내(v8)의 주제(없으면 None)
+    exception_walk: list[ExceptionWalkStep] | None = None  # 약속 v10 걸음 길 안내 차례(없으면 None)
 
 
 class SessionWithPreview(SessionView):

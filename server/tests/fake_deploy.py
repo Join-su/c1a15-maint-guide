@@ -462,7 +462,10 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         ex = None  # 관계 id가 다르면(그래프 버전이 바뀜) 예외 안내 없이 원래 판정
 
     def decide(events):
-        state = session.fold(k, body["group"], similar, exception.without(events))
+        # Pack 3502e29 judge: 예외 안내 뒤 첫 재가동 · 재가동 값은 예외 몫 — 원래 순서 판정(사본)에서 뺌(D-566 덧 2)
+        state = session.fold(
+            k, body["group"], similar, exception.base_events(events, ex) if ex else exception.without(events)
+        )
         d = session.decide(state, k, body["grades"], body["minutes"], **kw)
         if ex:
             d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"))
@@ -503,6 +506,8 @@ def _ex_of(eg: dict, opts: dict) -> tuple[dict, dict]:
         "criteria": eg.get("criteria"),
         "minutes": eg.get("minutes"),
         "records": list(eg.get("basis") or []),
+        # 약속 v10: 그 절의 주제 · 점검 목록 · 조치 목록(있을 때만 — 없으면 옛 길)
+        **{f: eg[f] for f in ("topic", "checks", "actions", "note") if eg.get(f)},
     }
     return x, sec
 
