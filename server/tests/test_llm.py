@@ -140,3 +140,20 @@ def test_exception_section_record_id_is_a_section_not_a_record():
     assert is_grounded(
         Draft("예외 절 EX-R-11050930", sections=()), Grounding(frozenset({"EX-R-11050930"}), frozenset(), frozenset())
     )
+
+
+@pytest.mark.parametrize(
+    ("word", "pair", "out"),
+    [
+        ("덮개 볼트 조임", ("과", "와"), "과"),
+        ("필터 덮개 나사", ("과", "와"), "와"),
+        ("흡기 필터 덮개 볼트", ("을", "를"), "를"),
+        ("필터 덮개 고정 나사 확인", ("을", "를"), "을"),
+        ("M6", ("을", "를"), "를"),  # 한글 아닌 끝 = 받침 없는 쪽
+        ("", ("을", "를"), "를"),
+    ],
+)
+def test_josa_follows_last_syllable(word, pair, out):
+    from c1a15.llm.base import josa
+
+    assert josa(word, *pair) == out

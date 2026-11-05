@@ -172,3 +172,38 @@ def test_old_guide_without_lists_keeps_old_path(api, db, deploy):
     assert "step" not in s["step"] and s["instruction"]["steps"] == eg["steps"]
     s = ok(tech, s, type="result", section=eg["section"], value="정상")
     assert s["step"]["section"] == "4.3"
+
+
+# 연습 여섯(28907 trace)에서 받은 진짜 Pack exception_guide — 절 이름 칸 title = '예외상황-{주제}'(점검 이름 아님)
+REAL_GUIDE = {
+    "actions": [{"minutes": 5, "parts": [], "what": "덮개 볼트 다시 조임"}],
+    "checks": [{"criteria": "", "how": "손으로 돌려 본다", "minutes": 5, "what": "흡기 필터 덮개 볼트"}],
+    "criteria": None,
+    "grade": "C",
+    "minutes": 5,
+    "next_section": "4.3",
+    "steps": ["손으로 돌려 본다"],
+    "text": "손으로 돌려 본다",
+    "title": "예외상황-덮개 볼트 조임",
+    "topic": "덮개 볼트 조임",
+}
+
+
+def test_real_pack_guide_preview_and_summary_name_the_first_check(api, db, deploy):
+    """정답지 11쪽 · D-570 덧 7: 셋째 칩 = 첫 걸음 점검 이름 · 이유 · 호출 요약에 예외 이름 한 번 · 조사 받침 따라."""
+    from fake_deploy import pack_answer
+
+    reset_ops(db)
+    hid = _approved_exception(api, db)
+    eg = {**REAL_GUIDE, "section": f"EX-{hid}", "relation_id": f"EX-{hid}", "basis": [hid]}
+    deploy.default = pack_answer(exception_guide=eg, preview=True)
+    tech, s = start(api, db, equipment="M-01")
+    pv = s["preview"]
+    assert (pv["kind"], pv["title"], pv["minutes"]) == ("call", "흡기 필터 덮개 볼트", 5)
+    assert pv["reason_fallback"] is False
+    assert pv["reason"].startswith("예외상황-덮개 볼트 조임(C등급)과 같은 조건이라 흡기 필터 덮개 볼트를 먼저 봅니다.")
+    assert pv["reason"].count("덮개 볼트 조임") == 1
+    s = to_instruct(tech, s)
+    text = s["call"]["summary"]["text"]
+    assert "예외상황-덮개 볼트 조임과 같은 조건 — 흡기 필터 덮개 볼트(C등급) 확인 필요" in text
+    assert text.count("덮개 볼트 조임") == 1

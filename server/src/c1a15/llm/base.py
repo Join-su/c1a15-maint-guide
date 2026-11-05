@@ -2,6 +2,12 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 
+def josa(word: str, final: str, open_: str) -> str:
+    """받침 따라 조사(과 · 와 / 을 · 를): 끝 글자가 받침 있는 한글이면 final, 아니면 open_."""
+    last = word[-1:]
+    return final if "가" <= last <= "힣" and (ord(last) - 0xAC00) % 28 else open_
+
+
 @dataclass(frozen=True)
 class Draft:
     """LLM(또는 템플릿)이 쓴 문장과 그 문장이 붙인 근거(R8 검사 대상)."""

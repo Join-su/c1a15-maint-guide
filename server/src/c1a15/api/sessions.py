@@ -398,7 +398,9 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
         sec = k.sections[d["section"]]
         p = d["probabilities"].get(d.get("cause"), 0)
         eg = flow.exception_guide_of(events_of(c, row.session_id)) or {}
-        topic = (eg.get("topic") or eg.get("title")) if eg.get("section") == d["section"] else None
+        here = eg.get("section") == d["section"]
+        topic = (eg.get("topic") or eg.get("title")) if here else None
+        name = (flow.first_what(eg) if here else None) or sec["title"]  # 정답지 11쪽: 칩 · 이유 = 첫 걸음 점검 이름
         cause_name = (  # 예외 관계에 원인이 없을 수 있음(Pack v8) · 고침A 11쪽 이름 '예외상황-{주제}'
             k.cause(d["cause"]).name if d.get("cause") else f"예외상황-{topic}" if topic else "예외 기록"
         )
@@ -408,7 +410,7 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
             {
                 "cause_name": cause_name,
                 "probability": p,
-                "check_title": sec["title"],
+                "check_title": name,
                 "grade": d["grade"],
                 "reason": d["reason"],
                 **({"topic": topic} if topic else {}),
@@ -421,16 +423,16 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
         )
         g = grounding.Grounding(
             allowed_sections=frozenset([d["section"]]),
-            source_numbers=frozenset([str(p), "1"]),  # '1순위'의 1은 순위 사실
+            source_numbers=frozenset([str(p), "1"]) | grounding.numbers_in(name),  # '1순위'의 1은 순위 사실
             top_record_ids=frozenset(s["record_id"] for s in row.similar)
             | ex_ids,  # 예외 절 = 근거 예외 기록(EX-<기록>)
         )
         who = f"{cause_name} {p}%" if d.get("cause") else cause_name
         where = "" if topic else f"{flow.sec_text(d['section'])} "  # 예외 이름이 있으면 기록 번호 0(고침A 11쪽)
-        template = f"{who} · {where}{sec['title']} · {d['grade']}등급 · 파트장 호출 필요"
+        template = f"{who} · {where}{name} · {d['grade']}등급 · 파트장 호출 필요"
         r = grounding.checked(lambda: adapter_for_mode().write(facts), g, template)
         out.update(
-            title=sec["title"],
+            title=name,
             minutes=mins,
             call_reason=d["reason"],
             reason=r.text,

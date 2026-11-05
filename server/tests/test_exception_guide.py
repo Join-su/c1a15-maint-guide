@@ -96,7 +96,7 @@ def test_exception_guide_v8_start_relation_call_block_and_send(api, db, deploy):
     assert g["source"] == {"record_id": hid, "equipment_id": "M-01", "occurred_at": at.isoformat(), "situation": sit}
     assert g["next"] is None  # 원래 순서 다음 = v8에 칸 없음(질문 001-zzz17)
     assert (
-        "예외상황-필터 덮개 고정 나사 확인와 같은 조건" in call["summary"]["text"]
+        "예외상황-필터 덮개 고정 나사 확인과 같은 조건" in call["summary"]["text"]
     )  # 고침A 26쪽 이름(주제 칸 전 = 이름)
     assert g["topic"] == "필터 덮개 고정 나사 확인"
     if os.environ.get("EXCEPTION_GUIDE_OUT"):  # D-503 2: 바뀐 응답 꼴 실제 한 건(시험 DB 값 그대로)
@@ -241,7 +241,7 @@ def test_start_with_real_pack_exception_preview(api, db, deploy, minutes, cause)
     assert (pv["title"], pv["minutes"]) == (eg["title"], minutes)
     assert eg["section"] not in pv["reason"]  # 정답지 고침A 11쪽: 기록 번호 대신 예외 이름
     assert pv["reason_fallback"] is False and pv["reason"].startswith(
-        f"예외상황-{eg['title']}(C등급)와 같은 조건이라"
+        f"예외상황-{eg['title']}(C등급)과 같은 조건이라"
     )  # 근거 검사 통과(원문 대체 0)
     assert start_body["kind"] == "start"
     s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 같은 예외 절 호출

@@ -306,6 +306,38 @@ test("최근 정비 원인 예외(D-570): 시연 줄 넣기 → 알람 → 예�
   g.check(info);
 });
 
+// 연습 여섯(28907)에서 받은 진짜 Pack 값: 절 이름 title = '예외상황-{주제}' — 칩 · 이유 · 호출 요약은 첫 걸음 점검 이름(정답지 11쪽)
+test("D570글: 진단 셋째 칩 = 첫 점검 이름 · 이유 · 호출 요약 예외 이름 한 번 · 조사 맞춤(사람 손 순서)", async ({ page }, info) => {
+  const checks = [{ what: "흡기 필터 덮개 볼트", how: "손으로 돌려 본다", criteria: "", minutes: 5 }];
+  const actions = [{ what: "덮개 볼트 다시 조임", parts: [], minutes: 5 }];
+  await answer({ exception_guide: guide({ title: "예외상황-덮개 볼트 조임", topic: "덮개 볼트 조임", minutes: 5, next_section: "4.3", checks, actions }), preview: true });
+  const g = guard(page);
+  await login(page);
+  alarm("DEMO-01");
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  const nx = page.locator(".nx");
+  const same = async () => {
+    await expect(nx.locator(".tags > *")).toHaveText(["C승인 필요", "예외상황-덮개 볼트 조임", "흡기 필터 덮개 볼트 · 약 5분"]);
+    await expect(nx.locator(".why span")).toContainText("예외상황-덮개 볼트 조임(C등급)과 같은 조건이라 흡기 필터 덮개 볼트를 먼저 봅니다.");
+  };
+  await same();
+  await snap(page, info, "T1-diagnosis-real-text");
+  await page.reload(); // 같은 화면 한 번 더(D-503 1) — 진단 단계 그대로 열림
+  await same();
+  await pause(page);
+  await nx.locator(".btn").click();
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
+  await pause(page);
+  await page.getByText("사전 확인 완료").click();
+  const right = page.locator(".g64 > .cd").nth(1);
+  await expect(right).toContainText("예외상황-덮개 볼트 조임과 같은 조건 — 흡기 필터 덮개 볼트(C등급) 확인 필요");
+  await snap(page, info, "T2-call-summary-real-text");
+  g.check(info);
+});
+
 test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 시작」 → 진단 '다음 점검' = 예외 절 호출 → 잠금 · 사전 확인 → 예외 카드(F1 걷기 결함 덧 33)", async ({ page }, info) => {
   const g = guard(page);
   await answer({ exception_guide: guide({ minutes: 5, next_section: "4.3" }), preview: true }); // Pack처럼 start 결과에 preview = call EX-…

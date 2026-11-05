@@ -22,7 +22,7 @@ from c1a15.deploy.client import PackUnavailable
 from c1a15.engine import exception, rules, session, switch
 from c1a15.engine.knowledge import ManualKnowledge
 from c1a15.llm import adapter_for_mode, grounding
-from c1a15.llm.base import AdapterError, Draft, Facts
+from c1a15.llm.base import AdapterError, Draft, Facts, josa
 
 # 정비자 앱이 보내는 S-03 입력(클라이언트 type) → 업무 기록 type
 CLIENT_TYPES = {
@@ -335,8 +335,11 @@ def call_summary(
             if done
             else "점검 전"
         )
+        topic = ex.get("topic") or title
+        now = next((w for w in walk_of(events, step) or [] if w["now"]), None)  # 걸음 길 = 지금 걸음 점검 이름(11쪽)
         need = (  # 고침A 26쪽: 예외 이름 '예외상황-{주제}'
-            f"예외상황-{ex.get('topic') or title}와 같은 조건 — {title}({step.get('grade')}등급) 확인 필요"
+            f"예외상황-{topic}{josa(topic, '과', '와')} 같은 조건 — "
+            f"{now['what'] if now else title}({step.get('grade')}등급) 확인 필요"
             if ex
             else f"확인에 {title}({sec}절, {step.get('grade')}등급) 필요"
         )
@@ -963,6 +966,11 @@ def exception_guide_of(events: list[dict]) -> dict | None:
 def walks(eg: dict | None) -> bool:
     """약속 v10 걸음 길: 예외 절에 점검 목록 · 조치 목록이 둘 다 있을 때만(없으면 v8 옛 길)."""
     return bool(eg and eg.get("checks") and eg.get("actions"))
+
+
+def first_what(eg: dict | None) -> str | None:
+    """걸음 길 첫 점검 이름(정답지 11쪽 셋째 칩 · 이유 글) — Pack 절 이름 title은 '예외상황-{주제}'라 칩 이름과 같음."""
+    return eg["checks"][0]["what"] if walks(eg) else None
 
 
 def guide_ex(eg: dict) -> tuple[dict, dict]:
