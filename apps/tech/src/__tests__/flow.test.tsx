@@ -551,6 +551,23 @@ describe("T09 보고서", () => {
     expect(texts(old, '[data-part="ex-section"] .rxr > span')).toEqual(["어떤 상황이었나", OLD.situation, "무엇을 했나", OLD.action]);
   });
 
+  it("반려 뒤(정답지 20쪽): 앞 확정 기록이 '예외 상황' 구역에 다시 · [예외 상황 수정] · 팝업 자동 0 · 확정 가능", () => {
+    const applied = {
+      text: EXT,
+      items: [{ ...ITEMS[1], decision: "not", match: null, kind: "new_exception" }],
+      exception_review: [{ item: 0, decision: "not", match: null }],
+      split_error: null,
+    };
+    const rej = { reason: "조치 글 다시", by: "lead.park", by_name: "박 파트장", at: "2026-11-05T03:40:00+00:00" };
+    const r = render(<ReportScreen report={exReport({ rejection: rej, exception_applied: applied })} busy={false} send={vi.fn()} onHome={() => {}} />);
+    expect(popup(r.container)).toBeNull();
+    expect(r.container.querySelector('[data-part="rejection"]')).not.toBeNull();
+    const sec = r.container.querySelector('[data-part="ex-section"]')!;
+    expect(texts(sec, ".rx-h .btn")).toEqual(["예외 상황 수정"]);
+    expect(texts(sec, ".rxr .ch")).toEqual(["새 예외 · 예외상황-흡기 덕트 이음매"]);
+    expect(btn(r.container, "보고서 확정").className).not.toContain("dis");
+  });
+
   it("「점검방법 등록」 초안(D-543)이 있으면 팝업 예외 글 칸에 미리 채움", () => {
     const r = render(<ReportScreen report={exReport({ exception_draft: { text: "덮개 고정 나사 · 새로 끼움" } })} busy={false} send={() => {}} onHome={() => {}} />);
     expect((popup(r.container)!.querySelector('textarea[aria-label="예외 글"]') as HTMLTextAreaElement).value).toBe("덮개 고정 나사 · 새로 끼움");

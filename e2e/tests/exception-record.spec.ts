@@ -129,12 +129,13 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
   await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
   // 승인 = 정비 이력 원본 층에 같이(record.exception_record)
-  expect(psql("select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report'")).toBe(situation);
-  expect(psql("select string_agg(i->>'kind', ',') from knowledge.history_records, jsonb_array_elements(record->'exception_record'->'items') i where source = 'approved_report'")).toBe("missed,new_exception"); // 약속 v9 3절 기록 이름
-  expect(psql("select record->'exception_record'->'context'->>'equipment_id' from knowledge.history_records where source = 'approved_report'")).toBe("M-01");
+  const rid = psql("select report_id from ops.reports"); // 이번 보고서(앞 반복이 남긴 승인 이력과 가름 — 지식 schema는 초기화 밖)
+  expect(psql(`select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe(situation);
+  expect(psql(`select string_agg(i->>'kind', ',') from knowledge.history_records, jsonb_array_elements(record->'exception_record'->'items') i where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("missed,new_exception"); // 약속 v9 3절 기록 이름
+  expect(psql(`select record->'exception_record'->'context'->>'equipment_id' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe("M-01");
   if (process.env.SHOT_DIR) {
     // D-503 2: 이력 원본 층에 실제로 저장된 꼴 한 건
-    const real = psql("select record->'exception_record' from knowledge.history_records where source = 'approved_report'");
+    const real = psql(`select record->'exception_record' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`);
     writeFileSync(path.join(process.env.SHOT_DIR, "real-exception-record.json"), JSON.stringify(JSON.parse(real), null, 1));
   }
   g.check(info);

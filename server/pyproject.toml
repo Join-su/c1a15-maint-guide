@@ -28,7 +28,7 @@ markers = ["db: 실제 PostgreSQL(DATABASE_URL)이 필요한 통합 시험"]
 line-length = 120
 target-version = "py312"
 src = ["src", "tests"]
-# c1a15-pack custom/exception.py(D-545) · switch.py(D-556 약속 v9 d94f18e) 사본 — Pack 원본과 import 줄만 다르게 그대로 둠(줄 길이 · 형식 검사 밖)
+# c1a15-pack custom/exception.py(D-545) · switch.py(D-556 약속 v9 · d9b562b) 사본 — Pack 원본과 import 줄만 다르게 그대로 둠(줄 길이 · 형식 검사 밖)
 extend-exclude = ["src/c1a15/engine/exception.py", "src/c1a15/engine/switch.py"]
 
 [tool.ruff.lint]

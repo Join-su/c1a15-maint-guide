@@ -219,7 +219,18 @@ def test_exception_act_now_notices_lead_and_records_human_check(api, db, deploy)
     assert rec["kind"] == "missed" and rec["relation_id"] == m0["no"]
     assert rec["human_check"] == {"section": "EX-NEW", "from_section": "4.3"}  # 예외 진행 = EX-NEW · 그때 점검
     assert TestClient(api).get("/api/internal/check-records").status_code in {401, 403}  # 내부 토큰 없으면 거부
-    # 정답지 20쪽 '반려되면 다시 열림'은 Pack 덧층(switch.py · report_confirm 뒤 closed)이 반려를 아직 모름 — 앱 몫만 아래 순수 시험
+    # 정답지 20쪽: 반려되면 보고서 다시 열림(Pack d9b562b 덧층 사본) — 앞 확정 기록이 '예외 상황' 구역에 다시(= 적용한 것)
+    with db.connect() as c:
+        rid = c.execute(
+            text("select report_id from ops.reports where session_id = :s"), {"s": s["session_id"]}
+        ).scalar()
+    assert lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "reject", "memo": "다시"}).status_code == 200
+    s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
+    assert (s["step"]["kind"], s["report"]["status"]) == ("report", "draft")
+    ap = s["report"]["exception_applied"]
+    assert ap["text"] == txt and ap["exception_review"] == review
+    s = ok(tech, s, type="report_confirm")  # 다시 확정 → 닫힘
+    assert s["report"]["exception_record"]["exception_review"] == review and s["step"]["kind"] == "closed"
 
 
 def test_rejected_report_reuses_last_confirmed_exception_as_applied():

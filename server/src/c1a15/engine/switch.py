@@ -64,7 +64,11 @@ def _progress(d, events, grades):
         out = {**_base(d), "kind": "action", **head, "stage": "exception_progress"}
         return {**out, "lead_notice": "acted_without_call"} if mode == "act_now" and not approved else out
     seen = {e["type"]: e for e in events}
-    if "report_confirm" in seen:
+    confirmed = False
+    for e in events:   # D-560(정답지 20쪽): 보통 세션처럼 차례대로 — 확정 → 닫힘 · 파트장 반려(report_rejected) → 보고서 다시 열림
+        if e["type"] in ("report_confirm", "report_rejected"):
+            confirmed = e["type"] == "report_confirm"
+    if confirmed:
         return {**_base(d), "kind": "closed"}
     if "restart" not in seen:
         return {**_base(d), "kind": "restart_check", "section": session.RESTART_SECTION, "grade": grades.get(session.RESTART_SECTION), "cause": None, "outcome": "unknown"}
