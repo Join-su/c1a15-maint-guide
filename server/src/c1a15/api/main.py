@@ -374,6 +374,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
     ).all()
     in_progress = []
     sent_of: dict[int, str | None] = {}
+    ex_of: dict[int, bool] = {}
     mine = select(m.DiagSession.__table__).where(
         m.DiagSession.user_id == user.user_id, m.DiagSession.status == "in_progress"
     )
@@ -382,11 +383,13 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
         prog = sessions.progress(c, row)
         in_progress.append({"session_id": s.session_id, "alarm_id": s.alarm_id, "progress": prog})
         sent_of[s.alarm_id] = sessions.call_sent(c, row)  # G3 왼쪽 칸 '진행 중 · 파트장 호출'
+        ex_of[s.alarm_id] = sessions.in_exception(c, row)  # 정답지 17쪽 '진행 중 · 예외 조치'
     by_alarm = {s["alarm_id"]: s for s in in_progress}
     for a in alarms:  # P-19 ①: 진행 중 알람 행의 '점검 n / 최대 m'
         a["session_id"] = by_alarm[a["alarm_id"]]["session_id"] if a["alarm_id"] in by_alarm else None
         a["progress"] = by_alarm[a["alarm_id"]]["progress"] if a["alarm_id"] in by_alarm else None
         a["call_sent"] = sent_of.get(a["alarm_id"])
+        a["exception_progress"] = ex_of.get(a["alarm_id"], False)
     latest = max([a["change_seq"] for a in alarms] + [since])
     return {
         "alarms": alarms,

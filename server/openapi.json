@@ -405,6 +405,11 @@
       "title": "Equipment Id",
       "type": "string"
      },
+     "exception_progress": {
+      "default": false,
+      "title": "Exception Progress",
+      "type": "boolean"
+     },
      "group_name": {
       "title": "Group Name",
       "type": "string"

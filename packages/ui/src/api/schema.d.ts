@@ -730,6 +730,11 @@ export interface components {
             change_seq: number;
             /** Equipment Id */
             equipment_id: string;
+            /**
+             * Exception Progress
+             * @default false
+             */
+            exception_progress: boolean;
             /** Group Name */
             group_name: string;
             ml?: components["schemas"]["AlarmMl"] | null;

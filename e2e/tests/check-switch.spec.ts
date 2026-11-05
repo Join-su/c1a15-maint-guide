@@ -52,6 +52,10 @@ test("점검 바꾸기: 후보 창 → 취소 → 다시 → 고름 → 그 점�
   expect((await sent).status()).toBe(200);
   await expect(page.locator(".ins-h h3")).toHaveText(title);
   await snap(page, info, "S2-switched");
+  await link.click(); // 정답지 14쪽 '다시 바꾸기': 앞 판정 후보 이어 씀(지금 고른 것 빼고)
+  await expect(dlg.locator(`.swc[data-section="${section}"]`)).toHaveCount(0);
+  expect(await dlg.locator(".swc[data-section]").count()).toBe(n - 1);
+  await dlg.locator(".mb .btn", { hasText: "취소" }).click();
   await page.reload(); // 다시 읽어도 고른 점검 그대로
   await expect(page.locator(".ins-h h3")).toHaveText(title);
   expect(psql("select (payload->>'from_section') || '>' || (payload->>'section') || ':' || (payload->>'choice') from ops.session_events where type = 'switch_check'")).toBe(

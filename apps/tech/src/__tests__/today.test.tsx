@@ -130,4 +130,16 @@ describe("G3 대조: 왼쪽 칸 상태 줄", () => {
     const r = render(<TodayPanel home={h} current={null} onOpen={() => {}} />).container;
     expect(r.querySelector(`button.n-li[data-alarm="${live[0].alarm_id}"] .n-ls`)?.textContent).toMatch(/진행 중 · 숙련자 인계$/);
   });
+
+  it("[예외] 진행 세션이면 '진행 중 · 예외 조치'(정답지 17쪽) · 호출을 보낸 동안은 '파트장 호출'(16쪽)", () => {
+    const h = load<Home>("home-in-progress");
+    const live = h.alarms.filter((x) => x.status === "in_progress");
+    Object.assign(live[0], { call_sent: null, exception_progress: true });
+    const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);
+    const ls = (root: ParentNode) => root.querySelector(`button.n-li[data-alarm="${live[0].alarm_id}"] .n-ls`)?.textContent ?? "";
+    expect(ls(container)).toMatch(/진행 중 · 예외 조치$/);
+    cleanup();
+    live[0].call_sent = "approval";
+    expect(ls(render(<TodayPanel home={h} current={null} onOpen={() => {}} />).container)).toMatch(/진행 중 · 파트장 호출$/);
+  });
 });

@@ -64,6 +64,7 @@ class AlarmRow(_Out):
     report_session_id: int | None
     ml: AlarmMl | None = None
     call_sent: str | None = None  # G3: 보낸 호출 답 전(approval · handover)
+    exception_progress: bool = False  # 약속 v9 [예외] 진행 세션(왼쪽 칸 '진행 중 · 예외 조치')
 
 
 class RecentReport(_Out):

@@ -958,6 +958,8 @@ NO_ALARM_REASON = {
 def audit_label(a, k, names: dict[str, str] | None = None) -> str:
     d = a.detail or {}
     sec = d.get("section")
+    if sec == "EX-NEW":  # 약속 v9 예외 진행 절 — 화면 글은 '예외'(코드 이름 0 · zzz51 답 4)
+        sec = "예외"
     title = k.sections[sec]["title"] if sec in k.sections else ""
     act = a.action
     if act == "correction":  # L06 / correction: 정정 · 절 · 전 → 후 · 사유(AC-45-C3)

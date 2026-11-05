@@ -73,6 +73,10 @@ def test_switch_to_candidate_is_a_judge_event_pack_opens_it_then_continues(api, 
     assert opened["switched"] == {"from": "4.3", "to": ab["section"]}  # Pack 결정 칸
     s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()  # 같은 화면 다시 읽어도 고른 점검 그대로
     assert s["step"]["section"] == ab["section"]
+    # 정답지 14쪽 '다시 바꾸기': 바꾼 점검에선 앞 판정 후보를 이어 씀(지금 고른 것 빼고)
+    assert [x["section"] for x in s["switch_candidates"]] == [
+        x["section"] for x in cands if x["section"] != ab["section"]
+    ]
     if s["step"]["kind"] == "instruct_after_checklist":
         s = ok(tech, s, type="b_checklist_done", section=ab["section"], checked=s["instruction"]["checklist"])
     s = ok(tech, s, type="result", section=ab["section"], value="정상")  # 고른 점검 결과 → 이어 감
@@ -128,7 +132,9 @@ def test_exception_call_first_call_approve_action_restart_report_unknown(api, db
     )
     assert (s["call"]["section"], s["call"]["title"], s["call"]["grade"]) == ("EX-NEW", "예외 조치", "C")
     assert s["call"]["status"] == "sent" and s["step"]["call_status"] == "sent"  # 정답지 16쪽: 호출은 자동으로 나감
-    assert s["call"]["summary"]["text"].endswith(" 매뉴얼 후보 밖 — 예외 조치(C등급) 승인 요청. 설비는 정지 상태로 대기 중.")
+    assert s["call"]["summary"]["text"].endswith(
+        " 매뉴얼 후보 밖 — 예외 조치(C등급) 승인 요청. 설비는 정지 상태로 대기 중."
+    )
     assert [e["section"] for e in _events(db, s["session_id"], "call_sent")] == ["EX-NEW"]
     assert "action" not in s  # 승인 전 조치 지시 0
     r = _post(tech, s, type="exception_start", mode="act_now")
@@ -153,7 +159,9 @@ def test_exception_call_first_call_approve_action_restart_report_unknown(api, db
     s = ok(tech, s, type="restart_result", outcome="within")
     assert (s["step"]["kind"], s["step"]["outcome"]) == ("report", "unknown")
     fields = {f["key"]: f["text"] for f in s["report"]["fields"]}
-    assert fields["cause"] == "원인 미상"
+    assert fields["cause"] == "원인 미상" and fields["action"].startswith("예외 조치(예외, C)")  # 화면 글 EX-NEW 0
+    acts = [r["action"] for r in lc.get("/api/lead/audit").json()["rows"]]
+    assert "지시 · 예외" in acts and not any("EX-NEW" in a for a in acts)  # 파트장 오늘 기록
     assert all(r["session_id"] != s["session_id"] for r in lc.get("/api/lead/overview").json()["acted"])
     assert _records(api, s["session_id"]) == []  # 확정 전 · 바꾼 점검 0 = 기록 줄 0
 
@@ -169,6 +177,8 @@ def test_exception_act_now_notices_lead_and_records_human_check(api, db, deploy)
     assert (s["path"][-1]["title"], s["path"][-1]["detail"], s["path"][-1]["status"]) == ("예외 조치", "예외", "now")
     opened = _events(db, s["session_id"], "step_opened")[-1]["decision"]
     assert opened["lead_notice"] == "acted_without_call" and opened["exception_progress"] == {"mode": "act_now"}
+    (row,) = [a for a in tech.get("/api/tech/home").json()["alarms"] if a["alarm_id"] == s["alarm_id"]]
+    assert row["exception_progress"] is True and row["call_sent"] is None  # 왼쪽 칸 '진행 중 · 예외 조치'(17쪽)
     acted = [r for r in lc.get("/api/lead/overview").json()["acted"] if r["session_id"] == s["session_id"]]
     assert len(acted) == 1 and acted[0]["equipment_id"] == "M-01" and acted[0]["tech_name"] and acted[0]["at"]
     assert acted[0]["group_name"] == "온도 차 저하"

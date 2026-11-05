@@ -68,6 +68,7 @@ test("[예외] 호출 후 조치: EX-NEW 파트장 호출 → 승인 후 진행 
   await expect(left.locator(".warn-h h3")).toHaveText("예외 조치");
   await expect(left.locator(".warn-h .tags > *")).toHaveText(["C승인 필요", "예외"]);
   await expect(left.locator(".sub")).toHaveText(["지금까지 점검", "조치"]);
+  await expect(left.locator(".dn2 > span").first()).toHaveText("잠금 확인 · 1.2절"); // 16쪽: 안전 단계부터
   await expect(left.locator(".btn", { hasText: "조치 잠김 · 파트장 승인 뒤" })).toHaveClass(/dis/); // 승인 전 조치 잠김
   await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/); // 호출은 자동으로 나감
   await expect(page.locator(".g64 > .cd").nth(1)).toContainText("매뉴얼 후보 밖 — 예외 조치(C등급) 승인 요청"); // 보낸 요약
@@ -116,6 +117,7 @@ test("[예외] 바로 조치: 곧바로 예외 조치 · 파트장 승인 대기
   await expect(page.locator(".stk > .cd").first().locator(".cd-h > b, .cd-h > .ch, .kvr > *")).toHaveText(["원인", "예외", "원인", "보고서 예외 칸에서"]); // 정답지 17쪽
   await expect(page.locator(".act .btn", { hasText: "조치 완료" })).toBeVisible();
   await expect(page.locator(".wait")).toHaveCount(0); // 정비자 화면엔 '호출 없이 조치함' 표시 0(22쪽은 파트장 쪽)
+  await expect(page.locator("button.n-li .n-ls").first()).toHaveText(/진행 중 · 예외 조치$/); // 17쪽 왼쪽 알람 칸
   await expect(page.locator(".tli.now > div > *")).toHaveText(["예외 조치", "예외"]); // 17쪽 오른쪽 '지금 예외 조치 · 예외'
   await snap(page, info, "E5-act-now");
   const lead = await leadPage(browser);

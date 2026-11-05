@@ -257,6 +257,8 @@ describe("T10 파트장 호출", () => {
     expect(left.querySelector(".warn-h h3")?.textContent).toBe("예외 조치");
     expect(texts(left, ".warn-h .tags > *")).toEqual(["C승인 필요", "예외"]);
     expect(texts(left, ".sub")).toEqual(["지금까지 점검", "조치"]);
+    expect(texts(left, ".dn2 > span")).toEqual(s.path.filter((p) => p.status !== "now").map((p) => `${p.title} · ${p.detail}`)); // 안전 단계부터(정답지 16쪽)
+    expect(texts(left, ".dn2 > span")[0]).toBe("잠금 확인 · 1.2절");
     expect(btn(left, "조치 잠김 · 파트장 승인 뒤").className).toContain("dis");
     expect(left.querySelector(".xkr")).toBeNull(); // 노하우 등록은 예외 기록 안내에만
   });

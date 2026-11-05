@@ -585,7 +585,16 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
             <>
             <div className="sub">지금까지 점검</div>
             <div className="dn2">
-              {call.checks_done.length ? (
+              {call.section === EX_NEW ? ( // 정답지 16쪽: 예외 진행은 안전 단계(잠금 확인 등)부터 한 것 모두
+                (s.path ?? [])
+                  .filter((p) => p.status !== "now")
+                  .map((p, i) => (
+                    <span key={i}>
+                      <Icon name={p.status === "bad" ? "circle-alert" : "circle-check"} className={p.status === "bad" ? "bad" : "ok"} />
+                      {p.title} · {p.detail}
+                    </span>
+                  ))
+              ) : call.checks_done.length ? (
                 call.checks_done.map((d) => (
                   <span key={d.section}>
                     <Icon name={icon(d.value)} className={tone(d.value)} />

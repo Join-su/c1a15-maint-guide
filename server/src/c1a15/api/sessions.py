@@ -584,7 +584,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
             ],
         }
     if state.locked:  # D-556 [점검 바꾸기] 후보(점검 안내 중만 · 그 밖엔 빈 목록)
-        out["switch_candidates"] = switch_candidates(k, step)
+        out["switch_candidates"] = switch_candidates(k, step, events)
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
     out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「노하우 등록」 초안
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
@@ -597,6 +597,11 @@ def progress(c: Connection, row: m.DiagSession) -> dict:
     k = flow.knowledge_of(events)
     state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
     return screen.check_progress(events, k, row.symptom_group, deps.grades(c)[0], state.approvals)
+
+
+def in_exception(c: Connection, row: m.DiagSession) -> bool:
+    """왼쪽 알람 칸 '진행 중 · 예외 조치'(정답지 17쪽): [예외] 진행을 고른 세션."""
+    return flow.progress_of(events_of(c, row.session_id)) is not None
 
 
 def call_sent(c: Connection, row: m.DiagSession) -> str | None:
@@ -683,7 +688,7 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
     elif etype == "switch_check":  # 약속 v9 [점검 바꾸기]: 지금 추천 후보 중 하나 → 판정 Run(Pack이 그 점검을 엶)
-        cands = {x["section"] for x in switch_candidates(k, step)}
+        cands = {x["section"] for x in switch_candidates(k, step, events)}
         if step.get("kind") not in SWITCHABLE or payload.get("section") not in cands:
             deny("not_switchable")
         payload = {"section": payload["section"], "from_section": step["section"], "choice": "candidate"}
@@ -734,15 +739,25 @@ def _auto_call(c: Connection, row: m.DiagSession, actor: str) -> None:
 SWITCHABLE = {"instruct", "instruct_after_checklist"}  # 점검 안내 중(사전 확인 · 조치 · 호출 · 보고서 단계는 0)
 
 
-def switch_candidates(k, step: dict) -> list[dict]:
-    """[점검 바꾸기] 후보 = 판정이 낸 지금 점검 밖 후보(decision.reason_facts.alternatives) — 제목 · 등급표 등급."""
+def switch_candidates(k, step: dict, events: list[dict] = ()) -> list[dict]:
+    """[점검 바꾸기] 후보 = 판정이 낸 지금 점검 밖 후보(decision.reason_facts.alternatives) — 제목 · 등급표 등급.
+    바꾼 점검(결정 switched · 후보 칸 없음)이면 앞 판정 후보를 이어 씀(지금 점검 빼고 · 정답지 14쪽 '다시 바꾸기')."""
     if step.get("kind") not in SWITCHABLE:
         return []
     alts = (step.get("reason_facts") or {}).get("alternatives") or []
+    if not alts and step.get("switched"):
+        alts = next(
+            (
+                a
+                for e in reversed(events)
+                if e["type"] == "step_opened" and (a := (e["decision"].get("reason_facts") or {}).get("alternatives"))
+            ),
+            [],
+        )
     return [
         {"section": a["section"], "title": k.sections[a["section"]]["title"], "grade": a.get("grade")}
         for a in alts
-        if a.get("section") in k.sections
+        if a.get("section") in k.sections and a["section"] != step.get("section")
     ]
 
 

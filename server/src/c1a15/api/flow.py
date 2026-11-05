@@ -542,7 +542,10 @@ def report_draft(
     elif outcome == "monitor":
         action = "조치 없음" + (f" · {restart_text}" if restart_text else "") + " · 감시 대상 등록(6.2)"
     elif actions_of(events, k):  # 결정 019 ①: 정정 호출에 주간 처리 · 직접 확인 — 이미 한 조치는 그대로
-        action = " · ".join(f"{a['title']}({a['section']}, {g.get(a['section'])})" for a in actions_of(events, k))
+        action = " · ".join(  # 화면 글에 EX-NEW 0 → '예외'(zzz51 답 4)
+            f"{a['title']}({'예외' if a['section'] == switch.NEW else a['section']}, {g.get(a['section'])})"
+            for a in actions_of(events, k)
+        )
         action += f" · {restart_text}" if restart_text else ""
     else:
         action = "조치 없음" + (f" · {restart_text}" if restart_text else "")
