@@ -4,7 +4,9 @@
 - 시각은 지금(또는 --at) 기준 며칠 전으로 코드가 정한다. 절 이름은 매뉴얼 표에서(지어내기 0).
 - 넣은 줄 = source generated(표 약속 그대로) · record.demo = "D-570" 표시 — 빼기는 이 표시가 있는 줄만(다른 이력 손 0).
 - add는 이력 원본 꼴 한 줄(JSON)을 찍는다 — 배포단이 그래프 적재기 입력에 같은 줄을 넣어 Pack records와 맞춤.
-실행: python -m c1a15.demo_history add --record H-0301 --equipment M-01 --group CL --days-ago 3 --action 4.3.2
+실행: python -m c1a15.demo_history add       (인자 없음 = M-01 · 3일 전 · 4.3.2 · H-0301)
+     python -m c1a15.demo_history remove    (인자 없음 = 그 줄만 뺌)
+     python -m c1a15.demo_history add --record H-0302 --equipment M-01 --group CL --days-ago 3 --action 4.3.2
        [--check 4.3]
      python -m c1a15.demo_history list --equipment M-01 [--days 7]
      python -m c1a15.demo_history remove --record H-0301
@@ -18,6 +20,8 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import Connection, text
 
 DEMO = "D-570"
+# 시연 기본 한 줄(D-570 덧 1 · recent-condition.md 5절 recent_record H-0301): M-01 · 3일 전 · 4.3.2 — 인자 없이
+DEFAULT = {"record": "H-0301", "equipment": "M-01", "days_ago": 3, "action": "4.3.2"}
 
 
 def _parse_at(s: str | None) -> datetime:
@@ -133,19 +137,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m c1a15.demo_history")
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("add")
-    a.add_argument("--record", required=True)
-    a.add_argument("--equipment", required=True)
+    a.add_argument("--record", default=DEFAULT["record"])
+    a.add_argument("--equipment", default=DEFAULT["equipment"])
     a.add_argument("--group", default="CL")
-    a.add_argument("--days-ago", type=int, required=True)
-    a.add_argument("--action", action="append", required=True)
+    a.add_argument("--days-ago", type=int, default=DEFAULT["days_ago"])
+    a.add_argument("--action", action="append")
     a.add_argument("--check", action="append", default=[])
     a.add_argument("--at", help="기준 시각(ISO · 없으면 지금)")
     li = sub.add_parser("list")
-    li.add_argument("--equipment", required=True)
+    li.add_argument("--equipment", default=DEFAULT["equipment"])
     li.add_argument("--days", type=int, default=7)
     li.add_argument("--at")
     r = sub.add_parser("remove")
-    r.add_argument("--record", required=True)
+    r.add_argument("--record", default=DEFAULT["record"])
     args = ap.parse_args(argv)
 
     from c1a15.api import deps
@@ -153,6 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     with deps.engine().begin() as c:
         if args.cmd == "add":
             at = _parse_at(args.at) - timedelta(days=args.days_ago)
+            args.action = args.action or [DEFAULT["action"]]
             line = history_line(
                 deps.manual(), deps.group_names(), args.record, args.equipment, args.group, at, args.action, args.check
             )

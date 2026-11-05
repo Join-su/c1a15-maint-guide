@@ -87,6 +87,18 @@ def test_recent_window_equipment_order_and_fields(api, db, capsys):
 def test_demo_command_only_touches_demo_rows(api, db):
     from c1a15 import demo_history
 
+    demo_history.main(["add"])  # 인자 없음 = 시연 기본 한 줄(M-01 · 3일 전 · 4.3.2 · H-0301)
+    with db.connect() as c:
+        row = c.execute(
+            text("select equipment_id, record from knowledge.history_records where record_id = 'H-0301'")
+        ).one()
+    assert row.equipment_id == "M-01" and [s["section"] for s in row.record["steps"]] == ["4.3.2"]
+    demo_history.main(["remove"])  # 짝 = 그 줄만 뺌
+    with db.connect() as c:
+        assert (
+            c.execute(text("select count(*) from knowledge.history_records where record_id = 'H-0301'")).scalar() == 0
+        )
+
     with db.connect() as c:
         real = c.execute(
             text(
