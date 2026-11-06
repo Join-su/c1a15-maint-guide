@@ -616,6 +616,12 @@ class Instruction(_Out):
     unable: list[Unable]
 
 
+class PreviewPick(_Out):
+    section: str
+    title: str | None
+    grade: str | None
+
+
 class Preview(_Out):
     kind: str
     section: str | None
@@ -627,7 +633,8 @@ class Preview(_Out):
     reason: str | None = None
     reason_fallback: bool | None = None
     reason_label: str | None = None
-    candidates: list[SwitchCandidate] = []  # D-580 진단 카드 다른 후보(예외가 얽힐 때만)
+    candidates: list[SwitchCandidate] = []  # D-585 진단 카드 [점검 바꾸기] 창 후보
+    picked: PreviewPick | None = None  # D-585 진단에서 고른 점검
 
 
 class SessionView(_Out):

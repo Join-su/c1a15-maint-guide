@@ -203,12 +203,9 @@
 .ap .swm .swc { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--ln); border-radius: 10px; cursor: pointer; background: #fff; }
 .ap .swm .swc:hover { border-color: var(--pri); }
 .ap .swm .swc.dis { opacity: .5; cursor: default; }
-.ap .nxc { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
-.ap .nxc > b { font-size: 13px; color: var(--sub); }
-.ap .nxc .nxr { display: flex; align-items: center; gap: 6px; }
-.ap .nxc .nxr > span:first-child { flex: 1; min-width: 0; }
-.ap .nxc small { display: block; color: var(--sub); font-size: 12px; }
 .ap .xwhy { margin-top: 6px; font-size: 13px; color: var(--sub); }
+.ap .nx .refs { margin-top: auto; justify-content: flex-end; }
+.ap .nx .refs ~ .btn.full { margin-top: 0; }
 .ap .swm .swc .tags { display: inline-flex; gap: 6px; flex-shrink: 0; }
 .ap .swm .swc .swt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .ap .swm .swc .sws { font-size: 13px; font-weight: 400; color: var(--sub); }

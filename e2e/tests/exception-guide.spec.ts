@@ -335,8 +335,10 @@ test("D570글: 진단 셋째 칩 = 첫 점검 이름 · 이유 · 호출 요약 
   const nx = page.locator(".nx");
   const same = async () => {
     await expect(nx.locator("h3")).toHaveText("흡기 필터 육안 점검"); // D-580: 첫 추천 = 매뉴얼
-    await expect(nx.locator('[data-part="check-cands"] .nxr').last()).toContainText("흡기 필터 덮개 볼트"); // 예외는 후보 줄
-    await expect(nx.locator('[data-part="check-cands"] .nxr').last()).toContainText("예외상황-덮개 볼트 조임");
+    await nx.locator(".lk.sw").click(); // D-585 예외는 [점검 바꾸기] 창의 후보 줄
+    await expect(page.locator('.swm .swc[data-section^="EX-"]')).toContainText("흡기 필터 덮개 볼트");
+    await expect(page.locator('.swm .swc[data-section^="EX-"]')).toContainText("예외상황-덮개 볼트 조임");
+    await page.locator(".swm .mb .btn", { hasText: "취소" }).click();
   };
   await same();
   await snap(page, info, "T1-diagnosis-real-text");
@@ -367,7 +369,7 @@ test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 �
   await page.getByText("진단 보기").click();
   const nx = page.locator(".nx");
   await expect(nx.locator("h3")).toHaveText("흡기 필터 육안 점검"); // D-580: 첫 추천 = 매뉴얼 · 예외는 후보 줄
-  await expect(nx.locator('[data-part="check-cands"]')).toContainText("예외상황-필터 덮개 나사");
+  await expect(nx.locator(".lk.sw")).toBeVisible(); // D-585 후보는 [점검 바꾸기] 창
   await snap(page, info, "G0-diagnosis-exception-preview");
   await pause(page);
   await nx.locator(".btn").click();
@@ -450,8 +452,10 @@ test("D580 후보: 진단 다른 후보 · 호출 화면 근거 한 줄 · 예�
   await page.waitForURL(/\/session\/\d+/);
   await page.getByText("진단 보기").click();
   const why = `온도 차 저하 · M-01 · 3일 전 4.3.2 흡기 필터 교체 정비 · 근거 EX-${rid}`;
-  await expect(page.locator('.nx [data-part="check-cands"] [data-part="ex-why"]')).toHaveText(why);
+  await page.locator(".nx .lk.sw").click(); // D-585 진단 카드 [점검 바꾸기]
+  await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toContainText(why);
   await snap(page, info, "C1-diagnosis-candidates");
+  await page.locator(".swm .mb .btn", { hasText: "취소" }).click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
   await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
@@ -476,5 +480,64 @@ test("D580 후보: 진단 다른 후보 · 호출 화면 근거 한 줄 · 예�
   await page.locator(".refs .lk", { hasText: "점검 바꾸기" }).click();
   await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toHaveCount(1);
   await snap(page, info, "C4-back-to-manual-exception-stays");
+  g.check(info);
+});
+
+test("D585 진단 [점검 바꾸기]: 예외 고름 → 카드에 고른 점검 → 잠금 · 사전 확인 그대로 → 그 예외 호출(사람 손 순서)", async ({ page }, info) => {
+  const g = guard(page);
+  await answer({ exception_guide: guide({ minutes: 15, next_section: "4.3", checks: WALK_CHECKS, actions: WALK_ACTIONS }), preview: true });
+  await login(page);
+  alarm("DEMO-01");
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  const nx = page.locator(".nx");
+  await expect(nx.locator('[data-part="check-cands"]')).toHaveCount(0); // 후보 칸 뺌
+  await snap(page, info, "D1-diagnosis-menu");
+  await pause(page);
+  await nx.locator(".lk.sw").click();
+  await snap(page, info, "D2-diagnosis-switch-list");
+  await pause(page);
+  await page.locator(`.swm .swc[data-section="EX-${rid}"]`).click();
+  await expect(nx.locator("h3")).toHaveText("필터 덮개 고정 나사 확인"); // 고른 점검이 카드에
+  await snap(page, info, "D3-diagnosis-picked");
+  await page.reload(); // 같은 화면 한 번 더(D-503 1)
+  await expect(page.locator(".nx h3")).toHaveText("필터 덮개 고정 나사 확인");
+  await pause(page);
+  await page.locator(".nx .btn").click();
+  await expect(page.getByText("잠금 완료", { exact: true })).toBeVisible(); // 안전 순서 그대로
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
+  await pause(page);
+  await page.getByText("사전 확인 완료").click();
+  const left = page.locator(".g64 > .cd").first();
+  await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
+  await snap(page, info, "D4-after-safety-picked-exception");
+  g.check(info);
+});
+
+test("D585 보통 알람도 같게: 예외 없는 세션 진단 [점검 바꾸기] → 매뉴얼 후보 고름 → 안전 순서 뒤 그 점검(사람 손 순서)", async ({ page }, info) => {
+  const g = guard(page);
+  await answer({});
+  await login(page);
+  alarm("DEMO-01");
+  await page.locator(".al .btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  const nx = page.locator(".nx");
+  await pause(page);
+  await nx.locator(".lk.sw").click();
+  await expect(page.locator('.swm .swc[data-section^="EX-"]')).toHaveCount(0);
+  await snap(page, info, "D5-no-exception-switch-list");
+  await pause(page);
+  await page.locator('.swm .swc[data-section="4.5"]').click();
+  await expect(nx.locator("h3")).toHaveText("냉각수 수위 확인");
+  await pause(page);
+  await nx.locator(".btn.full").click();
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
+  await pause(page);
+  await page.getByText("사전 확인 완료").click();
+  await expect(page.locator(".ins-h h3")).toHaveText("냉각수 수위 확인");
   g.check(info);
 });

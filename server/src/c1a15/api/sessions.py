@@ -355,6 +355,17 @@ def session_for(c: Connection, sid: int, user_id: str) -> m.DiagSession:
     return row
 
 
+def _first_decision(row: m.DiagSession, c: Connection, k, g, minutes, decided: dict | None = None) -> dict:
+    """잠금 · 사전 확인을 했다고 놓은 판정 = Pack start preview(저장값) — 없으면 앱 decide."""
+    if decided is None:
+        shown = (e for e in events_of(c, row.session_id) if e["type"] == "preview_shown" and "decision" in e)
+        decided = next(shown, {}).get("decision")
+    if decided is not None:
+        return decided
+    state = session.fold(k, row.symptom_group, similar_of(row), [{"type": "lock"}, {"type": "precheck_done"}])
+    return session.decide(state, k, g, minutes)
+
+
 def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> dict:
     """진단 화면(T04)의 '다음 점검' 미리보기: 잠금 · 사전 확인을 했다고 놓고 판정한 다음 단계.
 
@@ -363,14 +374,7 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
     """
     k = flow.knowledge_of(events_of(c, row.session_id))
     g, minutes = deps.grades(c)
-    if decided is None:
-        shown = (e for e in events_of(c, row.session_id) if e["type"] == "preview_shown" and "decision" in e)
-        decided = next(shown, {}).get("decision")
-    if decided is not None:
-        d = decided
-    else:
-        state = session.fold(k, row.symptom_group, similar_of(row), [{"type": "lock"}, {"type": "precheck_done"}])
-        d = session.decide(state, k, g, minutes)
+    d = _first_decision(row, c, k, g, minutes, decided)
     out = {"kind": d["kind"], "section": d.get("section"), "grade": d.get("grade"), "cause": d.get("cause")}
     # 분: 분 표 → 없으면 그 절의 분(예외 절 = exception_guide.minutes · knowledge_of) → 없으면 None(덧 33)
     mins = minutes.get(d.get("section"), (k.sections.get(d.get("section")) or {}).get("minutes"))
@@ -439,10 +443,13 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
             reason_fallback=r.fallback,
             reason_label=r.label,
         )
-    # D-580: 진단 카드 후보 목록(예외가 얽힐 때만 — 보통 세션 화면은 그대로)
+    # D-585: 진단 카드 [점검 바꾸기] 창 후보(모든 알람 같게) · 고른 점검(잠금 · 사전 확인 뒤 Pack이 엶)
     ev = events_of(c, row.session_id)
-    if flow.exception_guide_of(ev):
-        out["candidates"] = _candidate_rows(k, d, ev, row.symptom_group)
+    out["candidates"] = _candidate_rows(k, d, ev, row.symptom_group)
+    sw = [e for e in ev if e["type"] == DIAG_PICK]
+    hit = next((x for x in out["candidates"] if sw and x["section"] == sw[-1]["section"]), None)
+    if hit:
+        out["picked"] = {key: hit[key] for key in ("section", "title", "grade")}
     return out
 
 
@@ -455,7 +462,8 @@ def _checked_reason(row: m.DiagSession, d: dict, facts: Facts) -> dict:
     alts = v["alternatives"]
     g = grounding.Grounding(
         allowed_sections=frozenset([d["section"], *(a["section"] for a in alts)]),
-        source_numbers=frozenset(str(x) for x in (v["probability"], v["minutes"], v.get("rank", 1))),  # 'n위'의 n
+        source_numbers=frozenset(str(x) for x in (v["probability"], v["minutes"], v.get("rank", 1)))  # 'n위'의 n
+        | frozenset(n for a in alts for n in grounding.numbers_in(a.get("title") or "")),  # D-585 예외 후보 이름의 숫자
         top_record_ids=frozenset(s["record_id"] for s in row.similar),
     )
     template = f"{v['cause_name']} {v['probability']}% · {d['section']}절 · 약 {v['minutes']}분 · {v['grade']}등급"
@@ -727,10 +735,19 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
     elif etype == "switch_check":  # 약속 v9 [점검 바꾸기]: 지금 추천 후보 중 하나 → 판정 Run(Pack이 그 점검을 엶)
-        cands = {x["section"] for x in switch_candidates(k, step, events, row.symptom_group)}
-        if not switchable(step) or payload.get("section") not in cands:
+        # D-585: 진단 단계(잠금 전)는 앱이 고른 값만 들고 있음(예외 절 사건이 먼저 가면 Pack이 잠금을 건너뜀) ·
+        # 사전 확인 완료 때 switch_check로 함께 넘김
+        early = step.get("kind") == "lock" and not state.locked
+        at = _first_decision(row, c, k, *deps.grades(c)) if early else step
+        rows = (_candidate_rows if early else switch_candidates)(k, at, events, row.symptom_group)
+        cands = {x["section"] for x in rows}
+        if not (early or switchable(step)) or payload.get("section") not in cands:
             deny("not_switchable")
-        payload = {"section": payload["section"], "from_section": step["section"], "choice": "candidate"}
+        payload = {"section": payload["section"], "from_section": at.get("section"), "choice": "candidate"}
+        if early:
+            _store(c, row.session_id, last + 1, DIAG_PICK, payload, actor)
+            audit(c, actor, DIAG_PICK, f"session:{row.session_id}", {"seq": last + 1, **payload})
+            return view(c, row)
     elif etype == "exception_start":  # 약속 v9 [예외]: 호출 후 조치 / 바로 조치 → 판정 Run(절 EX-NEW)
         if step.get("kind") not in SWITCHABLE or flow.progress_of(events):
             deny("not_switchable")
@@ -749,6 +766,11 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         from datetime import UTC, datetime
 
         payload["at"] = datetime.now(UTC).isoformat()
+    picks = [e for e in events if e["type"] == DIAG_PICK]
+    if etype == "precheck_done" and picks:  # 진단에서 고른 점검 — 안전 단계를 마친 이 판정부터 Pack이 그 점검을 엶
+        pick = {key: picks[-1][key] for key in ("section", "from_section", "choice")}
+        last += 1
+        _store(c, row.session_id, last, "switch_check", pick, actor)
     _store(c, row.session_id, last + 1, etype, payload, actor)
     audit(
         c,
@@ -775,6 +797,7 @@ def _auto_call(c: Connection, row: m.DiagSession, actor: str) -> None:
     _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
 
 
+DIAG_PICK = "diagnosis_pick"  # D-585 진단 카드 [점검 바꾸기] 고른 값(앱 사건 · 판정 입력 아님)
 SWITCHABLE = {"instruct", "instruct_after_checklist"}  # 점검 안내 중(사전 확인 · 조치 · 호출 · 보고서 단계는 0)
 
 

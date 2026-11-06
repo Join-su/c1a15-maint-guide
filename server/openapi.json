@@ -5811,6 +5811,16 @@
       ],
       "title": "Minutes"
      },
+     "picked": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PreviewPick"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "reason": {
       "anyOf": [
        {
@@ -5874,6 +5884,44 @@
      "cause"
     ],
     "title": "Preview",
+    "type": "object"
+   },
+   "PreviewPick": {
+    "additionalProperties": false,
+    "properties": {
+     "grade": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Grade"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     }
+    },
+    "required": [
+     "section",
+     "title",
+     "grade"
+    ],
+    "title": "PreviewPick",
     "type": "object"
    },
    "Progress": {

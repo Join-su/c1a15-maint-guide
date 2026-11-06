@@ -2308,6 +2308,7 @@ export interface components {
             kind: string;
             /** Minutes */
             minutes?: number | null;
+            picked?: components["schemas"]["PreviewPick"] | null;
             /** Reason */
             reason?: string | null;
             /** Reason Fallback */
@@ -2318,6 +2319,15 @@ export interface components {
             section: string | null;
             /** Title */
             title?: string | null;
+        };
+        /** PreviewPick */
+        PreviewPick: {
+            /** Grade */
+            grade: string | null;
+            /** Section */
+            section: string;
+            /** Title */
+            title: string | null;
         };
         /** Progress */
         Progress: {

@@ -268,3 +268,30 @@ def test_why_line_says_what_matched(api, db, deploy):
     assert next(c for c in s["preview"]["candidates"] if c["exception"])["summary"] == line
     s = to_ex(tech, s, eg)
     assert s["exception_why"] == line
+
+
+def test_pick_exception_at_diagnosis_opens_call_after_precheck(api, db, deploy):
+    """D-585: 진단에서 예외를 고르면 잠금 · 사전 확인 뒤 그 예외 호출(승인 한 번)."""
+    reset_ops(db)
+    eg = {**_guide(_approved_exception(api, db)), "topic": "필터 덮개 나사", "checks": CHECKS, "actions": ACTIONS}
+    deploy.default = pack_answer_of(eg)
+    tech, s = start(api, db, equipment="M-01")
+    s = ok(tech, s, type="alarm_ack")
+    s = ok(tech, s, type="switch_check", section=eg["section"])
+    pv = tech.get(f"/api/tech/sessions/{s['session_id']}").json()["preview"]
+    assert s["step"]["kind"] == "lock" and pv["picked"]["title"] == CHECKS[0]["what"]
+    s = ok(tech, s, type="lock")
+    s = ok(tech, s, type="precheck_done", values="하우징 52 °C")
+    assert (s["step"]["kind"], s["step"]["section"]) == ("call", eg["section"])
+
+
+def test_reason_names_exception_by_first_check_even_with_numbers(api, db, deploy):
+    """D-585(new-pack 013-251): 이유 글에 내부 번호 대신 첫 점검 이름 · 이름의 숫자도 근거 검사 통과(원문 대체 0)."""
+    reset_ops(db)
+    checks = [{**CHECKS[0], "what": "덮개 볼트 4개 확인"}]
+    eg = {**_guide(_approved_exception(api, db)), "topic": "덮개 볼트", "checks": checks, "actions": ACTIONS}
+    deploy.default = pack_answer_of(eg)
+    _, s = start(api, db, equipment="M-01")
+    pv = s["preview"]
+    assert "덮개 볼트 4개 확인(C)" in pv["reason"] and eg["section"] not in pv["reason"]
+    assert pv["reason_fallback"] is False

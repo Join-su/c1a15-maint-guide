@@ -28,7 +28,10 @@ class FixtureAdapter:
     def write(self, facts: Facts) -> Draft:
         v = facts.values
         if facts.kind == "reason":  # R5-6 '이 점검을 고른 이유'
-            alts = ", ".join(f"{a['section']}({a['grade']})" for a in v.get("alternatives", [])) or "없음"
+            alts = (
+                ", ".join(f"{a.get('title') or a['section']}({a['grade']})" for a in v.get("alternatives", []))
+                or "없음"
+            )
             rank = v.get("rank", 1)
             text = (
                 f"{v['cause_name']} 가능성이 {v['probability']}%로 가장 높고, "

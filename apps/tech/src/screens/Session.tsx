@@ -188,7 +188,19 @@ export function Session(p: SessionProps) {
           onNext={() => void send({ type: "alarm_ack" }).then((ok) => ok && setStage("diagnosis"))}
         />
       );
-    else if (shown === "diagnosis") body = <DiagnosisScreen s={s} onRecord={p.onRecord} onStart={() => setStage("lock")} />;
+    else if (shown === "diagnosis") body = (
+        <DiagnosisScreen
+          s={s}
+          onRecord={p.onRecord}
+          onStart={() => setStage("lock")}
+          onSwitch={(section) => {
+            void send({ type: "switch_check", section }).then(async (ok) => {
+              const { data } = ok ? await api.GET("/api/tech/sessions/{sid}", { params: { path: { sid } } }) : { data: null };
+              if (data) accept(data); // 고른 점검을 카드에 바로(이벤트 응답엔 미리보기 칸 없음)
+            });
+          }}
+        />
+      );
     else body = <LockScreen s={s} busy={busy} onLock={() => void send({ type: "lock" })} />;
   } else if (s.step.kind === "precheck") {
     body = (

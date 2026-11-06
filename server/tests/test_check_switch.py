@@ -10,7 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from test_api import ok, reset_ops, start, to_instruct  # noqa: F401
+from test_api import ev, ok, reset_ops, start, to_instruct  # noqa: F401
 from test_deploy_path import api, db, deploy  # noqa: F401
 from test_lead import lead
 
@@ -320,3 +320,30 @@ def test_check_records_order_and_names():
         {"kind": "wasted_step", "session_id": 3, "human_check": {"section": "4.6", "from_section": "4.3"}, "at_seq": 7}
     ]
     assert check_records(3, chain[:3]) == []  # 결과 전 = 기록 0
+
+
+def test_pick_at_diagnosis_keeps_lock_and_precheck_then_opens_it(api, db, deploy):
+    """D-585(사용자): 진단 카드 [점검 바꾸기] — 예외가 없는 보통 세션도 같음. 고른 뒤에도 잠금 · 사전 확인이 먼저 · 그 뒤 고른 점검."""
+    reset_ops(db)
+    tech, s = start(api, db, equipment="M-02")
+    first = s["preview"]["section"]
+    cands = s["preview"]["candidates"]
+    assert cands and all(not c["exception"] for c in cands) and first not in {c["section"] for c in cands}
+    pick = next(c for c in cands if c["grade"] in {"A", "B"})
+    s = ok(tech, s, type="alarm_ack")
+    s = ok(tech, s, type="switch_check", section=pick["section"])
+    assert s["step"]["kind"] == "lock"  # 안전 순서 그대로
+    pv = tech.get(f"/api/tech/sessions/{s['session_id']}").json()["preview"]
+    assert pv["picked"] == {"section": pick["section"], "title": pick["title"], "grade": pick["grade"]}
+    assert ev(tech, s, type="precheck_done", values="x").status_code == 409  # 잠금 전 사전 확인 0
+    s = ok(tech, s, type="lock")
+    assert s["step"]["kind"] == "precheck"
+    s = ok(tech, s, type="precheck_done", values="하우징 표면 52 °C")
+    assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", pick["section"])
+
+
+def test_pick_outside_candidates_at_diagnosis_is_refused(api, db, deploy):
+    reset_ops(db)
+    tech, s = start(api, db, equipment="M-02")
+    s = ok(tech, s, type="alarm_ack")
+    assert ev(tech, s, type="switch_check", section="9.9").status_code == 409

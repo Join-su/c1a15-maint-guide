@@ -117,6 +117,26 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
     expect(container.querySelector(".warnb")).toBeNull();
   });
 
+  it("D-585 진단 카드 [점검 바꾸기]: 창에서 고르면 onSwitch · 고른 점검이 카드에 · 지난 화면엔 메뉴 0 · 후보 칸 0", () => {
+    const s = load<SessionWithPreview>("session-before-lock");
+    const candidates = [{ section: "4.4", title: "냉각 팬 분해 점검", grade: "C", summary: null, exception: false }];
+    const v = { ...s, preview: { ...s.preview, candidates } };
+    const onSwitch = vi.fn();
+    const { container } = render(<DiagnosisScreen s={v} onRecord={() => {}} onStart={() => {}} onSwitch={onSwitch} />);
+    expect(container.querySelector('[data-part="check-cands"]')).toBeNull();
+    fireEvent.click(container.querySelector(".nx .lk.sw")!);
+    fireEvent.click(container.querySelector('.swm .swc[data-section="4.4"]')!);
+    expect(onSwitch).toHaveBeenCalledWith("4.4");
+    cleanup();
+    const picked = { ...v, preview: { ...v.preview, picked: { section: "4.4", title: "냉각 팬 분해 점검", grade: "C" } } };
+    const r = render(<DiagnosisScreen s={picked} onRecord={() => {}} onStart={() => {}} onSwitch={onSwitch} />);
+    expect(r.container.querySelector(".nx h3")?.textContent).toBe("냉각 팬 분해 점검");
+    expect(r.container.querySelector(".nx .why")).toBeNull();
+    cleanup();
+    const past = render(<DiagnosisScreen s={v} onRecord={() => {}} onStart={() => {}} past />);
+    expect(past.container.querySelector(".nx .lk.sw")).toBeNull();
+  });
+
   it("첫 판정 호출: 같은 구조, 강조 카드 값만 바뀐다", () => {
     const d = load<SessionWithPreview>("session-before-lock");
     const fc = load<SessionWithPreview>("session-first-call");

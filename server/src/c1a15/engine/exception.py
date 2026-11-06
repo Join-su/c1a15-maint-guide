@@ -223,10 +223,12 @@ def _first(d, ex, grade, minutes):
 
 
 def _listed(d, ex, grade):
-    """예외를 후보 목록에 더한 판정 — 첫 추천은 d 그대로."""
+    """예외를 후보 목록에 더한 판정 — 첫 추천은 d 그대로 · title = 예외 첫 점검 이름(D-585 이유 글) · 점검 칸 없는 옛 줄은 절 이름."""
     x, sec = ex
     rf = d.get("reason_facts") or {}
-    return {**d, "reason_facts": {**rf, "alternatives": [*(rf.get("alternatives") or []), {"section": sec["no"], "grade": grade, "relation": x["id"], "title": sec.get("name")}]}}
+    checks = lists(sec)[0]
+    title = (checks[0].get("what") if checks else None) or sec.get("name")
+    return {**d, "reason_facts": {**rf, "alternatives": [*(rf.get("alternatives") or []), {"section": sec["no"], "grade": grade, "relation": x["id"], "title": title}]}}
 
 
 def _others(d):

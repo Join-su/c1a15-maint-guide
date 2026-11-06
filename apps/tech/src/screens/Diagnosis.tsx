@@ -2,7 +2,9 @@
 // 첫 판정이 호출이면 같은 구조에서 강조 카드 값만 바뀐다(T04 / first_call, 예외는 이 상태에서만 — CO-42).
 // D-528(가이드 정비자 4): 순위 아래 「근거 n = …」 설명 · 과거 기록 아래 안내 문장 뺌.
 
+import { useState } from "react";
 import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
+import { SwitchRows } from "./Instruction";
 import { SecChip } from "./Lock";
 
 type Diag = Pick<SessionWithPreview, "probabilities" | "evidence" | "cause_names" | "similar_cards" | "low_evidence" | "preview" | "exception_topic">;
@@ -13,41 +15,46 @@ export function rankRows(s: Diag): { code: string; name: string; pct: number; n:
     .sort((a, b) => b.pct - a.pct);
 }
 
-export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; past?: boolean }) {
+export function NextCard({
+  s,
+  onStart,
+  past,
+  onSwitch,
+}: {
+  s: Diag;
+  onStart: () => void;
+  past?: boolean;
+  onSwitch?: (section: string) => void; // D-585 진단에서 고름 — 잠금 · 사전 확인 뒤 그 점검
+}) {
   const p = s.preview;
-  const call = p.kind === "call";
+  const pick = p.picked;
+  const call = !pick && p.kind === "call";
+  const [switching, setSwitching] = useState(false);
   return (
     <div className="cd hl">
       <div className="nx">
         <span className="sm">다음 점검</span>
-        <h3>{call ? "파트장 호출 필요" : p.title}</h3>
+        <h3>{pick ? pick.title : call ? "파트장 호출 필요" : p.title}</h3>
         <div className="tags">
-          <GradeBadge grade={p.grade} />
-          {p.section ? <SecChip section={p.section} topic={s.exception_topic} /> : null}
-          {p.minutes != null ? (
+          <GradeBadge grade={pick ? pick.grade : p.grade} />
+          {(pick ?? p).section ? <SecChip section={(pick ?? p).section ?? ""} topic={s.exception_topic} /> : null}
+          {!pick && p.minutes != null ? (
             <span className="ch gray">{call ? `${p.title} · 약 ${p.minutes}분` : `약 ${p.minutes}분`}</span>
           ) : null}
-          {p.reason_fallback ? <span className="ch fb">{p.reason_label}</span> : null}
+          {!pick && p.reason_fallback ? <span className="ch fb">{p.reason_label}</span> : null}
         </div>
-        {p.reason ? (
+        {p.reason && !pick ? (
           <div className="why">
             <b>{call ? "호출이 필요한 이유" : "이 점검을 고른 이유"}</b>
             <span>{p.reason}</span>
           </div>
         ) : null}
-        {p.candidates?.length ? (
-          <div className="nxc" data-part="check-cands">
-            <b>다른 점검 후보</b>
-            {p.candidates.map((c) => (
-              <div className="nxr" key={c.section} data-section={c.section}>
-                <span>
-                  {c.title}
-                  {c.exception && c.summary ? <small data-part="ex-why">{c.summary}</small> : null}
-                </span>
-                {c.grade ? <GradeBadge grade={c.grade} /> : null}
-                <SecChip section={c.section} topic={s.exception_topic} />
-              </div>
-            ))}
+        {!past && onSwitch && p.candidates?.length ? (
+          <div className="refs">
+            <span className="lk sw" role="button" tabIndex={0} onClick={() => setSwitching(true)}>
+              <Icon name="arrow-left-right" />
+              점검 바꾸기
+            </span>
           </div>
         ) : null}
         {s.low_evidence ? (
@@ -67,6 +74,33 @@ export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; p
           점검 시작 <Icon name="arrow-right" />
         </span>
       </div>
+      {switching && onSwitch ? (
+        <>
+          <div className="dim" />
+          <div className="modal swm" role="dialog" aria-label="점검 바꾸기">
+            <div className="mh">
+              <Icon name="arrow-left-right" />
+              <b>점검 바꾸기</b>
+            </div>
+            <div className="swl">
+              <SwitchRows
+                cands={(p.candidates ?? []).filter((c) => c.section !== pick?.section)}
+                busy={false}
+                topic={s.exception_topic}
+                onPick={(section) => {
+                  setSwitching(false);
+                  onSwitch(section);
+                }}
+              />
+            </div>
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSwitching(false)}>
+                취소
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -76,11 +110,13 @@ export function DiagnosisScreen({
   onRecord,
   onStart,
   past,
+  onSwitch,
 }: {
   s: Diag;
   onRecord: (id: string) => void;
   onStart: () => void;
   past?: boolean; // T15 / diagnosis: 그때의 원인 순위 · 첫 지시, 조작은 잠김
+  onSwitch?: (section: string) => void;
 }) {
   const rows = rankRows(s);
   return (
@@ -117,7 +153,7 @@ export function DiagnosisScreen({
             </div>
           </div>
         </div>
-        <NextCard s={s} onStart={onStart} past={past} />
+        <NextCard s={s} onStart={onStart} past={past} onSwitch={onSwitch} />
       </div>
     </div>
   );
