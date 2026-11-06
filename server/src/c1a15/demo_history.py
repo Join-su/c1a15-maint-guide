@@ -27,6 +27,7 @@ DEFAULT = {"record": "H-0301", "equipment": "M-01", "days_ago": 3, "action": "4.
 
 def _parse_at(s: str | None) -> datetime:
     at = datetime.fromisoformat(s) if s else datetime.now(UTC)
+    at = at.replace(microsecond=0)  # 이력 자료 · engine _secs는 초까지(소수 초면 시간대를 잘못 읽어 며칠 전이 틀림)
     return at if at.tzinfo else at.replace(tzinfo=UTC)
 
 

@@ -103,6 +103,9 @@ def test_add_line_carries_what_the_graph_loader_reads(api, db, capsys):
         _add("--record", "H-9031", "--equipment", "M-03", "--days-ago", "2", "--action", "4.3.2")
         line = json.loads(capsys.readouterr().out.strip().splitlines()[0])
         assert line["approval"] == {"status": "승인", "by": "시연", "at": line["closed_at"]}
+        assert "." not in line["occurred_at"] and all(
+            "." not in st["at"] for st in line["steps"]
+        )  # 초까지(engine _secs · 이력 자료와 같음)
         assert sensors <= set(line["sensor_snapshot"])
         with db.connect() as c:
             real = c.execute(
