@@ -226,6 +226,12 @@
 .ap .rx .rx-h { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--ln); }
 .ap .rx .rx-h .btn { height: 36px; padding: 0 14px; }
 .ap .rx .rxs { max-height: 220px; overflow-y: auto; padding: 4px 14px 8px; }
+/* 정답지 19쪽 · D-579: 보고서 카드는 화면 높이 안 — 예외 구역이 남은 자리를 받고 넘치면 그 구역만 스크롤(칸이 길면 카드가 스크롤) */
+.ap .g73:has(> .cd > .rx) { grid-template-rows: minmax(0, 1fr); }
+.ap .g73 > .cd:has(> .rx) { display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
+.ap .g73 > .cd:has(> .rx) > * { flex-shrink: 0; }
+.ap .g73 > .cd > .rx { flex: 1 0 130px; display: flex; flex-direction: column; min-height: 130px; }
+.ap .g73 > .cd > .rx .rxs { flex: 1 1 0; min-height: 0; max-height: none; }
 .ap .rx .rxr { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 7px 0; font-size: 14px; line-height: 1.55; border-bottom: 1px solid var(--ln); }
 .ap .rx .rxr:last-child { border-bottom: 0; }
 .ap .rx .rxr > span:first-child { color: var(--sub); font-weight: 700; }

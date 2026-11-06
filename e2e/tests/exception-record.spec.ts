@@ -96,6 +96,15 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await expect(sec.locator('[data-item="checks"] > span').last()).toHaveText(CHECKS);
   await expect(sec.locator('[data-item="actions"] > span').last()).toHaveText(ACTIONS);
   await snap(page, info, "X2-report-section");
+  // 정답지 19쪽 · 사용자(D-579): 구역이 화면 안 · 넘치면 그 구역만 스크롤 · 맨 아래 줄(결과)까지 닿음
+  const secBox = (await sec.boundingBox())!;
+  expect(secBox.y + secBox.height).toBeLessThanOrEqual(800);
+  const last = sec.locator(".rxr").last();
+  await last.scrollIntoViewIfNeeded();
+  const lastBox = (await last.boundingBox())!;
+  expect(lastBox.y + lastBox.height).toBeLessThanOrEqual(800);
+  await expect(last).toBeInViewport({ ratio: 1 });
+  await snap(page, info, "X2b-report-section-scrolled");
   await pause(page);
   await sec.locator(".btn", { hasText: "예외 상황 수정" }).click(); // 같은 화면 한 번 더: 앞 내용 채운 팝업
   await expect(dlg.getByLabel("예외 글", { exact: true })).toHaveValue(TEXT);
