@@ -64,14 +64,16 @@ def _recent(graph, r, equipment_id, occurred_at, recent_work=None):
 
 
 def _secs(t):
-    """'YYYY-MM-DDTHH:MM:SS+09:00' → UTC 초(graph_query._ts와 같은 셈 · 표준 모듈 datetime 0 · 앱 engine 사본도 그대로 씀)."""
+    """'YYYY-MM-DDTHH:MM:SS[.소수][Z | +09:00 | +0900 | +09]' → UTC 초(소수 초는 버림 · 시간대 없으면 UTC · graph_query._ts도 이 함수 · 표준 모듈 datetime 0 · 앱 engine 사본도 그대로 씀)."""
     y, mo, d = int(t[0:4]), int(t[5:7]), int(t[8:10])
     y2 = y - (mo <= 2)
     era = y2 // 400
     yoe = y2 - era * 400
     doy = (153 * (mo + (-3 if mo > 2 else 9)) + 2) // 5 + d - 1
     days = era * 146097 + yoe * 365 + yoe // 4 - yoe // 100 + doy
-    off = (1 if t[19] == "+" else -1) * (int(t[20:22]) * 3600 + int(t[23:25]) * 60) if len(t) > 19 else 0
+    zone = t[19:].lstrip(".0123456789")
+    hm = zone[1:].replace(":", "")
+    off = (1 if zone[0] == "+" else -1) * (int(hm[:2]) * 3600 + int(hm[2:4] or 0) * 60) if hm else 0
     return days * 86400 + int(t[11:13]) * 3600 + int(t[14:16]) * 60 + int(t[17:19]) - off
 
 
