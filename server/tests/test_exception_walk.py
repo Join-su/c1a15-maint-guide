@@ -250,6 +250,7 @@ def test_why_line_says_what_matched(api, db, deploy):
         "matched": {
             "group": "온도 차 저하",
             "equipment_id": "M-03",
+            "source_equipment": "M-01",
             "sensors": [],
             "exception": f"EX-{hid}",
             "records": [hid],
@@ -264,7 +265,7 @@ def test_why_line_says_what_matched(api, db, deploy):
     }
     deploy.default = pack_answer_of(eg)
     tech, s = start(api, db, equipment="M-01")
-    line = f"온도 차 저하 · M-03 · 3일 전 4.3.2 흡기 필터 교체 정비 · 근거 EX-{hid}"
+    line = "M-01에서 배운 규칙 · 이 기기도 3일 전 같은 정비를 함"
     assert next(c for c in s["preview"]["candidates"] if c["exception"])["summary"] == line
     s = to_ex(tech, s, eg)
     assert s["exception_why"] == line

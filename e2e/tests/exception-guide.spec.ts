@@ -444,14 +444,14 @@ test("F3 가이드 그림 일곱(DEMO-04 길): 로그인 · 잠금 창 · 사전
 
 test("D580 후보: 진단 다른 후보 · 호출 화면 근거 한 줄 · 예외에서 매뉴얼로 바꿈 · 다시 열어도 예외 줄(사람 손 순서)", async ({ page }, info) => {
   const g = guard(page);
-  const matched = { group: "온도 차 저하", equipment_id: "M-01", sensors: [], exception: `EX-${rid}`, records: [rid], recent: { section: "4.3.2", days: 7, record_id: "H-0301", at: "2026-11-03T10:00:00+09:00", days_ago: 3.0 } };
+  const matched = { group: "온도 차 저하", equipment_id: "M-03", source_equipment: "M-01", sensors: [], exception: `EX-${rid}`, records: [rid], recent: { section: "4.3.2", days: 7, record_id: "H-0301", at: "2026-11-03T10:00:00+09:00", days_ago: 3.0 } };
   await answer({ exception_guide: guide({ minutes: 15, next_section: "4.3", checks: WALK_CHECKS, actions: WALK_ACTIONS, matched }), preview: true });
   await login(page);
   alarm("DEMO-01");
   await page.locator(".al .btn", { hasText: "점검 시작" }).click();
   await page.waitForURL(/\/session\/\d+/);
   await page.getByText("진단 보기").click();
-  const why = `온도 차 저하 · M-01 · 3일 전 4.3.2 흡기 필터 교체 정비 · 근거 EX-${rid}`;
+  const why = "M-01에서 배운 규칙 · 이 기기도 3일 전 같은 정비를 함";
   await page.locator(".nx .lk.sw").click(); // D-585 진단 카드 [점검 바꾸기]
   await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toContainText(why);
   await snap(page, info, "C1-diagnosis-candidates");

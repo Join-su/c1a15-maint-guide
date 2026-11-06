@@ -101,9 +101,12 @@ def match(graph, group, sensors, equipment_id=None, occurred_at=None, recent_wor
 
 
 def matched(graph, x, equipment_id=None, occurred_at=None, recent_work=None):
-    """맞은 조건 근거(D-580): 증상군 · 알람 설비 · 센서 조건 · 근거 예외 절 · 근거 기록 · 최근 정비면 그 이력(번호 · 시각 · 며칠 전)."""
+    """맞은 조건 근거(D-580): 증상군 · 알람 설비 · 센서 조건 · 근거 예외 절 · 근거 기록 · 최근 정비면 그 이력(번호 · 시각 · 며칠 전) · 등록 기기(D-593 · 관계 context에 있을 때만)."""
     w = x["when"]
     out = {"group": w["group"], "equipment_id": equipment_id, "sensors": list(w.get("sensors") or []), "exception": x["step"], "records": list(x.get("records") or [])}
+    source = (x.get("context") or {}).get("equipment_id")
+    if source:
+        out["source_equipment"] = source
     hit = _recent(graph, w["recent"], equipment_id, occurred_at, recent_work) if w.get("recent") else None
     if hit:
         out["recent"] = {**w["recent"], "record_id": hit[0], "at": hit[1], "days_ago": round((_secs(occurred_at) - _secs(hit[1])) / 86400, 1)}
