@@ -197,6 +197,13 @@ class CorrectionBody(_Strict):
     confirmed: bool = False  # AC-46-C3: 다시 판정으로 열린 지시가 바뀌는 확인 창을 거쳤음
 
 
+class PrecheckBody(_Strict):
+    """D-619 사전 점검 후보: 살펴봄 · 이번엔 제외(이유) — 기록만."""
+
+    choice: Literal["look", "skip"]
+    reason: str | None = Field(default=None, max_length=200)
+
+
 class NoteBody(_Strict):
     """T15 '메모 덧붙이기'(AC-48-C1): 정정하지 않는 기록에 덧붙일 메모."""
 

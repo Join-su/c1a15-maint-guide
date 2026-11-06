@@ -864,6 +864,78 @@ describe("D-546 U6 공구 교체 주의", () => {
   });
 });
 
+describe("D-619 사전 점검 후보", () => {
+  const card = (over = {}) => ({
+    pattern: "A",
+    record_id: "H-P009",
+    equipment_id: "M-04",
+    section: "4.3.2",
+    section_title: "흡기 필터 교체",
+    days_ago: 2,
+    within_days: 7,
+    follow: "필터 덮개 고정 문제",
+    look_at: "필터 덮개 고정",
+    total: 5,
+    hits: 3,
+    clean: 2,
+    basis: [
+      { record_id: "H-P001", equipment_id: "M-05", at: "2026-08-09T01:00:00Z", result: "이어짐", follow_days: 5 },
+      { record_id: "H-P005", equipment_id: "M-07", at: "2026-09-18T01:00:00Z", result: "이상 없음", follow_days: null },
+    ],
+    mark: null,
+    ...over,
+  });
+
+  it("내 알람 아래 · 설비 · 며칠 전 조치 · 몇 건 중 몇 건 · 근거 보기 창 · 없으면 칸 0", () => {
+    const home = load<Home>("home-in-progress");
+    home.prechecks = [card()];
+    const { container } = render(<HomeScreen home={home} onOpen={() => {}} />);
+    const col = container.querySelector(".g2 > div:first-child")!;
+    const pc = col.querySelector(".pck")!;
+    expect(col.querySelector(".pcl")?.previousElementSibling?.querySelector(".cd-h b")?.textContent).toBe("내 알람");
+    expect(pc.getAttribute("data-precheck")).toBe("A");
+    expect(texts(pc, ".pck-h > *")).toEqual(["한번 살펴봐 주세요", "고장 판단이 아닙니다"]);
+    expect(pc.querySelector(".pck-d")?.textContent).toBe("M-04 · 2일 전 흡기 필터 교체(4.3.2)");
+    expect(pc.querySelector(".pck-n")?.textContent).toBe(
+      "같은 조건 사례 5건 중 3건이 7일 안에 필터 덮개 고정 문제로 이어졌고, 2건은 이상 없었습니다",
+    );
+    expect(container.textContent).not.toContain("연쇄");
+    expect(container.textContent).not.toContain("예시");
+    fireEvent.click(pc.querySelector(".lk")!);
+    const dlg = container.querySelector('.modal[aria-label="과거에 같은 순서로 이어진 사례"]')!;
+    expect(dlg.textContent).toContain("살펴볼 곳 · 필터 덮개 고정");
+    expect(texts(dlg, ".pcb")).toEqual(["M-05 · 08-09 · 5일 뒤 이어짐", "M-07 · 09-18 · 이상 없음"]);
+    cleanup();
+    const none = render(<HomeScreen home={{ ...home, prechecks: [] }} onOpen={() => {}} />).container;
+    expect(none.querySelector(".pck")).toBeNull();
+  });
+
+  it("[살펴봄] 바로 기록 · [이번엔 제외]는 이유를 적어야 저장 · 기록 뒤엔 버튼 대신 한 줄", () => {
+    const home = load<Home>("home-in-progress");
+    home.prechecks = [card()];
+    const onMark = vi.fn();
+    const { container } = render(<HomeScreen home={home} onOpen={() => {}} onPrecheck={onMark} />);
+    const buttons = () => [...container.querySelectorAll(".pck-b .btn")];
+    expect(buttons().map((b) => b.textContent)).toEqual(["살펴봄", "이번엔 제외"]);
+    fireEvent.click(buttons()[0]);
+    expect(onMark.mock.calls).toEqual([["A", "H-P009", "look", undefined]]);
+    fireEvent.click(buttons()[1]);
+    const dlg = container.querySelector('.modal[aria-label="이번엔 제외"]')!;
+    const save = () => [...dlg.querySelectorAll(".btn")].find((b) => b.textContent === "저장")!;
+    expect(save().className).toContain("dis");
+    fireEvent.click(save());
+    expect(onMark).toHaveBeenCalledTimes(1);
+    fireEvent.change(dlg.querySelector("textarea")!, { target: { value: "이번 주 교체 예정" } });
+    fireEvent.click(save());
+    expect(onMark.mock.calls[1]).toEqual(["A", "H-P009", "skip", "이번 주 교체 예정"]);
+    cleanup();
+    home.prechecks = [card({ mark: { choice: "skip", by: "tech.jung", at: "2026-11-07T01:10:00Z", reason: "이번 주 교체 예정" } })];
+    const done = render(<HomeScreen home={home} onOpen={() => {}} />).container;
+    expect(done.querySelector(".pck-b .btn")).toBeNull();
+    expect(done.querySelector(".pck-m")?.textContent).toBe("이번엔 제외 · 10:10 · 이번 주 교체 예정");
+  });
+});
+
 describe("세션 화면 넘김(기기 표시)", () => {
   const mount = (view: SessionView) => {
     const ok = (data: unknown) => Promise.resolve({ data, error: undefined, response: { status: 200 } });

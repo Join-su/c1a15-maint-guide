@@ -7,6 +7,7 @@
 """
 
 import secrets
+import time
 from datetime import UTC
 from functools import lru_cache
 
@@ -30,6 +31,22 @@ def settings() -> dict:
 @lru_cache
 def client() -> Client:
     return Client(settings()["deploy_url"], DbLedger(), host_name=settings()["deploy_host"])
+
+
+_REVISION = {"at": None, "value": None}
+REVISION_KEEP = 5.0  # 홈이 5초마다 불림 — /info는 그동안 한 번(D-619)
+
+
+def revision_now(fresh: bool = False, clock=time.monotonic) -> str | None:
+    """배포 서버 지금 revision · 못 읽으면 마지막 값(전환 중 끊김 2초에 카드가 깜빡이지 않게)."""
+    t = clock()
+    if fresh or _REVISION["at"] is None or t - _REVISION["at"] >= REVISION_KEEP:
+        _REVISION["at"] = t
+        got = client().info()
+        if fresh:
+            return got
+        _REVISION["value"] = got or _REVISION["value"]
+    return _REVISION["value"]
 
 
 def session_ident(alarm_id: int) -> str:

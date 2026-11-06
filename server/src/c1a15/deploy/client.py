@@ -229,6 +229,12 @@ class Client:
         except Exception:  # 응답 상태 줄이 깨짐 등 — 같은 키 갈래로 다시(urllib가 감싸지 않는 예외)
             return Reply(None, None, transport="unreachable")
 
+    def info(self, timeout: float = 2.0) -> str | None:
+        """지금 도는 Pack revision(GET /info) — 못 읽으면 None(D-619 사전 점검 · KG 반영 뒤 대조)."""
+        r = self._http("GET", "/info", timeout)
+        pack = (r.payload or {}).get("pack") if r.status == 200 else None
+        return pack.get("pack_revision") if isinstance(pack, dict) else None
+
     def feedback(self, run_id: str, body: dict, key: str, timeout: float) -> Reply:
         """사람 체크 기록 한 장(EV-006 CH-4 · deploy 202): `POST /runs/{run_id}/feedback` 한 번 — 다시 보내지 않음.
 

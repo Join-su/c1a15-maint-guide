@@ -13,9 +13,9 @@ from sqlalchemy import Connection, select, text
 
 from c1a15 import config
 from c1a15.alarms import ml
-from c1a15.api import deps, final, history, lead, responses, screen, sessions
+from c1a15.api import deps, final, history, lead, precheck, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user, internal_token, tech_user
-from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody
+from c1a15.api.schemas import AlarmBody, CorrectionBody, EventBody, LoginBody, NoteBody, PrecheckBody
 from c1a15.db import models as m
 from c1a15.deploy import runs
 from c1a15.deploy.client import PackUnavailable
@@ -274,6 +274,18 @@ def tool_cautions(c: Connection) -> list[dict]:
     return sorted(out, key=lambda x: -x["caution_id"])
 
 
+@app.post("/api/tech/prechecks/{pattern}/{record_id}", response_model=responses.PrecheckAck)
+def tech_precheck_mark(
+    pattern: str,
+    record_id: str,
+    body: PrecheckBody,
+    user: User = Depends(tech_user),
+    c: Connection = Depends(conn, scope="function"),
+):
+    """D-619 [살펴봄] · [이번엔 제외]: 기록만(건수 안 바뀜)."""
+    return precheck.mark(c, user.user_id, pattern, record_id, body.choice, body.reason)
+
+
 @app.post("/api/tech/cautions/{caution_id}/ack", response_model=responses.ToolCautionAck)
 def tech_caution_ack(
     caution_id: int, user: User = Depends(tech_user), c: Connection = Depends(conn, scope="function")
@@ -398,6 +410,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
         "change_seq": latest,
         "shift": screen.shift_summary(len(in_progress), done=len(in_shift), calls=len(calls)),  # 결정 014 ④
         "cautions": tool_cautions(c),  # D-546 U6 공구 교체 주의
+        "prechecks": precheck.cards(c, user.user_id),  # D-619 사전 점검 후보(화면 열 때 셈)
         "recent_reports": [  # 최근 내 보고서(상태 칩), 최근 3건
             {
                 "report_id": r.report_id,

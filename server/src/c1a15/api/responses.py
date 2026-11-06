@@ -111,6 +111,45 @@ class ToolCautionAck(_Out):
     equipment_id: str
 
 
+class PrecheckBasis(_Out):
+    record_id: str
+    equipment_id: str
+    at: str
+    result: str
+    follow_days: int | None
+
+
+class PrecheckMark(_Out):
+    choice: str
+    by: str
+    at: str
+    reason: str | None
+
+
+class PrecheckCard(_Out):
+    """D-619 사전 점검 후보(고장 판단 아님): 건수는 코드가 이력에서 셈."""
+
+    pattern: str
+    record_id: str
+    equipment_id: str
+    section: str
+    section_title: str
+    days_ago: int
+    within_days: int
+    follow: str
+    look_at: str
+    total: int
+    hits: int
+    clean: int
+    basis: list[PrecheckBasis]
+    mark: PrecheckMark | None
+
+
+class PrecheckAck(_Out):
+    pattern: str
+    record_id: str
+
+
 class Home(_Out):
     alarms: list[AlarmRow]
     new_since: list[AlarmRow]
@@ -119,6 +158,7 @@ class Home(_Out):
     shift: Shift
     recent_reports: list[RecentReport]
     cautions: list[ToolCaution]
+    prechecks: list[PrecheckCard]
 
 
 class NotifyItem(_Out):

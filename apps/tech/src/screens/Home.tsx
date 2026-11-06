@@ -1,10 +1,12 @@
 // T02 홈 · T12 알람 · 할 일(종 목록). 값은 /api/tech/home · /api/tech/notifications 응답 그대로(P-19 ① · ②, S-03 P-09).
 // D-528(가이드 정비자 2): 내 알람 카드에 상태값 한 줄 · 안전 수칙 · 반려 칸 설명 문장 뺌.
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { dateTime, hhmm, Icon, num, type Home as HomeData, type Notifications } from "@c1a15/ui";
 
 type Row = HomeData["alarms"][number];
+type Precheck = HomeData["prechecks"][number];
+export type OnPrecheck = (pattern: string, recordId: string, choice: "look" | "skip", reason?: string) => void;
 
 /** 센서 값 표시: 정수면 천 단위 쉼표, 아니면 소수 한 자리(7.8 K · 1,409 rpm). */
 export const val = (v: number, unit: string) => `${num(v, Number.isInteger(v) ? 0 : 1)} ${unit}`;
@@ -37,22 +39,130 @@ export function sortedAlarms(h: HomeData): Row[] {
   return [...h.alarms].sort((a, b) => rank(a) - rank(b));
 }
 
+/** D-619 사전 점검 후보(고장 판단 아님 · 설계 4절): 내 알람 아래 · 근거 보기 · 살펴봄 · 이번엔 제외(기록만). */
+function PrecheckCard({ c, onPrecheck }: { c: Precheck; onPrecheck?: OnPrecheck }) {
+  const [basis, setBasis] = useState(false);
+  const [skipping, setSkipping] = useState(false);
+  const [reason, setReason] = useState("");
+  const when = c.days_ago > 0 ? `${c.days_ago}일 전` : "오늘";
+  const note = reason.trim();
+  return (
+    <div className="cd pck" data-precheck={c.pattern}>
+      <div className="pck-h">
+        <b>한번 살펴봐 주세요</b>
+        <span>고장 판단이 아닙니다</span>
+      </div>
+      <div className="pck-d">
+        {c.equipment_id} · {when} {c.section_title}({c.section})
+      </div>
+      <div className="pck-n">
+        같은 조건 사례 {c.total}건 중 {c.hits}건이 {c.within_days}일 안에 {c.follow}로 이어졌고, {c.clean}건은 이상
+        없었습니다
+      </div>
+      <div className="pck-f">
+        <span className="lk" role="button" tabIndex={0} onClick={() => setBasis(true)}>
+          근거 보기 ›
+        </span>
+        {c.mark ? (
+          <span className="pck-m">
+            {c.mark.choice === "look" ? "살펴봄" : "이번엔 제외"} · {hhmm(c.mark.at)}
+            {c.mark.reason ? ` · ${c.mark.reason}` : ""}
+          </span>
+        ) : (
+          <span className="pck-b">
+            <span
+              className="btn ghost"
+              role="button"
+              tabIndex={0}
+              onClick={() => onPrecheck?.(c.pattern, c.record_id, "look", undefined)}
+            >
+              살펴봄
+            </span>
+            <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSkipping(true)}>
+              이번엔 제외
+            </span>
+          </span>
+        )}
+      </div>
+      {basis ? (
+        <>
+          <div className="dim" />
+          <div className="modal pcm" role="dialog" aria-label="과거에 같은 순서로 이어진 사례">
+            <div className="mh">
+              <Icon name="history" />
+              <b>과거에 같은 순서로 이어진 사례</b>
+            </div>
+            <div className="pcs">살펴볼 곳 · {c.look_at}</div>
+            {c.basis.map((b) => (
+              <div className="pcb" key={b.record_id}>
+                {b.equipment_id} · {dateTime(b.at).slice(5, 10)} ·{" "}
+                {b.result === "이어짐" ? `${b.follow_days}일 뒤 이어짐` : b.result}
+              </div>
+            ))}
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setBasis(false)}>
+                닫기
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
+      {skipping ? (
+        <>
+          <div className="dim" />
+          <div className="modal pcm" role="dialog" aria-label="이번엔 제외">
+            <div className="mh">
+              <b>이번엔 제외</b>
+            </div>
+            <textarea
+              aria-label="이유"
+              maxLength={200}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+            />
+            <div className="mb">
+              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSkipping(false)}>
+                취소
+              </span>
+              <span
+                className={`btn${note ? "" : " dis"}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  if (!note) return;
+                  setSkipping(false);
+                  onPrecheck?.(c.pattern, c.record_id, "skip", note);
+                }}
+              >
+                저장
+              </span>
+            </div>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
 export function HomeScreen({
   home,
   onOpen,
   onResume,
   onFinal,
   onAckCaution,
+  onPrecheck,
 }: {
   home: HomeData;
   onOpen: (a: Row) => void;
   onResume?: (sessionId: number) => void;
   onFinal?: (reportId: number) => void;
   onAckCaution?: (cautionId: number) => void;
+  onPrecheck?: OnPrecheck;
 }) {
   const rows = sortedAlarms(home);
   const rejected = home.recent_reports.find((r) => r.status === "rejected");
   const s = home.shift;
+  const prechecks = home.prechecks ?? []; // D-619 사전 점검 후보(내 알람 아래)
   const cautions = home.cautions ?? []; // D-546 U6 공구 교체 주의(알람 아님 · 설비마다 확인 전 한 줄)
   return (
     <div className="ap-body nostep">
@@ -122,6 +232,13 @@ export function HomeScreen({
               })
             )}
           </div>
+          {prechecks.length ? ( // 내 알람 아래 · 후보가 많으면 이 칸만 스크롤(화면 높이 고정)
+            <div className="pcl">
+              {prechecks.map((c) => (
+                <PrecheckCard key={`${c.pattern}-${c.record_id}`} c={c} onPrecheck={onPrecheck} />
+              ))}
+            </div>
+          ) : null}
         </div>
         <div>
           <div className="cd ">

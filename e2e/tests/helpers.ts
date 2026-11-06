@@ -49,6 +49,11 @@ export function demoHistory(...args: string[]): void {
   hostPy(["-m", "c1a15.demo_history", ...args]);
 }
 
+/** D-619 사전 점검 예시 줄 넣기 — 표준 입력으로 받는 명령 그대로. */
+export function demoHistoryInput(input: string, ...args: string[]): void {
+  hostPy(["-m", "c1a15.demo_history", ...args], Buffer.from(input));
+}
+
 /** 매 시험 전: 운영 기록(알람 · 세션 · 로그인)과 등급표를 처음 상태로. */
 export function resetOps(): void {
   psql(

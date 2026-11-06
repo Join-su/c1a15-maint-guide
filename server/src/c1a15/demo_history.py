@@ -11,6 +11,8 @@
        [--check 4.3]
      python -m c1a15.demo_history list --equipment M-01 [--days 7]
      python -m c1a15.demo_history remove --record H-0301
+     python -m c1a15.demo_history precheck-add < 예시줄.jsonl   (D-619 사전 점검 예시 줄 · 표시 D-619)
+     python -m c1a15.demo_history precheck-remove             (그 표시 줄만 뺌)
 """
 
 import argparse
@@ -21,6 +23,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import Connection, text
 
 DEMO = "D-570"
+PRECHECK = "D-619"  # 사전 점검 예시 줄 표시(그래프 Record 표시 칸과 같은 값 · 화면에 안 나감)
 # 시연 기본 한 줄(D-570 덧 1 · recent-condition.md 5절 recent_record H-0301): M-01 · 3일 전 · 4.3.2 — 인자 없이
 DEFAULT = {"record": "H-0301", "equipment": "M-01", "days_ago": 3, "action": "4.3.2"}
 
@@ -94,16 +97,16 @@ def history_line(
     }
 
 
-def add(c: Connection, line: dict) -> str:
+def add(c: Connection, line: dict, mark: str = DEMO) -> str:
     """같은 번호가 시연 줄이면 바꿔 넣음 · 시연 줄 아닌 이력과 번호가 겹치면 거절(다른 이력 손 0)."""
     old = c.execute(
         text("select record->>'demo' from knowledge.history_records where record_id = :r"), {"r": line["record_id"]}
     ).first()
-    if old is not None and old[0] != DEMO:
+    if old is not None and old[0] != mark:
         raise ValueError(f"시연 줄이 아닌 이력과 번호가 겹침: {line['record_id']}")
     c.execute(
         text("delete from knowledge.history_records where record_id = :r and record->>'demo' = :d"),
-        {"r": line["record_id"], "d": DEMO},
+        {"r": line["record_id"], "d": mark},
     )
     c.execute(
         text(
@@ -130,6 +133,17 @@ def remove(c: Connection, record: str) -> int:
         text("delete from knowledge.history_records where record_id = :r and record->>'demo' = :d"),
         {"r": record, "d": DEMO},
     ).rowcount
+
+
+def precheck_add(c: Connection, lines: list[dict]) -> int:
+    """예시 줄 파일(이력 원본과 같은 칸)을 표시 D-619로 넣음 — 다시 넣으면 같은 줄."""
+    for line in lines:
+        add(c, {"provenance": f"사전 점검 예시({PRECHECK})", **line, "demo": PRECHECK}, PRECHECK)
+    return len(lines)
+
+
+def precheck_remove(c: Connection) -> int:
+    return c.execute(text("delete from knowledge.history_records where record->>'demo' = :d"), {"d": PRECHECK}).rowcount
 
 
 def listing(c: Connection, equipment: str, days: int, at: datetime) -> list[dict]:
@@ -170,6 +184,8 @@ def main(argv: list[str] | None = None) -> int:
     li.add_argument("--at")
     r = sub.add_parser("remove")
     r.add_argument("--record", default=DEFAULT["record"])
+    sub.add_parser("precheck-add")
+    sub.add_parser("precheck-remove")
     args = ap.parse_args(argv)
 
     from c1a15.api import deps
@@ -194,6 +210,11 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             print(json.dumps(line, ensure_ascii=False))  # 배포단 그래프 적재기 입력에 같은 줄
+        elif args.cmd == "precheck-add":
+            lines = [json.loads(x) for x in sys.stdin.read().splitlines() if x.strip()]
+            print(f"precheck added {precheck_add(c, lines)}", file=sys.stderr)
+        elif args.cmd == "precheck-remove":
+            print(f"precheck removed {precheck_remove(c)}", file=sys.stderr)
         elif args.cmd == "list":
             for row in listing(c, args.equipment, args.days, _parse_at(args.at)):
                 print(json.dumps(row, ensure_ascii=False))

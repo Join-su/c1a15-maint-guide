@@ -537,6 +537,8 @@ def report_decision(
                 f["text"], f["edited_by_lead"] = edits[f["key"]], True
     approval = {"mode": decision, "by": user.user_id, "at": now.isoformat(), "edits": changes, "memo": memo or None}
     rec = history_record(c, r, fields, approval)
+    # D-619: 승인 예외는 KG 반영 뒤에만 사전 점검에 듦 — 승인 대기 폴더에 쓰기 전 revision을 적어 둠
+    revision = runs.revision_now(fresh=True) if rec.get("exception_record") and not r.eval_mode else None
     added = _add_history(c, rec, r.symptom_group, r.eval_mode)
     _to_inbox(c, rec, approval["at"], r.eval_mode)
     _to_kg_inbox(c, rec, approval["at"], r.eval_mode)
@@ -552,7 +554,12 @@ def report_decision(
         user.user_id,
         "report_approve" if decision == "approve" else "report_edit_approve",
         target,
-        {"edits": changes, "memo": memo or None, "history_record_id": approval["history_record_id"]},
+        {
+            "edits": changes,
+            "memo": memo or None,
+            "history_record_id": approval["history_record_id"],
+            **({"deploy_revision": revision} if revision else {}),
+        },
         r.equipment_id,
     )
     return {"status": "approved", "history_record_id": approval["history_record_id"]}

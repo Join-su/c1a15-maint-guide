@@ -407,6 +407,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tech/prechecks/{pattern}/{record_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tech Precheck Mark
+         * @description D-619 [살펴봄] · [이번엔 제외]: 기록만(건수 안 바뀜).
+         */
+        post: operations["tech_precheck_mark_api_tech_prechecks__pattern___record_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tech/cautions/{caution_id}/ack": {
         parameters: {
             query?: never;
@@ -1733,6 +1753,8 @@ export interface components {
             alarms: components["schemas"]["AlarmRow"][];
             /** Cautions */
             cautions: components["schemas"]["ToolCaution"][];
+            /** Prechecks */
+            prechecks: components["schemas"]["PrecheckCard"][];
             /** Change Seq */
             change_seq: number;
             /** In Progress */
@@ -2078,6 +2100,77 @@ export interface components {
             memo: string;
             /** Target Seq */
             target_seq: number;
+        };
+        /** PrecheckAck */
+        PrecheckAck: {
+            /** Pattern */
+            pattern: string;
+            /** Record Id */
+            record_id: string;
+        };
+        /** PrecheckBasis */
+        PrecheckBasis: {
+            /** At */
+            at: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Follow Days */
+            follow_days: number | null;
+            /** Record Id */
+            record_id: string;
+            /** Result */
+            result: string;
+        };
+        /** PrecheckBody */
+        PrecheckBody: {
+            /**
+             * Choice
+             * @enum {string}
+             */
+            choice: "look" | "skip";
+            /** Reason */
+            reason?: string | null;
+        };
+        /** PrecheckCard */
+        PrecheckCard: {
+            /** Basis */
+            basis: components["schemas"]["PrecheckBasis"][];
+            /** Clean */
+            clean: number;
+            /** Days Ago */
+            days_ago: number;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Follow */
+            follow: string;
+            /** Hits */
+            hits: number;
+            /** Look At */
+            look_at: string;
+            mark: components["schemas"]["PrecheckMark"] | null;
+            /** Pattern */
+            pattern: string;
+            /** Record Id */
+            record_id: string;
+            /** Section */
+            section: string;
+            /** Section Title */
+            section_title: string;
+            /** Total */
+            total: number;
+            /** Within Days */
+            within_days: number;
+        };
+        /** PrecheckMark */
+        PrecheckMark: {
+            /** At */
+            at: string;
+            /** By */
+            by: string;
+            /** Choice */
+            choice: string;
+            /** Reason */
+            reason: string | null;
         };
         /** Notifications */
         Notifications: {
@@ -3442,6 +3535,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionWithPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tech_precheck_mark_api_tech_prechecks__pattern___record_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pattern: string;
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrecheckBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrecheckAck"];
                 };
             };
             /** @description Validation Error */

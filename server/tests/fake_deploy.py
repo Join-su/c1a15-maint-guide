@@ -69,6 +69,7 @@ class FakeDeploy:
         self.feedback: list[dict] = []  # 받은 사람 체크 기록(EV-006)
         self.feedback_keys: dict[str, dict] = {}
         self.feedback_fail: int | None = None
+        self.revision = "sha256:fake-first"  # D-619 GET /info(사전 점검 KG 반영 뒤 대조)
         self.done = threading.Event()  # 실행 하나가 끝나 키에 저장될 때마다 set
         fake = self
 
@@ -100,6 +101,10 @@ class FakeDeploy:
                         for r in fake.posts()
                     ]
                     return self._send(200, seen)
+                if self.path == "/info":
+                    return self._send(
+                        200, {"deployment_id": fake.deployment_id, "pack": {"pack_revision": fake.revision}}
+                    )
                 fake.requests.append({"method": "GET", "path": self.path, "headers": dict(self.headers), "body": None})
                 rid = self.path.rsplit("/", 1)[-1]
                 run = fake.runs.get(rid)
@@ -114,6 +119,9 @@ class FakeDeploy:
                     body = json.loads(raw)
                 except ValueError:
                     return self._send(400, {"error": {"code": "invalid_json", "run_id": None}})
+                if self.path == "/_revision":  # 단독 실행 때 새 그래프 배포 흉내(D-619)
+                    fake.revision = body["revision"]
+                    return self._send(200, {"revision": fake.revision})
                 if self.path == "/_plan":  # 단독 실행 때 시험 스크립트가 다음 실행 동작을 넣음(화면 한 바퀴 VC-42)
                     fake.plan = list(body)
                     return self._send(200, {"plan": len(fake.plan)})

@@ -238,3 +238,22 @@
 .ap .rx .rxr { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 7px 0; font-size: 14px; line-height: 1.55; border-bottom: 1px solid var(--ln); }
 .ap .rx .rxr:last-child { border-bottom: 0; }
 .ap .rx .rxr > span:first-child { color: var(--sub); font-weight: 700; }
+
+/* D-619 사전 점검 후보: 내 알람 아래 · 고장 판단 아님(주의 수준 · 알람 빨강 안 씀) */
+.ap .pcl { flex: 1; min-height: 0; overflow-y: auto; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.ap .g2 > div:has(> .pcl) > .cd .empty { padding: 10px 0; }
+.ap .pck { flex: none; display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; border-left: 4px solid var(--pri); }
+.ap .pck-h { display: flex; align-items: baseline; gap: 10px; }
+.ap .pck-h b { font-size: 16px; font-weight: 800; }
+.ap .pck-h span { font-size: 13px; color: var(--sub); font-weight: 600; }
+.ap .pck-d { font-size: 15px; font-weight: 700; }
+.ap .pck-n { font-size: 13px; color: var(--sub); line-height: 1.4; }
+.ap .pck-f { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
+.ap .pck-b .btn { height: 34px; padding: 0 14px; font-size: 13px; }
+.ap .pck-b { display: flex; gap: 8px; }
+.ap .pck-m { font-size: 13px; color: var(--sub); font-weight: 600; }
+.ap .modal.pcm { width: 520px; }
+.ap .pcs { font-size: 14px; font-weight: 700; margin: 6px 0 10px; }
+.ap .pcb { font-size: 14px; padding: 7px 0; border-top: 1px solid var(--ln); }
+.ap .pcm textarea { width: 100%; min-height: 90px; box-sizing: border-box; font: inherit; padding: 10px; border: 1px solid var(--ln); border-radius: 10px; margin-top: 8px; }
+.ap .pcm .mb { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
