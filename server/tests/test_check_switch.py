@@ -52,7 +52,7 @@ def test_switch_to_candidate_is_a_judge_event_pack_opens_it_then_continues(api, 
     s = to_instruct(tech, s)
     assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", "4.3")
     cands = s["switch_candidates"]
-    assert cands and all(set(x) == {"section", "title", "grade", "summary"} for x in cands)
+    assert cands and all(set(x) == {"section", "title", "grade", "summary", "exception"} for x in cands)
     assert all(x["summary"] for x in cands)  # 고침A 13쪽 제목 아래 설명(임시 = 매뉴얼 점검 방법 첫 줄)
     assert "4.3" not in {x["section"] for x in cands}  # 지금 점검은 후보 밖
     ab = next(x for x in cands if x["grade"] in {"A", "B"})

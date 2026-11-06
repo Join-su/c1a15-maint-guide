@@ -290,6 +290,23 @@ describe("T10 파트장 호출", () => {
     expect(container.querySelector(".xkr")).toBeNull();
   });
 
+  it("D-580 예외 안내 호출 화면: [점검 바꾸기] → 매뉴얼 후보 고르면 switch_check · 승인 답 뒤엔 링크 0", () => {
+    const s = load("s03-call-summary");
+    const guide = {
+      section: "EX-R-0012", relation_id: "EX-R-0012", grade: "C", title: "예외상황-덮개", topic: "덮개", text: "덮개를 본다",
+      minutes: 5, next_section: null, steps: [], basis: [], source: null, next: null, checks: null, actions: null,
+    };
+    Object.assign(s.call!, { section: "EX-R-0012", title: "덮개 볼트", exception_guide: guide, status: "none" });
+    Object.assign(s, { switch_candidates: [{ section: "4.3", title: "흡기 필터 육안 점검", grade: "A", summary: null, exception: false }] });
+    const send = vi.fn(() => Promise.resolve(true));
+    const { container } = render(
+      <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />,
+    );
+    fireEvent.click(container.querySelector(".lk.sw")!);
+    fireEvent.click(container.querySelector('.swm .swc[data-section="4.3"]')!);
+    expect(send).toHaveBeenCalledWith({ type: "switch_check", section: "4.3" });
+  });
+
   it("예외 진행 호출 후 조치(정답지 묶음 ① 16쪽): 머리 '예외 진행' · 예외 조치 · C · '예외' · 조치 잠김 · 파트장 승인 뒤 · 남은 후보 0", () => {
     const s = load("s03-call-summary");
     Object.assign(s.call!, { section: "EX-NEW", title: "예외 조치", grade: "C", minutes: null, exception_guide: null });

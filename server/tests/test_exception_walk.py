@@ -207,3 +207,30 @@ def test_real_pack_guide_preview_and_summary_name_the_first_check(api, db, deplo
     text = s["call"]["summary"]["text"]
     assert "예외상황-덮개 볼트 조임과 같은 조건 — 흡기 필터 덮개 볼트(C등급) 확인 필요" in text
     assert text.count("덮개 볼트 조임") == 1
+
+
+def test_exception_is_one_candidate_switch_to_manual_and_back_listed(api, db, deploy):
+    """D-580(사용자): 예외 안내 호출 화면에서도 [점검 바꾸기] = 매뉴얼 점검 · 바꾼 뒤 후보에 예외가 같은 줄로(예외 표시 칸)."""
+    tech, s, eg = _to_walk(api, db, deploy)
+    sec = eg["section"]
+    assert (s["step"]["kind"], s["step"]["section"]) == ("call", sec)
+    cands = {c["section"]: c for c in s["switch_candidates"]}
+    assert "4.3" in cands and sec not in cands and not any(c["exception"] for c in cands.values())
+    assert cands["4.3"]["title"] == "흡기 필터 육안 점검"
+    s = ok(tech, s, type="switch_check", section="4.3")
+    assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", "4.3")
+    row = next(c for c in s["switch_candidates"] if c["section"] == sec)
+    assert (row["title"], row["grade"], row["exception"]) == (CHECKS[0]["what"], "C", True)
+
+
+def test_diagnosis_card_lists_other_candidates_only_with_exception(api, db, deploy):
+    """D-580: 진단 카드 '다른 점검 후보' — 예외가 얽힌 세션만(보통 세션 화면은 그대로)."""
+    reset_ops(db)
+    eg = {**_guide(_approved_exception(api, db)), "topic": "필터 덮개 나사", "checks": CHECKS, "actions": ACTIONS}
+    deploy.default = pack_answer_of(eg)
+    _, s = start(api, db, equipment="M-01")
+    assert {"4.4", eg["section"]} <= {c["section"] for c in s["preview"]["candidates"]}  # 매뉴얼 · 예외 함께
+    reset_ops(db)
+    deploy.default = pack_answer_of(None)
+    _, s = start(api, db, equipment="M-01")
+    assert not s["preview"].get("candidates")

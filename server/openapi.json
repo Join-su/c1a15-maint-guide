@@ -5766,6 +5766,14 @@
       ],
       "title": "Call Reason"
      },
+     "candidates": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/SwitchCandidate"
+      },
+      "title": "Candidates",
+      "type": "array"
+     },
      "cause": {
       "anyOf": [
        {
@@ -7565,6 +7573,11 @@
     "additionalProperties": false,
     "description": "D-556 [점검 바꾸기] 후보 한 줄(판정 reason_facts.alternatives).",
     "properties": {
+     "exception": {
+      "default": false,
+      "title": "Exception",
+      "type": "boolean"
+     },
      "grade": {
       "anyOf": [
        {

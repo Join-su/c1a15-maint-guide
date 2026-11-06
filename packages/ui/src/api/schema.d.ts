@@ -21,26 +21,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/internal/exception-records": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Exception Records
-         * @description D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음. 읽기만.
-         */
-        get: operations["exception_records_api_internal_exception_records_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/internal/alarms": {
         parameters: {
             query?: never;
@@ -73,6 +53,26 @@ export interface paths {
          * @description 약속 v9 3절 기록 줄(헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검) — LLMOps가 읽음. 읽기만.
          */
         get: operations["check_records_api_internal_check_records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/internal/exception-records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exception Records
+         * @description D-538: 승인된 예외 상황 기록(정비 이력 원본 층) — LLMOps ⑥이 읽음. 읽기만.
+         */
+        get: operations["exception_records_api_internal_exception_records_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1600,13 +1600,13 @@ export interface components {
             decision: components["schemas"]["FinalDecision"] | null;
             /** Downtime */
             downtime: string;
-            exception_record: components["schemas"]["ExceptionRecord"] | null;
             /** Equipment Id */
             equipment_id: string;
             /** Equipment Type */
             equipment_type: string;
             /** Evidence Records */
             evidence_records: string;
+            exception_record: components["schemas"]["ExceptionRecord"] | null;
             /** Grade Use */
             grade_use: {
                 [key: string]: number;
@@ -2295,6 +2295,11 @@ export interface components {
         Preview: {
             /** Call Reason */
             call_reason?: string | null;
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates: components["schemas"]["SwitchCandidate"][];
             /** Cause */
             cause: string | null;
             /** Grade */
@@ -2584,6 +2589,10 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Evidence */
+            evidence: {
+                [key: string]: number;
+            };
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
             /**
              * Exception Notes
@@ -2594,10 +2603,6 @@ export interface components {
             exception_topic?: string | null;
             /** Exception Walk */
             exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
-            /** Evidence */
-            evidence: {
-                [key: string]: number;
-            };
             instruction?: components["schemas"]["Instruction"] | null;
             /** Last Seq */
             last_seq: number;
@@ -2655,6 +2660,10 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Evidence */
+            evidence: {
+                [key: string]: number;
+            };
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
             /**
              * Exception Notes
@@ -2665,10 +2674,6 @@ export interface components {
             exception_topic?: string | null;
             /** Exception Walk */
             exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
-            /** Evidence */
-            evidence: {
-                [key: string]: number;
-            };
             instruction?: components["schemas"]["Instruction"] | null;
             /** Last Seq */
             last_seq: number;
@@ -2768,6 +2773,11 @@ export interface components {
          * @description D-556 [점검 바꾸기] 후보 한 줄(판정 reason_facts.alternatives).
          */
         SwitchCandidate: {
+            /**
+             * Exception
+             * @default false
+             */
+            exception: boolean;
             /** Grade */
             grade: string | null;
             /** Section */
@@ -2858,6 +2868,41 @@ export interface operations {
             };
         };
     };
+    register_alarm_api_internal_alarms_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AlarmBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     check_records_api_internal_check_records_get: {
         parameters: {
             query?: never;
@@ -2894,41 +2939,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExceptionRecordList"];
-                };
-            };
-        };
-    };
-    register_alarm_api_internal_alarms_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AlarmBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

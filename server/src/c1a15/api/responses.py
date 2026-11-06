@@ -522,6 +522,7 @@ class SwitchCandidate(_Out):
     title: str
     grade: str | None
     summary: str | None = None  # 고침A 13쪽 제목 아래 설명(임시 = 매뉴얼 점검 방법 첫 줄 · Pack 출력 오면 그 칸)
+    exception: bool = False  # D-580 예외 후보(같은 줄 · 표시만 작게)
 
 
 class ExceptionApplied(_Out):
@@ -626,6 +627,7 @@ class Preview(_Out):
     reason: str | None = None
     reason_fallback: bool | None = None
     reason_label: str | None = None
+    candidates: list[SwitchCandidate] = []  # D-580 진단 카드 다른 후보(예외가 얽힐 때만)
 
 
 class SessionView(_Out):

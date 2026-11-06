@@ -233,8 +233,8 @@ describe("T06 점검 지시 · 결과 입력", () => {
     const s = load<SessionView>("event-instruct");
     expect(s.step.kind).toBe("instruct");
     const cands = [
-      { section: "4.4", title: "냉각 팬 회전 확인", grade: "B", summary: "팬 모듈을 꺼내 축 유격을 본다" },
-      { section: "4.6", title: "냉각 설정값 확인", grade: "C", summary: null },
+      { section: "4.4", title: "냉각 팬 회전 확인", grade: "B", summary: "팬 모듈을 꺼내 축 유격을 본다", exception: false },
+      { section: "4.6", title: "냉각 설정값 확인", grade: "C", summary: null, exception: false },
     ];
     const onSwitch = vi.fn();
     const onException = vi.fn();

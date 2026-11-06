@@ -439,6 +439,10 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
             reason_fallback=r.fallback,
             reason_label=r.label,
         )
+    # D-580: 진단 카드 후보 목록(예외가 얽힐 때만 — 보통 세션 화면은 그대로)
+    ev = events_of(c, row.session_id)
+    if flow.exception_guide_of(ev):
+        out["candidates"] = _candidate_rows(k, d, ev, row.symptom_group)
     return out
 
 
@@ -613,7 +617,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
                 minutes=item.get("minutes"),
             )
     if state.locked:  # D-556 [점검 바꾸기] 후보(점검 안내 중만 · 그 밖엔 빈 목록)
-        out["switch_candidates"] = switch_candidates(k, step, events)
+        out["switch_candidates"] = switch_candidates(k, step, events, row.symptom_group)
     out.update(flow.flow_view(c, row, state, step, events))  # S-03(P-09): 경로 · 조치 · 재가동 · 호출 · 보고서
     out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「점검방법 등록」 초안
     eg = flow.exception_guide_of(events) or {}
@@ -722,8 +726,8 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
     elif etype in {"confirm_answer", "out_of_scope_choice"} and not state.pending:
         deny("nothing_pending")
     elif etype == "switch_check":  # 약속 v9 [점검 바꾸기]: 지금 추천 후보 중 하나 → 판정 Run(Pack이 그 점검을 엶)
-        cands = {x["section"] for x in switch_candidates(k, step, events)}
-        if step.get("kind") not in SWITCHABLE or payload.get("section") not in cands:
+        cands = {x["section"] for x in switch_candidates(k, step, events, row.symptom_group)}
+        if not switchable(step) or payload.get("section") not in cands:
             deny("not_switchable")
         payload = {"section": payload["section"], "from_section": step["section"], "choice": "candidate"}
     elif etype == "exception_start":  # 약속 v9 [예외]: 호출 후 조치 / 바로 조치 → 판정 Run(절 EX-NEW)
@@ -773,11 +777,20 @@ def _auto_call(c: Connection, row: m.DiagSession, actor: str) -> None:
 SWITCHABLE = {"instruct", "instruct_after_checklist"}  # 점검 안내 중(사전 확인 · 조치 · 호출 · 보고서 단계는 0)
 
 
-def switch_candidates(k, step: dict, events: list[dict] = ()) -> list[dict]:
+def switchable(step: dict) -> bool:
+    """점검 안내 중 · 또는 승인 전 예외 안내 호출(D-580: 예외도 후보 하나 — 다른 점검으로 바꿀 수 있음)."""
+    return step.get("kind") in SWITCHABLE or (step.get("kind") == "call" and step.get("reason") == "exception_guide")
+
+
+def switch_candidates(k, step: dict, events: list[dict] = (), group: str | None = None) -> list[dict]:
     """[점검 바꾸기] 후보 = 판정이 낸 지금 점검 밖 후보(decision.reason_facts.alternatives) — 제목 · 등급표 등급.
-    바꾼 점검(결정 switched · 후보 칸 없음)이면 앞 판정 후보를 이어 씀(지금 점검 빼고 · 정답지 14쪽 '다시 바꾸기')."""
-    if step.get("kind") not in SWITCHABLE:
-        return []
+    바꾼 점검(결정 switched · 후보 칸 없음)이면 앞 판정 후보를 이어 씀(지금 점검 빼고 · 정답지 14쪽 '다시 바꾸기').
+    D-580: 판정이 후보를 안 냈는데 예외가 얽히면 그 증상군 매뉴얼 점검 · 조건 맞은 예외도 같은 줄(끝난 예외는 뺌)."""
+    return _candidate_rows(k, step, events, group) if switchable(step) else []
+
+
+def _candidate_rows(k, step: dict, events: list[dict], group: str | None) -> list[dict]:
+    eg = flow.exception_guide_of(list(events))
     alts = (step.get("reason_facts") or {}).get("alternatives") or []
     if not alts and step.get("switched"):
         alts = next(
@@ -788,16 +801,29 @@ def switch_candidates(k, step: dict, events: list[dict] = ()) -> list[dict]:
             ),
             [],
         )
+    if not alts and eg and group:
+        alts = [
+            {"section": c.section_id, "grade": k.sections[c.section_id].get("grade")} for c in k.checks.get(group, [])
+        ]
+    ex = eg.get("section") if eg else None
+    done = ex and any(e["type"] == "result" and e.get("section") == ex and not e.get("void") for e in events)
+    if ex and not done and not any(a.get("section") == ex for a in alts):
+        alts = [*alts, {"section": ex, "grade": eg.get("grade")}]
     return [
         {
             "section": a["section"],
-            "title": k.sections[a["section"]]["title"],
+            "title": (flow.first_what(eg) or eg.get("title"))
+            if a["section"] == ex
+            else k.sections[a["section"]]["title"],
             "grade": a.get("grade"),
             # 고침A 13쪽 제목 아래 설명 = Pack 후보 desc(c1a15-pack 986eaff · 매뉴얼 판정 기준 첫 문장 · LLM 0)
             "summary": a.get("desc"),
+            "exception": a["section"] == ex,
         }
         for a in alts
-        if a.get("section") in k.sections and a["section"] != step.get("section")
+        if (a.get("section") in k.sections or a.get("section") == ex)
+        and a["section"] != step.get("section")
+        and not (done and a["section"] == ex)
     ]
 
 

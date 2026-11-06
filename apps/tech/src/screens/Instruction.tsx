@@ -36,6 +36,43 @@ const EX_MODES = [
   { mode: "act_now", label: "바로 조치" },
 ] as const;
 
+/** [점검 바꾸기] 후보 줄 — 매뉴얼 · 예외 같은 모양(D-580 · 예외는 칩만 다름). */
+export function SwitchRows({
+  cands,
+  busy,
+  topic,
+  onPick,
+}: {
+  cands: NonNullable<SessionView["switch_candidates"]>;
+  busy: boolean;
+  topic?: string | null;
+  onPick: (section: string) => void;
+}) {
+  return (
+    <>
+      {cands.map((c) => (
+        <span
+          key={c.section}
+          className={`swc${busy ? " dis" : ""}`}
+          role="button"
+          tabIndex={0}
+          data-section={c.section}
+          onClick={() => !busy && onPick(c.section)}
+        >
+          <span className="swt">
+            <b>{c.title}</b>
+            {c.summary ? <span className="sws">{c.summary}</span> : null}
+          </span>
+          <span className="tags">
+            {c.grade ? <GradeBadge grade={c.grade} /> : null}
+            <SecChip section={c.section} topic={topic} />
+          </span>
+        </span>
+      ))}
+    </>
+  );
+}
+
 export function InstructionScreen(p: InstructionProps) {
   const { ins, draft } = p;
   const [switching, setSwitching] = useState<"list" | "exception" | null>(null); // [점검 바꾸기] 창 · [예외] 고름
@@ -216,29 +253,16 @@ export function InstructionScreen(p: InstructionProps) {
             </div>
             {switching === "list" ? (
               <div className="swl">
-                {cands.map((c) => (
-                  <span
-                    key={c.section}
-                    className={`swc${p.busy ? " dis" : ""}`}
-                    role="button"
-                    tabIndex={0}
-                    data-section={c.section}
-                    onClick={() => {
-                      if (p.busy || !p.onSwitch) return;
-                      setSwitching(null);
-                      p.onSwitch(c.section);
-                    }}
-                  >
-                    <span className="swt">
-                      <b>{c.title}</b>
-                      {c.summary ? <span className="sws">{c.summary}</span> : null}
-                    </span>
-                    <span className="tags">
-                      {c.grade ? <GradeBadge grade={c.grade} /> : null}
-                      <SecChip section={c.section} />
-                    </span>
-                  </span>
-                ))}
+                <SwitchRows
+                  cands={cands}
+                  busy={p.busy}
+                  topic={p.s.exception_topic}
+                  onPick={(section) => {
+                    if (!p.onSwitch) return;
+                    setSwitching(null);
+                    p.onSwitch(section);
+                  }}
+                />
                 {p.onException ? (
                   <span className={`swc swx${p.busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={() => !p.busy && setSwitching("exception")}>
                     <b>예외</b>

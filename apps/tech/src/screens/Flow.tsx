@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
+import { SwitchRows } from "./Instruction";
 import { EX_NEW, ExWalk, isException, Proc, SecChip } from "./Lock";
 
 type Call = Schemas["CallBlock"];
@@ -695,6 +696,7 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
   const [text, setText] = useState<string | null>(null);
   const ex = cor ? null : call.exception_guide; // D-543 예외 안내(약속 v8 · 예외 기록에서 온 매뉴얼 밖 점검)
   const [kf, setKf] = useState<string | null>(null); // 「노하우 등록」 글(열림 · D-556 글 하나)
+  const [switching, setSwitching] = useState(false); // D-580 예외도 후보 하나 — 승인 전 [점검 바꾸기]
   const ans = call.answer;
   const ins: Instruction | null | undefined = s.instruction;
   const editable = call.status === "none" || call.status === "waiting";
@@ -849,6 +851,39 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                     : ""}
                 </span>
               </div>
+              {editable && s.switch_candidates?.length ? (
+                <div className="refs">
+                  <span className="lk sw" role="button" tabIndex={0} onClick={() => !busy && setSwitching(true)}>
+                    <Icon name="arrow-left-right" />
+                    점검 바꾸기
+                  </span>
+                </div>
+              ) : null}
+              {switching ? (
+                <>
+                  <div className="dim" />
+                  <div className="modal swm" role="dialog" aria-label="점검 바꾸기">
+                    <div className="mh">
+                      <Icon name="arrow-left-right" />
+                      <b>점검 바꾸기</b>
+                    </div>
+                    <div className="swl">
+                      <SwitchRows
+                        cands={s.switch_candidates ?? []}
+                        busy={busy}
+                        topic={s.exception_topic}
+                        onPick={(section) => {
+                          setSwitching(false);
+                          void send({ type: "switch_check", section });
+                        }}
+                      />
+                    </div>
+                    <div className="mb">
+                      <Btn cls="ghost" label="취소" onClick={() => setSwitching(false)} />
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </>
           ) : null}
           {kf !== null ? (

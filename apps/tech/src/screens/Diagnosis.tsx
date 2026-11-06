@@ -35,6 +35,18 @@ export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; p
             <span>{p.reason}</span>
           </div>
         ) : null}
+        {p.candidates?.length ? (
+          <div className="nxc" data-part="check-cands">
+            <b>다른 점검 후보</b>
+            {p.candidates.map((c) => (
+              <div className="nxr" key={c.section} data-section={c.section}>
+                <span>{c.title}</span>
+                {c.grade ? <GradeBadge grade={c.grade} /> : null}
+                <SecChip section={c.section} topic={s.exception_topic} />
+              </div>
+            ))}
+          </div>
+        ) : null}
         {s.low_evidence ? (
           <div className="banner warn">
             <Icon name="triangle-alert" />
