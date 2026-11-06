@@ -237,10 +237,10 @@ def test_recent_exception_recommended_only_with_recent_work(api, db, deploy, day
         _add("--days-ago", str(days_ago), "--action", "4.5.2")
         tech, s = start(api, db, equipment="M-01")
         s = to_instruct(tech, s)
-        assert (s["step"]["section"] == eg["section"]) is shown
+        assert (eg["section"] in {c["section"] for c in s["switch_candidates"]}) is shown  # D-580 후보 줄
     finally:
         _drop("H-0301")
     reset_ops(db)
     tech, s = start(api, db, equipment="M-01")  # 뺀 뒤 같은 알람 = 추천 0
     s = to_instruct(tech, s)
-    assert s["step"]["section"] != eg["section"]
+    assert eg["section"] not in {c["section"] for c in s["switch_candidates"]}

@@ -622,6 +622,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
     out["exception_draft"] = flow.exception_draft_of(events)  # D-543 「점검방법 등록」 초안
     eg = flow.exception_guide_of(events) or {}
     out["exception_topic"] = eg.get("topic") or eg.get("title")  # 고침A '예외상황-{주제}'(예외 절 칩 · 이름)
+    out["exception_why"] = flow.why_line(eg, k)  # D-580 어떤 조건이 맞았나(설비 · 며칠 전 · 절 · 근거 예외)
     out["exception_walk"] = flow.walk_of(events, step)  # 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길만)
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
     return out
@@ -792,23 +793,22 @@ def switch_candidates(k, step: dict, events: list[dict] = (), group: str | None 
 def _candidate_rows(k, step: dict, events: list[dict], group: str | None) -> list[dict]:
     eg = flow.exception_guide_of(list(events))
     alts = (step.get("reason_facts") or {}).get("alternatives") or []
-    if not alts and step.get("switched"):
-        alts = next(
-            (
-                a
-                for e in reversed(events)
-                if e["type"] == "step_opened" and (a := (e["decision"].get("reason_facts") or {}).get("alternatives"))
-            ),
-            [],
-        )
-    if not alts and eg and group:
+    if not alts and step.get(
+        "switched"
+    ):  # 앞 판정들 후보를 이어 씀(늦은 것 먼저 · 예외에서 바꿔 나와도 예외 줄이 남음)
+        seen: dict[str, dict] = {}
+        for e in reversed(events):
+            if e["type"] == "step_opened":
+                for a in (e["decision"].get("reason_facts") or {}).get("alternatives") or []:
+                    seen.setdefault(a.get("section"), a)
+        alts = list(seen.values())
+    if not alts and eg and group:  # 판정이 후보를 안 낸 옛 Pack(ef9ec74 앞) — 그 증상군 매뉴얼 점검 + 예외
         alts = [
             {"section": c.section_id, "grade": k.sections[c.section_id].get("grade")} for c in k.checks.get(group, [])
         ]
+        alts = [*alts, {"section": eg.get("section"), "grade": eg.get("grade")}]
     ex = eg.get("section") if eg else None
-    done = ex and any(e["type"] == "result" and e.get("section") == ex and not e.get("void") for e in events)
-    if ex and not done and not any(a.get("section") == ex for a in alts):
-        alts = [*alts, {"section": ex, "grade": eg.get("grade")}]
+    results = {e.get("section") for e in events if e["type"] == "result" and not e.get("void")}
     return [
         {
             "section": a["section"],
@@ -817,13 +817,13 @@ def _candidate_rows(k, step: dict, events: list[dict], group: str | None) -> lis
             else k.sections[a["section"]]["title"],
             "grade": a.get("grade"),
             # 고침A 13쪽 제목 아래 설명 = Pack 후보 desc(c1a15-pack 986eaff · 매뉴얼 판정 기준 첫 문장 · LLM 0)
-            "summary": a.get("desc"),
+            "summary": a.get("desc") or (flow.why_line(eg, k) if a["section"] == ex else None),
             "exception": a["section"] == ex,
         }
         for a in alts
         if (a.get("section") in k.sections or a.get("section") == ex)
         and a["section"] != step.get("section")
-        and not (done and a["section"] == ex)
+        and a["section"] not in results
     ]
 
 

@@ -40,7 +40,10 @@ export function NextCard({ s, onStart, past }: { s: Diag; onStart: () => void; p
             <b>다른 점검 후보</b>
             {p.candidates.map((c) => (
               <div className="nxr" key={c.section} data-section={c.section}>
-                <span>{c.title}</span>
+                <span>
+                  {c.title}
+                  {c.exception && c.summary ? <small data-part="ex-why">{c.summary}</small> : null}
+                </span>
                 {c.grade ? <GradeBadge grade={c.grade} /> : null}
                 <SecChip section={c.section} topic={s.exception_topic} />
               </div>

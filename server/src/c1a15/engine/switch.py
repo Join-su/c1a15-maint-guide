@@ -1,6 +1,6 @@
 """점검 바꾸기 · 예외 진행 덧층(D-556 · 약속 v9) — 순수 함수(망 · 파일 · DB 0). 사본 session · rules는 손 0(예외 갈래 custom/exception.py처럼 바깥에서).
 꼴 정본 = orchestration agents/c1a15 handoff/d556/contract-v9.md 1 · 2절.
-- switch_check{section = 고른 점검, from_section = 그때 추천}: 고른 점검에 결과가 아직 없으면 다음 단계 = 그 점검(등급 그대로 · 결정에 switched{from, to}).
+- switch_check{section = 고른 점검 | 그 세션 예외 후보 EX-…(D-580 · 예외 걸음은 custom/exception.py가 냄), from_section = 그때 추천}: 고른 점검에 결과가 아직 없으면 다음 단계 = 그 점검(등급 그대로 · 결정에 switched{from, to}).
   결과가 오면 사본 판정 그대로 이어 감(이상 → 그 원인 조치 · 정상 → 다음 점검). 건너뛴 점검 = '안 함'(결과 0 — 정상으로 세지 않음 · 차례가 오면 다시 추천).
 - exception_start{mode = call_first | act_now}: 절 EX-NEW(등급 C) — 호출 후 조치(승인 전 조치 지시 0) / 바로 조치(파트장에게 '호출 없이 조치함') →
   조치 완료 → 재가동 → 재가동 값 → 보고서(원인 미상).
@@ -8,6 +8,7 @@
 from c1a15.engine import rules, session
 
 NEW = "EX-NEW"
+EX = "EX-"
 SAFE = {"lock", "precheck", "confirm_question", "out_of_scope"}
 TURN = {"instruct", "instruct_after_checklist", "call"}   # 점검 차례(이때만 바꾼 점검이 들어감)
 MODES = ("call_first", "act_now")
@@ -30,13 +31,13 @@ def _call_status(events, sec):
     return {"call_status": "sent" if calls[-1]["type"] == "call_sent" else "waiting"} if calls else {}
 
 
-def _switched(d, k, group, events, grades):
+def _switched(d, k, group, events, grades, relation=None):
     sw = [e for e in events if e["type"] == "switch_check"]
     checks = {c.section_id: c for c in k.checks.get(group, [])}
     for e in sw:
-        if e.get("section") not in checks:
+        if e.get("section") not in checks and not (relation and str(e.get("section")).startswith(EX)):
             raise SwitchError(f"바꾼 점검이 그 증상군 점검 절이 아님: {e.get('section')}")
-    if not sw or d["kind"] not in TURN:
+    if not sw or d["kind"] not in TURN or sw[-1]["section"].startswith(EX):
         return None
     last = sw[-1]
     s = last["section"]
@@ -89,6 +90,6 @@ def apply(d, k, request):
         if e["type"] == "exception_start" and e.get("mode") not in MODES:
             raise SwitchError(f"모르는 예외 진행 방식: {e.get('mode')}")
     if d["kind"] in SAFE:
-        _switched(d, k, request["group"], events, grades)   # 꼴 검사만
+        _switched(d, k, request["group"], events, grades, request.get("exception_relation"))   # 꼴 검사만
         return d
-    return _progress(d, events, grades) or _switched(d, k, request["group"], events, grades) or d
+    return _progress(d, events, grades) or _switched(d, k, request["group"], events, grades, request.get("exception_relation")) or d

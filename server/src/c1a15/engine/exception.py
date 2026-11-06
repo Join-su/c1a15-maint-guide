@@ -2,8 +2,10 @@
 꼴 정본 = handoff/d545/graph-shape.md 3 · 4절: exception_relations 줄 {id, step, mode, grade, when{group, sensors[[칸, 연산, 값]], equipment_id?, recent?}, cause, records, n}
 (D-570 · handoff/d570/recent-condition.md: when.recent {section 앱 번호, days 1 ~ 30} = 알람 설비 이력 중 [알람 시각 − days, 알람 시각) 안에 그 절을 한(did · checked) 이력이 있을 때만 · 설비 무관)
 · sections 예외 줄 {no = app_no = EX-<이력 번호>, kind 예외, grade, name, guide, steps, criteria, group, minutes, records}.
-흐름(약속 v10 · D-566 덧 1): 잠금 · 사전 확인 뒤 첫 점검 차례에 예외 절 먼저 → 등급 C면 파트장 승인 **예외 전체에 한 번** →
-**걸음마다** 점검 c1 → c2 … → 조치 a1 → a2 …(적은 순서 · 결과로 건너뛰지 않음 · 사건 step 칸) → 재가동 → 재가동 값 →
+흐름(D-580 · 적재된 예외 = 매뉴얼과 같은 점검 후보): 조건 맞은 예외 절은 첫 점검 차례에 후보로 뜸 — 같은 순위 셈(확률 ÷ 분 · 확률 = 관계 원인 확률 · 원인이 비면 지금 1위 원인 확률) ·
+등급 A · B면 매뉴얼 첫 추천과 견줘 크거나 같을 때 첫 추천 · 아니면(등급 C · D 포함) 후보 목록(reason_facts.alternatives)에 뜸 · 다른 후보로 바꿀 수 있음(switch_check 양쪽).
+고른 뒤(약속 v10 · D-566 덧 1): 등급 C면 파트장 승인 **예외 전체에 한 번** → **걸음마다** 점검 c1 → c2 …(적은 순서 · 사건 step 칸) →
+**점검에 '이상'이 하나도 없으면 조치로 안 가고 다음 후보**(D-580) · 있으면 조치 a1 → a2 … → 재가동 → 재가동 값 →
 정상(안)이면 보고서(반려 뒤 다시 보고서) · 아니면(밖) **원래 점검 순서(4.3 …)**(D-566 덧 2 · 그 재가동 둘은 원래 순서 판정에서 뺌).
 점검 · 조치 목록이 없는 옛 예외 절(check · action 칸 0)은 옛 길: 예외 절 점검 하나 → 결과 정상이면 원래 순서 · 이상이면 조치 → 재가동 → 보고서."""
 from c1a15.engine import rules, session
@@ -49,15 +51,16 @@ def find(graph, rel_id):
 
 
 def _recent(graph, r, equipment_id, occurred_at, recent_work=None):
-    """최근 정비 조건(D-570): 알람 설비 이력 중 [알람 시각 − days, 알람 시각) 안에 그 절을 한 이력이 있나 — 설비 · 시각 칸이 없으면 안 맞음.
+    """최근 정비 조건(D-570): 알람 설비 이력 중 [알람 시각 − days, 알람 시각) 안에 그 절을 한 가장 최근 이력 (번호, 시각) · 없으면 None — 설비 · 시각 칸이 없으면 안 맞음.
     이력 = 그래프 records(did · checked) + 요청 recent_work(앱 DB · 그 설비 것 · 그래프 반영 전 정비도 봄)."""
     if not (equipment_id and occurred_at):
-        return False
+        return None
     at = _secs(occurred_at)
     lo = at - r["days"] * 86400
-    hist = [(h["ts"], [*(h.get("did") or []), *(h.get("checked") or [])]) for h in graph.get("records") or [] if h.get("equipment") == equipment_id]
-    hist += [(w["at"], w["sections"]) for w in recent_work or []]
-    return any(lo <= _secs(ts) < at and r["section"] in secs for ts, secs in hist)
+    hist = [(h["id"], h["ts"], [*(h.get("did") or []), *(h.get("checked") or [])]) for h in graph.get("records") or [] if h.get("equipment") == equipment_id]
+    hist += [(w["record_id"], w["at"], w["sections"]) for w in recent_work or []]
+    hits = [(i, ts) for i, ts, secs in hist if lo <= _secs(ts) < at and r["section"] in secs]
+    return max(hits, key=lambda h: _secs(h[1])) if hits else None
 
 
 def _secs(t):
@@ -95,6 +98,16 @@ def match(graph, group, sensors, equipment_id=None, occurred_at=None, recent_wor
     return x, sec[x["step"]]
 
 
+def matched(graph, x, equipment_id=None, occurred_at=None, recent_work=None):
+    """맞은 조건 근거(D-580): 증상군 · 알람 설비 · 센서 조건 · 근거 예외 절 · 근거 기록 · 최근 정비면 그 이력(번호 · 시각 · 며칠 전)."""
+    w = x["when"]
+    out = {"group": w["group"], "equipment_id": equipment_id, "sensors": list(w.get("sensors") or []), "exception": x["step"], "records": list(x.get("records") or [])}
+    hit = _recent(graph, w["recent"], equipment_id, occurred_at, recent_work) if w.get("recent") else None
+    if hit:
+        out["recent"] = {**w["recent"], "record_id": hit[0], "at": hit[1], "days_ago": round((_secs(occurred_at) - _secs(hit[1])) / 86400, 1)}
+    return out
+
+
 def lists(sec):
     """예외 절의 (점검 목록, 조치 목록) — v10 checks · actions · 옛 하나 꼴(check · action)은 목록 하나로 · 없으면 빈 목록."""
     checks = list(sec.get("checks") or ([sec["check"]] if sec.get("check") else []))
@@ -108,7 +121,7 @@ def walk(sec):
     return [(f"c{i}", "check", c) for i, c in enumerate(checks, 1)] + [(f"a{i}", "action", a) for i, a in enumerate(actions, 1)]
 
 
-def guide(ex, grades, minutes, next_section):
+def guide(ex, grades, minutes, next_section, why=None):
     """start 결과 exception_guide 칸(약속 v8) — next_section = 예외 절이 없었을 때의 다음 점검(정상이면 갈 곳) · minutes = 요청 분 표 → 없으면 그래프 줄.
     D-554 · v10(D-566): 예외 절 줄의 주제 · 점검 목록 · 조치 목록 · 덧붙임(topic · checks · actions · note)은 있을 때만 그대로 싣음."""
     x, sec = ex
@@ -116,7 +129,7 @@ def guide(ex, grades, minutes, next_section):
            "text": sec.get("guide"), "steps": list(sec.get("steps") or []), "criteria": sec.get("criteria") or None, "basis": list(x.get("records") or sec.get("records") or []),
            "minutes": minutes.get(sec["no"]) or sec.get("minutes"), "next_section": next_section}
     checks, actions = lists(sec)
-    return {**out, **({"checks": checks} if checks else {}), **({"actions": actions} if actions else {}), **{k: sec[k] for k in ("topic", "note") if sec.get(k)}}
+    return {**out, **({"checks": checks} if checks else {}), **({"actions": actions} if actions else {}), **{k: sec[k] for k in ("topic", "note") if sec.get(k)}, **({"matched": why} if why else {})}
 
 
 def phase_restart(events, ex):
@@ -151,11 +164,11 @@ def without(events):
     return [e for e in events if not str(e.get("section") or "").startswith(PREFIX)]
 
 
-def step(d, ex, events, grades, layer=None):
+def step(d, ex, events, grades, layer=None, minutes=None):
     """d = 예외 절 사건을 뺀 사본 판정(원래 순서) · events = 모든 사건 → 다음 단계 하나. 결과 정상이면 d 그대로.
     예외 갈래 결정에는 relation(관계 id)과 graph{used = 관계 id, layer = 그때 그래프 layer}를 붙임(실행 기록 · LLMOps ① · deploy K6가 읽음)."""
-    out = _step(d, ex, events, grades)
-    return out if out is d else {**out, "graph": {"used": ex[0]["id"], "layer": layer}}
+    out = _step(d, ex, events, grades, minutes or {})
+    return out if out is d or out.get("section") == d.get("section") else {**out, "graph": {"used": ex[0]["id"], "layer": layer}}
 
 
 def _confirmed(events):
@@ -193,19 +206,58 @@ def _approval(mine, grade, base, head):
     return {**out, "call_status": "sent" if calls[-1]["type"] == "call_sent" else "waiting"} if calls else out
 
 
-def _walk_step(d, ex, events, grades, steps):
-    """v10 걸음 길: 승인 한 번 → c1 … → a1 … 모두(결과로 건너뛰지 않음) → 재가동 → 보고서."""
+def _score(d, ex, minutes):
+    """같은 순위 셈(D-580): (확률, 분) — 확률 = 관계 원인 확률 · 원인이 비면 지금 1위 원인 확률 · 분 = 요청 분 표 → 없으면 그래프 줄."""
+    x, sec = ex
+    probs = d.get("probabilities") or {}
+    return probs[x["cause"]] if x.get("cause") in probs else max(probs.values(), default=0), minutes.get(sec["no"]) or sec.get("minutes") or 1
+
+
+def _first(d, ex, grade, minutes):
+    """등급 A · B 예외가 매뉴얼 첫 추천과 견줘 크거나 같으면 첫 추천(rules.selectable_checks와 같게 C · D는 자동 추천 0)."""
+    if grade not in rules.INSTRUCTABLE:
+        return False
+    p, m = _score(d, ex, minutes)
+    rf = d.get("reason_facts") or {}
+    return p / m >= (rf["probability"] / rf["minutes"] if rf.get("minutes") else 0)
+
+
+def _listed(d, ex, grade):
+    """예외를 후보 목록에 더한 판정 — 첫 추천은 d 그대로."""
+    x, sec = ex
+    rf = d.get("reason_facts") or {}
+    return {**d, "reason_facts": {**rf, "alternatives": [*(rf.get("alternatives") or []), {"section": sec["no"], "grade": grade, "relation": x["id"], "title": sec.get("name")}]}}
+
+
+def _others(d):
+    """예외 차례의 바꿀 후보 = 그때 매뉴얼 첫 추천 + 나머지 후보."""
+    rf = d.get("reason_facts") or {}
+    head = [{"section": d["section"], "grade": d.get("grade")}] if d["kind"] in BEFORE and d.get("section") else []
+    return [*head, *(rf.get("alternatives") or [])]
+
+
+def _tried(mine, sec):
+    """이 예외를 해 봤고 '이상'이 없음(D-580) → 조치로 안 감 · 후보에서도 빠짐. 걸음 길은 점검을 다 본 뒤 · 옛 길은 마지막 결과."""
+    results = [e for e in mine if e["type"] == "result"]
+    values = [e.get("judged_value", e.get("value")) for e in results]
+    checks, actions = lists(sec)
+    if checks and actions:
+        return {f"c{i}" for i in range(1, len(checks) + 1)} <= {e.get("step") for e in results} and "이상" not in values
+    return bool(values) and values[-1] != "이상"
+
+
+def _walk_step(d, ex, events, grades, steps, minutes):
+    """v10 걸음 길: 승인 한 번 → c1 … → (이상이 있으면) a1 … → 재가동 → 보고서."""
     x, sec = ex
     sid, cause = sec["no"], x.get("cause")
     base = {key: d[key] for key in ("probabilities", "evidence", "low_evidence") if key in d}
     mine = [e for e in events if e.get("section") == sid and not e.get("void")]
     done = {e.get("step") for e in mine if (e["type"] == "result" and str(e.get("step", "")).startswith("c")) or (e["type"] == "action_done" and str(e.get("step", "")).startswith("a"))}
-    started = bool(done) or any(e["type"] in ("approval", "call_answer", "call_sent", "call_wait") for e in mine)
-    if not started and (d["kind"] not in BEFORE or d.get("corrected")):
-        return d
     grade = grades.get(sid) or sec.get("grade") or "C"
     head = {"section": sid, "grade": grade, "cause": cause, "reason": "exception_guide", "relation": x["id"], "steps_total": len(steps)}
-    wait = _approval(mine, grade, base, head)
+    p, m = _score(d, ex, minutes)
+    facts = {"reason_facts": {"probability": p, "minutes": m, "grade": grade, "alternatives": _others(d)}}   # 예외 차례에서도 다른 후보로 바꿈(D-580)
+    wait = _approval(mine, grade, base, {**head, **facts})
     if wait:
         return wait
     for i, (name, side, item) in enumerate(steps, 1):
@@ -213,7 +265,7 @@ def _walk_step(d, ex, events, grades, steps):
             continue
         at = {**head, "step": name, "step_index": i, side: item}
         if side == "check":
-            return {**base, "kind": "instruct", **at}
+            return {**base, "kind": "instruct", **at, **facts}
         return {**base, "kind": "action", **at, "stage": "action"}
     r, v = phase_restart(events, ex)   # D-566 덧 2: 예외 안내 뒤 재가동 확인
     outcome = "confirmed" if cause else "unknown"
@@ -228,20 +280,27 @@ def _walk_step(d, ex, events, grades, steps):
     return {**base, "kind": "report", "outcome": outcome, "cause": cause, "relation": x["id"]}
 
 
-def _step(d, ex, events, grades):
+def _step(d, ex, events, grades, minutes):
     x, sec = ex
-    steps = walk(sec)
-    if steps and lists(sec)[0] and lists(sec)[1]:
-        return _walk_step(d, ex, events, grades, steps)
     sid, cause = sec["no"], x.get("cause")
-    base = {key: d[key] for key in ("probabilities", "evidence", "low_evidence") if key in d}
     mine = [e for e in events if e.get("section") == sid and not e.get("void")]
-    results = [e.get("judged_value", e.get("value")) for e in mine if e["type"] == "result"]
     grade = grades.get(sid) or sec.get("grade") or "C"
-    head = {"section": sid, "grade": grade, "cause": cause, "reason": "exception_guide", "relation": x["id"]}
-    if not results:
+    if _tried(mine, sec):
+        return d   # 정상 · 확인 불가 → 다음 후보(원래 순서)
+    swaps = [e for e in events if e["type"] == "switch_check" and not e.get("void")]
+    left = bool(mine and swaps) and swaps[-1].get("section") != sid and swaps[-1].get("seq", 0) > max(e.get("seq", 0) for e in mine)   # 예외에서 다른 후보로 바꿈
+    if not mine or left:
         if d["kind"] not in BEFORE or d.get("corrected"):
             return d
+        if left or not _first(d, ex, grade, minutes):
+            return _listed(d, ex, grade)
+    steps = walk(sec)
+    if steps and lists(sec)[0] and lists(sec)[1]:
+        return _walk_step(d, ex, events, grades, steps, minutes)
+    base = {key: d[key] for key in ("probabilities", "evidence", "low_evidence") if key in d}
+    results = [e.get("judged_value", e.get("value")) for e in mine if e["type"] == "result"]
+    head = {"section": sid, "grade": grade, "cause": cause, "reason": "exception_guide", "relation": x["id"]}
+    if not results:
         approved = any(e["type"] == "approval" or (e["type"] == "call_answer" and e.get("answer") == "approved") for e in mine)
         decision = rules.grade_decision("A" if approved else grade)
         if decision == "call":
@@ -249,8 +308,6 @@ def _step(d, ex, events, grades):
             out = {**base, "kind": "call", **head}
             return {**out, "call_status": "sent" if calls[-1]["type"] == "call_sent" else "waiting"} if calls else out
         return {**base, "kind": decision, **head}
-    if results[-1] != "이상":
-        return d   # 정상 · 확인 불가 → 원래 순서 다음 점검
     if not any(e["type"] == "action_done" for e in mine):
         return {**base, "kind": "action", **head, "stage": "action"}
     return _after(base, events, grades, cause, x)   # 옛 길도 반려 뒤 다시 보고서(D-560 결함 고침)

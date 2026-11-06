@@ -851,6 +851,11 @@ export function CallScreen({ s, busy, approvedSeen, onApprovedSeen, onReport, se
                     : ""}
                 </span>
               </div>
+              {s.exception_why ? (
+                <div className="xwhy" data-part="ex-why">
+                  {s.exception_why}
+                </div>
+              ) : null}
               {editable && s.switch_candidates?.length ? (
                 <div className="refs">
                   <span className="lk sw" role="button" tabIndex={0} onClick={() => !busy && setSwitching(true)}>

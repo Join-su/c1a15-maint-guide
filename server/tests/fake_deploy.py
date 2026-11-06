@@ -495,9 +495,18 @@ def _judge_output(body: dict, opts: dict | None = None) -> dict:
         )
         d = session.decide(state, k, body["grades"], body["minutes"], **kw)
         if ex:
-            d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"))
+            d = exception.step(d, ex, events, body["grades"], opts.get("exception_layer"), body["minutes"])
         if body["kind"] == "judge":  # 약속 v9 = Pack custom/judge.py 차례: 판정 뒤 점검 바꾸기 · 예외 진행 덧층(사본)
-            d = switch.apply(d, k, {"events": events, "grades": body["grades"], "group": body["group"]})
+            d = switch.apply(
+                d,
+                k,
+                {
+                    "events": events,
+                    "grades": body["grades"],
+                    "group": body["group"],
+                    "exception_relation": body.get("exception_relation"),
+                },
+            )
         d = _with_desc(d, k)  # Pack 986eaff graph_query.with_desc: 후보마다 점검 설명(판정 기준 첫 문장)
         return {x: v for x, v in d.items() if x not in ("probabilities", "evidence")} if opts.get("strip") else d
 

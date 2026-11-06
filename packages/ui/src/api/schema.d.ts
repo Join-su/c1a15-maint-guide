@@ -2603,6 +2603,8 @@ export interface components {
             exception_topic?: string | null;
             /** Exception Walk */
             exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
+            /** Exception Why */
+            exception_why?: string | null;
             instruction?: components["schemas"]["Instruction"] | null;
             /** Last Seq */
             last_seq: number;
@@ -2674,6 +2676,8 @@ export interface components {
             exception_topic?: string | null;
             /** Exception Walk */
             exception_walk?: components["schemas"]["ExceptionWalkStep"][] | null;
+            /** Exception Why */
+            exception_why?: string | null;
             instruction?: components["schemas"]["Instruction"] | null;
             /** Last Seq */
             last_seq: number;

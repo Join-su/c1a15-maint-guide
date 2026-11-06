@@ -963,6 +963,21 @@ def exception_guide_of(events: list[dict]) -> dict | None:
     return next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
 
 
+def why_line(eg: dict | None, k: ManualKnowledge) -> str | None:
+    """D-580 '왜 이 예외' 한 줄 = Pack exception_guide.matched(어떤 조건이 맞았나) — 없으면 None(지어내기 0)."""
+    m_ = (eg or {}).get("matched")
+    if not m_:
+        return None
+    parts = [m_.get("group"), m_.get("equipment_id")]
+    r = m_.get("recent")
+    if r:
+        name = (k.sections.get(r["section"]) or {}).get("title") or ""
+        parts.append(f"{int(r['days_ago'])}일 전 {r['section']} {name} 정비".replace("  ", " "))
+    parts += [f"{screen.SENSORS.get(f, (f,))[0]} {op} {v}" for f, op, v in m_.get("sensors") or []]
+    parts.append(f"근거 {m_.get('exception')}")
+    return " · ".join(str(x) for x in parts if x)
+
+
 def walks(eg: dict | None) -> bool:
     """약속 v10 걸음 길: 예외 절에 점검 목록 · 조치 목록이 둘 다 있을 때만(없으면 v8 옛 길)."""
     return bool(eg and eg.get("checks") and eg.get("actions"))

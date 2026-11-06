@@ -112,6 +112,11 @@ export function InstructionScreen(p: InstructionProps) {
             </div>
           </div>
           {p.s.step.step ? <ExWalk walk={p.s.exception_walk} /> : null}
+          {isException(ins.section) && p.s.exception_why ? (
+            <div className="xwhy" data-part="ex-why">
+              {p.s.exception_why}
+            </div>
+          ) : null}
           {ins.fallback && !(p.s.recommend_handover && !p.repeatDismissed) ? (
             <div className="banner info">
               <Icon name="info" />

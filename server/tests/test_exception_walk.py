@@ -10,7 +10,7 @@ import pytest
 
 from test_api import api, db, ok, reset_ops, start, to_instruct  # noqa: F401
 from test_deploy_path import deploy  # noqa: F401
-from test_exception_guide import _approve_call, _approved_exception, _bodies, _guide
+from test_exception_guide import _approve_call, _approved_exception, _bodies, _guide, to_ex
 
 pytestmark = pytest.mark.db
 
@@ -41,14 +41,13 @@ def _to_walk(api, db, deploy):
     }
     deploy.default = pack_answer_of(eg)
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)
-    return tech, s, eg
+    return tech, to_ex(tech, s, eg), eg
 
 
 def pack_answer_of(eg):
     from fake_deploy import pack_answer
 
-    return pack_answer(exception_guide=eg)
+    return pack_answer(exception_guide=eg, preview=True)
 
 
 def test_walk_call_once_then_each_step_in_order_restart_within_report(api, db, deploy):
@@ -143,7 +142,7 @@ def test_walk_restart_outside_goes_back_to_original_order(api, db, deploy):
     _approve_call(api, eg)
     s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
     for _ in range(2):
-        s = ok(tech, s, type="result", section=sec, value="정상")
+        s = ok(tech, s, type="result", section=sec, value="이상", memo="풀림")
     for _ in range(2):
         s = ok(tech, s, type="action_done", section=sec)
     s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
@@ -164,7 +163,7 @@ def test_old_guide_without_lists_keeps_old_path(api, db, deploy):
     eg = {**_guide(_approved_exception(api, db)), "next_section": "4.3"}
     deploy.default = pack_answer_of(eg)
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)
+    s = to_ex(tech, s, eg)
     assert s["exception_walk"] is None and s["call"]["title"] == eg["title"]
     s = ok(tech, s, type="call_send")
     _approve_call(api, eg)
@@ -198,39 +197,74 @@ def test_real_pack_guide_preview_and_summary_name_the_first_check(api, db, deplo
     eg = {**REAL_GUIDE, "section": f"EX-{hid}", "relation_id": f"EX-{hid}", "basis": [hid]}
     deploy.default = pack_answer(exception_guide=eg, preview=True)
     tech, s = start(api, db, equipment="M-01")
-    pv = s["preview"]
-    assert (pv["kind"], pv["title"], pv["minutes"]) == ("call", "흡기 필터 덮개 볼트", 5)
-    assert pv["reason_fallback"] is False
-    assert pv["reason"].startswith("예외상황-덮개 볼트 조임(C등급)과 같은 조건이라 흡기 필터 덮개 볼트를 먼저 봅니다.")
-    assert pv["reason"].count("덮개 볼트 조임") == 1
-    s = to_instruct(tech, s)
+    s = to_ex(tech, s, eg)
     text = s["call"]["summary"]["text"]
     assert "예외상황-덮개 볼트 조임과 같은 조건 — 흡기 필터 덮개 볼트(C등급) 확인 필요" in text
     assert text.count("덮개 볼트 조임") == 1
 
 
-def test_exception_is_one_candidate_switch_to_manual_and_back_listed(api, db, deploy):
-    """D-580(사용자): 예외 안내 호출 화면에서도 [점검 바꾸기] = 매뉴얼 점검 · 바꾼 뒤 후보에 예외가 같은 줄로(예외 표시 칸)."""
-    tech, s, eg = _to_walk(api, db, deploy)
-    sec = eg["section"]
-    assert (s["step"]["kind"], s["step"]["section"]) == ("call", sec)
-    cands = {c["section"]: c for c in s["switch_candidates"]}
-    assert "4.3" in cands and sec not in cands and not any(c["exception"] for c in cands.values())
-    assert cands["4.3"]["title"] == "흡기 필터 육안 점검"
-    s = ok(tech, s, type="switch_check", section="4.3")
-    assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", "4.3")
-    row = next(c for c in s["switch_candidates"] if c["section"] == sec)
-    assert (row["title"], row["grade"], row["exception"]) == (CHECKS[0]["what"], "C", True)
-
-
-def test_diagnosis_card_lists_other_candidates_only_with_exception(api, db, deploy):
-    """D-580: 진단 카드 '다른 점검 후보' — 예외가 얽힌 세션만(보통 세션 화면은 그대로)."""
+def test_exception_is_one_candidate_switch_in_and_out(api, db, deploy):
+    """D-580(사용자): C 예외는 첫 추천 밖 · 후보 줄 — 바꾸기로 고름 → 호출 → 다른 점검으로 다시 바꿈 · 예외는 후보에 남음."""
     reset_ops(db)
     eg = {**_guide(_approved_exception(api, db)), "topic": "필터 덮개 나사", "checks": CHECKS, "actions": ACTIONS}
+    sec = eg["section"]
     deploy.default = pack_answer_of(eg)
-    _, s = start(api, db, equipment="M-01")
-    assert {"4.4", eg["section"]} <= {c["section"] for c in s["preview"]["candidates"]}  # 매뉴얼 · 예외 함께
+    tech, s = start(api, db, equipment="M-01")
+    assert {"4.4", sec} <= {c["section"] for c in s["preview"]["candidates"]}  # 진단 카드 다른 후보
+    s = to_instruct(tech, s)
+    assert s["step"]["section"] == "4.3"  # 첫 추천 = 매뉴얼
+    row = next(c for c in s["switch_candidates"] if c["section"] == sec)
+    assert (row["title"], row["grade"], row["exception"]) == (CHECKS[0]["what"], "C", True)
+    s = ok(tech, s, type="switch_check", section=sec)
+    assert (s["step"]["kind"], s["step"]["section"]) == ("call", sec)
+    cands = {c["section"]: c for c in s["switch_candidates"]}
+    assert "4.3" in cands and sec not in cands
+    s = ok(tech, s, type="switch_check", section="4.3")
+    assert (s["step"]["kind"], s["step"]["section"]) == ("instruct", "4.3")
+    assert sec in {c["section"] for c in s["switch_candidates"]}
+
+
+def test_normal_results_go_to_next_candidate_not_the_action(api, db, deploy):
+    """D-580(사용자): 예외 점검이 모두 정상이면 조치로 안 감 · 다음 후보 · 그 예외는 후보에서 빠짐."""
+    tech, s, eg = _to_walk(api, db, deploy)
+    sec = eg["section"]
+    s = ok(tech, s, type="call_send")
+    _approve_call(api, eg)
+    s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
+    for name in ("c1", "c2"):
+        assert (s["step"]["section"], s["step"]["step"]) == (sec, name)
+        s = ok(tech, s, type="result", section=sec, value="정상")
+    assert s["step"]["kind"] in ("instruct", "instruct_after_checklist") and s["step"]["section"] != sec
+    assert sec not in {c["section"] for c in s["switch_candidates"]}
+
+
+def test_why_line_says_what_matched(api, db, deploy):
+    """D-580 ④: 어떤 조건이 맞았나 한 줄 = Pack matched(증상군 · 설비 · 며칠 전 · 절 · 근거 예외) · 없으면 칸 0."""
     reset_ops(db)
-    deploy.default = pack_answer_of(None)
-    _, s = start(api, db, equipment="M-01")
-    assert not s["preview"].get("candidates")
+    hid = _approved_exception(api, db)
+    eg = {
+        **_guide(hid),
+        "topic": "필터 덮개 나사",
+        "checks": CHECKS,
+        "actions": ACTIONS,
+        "matched": {
+            "group": "온도 차 저하",
+            "equipment_id": "M-03",
+            "sensors": [],
+            "exception": f"EX-{hid}",
+            "records": [hid],
+            "recent": {
+                "section": "4.3.2",
+                "days": 7,
+                "record_id": "H-0301",
+                "at": "2026-11-03T10:00:00+09:00",
+                "days_ago": 3.0,
+            },
+        },
+    }
+    deploy.default = pack_answer_of(eg)
+    tech, s = start(api, db, equipment="M-01")
+    line = f"온도 차 저하 · M-03 · 3일 전 4.3.2 흡기 필터 교체 정비 · 근거 EX-{hid}"
+    assert next(c for c in s["preview"]["candidates"] if c["exception"])["summary"] == line
+    s = to_ex(tech, s, eg)
+    assert s["exception_why"] == line

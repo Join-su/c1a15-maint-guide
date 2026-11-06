@@ -23,6 +23,12 @@ from test_lead import lead
 
 pytestmark = pytest.mark.db
 
+
+def to_ex(tech, s, eg):
+    """D-580(Pack ef9ec74): C 예외는 첫 추천이 아니라 후보 — 사람이 [점검 바꾸기]로 고름."""
+    return ok(tech, to_instruct(tech, s), type="switch_check", section=eg["section"])
+
+
 TEXT = "흡기 필터를 교체한 뒤 사흘 안에 같은 알람이 다시 울리면, 덮개 고정 나사 네 개가 다 있는지 먼저 본다."
 
 
@@ -69,7 +75,7 @@ def test_exception_guide_v8_start_relation_call_block_and_send(api, db, deploy):
     deploy.default = pack_answer(exception_guide=eg)
     n_judge = len(_bodies(deploy, "judge"))
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 예외 절 먼저(그래프 꼴 4절 2)
+    s = to_ex(tech, s, eg)
     assert s["step"]["kind"] == "call" and s["step"]["section"] == eg["section"]
     judges = _bodies(deploy, "judge")[n_judge:]
     assert judges and all(b["exception_relation"] == eg["relation_id"] for b in judges)  # judge마다 다시 담음
@@ -128,9 +134,10 @@ def test_ordinary_call_has_no_exception_guide(api, db, deploy):
 
 def test_exception_guide_unknown_record_has_no_source(api, db, deploy):
     reset_ops(db)
-    deploy.default = pack_answer(exception_guide={**_guide("R-9999"), "steps": [], "criteria": None})
+    eg = {**_guide("R-9999"), "steps": [], "criteria": None}
+    deploy.default = pack_answer(exception_guide=eg)
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)
+    s = to_ex(tech, s, eg)
     g = s["call"]["exception_guide"]
     assert g["source"] is None and g["steps"] == [] and g["criteria"] is None  # 원본에 없는 기록 — 지어내기 0
 
@@ -149,7 +156,7 @@ def _to_ex_instruct(api, db, deploy, **extra):
     eg = {**_guide(hid), "minutes": 15, "next_section": "4.3", **extra}
     deploy.default = pack_answer(exception_guide=eg)
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)
+    s = to_ex(tech, s, eg)
     assert s["step"]["kind"] == "call" and s["call"]["exception_guide"]["next"] == {
         "section": "4.3",
         "title": "흡기 필터 육안 점검",
@@ -214,7 +221,7 @@ def test_exception_call_sent_shows_on_home_row(api, db, deploy):
     eg = _guide(_approved_exception(api, db))
     deploy.default = pack_answer(exception_guide=eg)
     tech, s = start(api, db, equipment="M-01")
-    s = to_instruct(tech, s)
+    s = to_ex(tech, s, eg)
     assert s["step"]["kind"] == "call" and s["call"]["exception_guide"]
     a = _home_row(tech, s)  # 야간 교대 중엔 앞 승인 보고서 알람도 완료 행으로 함께 보임
     assert a["call_sent"] is None  # 보내기 전
@@ -236,15 +243,11 @@ def test_start_with_real_pack_exception_preview(api, db, deploy, minutes, cause)
     tech, s = start(api, db, equipment="M-01")
     assert "session_id" in s, s  # 고치기 전: 500(KeyError EX-…)
     start_body = _bodies(deploy, "start")[-1]
-    pv = s["preview"]
-    assert (pv["kind"], pv["section"], pv["grade"]) == ("call", eg["section"], "C")
-    assert (pv["title"], pv["minutes"]) == (eg["title"], minutes)
-    assert eg["section"] not in pv["reason"]  # 정답지 고침A 11쪽: 기록 번호 대신 예외 이름
-    assert pv["reason_fallback"] is False and pv["reason"].startswith(
-        f"예외상황-{eg['title']}(C등급)과 같은 조건이라"
-    )  # 근거 검사 통과(원문 대체 0)
+    pv = s["preview"]  # D-580: C 예외는 첫 추천 밖 — 미리보기 = 매뉴얼 · 예외는 후보 줄
+    assert pv["kind"] != "call" and pv["section"] != eg["section"]
+    assert eg["section"] in {c["section"] for c in pv["candidates"]}
     assert start_body["kind"] == "start"
-    s = to_instruct(tech, s)  # 잠금 · 사전 확인 뒤 같은 예외 절 호출
+    s = to_ex(tech, s, eg)
     assert s["step"]["kind"] == "call" and s["step"]["section"] == eg["section"]
 
 
@@ -254,9 +257,9 @@ def test_exception_counts_as_check_grade_use_and_approved_call_row(api, db, depl
     tech, s, eg, lc, _ = _to_ex_instruct(api, db, deploy)
     sec = eg["section"]
     assert (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (
-        1,
+        2,
         4,
-    )  # 예외 절 = 첫 점검(매뉴얼 셋 + 예외 하나)
+    )  # 첫 추천 4.3을 연 뒤 바꾼 예외 절 = 둘째(매뉴얼 셋 + 예외 하나)
     s = ok(tech, s, type="result", section=sec, value="정상")
     assert s["step"]["section"] == "4.3" and (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (2, 4)
     s = ok(tech, s, type="result", section="4.3", value="이상", memo="기름때")

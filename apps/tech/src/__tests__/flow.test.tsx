@@ -297,11 +297,15 @@ describe("T10 파트장 호출", () => {
       minutes: 5, next_section: null, steps: [], basis: [], source: null, next: null, checks: null, actions: null,
     };
     Object.assign(s.call!, { section: "EX-R-0012", title: "덮개 볼트", exception_guide: guide, status: "none" });
-    Object.assign(s, { switch_candidates: [{ section: "4.3", title: "흡기 필터 육안 점검", grade: "A", summary: null, exception: false }] });
+    Object.assign(s, {
+      exception_why: "온도 차 저하 · M-03 · 3일 전 4.3.2 흡기 필터 교체 정비 · 근거 EX-R-0012",
+      switch_candidates: [{ section: "4.3", title: "흡기 필터 육안 점검", grade: "A", summary: null, exception: false }],
+    });
     const send = vi.fn(() => Promise.resolve(true));
     const { container } = render(
       <CallScreen s={s} busy={false} approvedSeen={false} onApprovedSeen={() => {}} onReport={() => {}} send={send} />,
     );
+    expect(container.querySelector('[data-part="ex-why"]')!.textContent).toContain("3일 전 4.3.2");
     fireEvent.click(container.querySelector(".lk.sw")!);
     fireEvent.click(container.querySelector('.swm .swc[data-section="4.3"]')!);
     expect(send).toHaveBeenCalledWith({ type: "switch_check", section: "4.3" });

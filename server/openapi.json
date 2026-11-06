@@ -6917,6 +6917,17 @@
       ],
       "title": "Exception Walk"
      },
+     "exception_why": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Why"
+     },
      "instruction": {
       "anyOf": [
        {
@@ -7183,6 +7194,17 @@
        }
       ],
       "title": "Exception Walk"
+     },
+     "exception_why": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Exception Why"
      },
      "instruction": {
       "anyOf": [
