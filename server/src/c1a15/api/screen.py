@@ -241,7 +241,8 @@ def decided_numbers(step: dict | None, order: list[str]) -> tuple[dict, dict] | 
 
 # 리허설 2 R3 · R6: 확률 셈에 쓴 이 설비 기록 n건 · 원인별 k건 — Pack 판정 출력 칸 이름
 # (Pack이 정한 이름으로 바꾸는 자리는 여기 하나).
-PACK_COUNT_KEYS = ("equipment_counts", "equipment_total")
+PACK_COUNT_KEYS = ("equipment_counts", "equipment_total", "count_scope")
+COUNT_SCOPES = ("equipment", "group")  # group = 이 설비 기록이 적어 같은 그룹으로 넓혀 셈
 
 
 def decided_counts(step: dict | None, order: list[str]) -> dict | None:
@@ -249,12 +250,15 @@ def decided_counts(step: dict | None, order: list[str]) -> dict | None:
 
     칸이 없거나 꼴이 다르면 None(화면은 숫자 자리 숨김).
     """
-    kc, kt = PACK_COUNT_KEYS
+    kc, kt, ks = PACK_COUNT_KEYS
     counts, total = (step or {}).get(kc), (step or {}).get(kt)
     ok = lambda v: isinstance(v, int) and not isinstance(v, bool)  # noqa: E731
     if not isinstance(counts, dict) or not ok(total) or not all(ok(v) for v in counts.values()):
         return None
-    return {"equipment_counts": in_order(counts, order), "equipment_total": total}
+    scope = (step or {}).get(ks, "equipment")  # 칸 없음 = 지금 Pack 기본(이 설비)
+    if scope not in COUNT_SCOPES:  # 모르는 값이면 '이 설비'라고 말하지 않음
+        return None
+    return {"equipment_counts": in_order(counts, order), "equipment_total": total, "count_scope": scope}
 
 
 def similar_cards(c: Connection, similar: list[dict]) -> list[dict]:

@@ -5,7 +5,8 @@
 // 오른쪽 수(evidence = 비슷한 기록 상위 10건 중 그 원인)는 출처가 달라 '근거 n' → '비슷한 기록 n건' · 순위 아래 출처 한 줄 ·
 // 100%면 까닭 한 줄 · 지시 카드 이유 아래 고르는 셈 한 줄(rules.best_pick: A · B 점검 중 원인 확률 ÷ 분이 가장 큰 것).
 // 리허설 2(R3 · R6, 표시 · 글만): 순위 줄 오른쪽 = 확률 셈에 쓴 '이 설비 기록 n건 중 k건'(Pack 판정 출력 equipment_counts · total 그대로) ·
-// 비슷한 기록은 순위 줄에서 빼고 그 칸 이름에 '다른 설비 참고 · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
+// 비슷한 기록은 순위 줄에서 빼고 그 칸 이름에 '참고(다른 설비 포함) · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
+// 같은 그룹으로 넓혀 셌으면(count_scope group) '같은 그룹 기록 n건 중 k건' · 출처 줄에 까닭.
 // n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리 숨김 · 출처 줄은 비율만 · 옛 셈의 100% 까닭 줄은 뺌(옛 값 글 남김 0).
 // 리허설 F11: 다음 점검 카드에 예외가 맞은 까닭 · 안 맞은 까닭 한 줄(서버 글 그대로).
 
@@ -25,6 +26,7 @@ type Diag = Pick<
   | "evidence"
   | "equipment_counts"
   | "equipment_total"
+  | "count_scope"
   | "cause_names"
   | "similar_cards"
   | "low_evidence"
@@ -49,12 +51,16 @@ export function rankRows(
     .sort((a, b) => b.pct - a.pct);
 }
 
-// 순위 아래 출처 한 줄: n · k 칸이 있으면 새 셈(이 설비 기록 n건 · 원인마다 기본 1건), 없으면 비율만.
+// 셈 범위: group = 이 설비 기록이 3건 미만이라 같은 그룹 기록으로 넓혀 셈(Pack count_scope).
+const isGroup = (s: Diag) => s.count_scope === "group";
+export const countWord = (s: Diag) => (isGroup(s) ? "같은 그룹 기록" : "이 설비 기록");
+
+// 순위 아래 출처 한 줄: n · k 칸이 있으면 새 셈(셈 범위 · n건 · 원인마다 기본 1건), 없으면 비율만.
 export function rankSource(s: Diag): string {
   const n = s.equipment_counts ? s.equipment_total : null;
-  return n != null
-    ? `확률: 이 설비의 지난 같은 알람 기록 ${n}건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)`
-    : "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율";
+  if (n == null) return "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율";
+  const where = isGroup(s) ? "이 설비 기록이 3건 미만이라 같은 그룹의" : "이 설비의";
+  return `확률: ${where} 지난 같은 알람 기록 ${n}건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)`;
 }
 
 // 지시 카드(A · B)만 — 호출 · 고른 점검 · 원인 모름이면 null. 분을 모르면 숫자 부분만 뺌.
@@ -239,7 +245,7 @@ export function DiagnosisScreen({
                 <span className="rv">{r.pct}%</span>
                 {r.k != null ? (
                   <span className="rs">
-                    이 설비 기록 {s.equipment_total}건 중 {r.k}건
+                    {countWord(s)} {s.equipment_total}건 중 {r.k}건
                   </span>
                 ) : null}
               </div>
@@ -254,8 +260,8 @@ export function DiagnosisScreen({
             <div className="cd-h">
               <Icon name="history" />
               <b>
-                비슷한 과거 기록 {s.similar_cards.length}건 · 다른 설비 참고 ·
-                순위 계산에 안 씀
+                비슷한 과거 기록 {s.similar_cards.length}건 · 참고(다른 설비
+                포함) · 순위 계산에 안 씀
               </b>
             </div>
             <div className="hcs">

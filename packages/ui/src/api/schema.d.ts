@@ -2231,6 +2231,8 @@ export interface components {
             correctable: boolean;
             /** Corrections */
             corrections: components["schemas"]["PastCorrection"][];
+            /** Count Scope */
+            count_scope?: string | null;
             /** Criterion */
             criterion?: string | null;
             /** Equipment Counts */
@@ -2708,6 +2710,8 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Count Scope */
+            count_scope?: string | null;
             /** Equipment Counts */
             equipment_counts?: {
                 [key: string]: number;
@@ -2789,6 +2793,8 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Count Scope */
+            count_scope?: string | null;
             /** Equipment Counts */
             equipment_counts?: {
                 [key: string]: number;

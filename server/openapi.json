@@ -5403,6 +5403,17 @@
       "title": "Corrections",
       "type": "array"
      },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
+     },
      "criterion": {
       "anyOf": [
        {
@@ -7186,6 +7197,17 @@
        }
       ]
      },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
+     },
      "equipment_counts": {
       "anyOf": [
        {
@@ -7499,6 +7521,17 @@
         "type": "null"
        }
       ]
+     },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
      },
      "equipment_counts": {
       "anyOf": [

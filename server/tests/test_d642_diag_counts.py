@@ -16,7 +16,11 @@ KC, KT, KS = screen.PACK_COUNT_KEYS
 def test_counts_come_from_the_pack_output_in_manual_order():
     step = {"probabilities": {"CL-1": 50}, "evidence": {}, KC: {"CL-3": 1, "CL-1": 4, "CL-4": 0, "CL-2": 1}, KT: 6}
     got = screen.decided_counts(step, ORDER)
-    assert got == {"equipment_counts": {"CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0}, "equipment_total": 6, "count_scope": "equipment"}
+    assert got == {
+        "equipment_counts": {"CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0},
+        "equipment_total": 6,
+        "count_scope": "equipment",
+    }
     assert list(got["equipment_counts"]) == ORDER
 
 
