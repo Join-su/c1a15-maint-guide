@@ -2,7 +2,7 @@
 // 진행 탭 = 내 알람(새 · 진행 중): 계통 · 시각 · 설비 · 알람 · 센서 값 · 경계 · 단계. 완료 탭 = 최근 내 보고서(승인 상태).
 
 import { useState } from "react";
-import { hhmm, Icon, type Home as HomeData } from "@c1a15/ui";
+import { hhmm, Icon, shortCause, type Home as HomeData } from "@c1a15/ui";
 import { dayTime, risk, val } from "./Home";
 
 type Row = HomeData["alarms"][number];
@@ -107,7 +107,7 @@ export function TodayPanel({
               <span className="n-t">{r.confirmed_at ? dayTime(r.confirmed_at) : ""}</span>
             </div>
             <b>
-              {r.equipment_id} · {r.cause}
+              {r.equipment_id} · {shortCause(r.cause, 18) /* D-637 F13: 짧게(긴 글은 최종본 안) */}
             </b>
             <div className="n-ls">
               <i className="em">📝</i>

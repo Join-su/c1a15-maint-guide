@@ -64,6 +64,18 @@ describe("왼쪽 「오늘 밤 알람」 칸", () => {
   });
 });
 
+describe("D-637 F13 완료 탭(최근 내 보고서)", () => {
+  it("확정 원인은 짧게 — 괄호 · 근거 번호 없음", () => {
+    const h = load<Home>("home-d528");
+    h.recent_reports = h.recent_reports.map((r) => ({ ...r, cause: "원인 미상, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음, 근거 사례 H-0232, H-0197, H-0155 참고" }));
+    const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);
+    fireEvent.click([...container.querySelectorAll(".tabs button")][1]);
+    const bs = texts(container, ".n-li.ro b");
+    expect(bs.length).toBe(h.recent_reports.length);
+    bs.forEach((b, i) => expect(b).toBe(`${h.recent_reports[i].equipment_id} · 원인 미상`));
+  });
+});
+
 describe("홈 내 알람 · 안내 문장", () => {
   it("내 알람 카드 한 줄: 계통 · 값 · 경계 · 방향(완료 행은 없음) · 안전 수칙은 제목만", () => {
     const h = load<Home>("home-d528");

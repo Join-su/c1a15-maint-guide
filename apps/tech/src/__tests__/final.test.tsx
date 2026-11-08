@@ -44,6 +44,26 @@ describe("「최종본 보기」 여는 곳 둘", () => {
   });
 });
 
+describe("D-637 F13 홈 최근 내 보고서 한 줄", () => {
+  it("설비 · 확정 원인 짧게 · 시각 · 상태만(긴 글 · 근거 번호는 줄에 없음, 「최종본 보기」 안에서)", () => {
+    const h = load<Home>("home-rejected");
+    h.recent_reports = h.recent_reports.map((r, i) => ({ ...r, cause: i === 0 ? "원인 미상, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음, 근거 사례 H-0232, H-0197, H-0155 참고" : "흡기 필터 표면의 기름때가 절반 이상 덮여 냉각 필터가 막힘(4.3, H-0197, H-0232, H-0155)." }));
+    const { container } = render(<HomeScreen home={h} onOpen={() => {}} onFinal={() => {}} />);
+    const rows = [...container.querySelectorAll(".rl")];
+    expect(rows.length).toBe(h.recent_reports.length);
+    rows.forEach((row, i) => {
+      const r = h.recent_reports[i];
+      const line = row.querySelector(".rl-t")?.textContent ?? "";
+      expect(line.startsWith(`${r.equipment_id} · `)).toBe(true);
+      expect(line).not.toMatch(/H-\d|EX-R|\(/);
+      expect([...line.split(" · ")[1]].length).toBeLessThanOrEqual(18);
+      expect(row.querySelector(".ch")).not.toBeNull();
+    });
+    expect(rows[0].querySelector(".rl-t")?.textContent).toMatch(/^.+ · 원인 미상( · .+)?$/);
+    expect(rows[1].querySelector(".rl-t")?.textContent).toMatch(/^.+ · …[^·]*냉각 필터가 막힘( · .+)?$/);
+  });
+});
+
 describe("정비자 최종본 화면", () => {
   it("본인 보고서 최종본: 문서(파트장과 같은 꼴) · 「보고서로」 → 그 세션 · 「출력」은 동작 0", async () => {
     const f = load<Schemas["FinalReport"]>("final-report");

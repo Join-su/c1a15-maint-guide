@@ -1,7 +1,7 @@
 // 파트장 2 승인 대기(가이드 30쪽): 요약 셋 → 확정된 보고서 → (호출 없이 조치함 · 약속 v9) → 오늘 기록(감사 기록 최근 5줄) · 처리할 호출.
 // 값은 지금 API 그대로(/api/lead/overview · /api/lead/audit · /api/lead/calls, 부록 4 — 새 API 0). 보고서 검토는 Review.tsx.
 
-import { hhmm, type Schemas } from "@c1a15/ui";
+import { hhmm, shortCause, type Schemas } from "@c1a15/ui";
 import { Bar, headDate, LBtn } from "./Frame";
 
 type Overview = Schemas["LeadOverview"];
@@ -70,7 +70,8 @@ export function ApprovalList({
                   <b>{r.equipment_id}</b>
                   <div className="m">{r.group_name}</div>
                 </td>
-                <td>{r.cause}</td>
+                {/* D-637 F10: 확정 원인은 칸 안에서 짧게 · 한 줄(긴 글은 「검토」 보고서에서) */}
+                <td className="cause">{shortCause(r.cause, 40)}</td>
                 <td>{r.author_name}</td>
                 <td className="n">{r.confirmed_at ? hhmm(r.confirmed_at) : ""}</td>
                 <td className="n">

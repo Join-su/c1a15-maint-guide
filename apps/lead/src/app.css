@@ -46,6 +46,8 @@
 .L .lt tr:last-child td { border-bottom: 0; }
 .L .lt td.n, .L .lt th.n { text-align: right; font-variant-numeric: tabular-nums; }
 .L .lt td.r { text-align: right; }
+/* D-637 F10: 확정 원인 칸이 남는 폭을 쓰고 넘치면 … — 작성 · 확정 칸이 화면 밖으로 나가지 않음 */
+.L .lt td.cause { width: 100%; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .L .lt td.w { white-space: normal; }
 .L .lt td .m { font-size: 13.5px; color: var(--lsub); margin-top: 2px; }
 .L .lt tr.pick { cursor: pointer; }
