@@ -649,6 +649,41 @@ def progress(c: Connection, row: m.DiagSession) -> dict:
     return screen.check_progress(events, k, row.symptom_group, deps.grades(c)[0], state.approvals)
 
 
+def line_of(events: list[dict], k, confirmed: str | None) -> str:
+    """D-642 R5 · R2 보고서 한 줄(정비자 홈 '최근 내 보고서' · 파트장 '확정된 보고서'): 보고서 원인 문장을 자르지 않고
+    업무 기록 값으로 — 예외 절에서 조치까지 했거나(또는 원인 확정 없이 예외 점검으로 끝남) '예외상황 · 점검 → 조치',
+    아니면 원인 이름(확정 원인 · 원인 미상 · 이상 없음 · 감시). 판정 · 보고서 칸 값은 그대로."""
+    eg = flow.exception_guide_of(events)
+    ex = {switch.NEW, *([eg["section"]] if eg and eg.get("section") else [])}
+    live = [
+        e for e in events if e["type"] in {"result", "action_done"} and not e.get("void") and e.get("section") in ex
+    ]
+    acts = [e for e in live if e["type"] == "action_done"]
+    if acts or (live and not confirmed):
+        results = [e for e in live if e["type"] == "result"]
+        found = [e for e in results if e.get("value") == "이상"] or results[-1:]  # 문제를 찾은 점검(없으면 마지막)
+        check = flow.step_title(found[-1], k, eg) if found else None
+        act = ", ".join(dict.fromkeys(flow.step_title(e, k, eg) for e in acts)) or None
+        parts = [x for x in dict.fromkeys((check, act)) if x]  # 옛 v8 안내는 점검 · 조치 이름이 같은 절 이름 — 한 번만
+        return " · ".join(["예외상황", " → ".join(parts)]) if parts else "예외상황"
+    step = current_step(events) or {}
+    outcome = step.get("outcome") or ("confirmed" if confirmed else "unknown")
+    if confirmed and outcome == "confirmed":
+        return k.cause(confirmed).name
+    return flow.OUTCOME_CAUSE.get(outcome, "원인 미상")
+
+
+def report_line(c: Connection, session_id: int) -> str:
+    """line_of를 세션 업무 기록에서(홈 · 파트장 목록 줄마다 한 번)."""
+    row = m.DiagSession(
+        **c.execute(select(m.DiagSession.__table__).where(m.DiagSession.session_id == session_id)).one()._mapping
+    )
+    events = events_of(c, session_id)
+    k = flow.knowledge_of(events)
+    state = session.fold(k, row.symptom_group, similar_of(row), fold_inputs(events))
+    return line_of(events, k, state.confirmed)
+
+
 def in_exception(c: Connection, row: m.DiagSession) -> bool:
     """왼쪽 알람 칸 '진행 중 · 예외 조치'(정답지 17쪽): [예외] 진행을 고른 세션."""
     return flow.progress_of(events_of(c, row.session_id)) is not None

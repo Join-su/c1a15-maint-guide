@@ -289,12 +289,13 @@ export function HomeScreen({
             ) : (
               home.recent_reports.map((r) => (
                 <div className="rl" key={r.report_id}>
-                  {/* D-637 F13: 설비 · 확정 원인 짧게 · 시각 · 상태만 한 줄(긴 글은 「최종본 보기」 안) */}
+                  {/* D-637 F13 · D-642: 설비 · 한 줄 값 | 시각 · 최종본 보기 · 상태(긴 글은 「최종본 보기」 안) */}
                   <span className="rl-t">
-                    <b>{r.equipment_id}</b> · {shortCause(r.cause, 18)}
-                    {r.confirmed_at ? <span className="rl-w"> · {dayTime(r.confirmed_at)}</span> : null}
+                    <b>{r.equipment_id}</b> · {r.line || shortCause(r.cause, 18) /* D-642 R5: 서버 줄 값 */}
                   </span>
                   <span className="rl-r">
+                    {/* D-642: 시각은 오른쪽 — 긴 줄이 …로 줄어도 시각 · 상태는 늘 보임 */}
+                    {r.confirmed_at ? <span className="rl-w">{dayTime(r.confirmed_at)}</span> : null}
                     {r.status !== "rejected" && onFinal ? ( // D-528 가이드 정비자 14: 최근 내 보고서 줄에서도 최종본
                       <span className="lk2" role="button" tabIndex={0} onClick={() => onFinal(r.report_id)}>
                         최종본 보기

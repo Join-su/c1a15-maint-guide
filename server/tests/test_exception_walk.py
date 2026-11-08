@@ -132,6 +132,15 @@ def test_walk_call_once_then_each_step_in_order_restart_within_report(api, db, d
     assert f["action"].startswith(f"{ACTIONS[0]['what']}({sec}, C) · {ACTIONS[1]['what']}({sec}, C) · 재가동")
     s2 = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
     assert s2["step"] == s["step"]  # 같은 화면 다시 열어도 그대로
+    # D-642 R5 · R2: 보고서 한 줄 = '예외상황 · 문제를 찾은 점검 → 조치'(원인 문장 '원인 미상…'을 자르지 않음)
+    s = ok(tech, s, type="report_confirm")
+    want = f"예외상황 · {CHECKS[1]['what']} → {ACTIONS[0]['what']}, {ACTIONS[1]['what']}"
+    rr = next(r for r in tech.get("/api/tech/home").json()["recent_reports"] if r["session_id"] == s["session_id"])
+    assert rr["line"] == want and rr["cause"] != want
+    from test_lead import lead
+
+    ov = lead(api).get("/api/lead/overview").json()
+    assert next(r for r in ov["rows"] if r["session_id"] == s["session_id"])["line"] == want
 
 
 def test_walk_restart_outside_goes_back_to_original_order(api, db, deploy):

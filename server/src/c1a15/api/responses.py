@@ -73,6 +73,7 @@ class RecentReport(_Out):
     equipment_id: str
     system: str | None = None
     cause: str
+    line: str = ""  # D-642 R5: 한 줄(예외면 '예외상황 · 점검 → 조치', 아니면 원인 이름)
     confirmed_at: str | None
     status: str
     reject_reason: str | None = None
@@ -779,6 +780,7 @@ class LeadReportRow(_Out):
     equipment_id: str
     group_name: str
     cause: str
+    line: str = ""  # D-642 R2: 한 줄(예외면 '예외상황 · 점검 → 조치', 아니면 원인 이름)
     author_name: str
     confirmed_at: str | None
     evidence_count: int

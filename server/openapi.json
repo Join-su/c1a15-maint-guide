@@ -4464,6 +4464,11 @@
       "title": "Group Name",
       "type": "string"
      },
+     "line": {
+      "default": "",
+      "title": "Line",
+      "type": "string"
+     },
      "low_evidence": {
       "title": "Low Evidence",
       "type": "boolean"
@@ -6344,6 +6349,11 @@
      },
      "equipment_id": {
       "title": "Equipment Id",
+      "type": "string"
+     },
+     "line": {
+      "default": "",
+      "title": "Line",
       "type": "string"
      },
      "reject_reason": {

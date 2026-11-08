@@ -107,7 +107,7 @@ export function TodayPanel({
               <span className="n-t">{r.confirmed_at ? dayTime(r.confirmed_at) : ""}</span>
             </div>
             <b>
-              {r.equipment_id} · {shortCause(r.cause, 18) /* D-637 F13: 짧게(긴 글은 최종본 안) */}
+              {r.equipment_id} · {r.line || shortCause(r.cause, 18) /* D-642 R5: 서버 줄 값(긴 글은 최종본 안) */}
             </b>
             <div className="n-ls">
               <i className="em">📝</i>

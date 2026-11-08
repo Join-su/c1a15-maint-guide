@@ -44,6 +44,18 @@ describe("「최종본 보기」 여는 곳 둘", () => {
   });
 });
 
+describe("D-642 R5 홈 최근 내 보고서 = 서버 줄 값", () => {
+  it("예외로 끝난 보고서는 '예외상황 · 점검 → 조치', 아니면 원인 이름(원인 문장 첫 구절 '원인 미상이며' 0)", () => {
+    const h = load<Home>("home-rejected");
+    h.recent_reports = h.recent_reports.map((r, i) => ({ ...r, cause: "원인 미상이며, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음", line: i === 0 ? "예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임" : "냉각 필터 막힘" }));
+    const { container } = render(<HomeScreen home={h} onOpen={() => {}} onFinal={() => {}} />);
+    const lines = texts(container, ".rl .rl-t");
+    expect(lines[0].startsWith(`${h.recent_reports[0].equipment_id} · 예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임`)).toBe(true);
+    expect(lines[1].startsWith(`${h.recent_reports[1].equipment_id} · 냉각 필터 막힘`)).toBe(true);
+    expect(lines.join(" ")).not.toMatch(/원인 미상이며|EX-R/);
+  });
+});
+
 describe("D-637 F13 홈 최근 내 보고서 한 줄", () => {
   it("설비 · 확정 원인 짧게 · 시각 · 상태만(긴 글 · 근거 번호는 줄에 없음, 「최종본 보기」 안에서)", () => {
     const h = load<Home>("home-rejected");

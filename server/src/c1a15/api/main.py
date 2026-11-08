@@ -418,6 +418,7 @@ def tech_home(since: int = 0, user: User = Depends(tech_user), c: Connection = D
                 "equipment_id": r.equipment_id,
                 "system": deps.group_systems()[r.symptom_group],  # D-528 왼쪽 칸 완료 탭 계통
                 "cause": next((f["text"] for f in r.fields if f["key"] == "cause"), ""),
+                "line": sessions.report_line(c, r.session_id),  # D-642 R5
                 "confirmed_at": r.confirmed_at.isoformat() if r.confirmed_at else None,
                 "status": r.status,
                 # AC-11-C1: 반려 · 사유(반려 기록은 S-04 P-11이 쓴다)
