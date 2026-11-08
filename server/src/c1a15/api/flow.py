@@ -1009,13 +1009,55 @@ def why_line(eg: dict | None) -> str | None:
     src = m_.get("source_equipment")
     same = src == m_.get("equipment_id")
     head = "이 기기에서 배운 규칙" if same else f"{src}에서 배운 규칙" if src else "배운 규칙"
+    basis = (m_.get("records") or [None])[0]
+    head += f"(근거 {basis})" if basis else ""  # D-637 F11: 무엇에서 배웠나 = 근거 기록 id
     r = m_.get("recent")
     if r:
         n = int(r["days_ago"])
         when = f"{n}일 전" if n else "오늘"
-        return f"{head} · {when} 같은 정비를 함" if same else f"{head} · 이 기기도 {when} 같은 정비를 함"
+        work = f"같은 정비({r['section']} · {r['record_id']})"  # 이 기기 것 — 절 · 이력 번호
+        return f"{head} · {when} {work}" if same else f"{head} · 이 기기도 {when} {work}"
     conds = [f"{screen.SENSORS.get(f, (f,))[0]} {op} {v}" for f, op, v in m_.get("sensors") or []]
     return " · ".join([head, *conds])
+
+
+def miss_line(source: dict | None, mine: list[dict], days: int) -> str | None:
+    """D-637 F11 '왜 예외가 아닌가' 한 줄 — 등록 예외(최근 정비 조건)의 절을
+    이 기기가 최근 days일 안에 안 했을 때만. source = {record_id, equipment_id, sections}
+    · mine = 이 기기 recent_maintenance 줄. 같은 정비가 있으면 까닭을 모르므로 None."""
+    secs = (source or {}).get("sections") or []
+    if not secs:
+        return None
+    done = {x for r in mine if r["days_before"] <= days for x in [*r["did"], *r["checked"]]}
+    if done & set(secs):
+        return None
+    where = f"{source['equipment_id']}에서 배운 규칙(근거 {source['record_id']})"
+    return f"예외 조건 안 맞음 · 최근 {days}일 같은 정비({', '.join(secs)}) 없음 · {where}"
+
+
+def exception_source(c: Connection, alarm: m.Alarm) -> dict | None:
+    """같은 증상군에서 가장 최근 승인된 예외 기록 — 그때 그 설비 최근 정비 절
+    (조치 did · 앱 번호 · 보고서 자동 정보 그대로)."""
+    r = c.execute(
+        text(
+            "select record_id, record->'exception_record'->'context' as ctx from knowledge.history_records "
+            "where source = 'approved_report' and symptom_group = :g and record->'exception_record' is not null "
+            "order by occurred_at desc, record_id desc limit 1"
+        ),
+        {"g": alarm.symptom_group},
+    ).first()
+    if r is None or not r.ctx:
+        return None
+    secs = sorted({x for w in r.ctx.get("recent_maintenance") or [] for x in w.get("did") or []})
+    return {"record_id": r.record_id, "equipment_id": r.ctx.get("equipment_id"), "sections": secs}
+
+
+def exception_miss(c: Connection, alarm: m.Alarm, eg: dict | None) -> str | None:
+    """예외 안내가 없을 때만: 등록 예외가 이 알람에 왜 안 맞았나(최근 같은 정비 없음)
+    — 진단 계산 · Pack 값 손 0(표시만)."""
+    if eg:
+        return None
+    return miss_line(exception_source(c, alarm), recent_maintenance(c, alarm), RECENT_DAYS)
 
 
 def walks(eg: dict | None) -> bool:

@@ -407,26 +407,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tech/prechecks/{pattern}/{record_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Tech Precheck Mark
-         * @description D-619 [살펴봄] · [이번엔 제외]: 기록만(건수 안 바뀜).
-         */
-        post: operations["tech_precheck_mark_api_tech_prechecks__pattern___record_id__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/tech/cautions/{caution_id}/ack": {
         parameters: {
             query?: never;
@@ -483,6 +463,26 @@ export interface paths {
         get: operations["tech_notifications_api_tech_notifications_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tech/prechecks/{pattern}/{record_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tech Precheck Mark
+         * @description D-619 [살펴봄] · [이번엔 제외]: 기록만(건수 안 바뀜).
+         */
+        post: operations["tech_precheck_mark_api_tech_prechecks__pattern___record_id__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1757,14 +1757,14 @@ export interface components {
             alarms: components["schemas"]["AlarmRow"][];
             /** Cautions */
             cautions: components["schemas"]["ToolCaution"][];
-            /** Prechecks */
-            prechecks: components["schemas"]["PrecheckCard"][];
             /** Change Seq */
             change_seq: number;
             /** In Progress */
             in_progress: components["schemas"]["InProgress"][];
             /** New Since */
             new_since: components["schemas"]["AlarmRow"][];
+            /** Prechecks */
+            prechecks: components["schemas"]["PrecheckCard"][];
             /** Recent Reports */
             recent_reports: components["schemas"]["RecentReport"][];
             shift: components["schemas"]["Shift"];
@@ -2105,77 +2105,6 @@ export interface components {
             /** Target Seq */
             target_seq: number;
         };
-        /** PrecheckAck */
-        PrecheckAck: {
-            /** Pattern */
-            pattern: string;
-            /** Record Id */
-            record_id: string;
-        };
-        /** PrecheckBasis */
-        PrecheckBasis: {
-            /** At */
-            at: string;
-            /** Equipment Id */
-            equipment_id: string;
-            /** Follow Days */
-            follow_days: number | null;
-            /** Record Id */
-            record_id: string;
-            /** Result */
-            result: string;
-        };
-        /** PrecheckBody */
-        PrecheckBody: {
-            /**
-             * Choice
-             * @enum {string}
-             */
-            choice: "look" | "skip";
-            /** Reason */
-            reason?: string | null;
-        };
-        /** PrecheckCard */
-        PrecheckCard: {
-            /** Basis */
-            basis: components["schemas"]["PrecheckBasis"][];
-            /** Clean */
-            clean: number;
-            /** Days Ago */
-            days_ago: number;
-            /** Equipment Id */
-            equipment_id: string;
-            /** Follow */
-            follow: string;
-            /** Hits */
-            hits: number;
-            /** Look At */
-            look_at: string;
-            mark: components["schemas"]["PrecheckMark"] | null;
-            /** Pattern */
-            pattern: string;
-            /** Record Id */
-            record_id: string;
-            /** Section */
-            section: string;
-            /** Section Title */
-            section_title: string;
-            /** Total */
-            total: number;
-            /** Within Days */
-            within_days: number;
-        };
-        /** PrecheckMark */
-        PrecheckMark: {
-            /** At */
-            at: string;
-            /** By */
-            by: string;
-            /** Choice */
-            choice: string;
-            /** Reason */
-            reason: string | null;
-        };
         /** Notifications */
         Notifications: {
             /** Empty */
@@ -2387,6 +2316,83 @@ export interface components {
             status: string;
             /** Title */
             title: string;
+        };
+        /** PrecheckAck */
+        PrecheckAck: {
+            /** Pattern */
+            pattern: string;
+            /** Record Id */
+            record_id: string;
+        };
+        /** PrecheckBasis */
+        PrecheckBasis: {
+            /** At */
+            at: string;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Follow Days */
+            follow_days: number | null;
+            /** Record Id */
+            record_id: string;
+            /** Result */
+            result: string;
+        };
+        /**
+         * PrecheckBody
+         * @description D-619 사전 점검 후보: 살펴봄 · 이번엔 제외(이유) — 기록만.
+         */
+        PrecheckBody: {
+            /**
+             * Choice
+             * @enum {string}
+             */
+            choice: "look" | "skip";
+            /** Reason */
+            reason?: string | null;
+        };
+        /**
+         * PrecheckCard
+         * @description D-619 사전 점검 후보(고장 판단 아님): 건수는 코드가 이력에서 셈.
+         */
+        PrecheckCard: {
+            /** Basis */
+            basis: components["schemas"]["PrecheckBasis"][];
+            /** Clean */
+            clean: number;
+            /** Days Ago */
+            days_ago: number;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Follow */
+            follow: string;
+            /** Hits */
+            hits: number;
+            /** Look At */
+            look_at: string;
+            mark: components["schemas"]["PrecheckMark"] | null;
+            /** Pattern */
+            pattern: string;
+            /** Record Id */
+            record_id: string;
+            /** Section */
+            section: string;
+            /** Section Title */
+            section_title: string;
+            /** Total */
+            total: number;
+            /** Within Days */
+            within_days: number;
+        };
+        /** PrecheckMark */
+        PrecheckMark: {
+            /** At */
+            at: string;
+            /** By */
+            by: string;
+            /** Choice */
+            choice: string;
+            /** Reason */
+            reason: string | null;
         };
         /** Preview */
         Preview: {
@@ -2701,6 +2707,8 @@ export interface components {
                 [key: string]: number;
             };
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
+            /** Exception Miss */
+            exception_miss?: string | null;
             /**
              * Exception Notes
              * @default []
@@ -2774,6 +2782,8 @@ export interface components {
                 [key: string]: number;
             };
             exception_draft?: components["schemas"]["ExceptionDraft"] | null;
+            /** Exception Miss */
+            exception_miss?: string | null;
             /**
              * Exception Notes
              * @default []
@@ -3552,42 +3562,6 @@ export interface operations {
             };
         };
     };
-    tech_precheck_mark_api_tech_prechecks__pattern___record_id__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                pattern: string;
-                record_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PrecheckBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PrecheckAck"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     tech_caution_ack_api_tech_cautions__caution_id__ack_post: {
         parameters: {
             query?: never;
@@ -3666,6 +3640,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Notifications"];
+                };
+            };
+        };
+    };
+    tech_precheck_mark_api_tech_prechecks__pattern___record_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pattern: string;
+                record_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrecheckBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrecheckAck"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
