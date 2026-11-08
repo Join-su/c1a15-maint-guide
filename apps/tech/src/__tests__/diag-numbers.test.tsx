@@ -24,7 +24,7 @@ const M03 = { "CL-1": 100, "CL-2": 0, "CL-3": 0, "CL-4": 0 };
 
 afterEach(cleanup);
 
-describe("F1 · F8 원인 후보 순위(옛 세션 = n · k 칸 없음): 비슷한 기록은 순위 칸 밖 · 100%면 까닭 한 줄", () => {
+describe("F1 · F8 원인 후보 순위(옛 세션 = n · k 칸 없음): 비슷한 기록은 순위 칸 밖 · 옛 값 100% 까닭 줄 0", () => {
   it("오른쪽 수 자리 0 · 순위 아래 출처 한 줄은 비율만 · '근거 n' · '비슷한 기록' 글자 0", () => {
     const { container } = render(<DiagnosisScreen s={shot(M01)} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk .rs")).toEqual([]);
@@ -36,18 +36,17 @@ describe("F1 · F8 원인 후보 순위(옛 세션 = n · k 칸 없음): 비슷�
     expect(container.querySelector('[data-part="rank-full"]')).toBeNull(); // 100%가 없으면 까닭 줄 0
   });
 
-  it("100%가 되면 까닭 한 줄: 이 설비의 지난 같은 알람 기록이 모두 그 원인", () => {
+  it("옛 세션이 100%여도 옛 셈의 까닭 줄은 남기지 않음(새 셈은 원인마다 기본 1건이라 100%가 안 나옴)", () => {
     const { container } = render(<DiagnosisScreen s={shot(M03)} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk .rv")).toEqual(["100%", "0%", "0%", "0%"]);
-    expect(container.querySelector('[data-part="rank-full"]')?.textContent).toBe(
-      "100%인 까닭: 이 설비의 지난 같은 알람 기록이 모두 이 원인(냉각 필터 막힘)이었습니다.",
-    );
+    expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
+    expect(container.textContent ?? "").not.toMatch(/100%인 까닭|모두 이 원인/);
   });
 
   it("지난 화면(T15)도 같은 글 · 화면 글에 내부 번호 0", () => {
     const { container } = render(<DiagnosisScreen s={shot(M03)} onRecord={() => {}} onStart={() => {}} past />);
     expect(container.querySelector('[data-part="rank-source"]')).not.toBeNull();
-    expect(container.querySelector('[data-part="rank-full"]')).not.toBeNull();
+    expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
     expect(container.textContent ?? "").not.toMatch(/D-\d|F\d\b/);
   });
 });
