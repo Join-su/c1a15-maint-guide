@@ -113,6 +113,37 @@ def test_b_card_only_a_waits_for_the_deployed_graph_then_shows_five_three(api, d
     assert len(a["basis"]) == 5
 
 
+def test_lead_overview_shows_every_card_with_owner_without_switching_user(api, db, deploy, lines):
+    """D-642 E(R8 · R11): 파트장 승인 대기 '사전 점검 후보' 칸 = 담당자 홈과 같은 셈 · 모든 담당 설비 · 담당자 이름.
+    그래프 반영(배포 revision 바뀜) 뒤 다음 조회에 A가 뜸 — 사용자 바꾸기 없이(파트장 앱은 10초마다 다시 읽음)."""
+    from test_lead import lead
+
+    lc = lead(api)
+    with db.connect() as c:
+        jung = c.execute(text("select display_name from ops.accounts where user_id = 'tech.jung'")).scalar()
+
+    def rows():
+        _fresh()
+        return lc.get("/api/lead/overview").json()["prechecks"]
+
+    assert [(x["pattern"], x["equipment_id"], x["assignee_name"], x["total"], x["hits"]) for x in rows()] == [
+        ("B", "M-04", jung, 5, 3)
+    ]
+    _approved_exception(api, db)
+    assert [x["pattern"] for x in rows()] == ["B"]  # 승인만으로는 안 뜸(담당자 홈과 같음)
+    deploy.revision = "sha256:fake-next"
+    got = rows()
+    a = next(x for x in got if x["pattern"] == "A")
+    assert (a["equipment_id"], a["assignee_name"], a["total"], a["hits"], a["look_at"]) == (
+        "M-04",
+        jung,
+        5,
+        3,
+        "필터 덮개 고정",
+    )
+    assert [(x["pattern"], x["record_id"]) for x in got] == [(x["pattern"], x["record_id"]) for x in _home(api)[1]]
+
+
 def test_only_the_owner_sees_it_and_an_alarm_since_the_action_removes_it(api, db, deploy, lines):
     _, cards = _home(api, "tech.kim")
     assert cards == []

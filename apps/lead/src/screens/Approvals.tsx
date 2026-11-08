@@ -32,6 +32,7 @@ export function ApprovalList({
   const logs = (audit?.rows ?? []).slice(0, 5);
   const open = calls?.rows ?? [];
   const acted = data.acted ?? [];
+  const prechecks = data.prechecks ?? [];
   return (
     <>
       <Bar title="승인 대기" date={headDate(data.now)} />
@@ -119,6 +120,48 @@ export function ApprovalList({
           </table>
         </div>
       ) : null}
+      {/* D-642 E(R8 · R11): 사전 점검 후보 — 담당 정비자 홈과 같은 셈(서버 값) · 모든 담당 설비 · 사용자 바꾸기 없이(10초 조회) */}
+      <div className="lsect" data-part="prechecks">
+        <div className="lsect-h">
+          사전 점검 후보<span className="c">{prechecks.length}건</span>
+          <span className="lnote">고장 판단이 아닙니다 · 담당 정비자 홈에도 같은 카드</span>
+        </div>
+        {prechecks.length ? (
+          <table className="lt">
+            <tbody>
+              <tr>
+                <th>설비</th>
+                <th>담당</th>
+                <th>앞 조치</th>
+                <th>근거</th>
+                <th>살펴볼 것</th>
+                <th>정비자 확인</th>
+              </tr>
+              {prechecks.map((p) => (
+                <tr key={`${p.pattern}-${p.record_id}`} data-precheck={p.pattern}>
+                  <td>
+                    <b>{p.equipment_id}</b>
+                  </td>
+                  <td>{p.assignee_name}</td>
+                  <td className="w">
+                    {p.section_title}({p.section}) · {p.days_ago > 0 ? `${p.days_ago}일 전` : "오늘"}
+                  </td>
+                  <td>
+                    사례 {p.total}건 중 {p.hits}건 이어짐
+                    <div className="m">
+                      {p.within_days}일 안에 {p.follow}
+                    </div>
+                  </td>
+                  <td>{p.look_at}</td>
+                  <td>{p.mark ? `${p.mark.choice === "look" ? "살펴봄" : "이번엔 제외"} · ${hhmm(p.mark.at)}` : "아직"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="lempty">사전 점검 후보가 없습니다</div>
+        )}
+      </div>
       <div className="lgrid32">
         <div className="lsect" data-part="today">
           <div className="lsect-h">
@@ -139,7 +182,7 @@ export function ApprovalList({
                     <td className="n">{hhmm(x.at)}</td>
                     <td>{appLabel(x.app)}</td>
                     <td>{x.user_name}</td>
-                    <td className="w">{x.action /* D-642 R2: 긴 행동 글은 칸 안에서 줄바꿈 */}</td>
+                    <td>{x.action}</td>
                     <td>
                       {x.report_id ? (
                         <button type="button" className="ltx" onClick={() => onOpen(x.report_id as number)}>

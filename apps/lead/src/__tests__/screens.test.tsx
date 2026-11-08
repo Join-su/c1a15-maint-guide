@@ -84,6 +84,42 @@ describe("파트장 2 승인 대기", () => {
     expect(onOpen).toHaveBeenLastCalledWith(o.rows[2].report_id);
   });
 
+  it("D-642 E: '사전 점검 후보' 칸 — 설비 · 담당 · 앞 조치 · 사례 n건 중 k건 · 살펴볼 것 · 정비자 확인(없으면 빈 안내)", () => {
+    const o = load<Schemas["LeadOverview"]>("overview-list");
+    const empty = render(<ApprovalList data={{ ...o, prechecks: [] }} audit={null} calls={null} {...props} />);
+    const sect0 = empty.container.querySelector('[data-part="prechecks"]')!;
+    expect(sect0.querySelector(".lsect-h")?.textContent).toBe("사전 점검 후보0건고장 판단이 아닙니다 · 담당 정비자 홈에도 같은 카드");
+    expect(sect0.querySelector(".lempty")?.textContent).toBe("사전 점검 후보가 없습니다");
+    cleanup();
+    const card = {
+      pattern: "A",
+      record_id: "H-P009",
+      equipment_id: "M-04",
+      section: "4.3.2",
+      section_title: "흡기 필터 교체",
+      days_ago: 2,
+      within_days: 7,
+      follow: "필터 덮개 고정 문제",
+      look_at: "필터 덮개 고정",
+      total: 5,
+      hits: 3,
+      clean: 2,
+      basis: [],
+      mark: null,
+      assignee: "tech.jung",
+      assignee_name: "정 정비",
+    };
+    const marked = { ...card, equipment_id: "M-12", mark: { choice: "look", by: "tech.jung", at: "2026-11-08T10:40:00Z", reason: null } };
+    const { container } = render(<ApprovalList data={{ ...o, prechecks: [card, marked] }} audit={null} calls={null} {...props} />);
+    const sect = container.querySelector('[data-part="prechecks"]')!;
+    expect(sect.querySelector(".lsect-h")?.textContent).toBe("사전 점검 후보2건고장 판단이 아닙니다 · 담당 정비자 홈에도 같은 카드");
+    expect(texts(sect, "th")).toEqual(["설비", "담당", "앞 조치", "근거", "살펴볼 것", "정비자 확인"]);
+    const row = sect.querySelector("tr[data-precheck]")!;
+    expect(texts(row, "td")).toEqual(["M-04", "정 정비", "흡기 필터 교체(4.3.2) · 2일 전", "사례 5건 중 3건 이어짐7일 안에 필터 덮개 고정 문제", "필터 덮개 고정", "아직"]);
+    expect(texts(sect, "tr[data-precheck] td:last-child")[1]).toBe("살펴봄 · 19:40");
+    expect(sect.textContent).not.toMatch(/H-P|D-\d/);
+  });
+
   it("D-642 R2 · R5: 확정된 보고서 한 줄 = 서버 줄 값(예외면 '예외상황 · 점검 → 조치', 아니면 원인 이름) — 원인 문장을 자르지 않음", () => {
     const o = load<Schemas["LeadOverview"]>("overview-list");
     o.rows[0] = { ...o.rows[0], cause: "원인 미상이며, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음", line: "예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임" };
