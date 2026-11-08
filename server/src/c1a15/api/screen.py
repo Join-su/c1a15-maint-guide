@@ -239,6 +239,24 @@ def decided_numbers(step: dict | None, order: list[str]) -> tuple[dict, dict] | 
     return in_order(step["probabilities"], order), in_order(step["evidence"], order)
 
 
+# 리허설 2 R3 · R6: 확률 셈에 쓴 이 설비 기록 n건 · 원인별 k건 — Pack 판정 출력 칸 이름
+# (Pack이 정한 이름으로 바꾸는 자리는 여기 하나).
+PACK_COUNT_KEYS = ("equipment_counts", "equipment_total")
+
+
+def decided_counts(step: dict | None, order: list[str]) -> dict | None:
+    """화면 순위 줄 '이 설비 기록 n건 중 k건' = Pack 판정 출력 그대로(앱이 다시 세지 않음).
+
+    칸이 없거나 꼴이 다르면 None(화면은 숫자 자리 숨김).
+    """
+    kc, kt = PACK_COUNT_KEYS
+    counts, total = (step or {}).get(kc), (step or {}).get(kt)
+    ok = lambda v: isinstance(v, int) and not isinstance(v, bool)  # noqa: E731
+    if not isinstance(counts, dict) or not ok(total) or not all(ok(v) for v in counts.values()):
+        return None
+    return {"equipment_counts": in_order(counts, order), "equipment_total": total}
+
+
 def similar_cards(c: Connection, similar: list[dict]) -> list[dict]:
     """T04 기록 카드 = R3 상위 3건 가운데 근거가 되는 기록(R6 score ≥ 0.5).
 

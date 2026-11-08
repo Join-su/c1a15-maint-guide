@@ -119,6 +119,8 @@ export function PastScreen(p: PastProps) {
           s={{
             probabilities: r.probabilities ?? {},
             evidence: r.evidence ?? {},
+            equipment_counts: r.equipment_counts,
+            equipment_total: r.equipment_total,
             cause_names: r.cause_names ?? {},
             similar_cards: r.similar_cards ?? [],
             low_evidence: !!r.low_evidence,

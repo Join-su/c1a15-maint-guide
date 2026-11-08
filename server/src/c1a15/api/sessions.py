@@ -315,6 +315,7 @@ def create(c: Connection, alarm: m.Alarm, user_id: str) -> int:
         "preview": pv,
         "probabilities": probs,
         "evidence": evidence,
+        **(screen.decided_counts(decided[0], order) or {}),  # 리허설 2 R3 · R6: 그때 순위 줄 n건 중 k건
     }
     if pack_preview is not None:
         snap["decision"] = pack_preview
@@ -544,6 +545,7 @@ def view(c: Connection, row: m.DiagSession) -> dict:
         "lock_at": next((e["at"] for e in reversed(events) if e["type"] == "lock"), None) if state.locked else None,
         "probabilities": probs,
         "evidence": evidence,
+        **(screen.decided_counts(step, order) or {}),  # 리허설 2 R3 · R6: 순위 줄 n건 중 k건(Pack 출력)
         "low_evidence": rules.low_evidence(state.similar),
         "top_records": [s["record_id"] for s in row.similar[:3]],
         "similar_basis": "상위 10건",

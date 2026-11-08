@@ -1,3 +1,4 @@
+# ruff: noqa: E501 — 시험 설명 문장은 길이 제한 밖
 """리허설 2 R3 · R6(A 진단 숫자 · 앱 몫, 표시만 · 셈 손 0): 순위 줄은 확률 셈에 쓴 이 설비 기록 n건 중 k건을 보인다.
 
 n · k는 Pack 판정 출력이 준 그대로(앱이 다시 세지 않음) · 칸이 없거나 꼴이 다르면 None(옛 Pack · 옛 세션 → 화면은 숫자 자리를 숨김).
@@ -30,8 +31,13 @@ def test_no_counts_or_odd_shape_gives_none():
 
 
 def test_reason_calls_the_alternatives_the_manuals_other_checks():
-    facts = {"cause_name": "냉각 필터 막힘", "probability": 50, "minutes": 3, "grade": "A",
-             "alternatives": [{"section": "4.4", "grade": "C"}, {"section": "4.5", "grade": "A"}]}
+    facts = {
+        "cause_name": "냉각 필터 막힘",
+        "probability": 50,
+        "minutes": 3,
+        "grade": "A",
+        "alternatives": [{"section": "4.4", "grade": "C"}, {"section": "4.5", "grade": "A"}],
+    }
     for rank in (1, 2):
         text = FixtureAdapter().write(Facts("reason", "4.3", {**facts, "rank": rank})).text
         assert text.endswith("매뉴얼의 다른 점검: 4.4(C), 4.5(A).")

@@ -686,6 +686,8 @@ class SessionView(_Out):
     alarm_ack_at: str | None = None  # EV-007: 알람 화면 확인 시각(없으면 잠금 거절)
     probabilities: dict[str, int]
     evidence: dict[str, int]
+    equipment_counts: dict[str, int] | None = None  # 리허설 2 R3 · R6: 확률 셈의 이 설비 원인별 k건(Pack 출력)
+    equipment_total: int | None = None  # 같은 셈의 이 설비 기록 n건
     low_evidence: bool
     top_records: list[str]
     similar_basis: str
@@ -1169,6 +1171,8 @@ class PastRecord(_Out):
     alarm: AlarmBlock | None = None
     probabilities: dict[str, int] | None = None
     evidence: dict[str, int] | None = None
+    equipment_counts: dict[str, int] | None = None  # 리허설 2 R3 · R6: 그때 순위 줄 n건 중 k건(없으면 숨김)
+    equipment_total: int | None = None
     cause_names: dict[str, str] | None = None
     similar_cards: list[RecordCard] | None = None
     low_evidence: bool | None = None

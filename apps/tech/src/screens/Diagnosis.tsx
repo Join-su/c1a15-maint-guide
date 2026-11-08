@@ -4,6 +4,9 @@
 // D-637(리허설 F1 · F8 · F2 · 표시 · 글만, 셈 손 0): 확률(판정 출력 probabilities = 이 설비의 지난 같은 알람 기록 원인 비율)과
 // 오른쪽 수(evidence = 비슷한 기록 상위 10건 중 그 원인)는 출처가 달라 '근거 n' → '비슷한 기록 n건' · 순위 아래 출처 한 줄 ·
 // 100%면 까닭 한 줄 · 지시 카드 이유 아래 고르는 셈 한 줄(rules.best_pick: A · B 점검 중 원인 확률 ÷ 분이 가장 큰 것).
+// 리허설 2(R3 · R6, 표시 · 글만): 순위 줄 오른쪽 = 확률 셈에 쓴 '이 설비 기록 n건 중 k건'(Pack 판정 출력 equipment_counts · total 그대로) ·
+// 비슷한 기록은 순위 줄에서 빼고 그 칸 이름에 '다른 설비 참고 · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
+// n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리 숨김 · 출처 줄은 비율만 · 100%면 D-637 까닭 줄 그대로.
 // 리허설 F11: 다음 점검 카드에 예외가 맞은 까닭 · 안 맞은 까닭 한 줄(서버 글 그대로).
 
 import { useState } from "react";
@@ -20,6 +23,8 @@ type Diag = Pick<
   SessionWithPreview,
   | "probabilities"
   | "evidence"
+  | "equipment_counts"
+  | "equipment_total"
   | "cause_names"
   | "similar_cards"
   | "low_evidence"
@@ -31,18 +36,26 @@ type Diag = Pick<
 
 export function rankRows(
   s: Diag,
-): { code: string; name: string; pct: number; n: number }[] {
+): { code: string; name: string; pct: number; n: number; k: number | null }[] {
+  const counts = s.equipment_total != null ? s.equipment_counts : null;
   return Object.entries(s.probabilities)
     .map(([code, pct]) => ({
       code,
       name: s.cause_names[code] ?? code,
       pct,
       n: s.evidence[code] ?? 0,
+      k: counts ? (counts[code] ?? 0) : null,
     }))
     .sort((a, b) => b.pct - a.pct);
 }
 
-const RANK_SOURCE = "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율 · 비슷한 기록: 비슷한 과거 기록 상위 10건 중 그 원인 수";
+// 순위 아래 출처 한 줄: n · k 칸이 있으면 새 셈(이 설비 기록 n건 · 원인마다 기본 1건), 없으면 비율만.
+export function rankSource(s: Diag): string {
+  const n = s.equipment_counts ? s.equipment_total : null;
+  return n != null
+    ? `확률: 이 설비의 지난 같은 알람 기록 ${n}건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)`
+    : "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율";
+}
 
 // 지시 카드(A · B)만 — 호출 · 고른 점검 · 원인 모름이면 null. 분을 모르면 숫자 부분만 뺌.
 export function pickRule(s: Diag): string | null {
@@ -217,22 +230,26 @@ export function DiagnosisScreen({
               ) : null}
             </div>
             {rows.map((r, i) => (
-              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 48px 104px" }}>
+              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 48px 148px" }}>
                 <span className="rn">{i + 1}</span>
                 <b>{r.name}</b>
                 <span className="rb">
                   <i style={{ width: `${r.pct}%` }} />
                 </span>
                 <span className="rv">{r.pct}%</span>
-                <span className="rs">비슷한 기록 {r.n}건</span>
+                {r.k != null ? (
+                  <span className="rs">
+                    이 설비 기록 {s.equipment_total}건 중 {r.k}건
+                  </span>
+                ) : null}
               </div>
             ))}
             {rows.length ? (
               <div className="rs" data-part="rank-source" style={{ marginTop: 10, lineHeight: 1.6 }}>
-                {RANK_SOURCE}
+                {rankSource(s)}
               </div>
             ) : null}
-            {rows[0]?.pct === 100 ? (
+            {rows[0]?.pct === 100 && rows[0].k == null ? (
               <div className="rs" data-part="rank-full" style={{ marginTop: 4, lineHeight: 1.6 }}>
                 100%인 까닭: 이 설비의 지난 같은 알람 기록이 모두 이 원인({rows[0].name})이었습니다.
               </div>
@@ -241,7 +258,10 @@ export function DiagnosisScreen({
           <div className="cd mt">
             <div className="cd-h">
               <Icon name="history" />
-              <b>비슷한 과거 기록 {s.similar_cards.length}건 · 상위 10건 중</b>
+              <b>
+                비슷한 과거 기록 {s.similar_cards.length}건 · 다른 설비 참고 ·
+                순위 계산에 안 씀
+              </b>
             </div>
             <div className="hcs">
               {s.similar_cards.map((c) => (

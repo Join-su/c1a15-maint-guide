@@ -5414,6 +5414,31 @@
       ],
       "title": "Criterion"
      },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
+     },
      "evidence": {
       "anyOf": [
        {
@@ -7161,6 +7186,31 @@
        }
       ]
      },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
+     },
      "evidence": {
       "additionalProperties": {
        "type": "integer"
@@ -7449,6 +7499,31 @@
         "type": "null"
        }
       ]
+     },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
      },
      "evidence": {
       "additionalProperties": {

@@ -2233,6 +2233,12 @@ export interface components {
             corrections: components["schemas"]["PastCorrection"][];
             /** Criterion */
             criterion?: string | null;
+            /** Equipment Counts */
+            equipment_counts?: {
+                [key: string]: number;
+            } | null;
+            /** Equipment Total */
+            equipment_total?: number | null;
             /** Evidence */
             evidence?: {
                 [key: string]: number;
@@ -2702,6 +2708,12 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Equipment Counts */
+            equipment_counts?: {
+                [key: string]: number;
+            } | null;
+            /** Equipment Total */
+            equipment_total?: number | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
@@ -2777,6 +2789,12 @@ export interface components {
                 [key: string]: string;
             };
             correction?: components["schemas"]["Correction"] | null;
+            /** Equipment Counts */
+            equipment_counts?: {
+                [key: string]: number;
+            } | null;
+            /** Equipment Total */
+            equipment_total?: number | null;
             /** Evidence */
             evidence: {
                 [key: string]: number;
