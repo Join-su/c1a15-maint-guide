@@ -54,6 +54,16 @@ export function NextCard({
   const pick = p.picked;
   const call = !pick && p.kind === "call";
   const [switching, setSwitching] = useState(false);
+  // F11: 예외 후보가 왜 맞았나(배운 기기 · 근거 기록 · 이 기기 같은 정비 · 며칠 전) · 같은 증상인데 왜 안 맞았나(최근 같은 정비 없음)
+  const exLine = s.exception_why ? (
+    <span className="xwhy" data-part="ex-why">
+      예외 후보 · {s.exception_why}
+    </span>
+  ) : s.exception_miss ? (
+    <span className="xwhy" data-part="ex-miss">
+      {s.exception_miss}
+    </span>
+  ) : null;
   return (
     <div className="cd hl">
       <div className="nx">
@@ -80,17 +90,11 @@ export function NextCard({
           <div className="why">
             <b>{call ? "호출이 필요한 이유" : "이 점검을 고른 이유"}</b>
             <span>{p.reason}</span>
+            {exLine}
           </div>
-        ) : null}
-        {s.exception_why ? ( // F11: 예외 후보가 왜 맞았나(배운 기기 · 근거 기록 · 이 기기 같은 정비 · 며칠 전)
-          <div className="xwhy" data-part="ex-why">
-            예외 후보 · {s.exception_why}
-          </div>
-        ) : s.exception_miss ? ( // F11: 같은 증상인데 예외가 안 맞은 까닭(최근 같은 정비 없음)
-          <div className="xwhy" data-part="ex-miss">
-            {s.exception_miss}
-          </div>
-        ) : null}
+        ) : (
+          exLine
+        )}
         {!past && onSwitch && p.candidates?.length ? (
           <div className="refs">
             <span
