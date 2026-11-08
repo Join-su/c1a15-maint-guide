@@ -24,15 +24,15 @@ const M03 = { "CL-1": 100, "CL-2": 0, "CL-3": 0, "CL-4": 0 };
 
 afterEach(cleanup);
 
-describe("F1 · F8 원인 후보 순위: 확률과 오른쪽 수의 출처가 다름을 글로", () => {
-  it("오른쪽 수 = '비슷한 기록 n건' · 순위 아래 한 줄이 두 숫자의 출처를 말함 · '근거 n' 글자 0", () => {
+describe("F1 · F8 원인 후보 순위(옛 세션 = n · k 칸 없음): 비슷한 기록은 순위 칸 밖 · 100%면 까닭 한 줄", () => {
+  it("오른쪽 수 자리 0 · 순위 아래 출처 한 줄은 비율만 · '근거 n' · '비슷한 기록' 글자 0", () => {
     const { container } = render(<DiagnosisScreen s={shot(M01)} onRecord={() => {}} onStart={() => {}} />);
-    expect(texts(container, ".rk .rs")).toEqual(["비슷한 기록 4건", "비슷한 기록 0건", "비슷한 기록 6건", "비슷한 기록 0건"]);
+    expect(texts(container, ".rk .rs")).toEqual([]);
     expect(texts(container, ".rk .rv")).toEqual(["40%", "20%", "20%", "20%"]);
     const note = container.querySelector('[data-part="rank-source"]')?.textContent ?? "";
-    expect(note).toBe("확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율 · 비슷한 기록: 비슷한 과거 기록 상위 10건 중 그 원인 수");
+    expect(note).toBe("확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율");
     const rank = container.querySelector(".cd")!.textContent ?? "";
-    expect(rank).not.toMatch(/근거 \d/);
+    expect(rank).not.toMatch(/근거 \d|비슷한/);
     expect(container.querySelector('[data-part="rank-full"]')).toBeNull(); // 100%가 없으면 까닭 줄 0
   });
 
