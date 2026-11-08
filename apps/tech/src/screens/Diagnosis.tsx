@@ -6,7 +6,7 @@
 // 100%면 까닭 한 줄 · 지시 카드 이유 아래 고르는 셈 한 줄(rules.best_pick: A · B 점검 중 원인 확률 ÷ 분이 가장 큰 것).
 // 리허설 2(R3 · R6, 표시 · 글만): 순위 줄 오른쪽 = 확률 셈에 쓴 '이 설비 기록 n건 중 k건'(Pack 판정 출력 equipment_counts · total 그대로) ·
 // 비슷한 기록은 순위 줄에서 빼고 그 칸 이름에 '다른 설비 참고 · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
-// n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리 숨김 · 출처 줄은 비율만 · 100%면 D-637 까닭 줄 그대로.
+// n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리 숨김 · 출처 줄은 비율만 · 옛 셈의 100% 까닭 줄은 뺌(옛 값 글 남김 0).
 // 리허설 F11: 다음 점검 카드에 예외가 맞은 까닭 · 안 맞은 까닭 한 줄(서버 글 그대로).
 
 import { useState } from "react";
@@ -247,11 +247,6 @@ export function DiagnosisScreen({
             {rows.length ? (
               <div className="rs" data-part="rank-source" style={{ marginTop: 10, lineHeight: 1.6 }}>
                 {rankSource(s)}
-              </div>
-            ) : null}
-            {rows[0]?.pct === 100 && rows[0].k == null ? (
-              <div className="rs" data-part="rank-full" style={{ marginTop: 4, lineHeight: 1.6 }}>
-                100%인 까닭: 이 설비의 지난 같은 알람 기록이 모두 이 원인({rows[0].name})이었습니다.
               </div>
             ) : null}
           </div>
