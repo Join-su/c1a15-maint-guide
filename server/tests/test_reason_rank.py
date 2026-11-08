@@ -28,7 +28,10 @@ def test_fixture_reason_says_rank_when_not_top():
 
 def test_fixture_reason_top_unchanged():
     text = FixtureAdapter().write(Facts("reason", "4.3", {**FACTS, "rank": 1})).text
-    assert text == "냉각 필터 막힘 가능성이 33%로 가장 높고, 4.3절 점검은 약 3분 · A등급입니다. 매뉴얼의 다른 점검: 4.5(A)."
+    assert (
+        text
+        == "냉각 필터 막힘 가능성이 33%로 가장 높고, 4.3절 점검은 약 3분 · A등급입니다. 매뉴얼의 다른 점검: 4.5(A)."
+    )
 
 
 @pytest.mark.db
