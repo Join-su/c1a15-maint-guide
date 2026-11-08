@@ -785,11 +785,18 @@ class LeadActedRow(_Out):
     at: str
 
 
+class LeadPrecheckRow(PrecheckCard):
+    """D-642 E 파트장 '사전 점검 후보' 칸 한 줄 = 담당자 홈 카드와 같은 값 + 담당자 이름."""
+
+    assignee_name: str
+
+
 class LeadOverview(_Out):
     now: str
     tiles: LeadTiles
     rows: list[LeadReportRow]
     acted: list[LeadActedRow] = []  # 약속 v9 '호출 없이 조치함'(최근 순)
+    prechecks: list[LeadPrecheckRow] = []  # D-642 E 사전 점검 후보(모든 담당 설비 · 담당자)
 
 
 class LeadField(_Out):

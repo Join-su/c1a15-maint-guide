@@ -4295,6 +4295,14 @@
       "title": "Now",
       "type": "string"
      },
+     "prechecks": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/LeadPrecheckRow"
+      },
+      "title": "Prechecks",
+      "type": "array"
+     },
      "rows": {
       "items": {
        "$ref": "#/components/schemas/LeadReportRow"
@@ -4312,6 +4320,100 @@
      "rows"
     ],
     "title": "LeadOverview",
+    "type": "object"
+   },
+   "LeadPrecheckRow": {
+    "additionalProperties": false,
+    "description": "D-642 E 파트장 '사전 점검 후보' 칸 한 줄 = 담당자 홈 카드와 같은 값 + 담당자 이름.",
+    "properties": {
+     "assignee_name": {
+      "title": "Assignee Name",
+      "type": "string"
+     },
+     "basis": {
+      "items": {
+       "$ref": "#/components/schemas/PrecheckBasis"
+      },
+      "title": "Basis",
+      "type": "array"
+     },
+     "clean": {
+      "title": "Clean",
+      "type": "integer"
+     },
+     "days_ago": {
+      "title": "Days Ago",
+      "type": "integer"
+     },
+     "equipment_id": {
+      "title": "Equipment Id",
+      "type": "string"
+     },
+     "follow": {
+      "title": "Follow",
+      "type": "string"
+     },
+     "hits": {
+      "title": "Hits",
+      "type": "integer"
+     },
+     "look_at": {
+      "title": "Look At",
+      "type": "string"
+     },
+     "mark": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PrecheckMark"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "pattern": {
+      "title": "Pattern",
+      "type": "string"
+     },
+     "record_id": {
+      "title": "Record Id",
+      "type": "string"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "section_title": {
+      "title": "Section Title",
+      "type": "string"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     },
+     "within_days": {
+      "title": "Within Days",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "pattern",
+     "record_id",
+     "equipment_id",
+     "section",
+     "section_title",
+     "days_ago",
+     "within_days",
+     "follow",
+     "look_at",
+     "total",
+     "hits",
+     "clean",
+     "basis",
+     "mark",
+     "assignee_name"
+    ],
+    "title": "LeadPrecheckRow",
     "type": "object"
    },
    "LeadReport": {

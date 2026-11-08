@@ -211,6 +211,20 @@ def cards(c: Connection, user_id: str, now: datetime | None = None) -> list[dict
     return out
 
 
+def lead_cards(c: Connection, now: datetime | None = None) -> list[dict]:
+    """D-642 E(R8 · R11) 파트장 '사전 점검 후보' 칸: 담당자마다 그 홈과 같은 셈(cards) + 담당자 이름 —
+    파트장은 사용자를 바꾸지 않고 모든 담당 설비 후보를 봄. 값 · 기준 · 패턴은 그대로(읽을 때마다 다시 셈)."""
+    now = now or datetime.now(UTC)
+    owners = c.execute(
+        text(
+            "select distinct e.user_id, a.display_name from ops.equipment_assignments e "
+            "join ops.accounts a on a.user_id = e.user_id order by e.user_id"
+        )
+    ).all()
+    out = [{**x, "assignee_name": name} for uid, name in owners for x in cards(c, uid, now)]
+    return sorted(out, key=lambda x: (x["equipment_id"], x["pattern"]))
+
+
 def mark(c: Connection, user_id: str, pattern: str, record_id: str, choice: str, reason: str | None) -> dict:
     """[살펴봄] · [이번엔 제외] 한 줄 — 지금 내 홈에 뜬 후보만 · 건수는 안 바뀜."""
     card = next((x for x in cards(c, user_id) if x["pattern"] == pattern and x["record_id"] == record_id), None)

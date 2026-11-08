@@ -1937,9 +1937,49 @@ export interface components {
             acted: components["schemas"]["LeadActedRow"][];
             /** Now */
             now: string;
+            /**
+             * Prechecks
+             * @default []
+             */
+            prechecks: components["schemas"]["LeadPrecheckRow"][];
             /** Rows */
             rows: components["schemas"]["LeadReportRow"][];
             tiles: components["schemas"]["LeadTiles"];
+        };
+        /**
+         * LeadPrecheckRow
+         * @description D-642 E 파트장 '사전 점검 후보' 칸 한 줄 = 담당자 홈 카드와 같은 값 + 담당자 이름.
+         */
+        LeadPrecheckRow: {
+            /** Assignee Name */
+            assignee_name: string;
+            /** Basis */
+            basis: components["schemas"]["PrecheckBasis"][];
+            /** Clean */
+            clean: number;
+            /** Days Ago */
+            days_ago: number;
+            /** Equipment Id */
+            equipment_id: string;
+            /** Follow */
+            follow: string;
+            /** Hits */
+            hits: number;
+            /** Look At */
+            look_at: string;
+            mark: components["schemas"]["PrecheckMark"] | null;
+            /** Pattern */
+            pattern: string;
+            /** Record Id */
+            record_id: string;
+            /** Section */
+            section: string;
+            /** Section Title */
+            section_title: string;
+            /** Total */
+            total: number;
+            /** Within Days */
+            within_days: number;
         };
         /** LeadReport */
         LeadReport: {

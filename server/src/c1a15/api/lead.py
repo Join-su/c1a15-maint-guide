@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import Connection, select, text
 
 from c1a15 import checkrecord, config, redact
-from c1a15.api import deps, final, flow, responses, screen, sessions
+from c1a15.api import deps, final, flow, precheck, responses, screen, sessions
 from c1a15.api.deps import User, conn, current_user
 from c1a15.api.schemas import AnswerBody, DecisionBody, EditsBody, GradeBody
 from c1a15.db import models as m
@@ -125,6 +125,7 @@ def overview(user: User = Depends(lead_user), c: Connection = Depends(conn, scop
     calls_open = c.execute(text("select count(*) from ops.calls where answer is null")).scalar()
     return {
         "acted": acted_rows(c),  # 약속 v9 '호출 없이 조치함'
+        "prechecks": precheck.lead_cards(c),  # D-642 E: 사전 점검 후보(담당자 홈과 같은 셈 · 사용자 바꾸기 없이)
         "now": datetime.now(UTC).isoformat(),
         "tiles": {
             "awaiting": len(rows),
