@@ -631,6 +631,9 @@ def view(c: Connection, row: m.DiagSession) -> dict:
     eg = flow.exception_guide_of(events) or {}
     out["exception_topic"] = eg.get("topic") or eg.get("title")  # 고침A '예외상황-{주제}'(예외 절 칩 · 이름)
     out["exception_why"] = flow.why_line(eg)  # D-593 어떤 조건이 맞았나(설비 · 며칠 전 · 절 · 근거 예외)
+    out["exception_miss"] = flow.exception_miss(
+        c, alarm_of(c, row.alarm_id), eg
+    )  # D-637 F11 예외가 아닌 까닭(최근 같은 정비 없음)
     out["exception_walk"] = flow.walk_of(events, step)  # 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길만)
     out["exception_notes"] = flow.exception_notes(c, alarm_of(c, row.alarm_id)) if state.locked else []  # 참고 알림
     return out

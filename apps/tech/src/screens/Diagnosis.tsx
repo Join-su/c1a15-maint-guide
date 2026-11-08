@@ -4,17 +4,41 @@
 // D-637(리허설 F1 · F8 · F2 · 표시 · 글만, 셈 손 0): 확률(판정 출력 probabilities = 이 설비의 지난 같은 알람 기록 원인 비율)과
 // 오른쪽 수(evidence = 비슷한 기록 상위 10건 중 그 원인)는 출처가 달라 '근거 n' → '비슷한 기록 n건' · 순위 아래 출처 한 줄 ·
 // 100%면 까닭 한 줄 · 지시 카드 이유 아래 고르는 셈 한 줄(rules.best_pick: A · B 점검 중 원인 확률 ÷ 분이 가장 큰 것).
+// 리허설 F11: 다음 점검 카드에 예외가 맞은 까닭 · 안 맞은 까닭 한 줄(서버 글 그대로).
 
 import { useState } from "react";
-import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
+import {
+  GradeBadge,
+  Icon,
+  RecordCard,
+  type SessionWithPreview,
+} from "@c1a15/ui";
 import { SwitchRows } from "./Instruction";
 import { SecChip } from "./Lock";
 
-type Diag = Pick<SessionWithPreview, "probabilities" | "evidence" | "cause_names" | "similar_cards" | "low_evidence" | "preview" | "exception_topic">;
+type Diag = Pick<
+  SessionWithPreview,
+  | "probabilities"
+  | "evidence"
+  | "cause_names"
+  | "similar_cards"
+  | "low_evidence"
+  | "preview"
+  | "exception_topic"
+  | "exception_why"
+  | "exception_miss"
+>;
 
-export function rankRows(s: Diag): { code: string; name: string; pct: number; n: number }[] {
+export function rankRows(
+  s: Diag,
+): { code: string; name: string; pct: number; n: number }[] {
   return Object.entries(s.probabilities)
-    .map(([code, pct]) => ({ code, name: s.cause_names[code] ?? code, pct, n: s.evidence[code] ?? 0 }))
+    .map(([code, pct]) => ({
+      code,
+      name: s.cause_names[code] ?? code,
+      pct,
+      n: s.evidence[code] ?? 0,
+    }))
     .sort((a, b) => b.pct - a.pct);
 }
 
@@ -47,6 +71,16 @@ export function NextCard({
   const call = !pick && p.kind === "call";
   const [switching, setSwitching] = useState(false);
   const rule = pickRule(s);
+  // F11: 예외 후보가 왜 맞았나(배운 기기 · 근거 기록 · 이 기기 같은 정비 · 며칠 전) · 같은 증상인데 왜 안 맞았나(최근 같은 정비 없음)
+  const exLine = s.exception_why ? (
+    <span className="xwhy" data-part="ex-why">
+      예외 후보 · {s.exception_why}
+    </span>
+  ) : s.exception_miss ? (
+    <span className="xwhy" data-part="ex-miss">
+      {s.exception_miss}
+    </span>
+  ) : null;
   return (
     <div className="cd hl">
       <div className="nx">
@@ -54,11 +88,20 @@ export function NextCard({
         <h3>{pick ? pick.title : call ? "파트장 호출 필요" : p.title}</h3>
         <div className="tags">
           <GradeBadge grade={pick ? pick.grade : p.grade} />
-          {(pick ?? p).section ? <SecChip section={(pick ?? p).section ?? ""} topic={s.exception_topic} /> : null}
-          {!pick && p.minutes != null ? (
-            <span className="ch gray">{call ? `${p.title} · 약 ${p.minutes}분` : `약 ${p.minutes}분`}</span>
+          {(pick ?? p).section ? (
+            <SecChip
+              section={(pick ?? p).section ?? ""}
+              topic={s.exception_topic}
+            />
           ) : null}
-          {!pick && p.reason_fallback ? <span className="ch fb">{p.reason_label}</span> : null}
+          {!pick && p.minutes != null ? (
+            <span className="ch gray">
+              {call ? `${p.title} · 약 ${p.minutes}분` : `약 ${p.minutes}분`}
+            </span>
+          ) : null}
+          {!pick && p.reason_fallback ? (
+            <span className="ch fb">{p.reason_label}</span>
+          ) : null}
         </div>
         {p.reason && !pick ? (
           <div className="why">
@@ -69,11 +112,19 @@ export function NextCard({
                 {rule}
               </span>
             ) : null}
+            {exLine}
           </div>
-        ) : null}
+        ) : (
+          exLine
+        )}
         {!past && onSwitch && p.candidates?.length ? (
           <div className="refs">
-            <span className="lk sw" role="button" tabIndex={0} onClick={() => setSwitching(true)}>
+            <span
+              className="lk sw"
+              role="button"
+              tabIndex={0}
+              onClick={() => setSwitching(true)}
+            >
               <Icon name="arrow-left-right" />
               점검 바꾸기
             </span>
@@ -83,12 +134,17 @@ export function NextCard({
           <div className="banner warn">
             <Icon name="triangle-alert" />
             <div>
-              <b>근거 적음</b>비슷한 과거 기록이 3건 미만입니다. 지시는 그대로 따르되, 결과 메모를 더 자세히 적으십시오.
+              <b>근거 적음</b>비슷한 과거 기록이 3건 미만입니다. 지시는 그대로
+              따르되, 결과 메모를 더 자세히 적으십시오.
             </div>
           </div>
         ) : null}
         <span
-          className={past ? `btn lg dis full${call ? " warnb" : ""}` : `btn lg full${call ? " warnb" : ""}`}
+          className={
+            past
+              ? `btn lg dis full${call ? " warnb" : ""}`
+              : `btn lg full${call ? " warnb" : ""}`
+          }
           role="button"
           tabIndex={0}
           onClick={past ? undefined : onStart}
@@ -106,7 +162,9 @@ export function NextCard({
             </div>
             <div className="swl">
               <SwitchRows
-                cands={(p.candidates ?? []).filter((c) => c.section !== pick?.section)}
+                cands={(p.candidates ?? []).filter(
+                  (c) => c.section !== pick?.section,
+                )}
                 busy={false}
                 topic={s.exception_topic}
                 onPick={(section) => {
@@ -116,7 +174,12 @@ export function NextCard({
               />
             </div>
             <div className="mb">
-              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSwitching(false)}>
+              <span
+                className="btn ghost"
+                role="button"
+                tabIndex={0}
+                onClick={() => setSwitching(false)}
+              >
                 취소
               </span>
             </div>
@@ -149,7 +212,9 @@ export function DiagnosisScreen({
             <div className="cd-h">
               <Icon name="list-checks" />
               <b>원인 후보 순위</b>
-              {s.low_evidence ? <span className="ch amber">근거 적음</span> : null}
+              {s.low_evidence ? (
+                <span className="ch amber">근거 적음</span>
+              ) : null}
             </div>
             {rows.map((r, i) => (
               <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 48px 104px" }}>

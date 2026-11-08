@@ -265,7 +265,7 @@ def test_why_line_says_what_matched(api, db, deploy):
     }
     deploy.default = pack_answer_of(eg)
     tech, s = start(api, db, equipment="M-01")
-    line = "M-01에서 배운 규칙 · 이 기기도 3일 전 같은 정비를 함"
+    line = f"M-01에서 배운 규칙(근거 {hid}) · 이 기기도 3일 전 같은 정비(4.3.2 · H-0301)"
     assert next(c for c in s["preview"]["candidates"] if c["exception"])["summary"] == line
     s = to_ex(tech, s, eg)
     assert s["exception_why"] == line

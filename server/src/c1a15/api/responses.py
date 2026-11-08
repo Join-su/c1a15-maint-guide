@@ -707,6 +707,7 @@ class SessionView(_Out):
     correction: Correction | None = None
     exception_draft: ExceptionDraft | None = None  # D-543 「노하우 등록」 초안
     exception_why: str | None = None  # D-580 '왜 이 예외' 한 줄(Pack matched)
+    exception_miss: str | None = None  # D-637 F11 '왜 예외가 아닌가' 한 줄(등록 예외의 최근 정비 절을 이 기기는 안 함)
     exception_notes: list[ExceptionNote] = []  # D-543 참고 알림(같은 설비 · 같은 증상군 승인 예외 기록)
     switch_candidates: list[SwitchCandidate] = []  # D-556 [점검 바꾸기] 지금 추천 후보(점검 안내 중만)
     exception_topic: str | None = None  # 고침A '예외상황-{주제}' — 이 세션 예외 안내(v8)의 주제(없으면 None)
