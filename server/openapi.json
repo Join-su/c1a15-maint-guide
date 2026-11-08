@@ -5881,6 +5881,41 @@
     "title": "PathEntry",
     "type": "object"
    },
+   "PickedBy": {
+    "additionalProperties": false,
+    "description": "D-652 12-f Pack reason_facts.picked_by — 옵션 check_first_<증상군>이 첫 점검을 바꾼 판정.",
+    "properties": {
+     "instead_of": {
+      "title": "Instead Of",
+      "type": "string"
+     },
+     "instead_title": {
+      "title": "Instead Title",
+      "type": "string"
+     },
+     "option": {
+      "title": "Option",
+      "type": "string"
+     },
+     "section": {
+      "title": "Section",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     }
+    },
+    "required": [
+     "option",
+     "section",
+     "title",
+     "instead_of",
+     "instead_title"
+    ],
+    "title": "PickedBy",
+    "type": "object"
+   },
    "PrecheckAck": {
     "additionalProperties": false,
     "properties": {
@@ -6170,6 +6205,16 @@
       "anyOf": [
        {
         "$ref": "#/components/schemas/PreviewPick"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "picked_by": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PickedBy"
        },
        {
         "type": "null"

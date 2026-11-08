@@ -396,9 +396,12 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
                 "minutes": d["reason_facts"]["minutes"],
                 "grade": d["grade"],
                 "alternatives": d["reason_facts"]["alternatives"],
+                **({"picked_by": pb} if (pb := picked_by_of(d)) else {}),  # D-652 12-f
             },
         )
         out.update(title=sec["title"], minutes=mins, **_checked_reason(row, d, facts))
+        if pb:
+            out["picked_by"] = pb
     elif d["kind"] == "call":  # P-18: 첫 판정이 호출(T04 / first_call)이어도 카드 값은 서버가 낸다
         sec = k.sections[d["section"]]
         p = d["probabilities"].get(d.get("cause"), 0)
@@ -454,12 +457,36 @@ def preview(row: m.DiagSession, c: Connection, decided: dict | None = None) -> d
     return out
 
 
+PICKED_BY_KEYS = ("option", "section", "title", "instead_of", "instead_title")
+
+
+def picked_by_of(d: dict) -> dict | None:
+    """D-652 12-f Pack reason_facts.picked_by — 옵션 check_first_<증상군>이 첫 점검을 바꾼 판정만.
+    다섯 칸이 다 있을 때만 · 아니면 None."""
+    pb = (d.get("reason_facts") or {}).get("picked_by")
+    if not isinstance(pb, dict) or not all(isinstance(pb.get(k), str) and pb[k].strip() for k in PICKED_BY_KEYS):
+        return None
+    return {k: pb[k].strip() for k in PICKED_BY_KEYS}
+
+
+def picked_line(pb: dict) -> str:
+    """정해 둔 첫 점검 이유 한 줄(확률 ÷ 분 말 0 · 절 이름 = 매뉴얼 값 그대로 · 지어낸 값 0)."""
+    return (
+        f"먼저 볼 점검으로 정해 둔 {pb['title']}({pb['section']}절) — 원래 {pb['instead_title']}({pb['instead_of']}절)"
+    )
+
+
 def _checked_reason(row: m.DiagSession, d: dict, facts: Facts) -> dict:
     """R5-6 '고른 이유'는 R8 근거 검사를 거친다.
 
     실패 · provider 오류 → 코드 템플릿 + '원문으로 대체됨'(AC-06 · AC-31-C1).
+    D-652 12-f: 옵션이 첫 점검을 바꿨으면(picked_by) 정해 둔 글 그대로 — AI 글 · 근거 검사를 거치지 않으므로
+    원래 절(instead_of)이 허용 절에서 빠져 원문 대체로 떨어지는 일이 없음(셈과 맞는 글).
     """
     v = facts.values
+    pb = v.get("picked_by")
+    if pb:
+        return {"reason": picked_line(pb), "reason_fallback": False, "reason_label": None}
     alts = v["alternatives"]
     g = grounding.Grounding(
         allowed_sections=frozenset([d["section"], *(a["section"] for a in alts)]),

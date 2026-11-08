@@ -72,6 +72,9 @@ const shownTotal = (s: Diag) => (s.equipment_counts ? (s.equipment_total ?? null
 // 지시 카드(A · B)의 고른 이유 = 건수 말 한 줄 — 호출 · 고른 점검 · 원인 모름 · n · k 칸 없음이면 null(서버 글 그대로).
 export function pickWords(s: Diag): string | null {
   const p = s.preview;
+  // D-652 12-f: Pack 옵션이 첫 점검을 바꿨으면 정해 둔 글(확률 · 건수 말 0 · 서버 이유 글과 같은 꼴)
+  const pb = p.picked_by;
+  if (pb && !p.picked) return `먼저 볼 점검으로 정해 둔 ${pb.title}(${pb.section}절) — 원래 ${pb.instead_title}(${pb.instead_of}절)`;
   const n = shownTotal(s);
   if (n == null || p.picked || !p.cause || !p.title || (p.kind !== "instruct" && p.kind !== "instruct_after_checklist")) return null;
   const name = s.cause_names[p.cause] ?? p.cause;

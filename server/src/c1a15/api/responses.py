@@ -672,6 +672,16 @@ class PreviewPick(_Out):
     grade: str | None
 
 
+class PickedBy(_Out):
+    """D-652 12-f Pack reason_facts.picked_by — 옵션 check_first_<증상군>이 첫 점검을 바꾼 판정."""
+
+    option: str
+    section: str
+    title: str
+    instead_of: str
+    instead_title: str
+
+
 class Preview(_Out):
     kind: str
     section: str | None
@@ -685,6 +695,7 @@ class Preview(_Out):
     reason_label: str | None = None
     candidates: list[SwitchCandidate] = []  # D-585 진단 카드 [점검 바꾸기] 창 후보
     picked: PreviewPick | None = None  # D-585 진단에서 고른 점검
+    picked_by: PickedBy | None = Field(default=None, exclude_if=lambda v: v is None)  # D-652 12-f 옵션이 바꾼 첫 점검
 
 
 class SessionView(_Out):

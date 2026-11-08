@@ -2353,6 +2353,22 @@ export interface components {
             /** Title */
             title: string;
         };
+        /**
+         * PickedBy
+         * @description D-652 12-f Pack reason_facts.picked_by — 옵션 check_first_<증상군>이 첫 점검을 바꾼 판정.
+         */
+        PickedBy: {
+            /** Instead Of */
+            instead_of: string;
+            /** Instead Title */
+            instead_title: string;
+            /** Option */
+            option: string;
+            /** Section */
+            section: string;
+            /** Title */
+            title: string;
+        };
         /** PrecheckAck */
         PrecheckAck: {
             /** Pattern */
@@ -2452,6 +2468,7 @@ export interface components {
             /** Minutes */
             minutes?: number | null;
             picked?: components["schemas"]["PreviewPick"] | null;
+            picked_by?: components["schemas"]["PickedBy"] | null;
             /** Reason */
             reason?: string | null;
             /** Reason Fallback */

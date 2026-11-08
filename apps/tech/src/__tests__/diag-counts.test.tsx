@@ -114,6 +114,16 @@ describe("R2 이 점검을 고른 이유: 말로 한 줄(건수 · 분) · % 0",
     );
   });
 
+  it("D-652 12-f: Pack 옵션이 첫 점검을 바꿨으면(picked_by) 확률 · 건수 말 대신 '먼저 볼 점검으로 정해 둔 … — 원래 …'", () => {
+    const s = withCounts({ "CL-1": 20, "CL-2": 20, "CL-3": 10, "CL-4": 50 }, { "CL-1": 1, "CL-2": 1, "CL-3": 0, "CL-4": 4 }, 6);
+    const pb = { option: "check_first_cl", section: "4.3", title: "흡기 필터 육안 점검", instead_of: "4.6", instead_title: "냉각 설정값 확인" };
+    const opt = { ...s, preview: { ...s.preview, section: "4.3", title: "흡기 필터 육안 점검", picked_by: pb } };
+    const r = render(<DiagnosisScreen s={opt} onRecord={() => {}} onStart={() => {}} />);
+    expect(r.container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
+      "먼저 볼 점검으로 정해 둔 흡기 필터 육안 점검(4.3절) — 원래 냉각 설정값 확인(4.6절)",
+    );
+  });
+
   it("호출 카드 · 진단에서 고른 점검 · 원인 모름 · 옛 세션은 말 줄 0(서버 이유 글 그대로)", () => {
     const fc = load("session-first-call");
     const a = render(<DiagnosisScreen s={fc} onRecord={() => {}} onStart={() => {}} />);
