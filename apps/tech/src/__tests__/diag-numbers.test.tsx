@@ -1,6 +1,5 @@
-// 사람 리허설 피드백(11-08) F1 · F8 · F2 — 진단 화면 숫자의 출처와 첫 점검을 고른 셈을 글로 보인다. 셈 손 0(표시 · 글만).
-// 확률 = Pack 판정 출력 probabilities(원인 확률 셈: 이 설비의 지난 같은 알람 기록에서 원인별 비율) · 오른쪽 수 = evidence(비슷한 기록 상위 10건 중 그 원인).
-// 첫 점검 = A · B 등급 점검 중 '원인 확률 ÷ 걸리는 분'이 가장 큰 것(rules.best_pick).
+// 사람 리허설 피드백(11-08) F1 · F8 · F2 → 재시연 3(R2): 옛 세션(n · k 칸 없음)의 진단 화면. 셈 손 0(표시 · 글만).
+// 순위에 % 0 · 오른쪽 수 자리 0 · 셈 식 줄 0 · 옛 셈의 100% 까닭 줄 0 · 고른 이유는 서버 글 그대로(말 줄은 n · k가 있을 때만).
 
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -24,67 +23,42 @@ const M03 = { "CL-1": 100, "CL-2": 0, "CL-3": 0, "CL-4": 0 };
 
 afterEach(cleanup);
 
-describe("F1 · F8 원인 후보 순위(옛 세션 = n · k 칸 없음): 비슷한 기록은 순위 칸 밖 · 옛 값 100% 까닭 줄 0", () => {
-  it("오른쪽 수 자리 0 · 순위 아래 출처 한 줄은 비율만 · '근거 n' · '비슷한 기록' 글자 0", () => {
+describe("옛 세션 순위: % · 오른쪽 수 · 셈 식 줄 · 100% 까닭 줄 0", () => {
+  it("순위 이름 · 막대만 · '근거 n' · '비슷한 기록' 글자 0", () => {
     const { container } = render(<DiagnosisScreen s={shot(M01)} onRecord={() => {}} onStart={() => {}} />);
+    expect(texts(container, ".rk b")).toEqual(["냉각 필터 막힘", "냉각 팬 열화", "냉각수 부족", "냉각 설정 오류"]);
     expect(texts(container, ".rk .rs")).toEqual([]);
-    expect(texts(container, ".rk .rv")).toEqual(["40%", "20%", "20%", "20%"]);
-    const note = container.querySelector('[data-part="rank-source"]')?.textContent ?? "";
-    expect(note).toBe("확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율");
+    expect(container.querySelectorAll(".rk .rv").length).toBe(0);
+    expect(container.querySelector('[data-part="rank-source"]')).toBeNull();
     const rank = container.querySelector(".cd")!.textContent ?? "";
-    expect(rank).not.toMatch(/근거 \d|비슷한/);
-    expect(container.querySelector('[data-part="rank-full"]')).toBeNull(); // 100%가 없으면 까닭 줄 0
+    expect(rank).not.toMatch(/%|근거 \d|비슷한/);
   });
 
-  it("옛 세션이 100%여도 옛 셈의 까닭 줄은 남기지 않음(새 셈은 원인마다 기본 1건이라 100%가 안 나옴)", () => {
-    const { container } = render(<DiagnosisScreen s={shot(M03)} onRecord={() => {}} onStart={() => {}} />);
-    expect(texts(container, ".rk .rv")).toEqual(["100%", "0%", "0%", "0%"]);
-    expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
-    expect(container.textContent ?? "").not.toMatch(/100%인 까닭|모두 이 원인/);
-  });
-
-  it("지난 화면(T15)도 같은 글 · 화면 글에 내부 번호 0", () => {
+  it("옛 세션이 100%여도 까닭 줄 0 · 지난 화면(T15)도 같음 · 화면 글에 내부 번호 0", () => {
     const { container } = render(<DiagnosisScreen s={shot(M03)} onRecord={() => {}} onStart={() => {}} past />);
-    expect(container.querySelector('[data-part="rank-source"]')).not.toBeNull();
     expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
-    expect(container.textContent ?? "").not.toMatch(/D-\d|F\d\b/);
+    expect(container.textContent ?? "").not.toMatch(/100%인 까닭|모두 이 원인|D-\d|F\d\b/);
   });
 });
 
-describe("F2 이 점검을 고른 이유: 고르는 셈을 한 줄로", () => {
-  it("지시 카드: 셈(원인 확률 ÷ 걸리는 분)과 이 점검이 1순위 원인을 보는 점검임을 보임 · 이유 글은 그대로 첫 줄", () => {
+describe("옛 세션 이 점검을 고른 이유: 서버 글 그대로 · 셈 줄 0", () => {
+  it("지시 카드 · B 등급 모두 이유 글 그대로 · 고르는 셈 줄 0", () => {
     const s = shot(M01);
-    const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
-    expect(container.querySelector(".why span")?.textContent).toBe(s.preview.reason);
-    expect(container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "고르는 셈: A · B 등급 점검 중 '원인 확률 ÷ 걸리는 분'이 가장 큰 것 — 냉각 필터 막힘 40% ÷ 약 3분. " +
-        "흡기 필터 육안 점검 = 냉각 필터 막힘 확인 점검(매뉴얼 4.3절)",
-    );
+    const a = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
+    expect(a.container.querySelector(".why span")?.textContent).toBe(s.preview.reason);
+    expect(a.container.querySelector('[data-part="pick-rule"]')).toBeNull();
+    expect(a.container.textContent ?? "").not.toMatch(/고르는 셈|÷/);
+    cleanup();
+    const b = shot(M01);
+    b.preview = { ...b.preview, kind: "instruct_after_checklist", grade: "B", minutes: null };
+    const rb = render(<DiagnosisScreen s={b} onRecord={() => {}} onStart={() => {}} />);
+    expect(rb.container.querySelector('[data-part="pick-rule"]')).toBeNull();
   });
 
-  it("B 등급(체크리스트 뒤 지시)도 같은 줄 · 분을 모르면 숫자 부분만 뺌", () => {
-    const s = shot(M01);
-    s.preview = { ...s.preview, kind: "instruct_after_checklist", grade: "B", minutes: null };
-    const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
-    expect(container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "고르는 셈: A · B 등급 점검 중 '원인 확률 ÷ 걸리는 분'이 가장 큰 것. 흡기 필터 육안 점검 = 냉각 필터 막힘 확인 점검(매뉴얼 4.3절)",
-    );
-  });
-
-  it("호출 카드 · 진단에서 고른 점검 · 원인을 모르는 카드에는 셈 줄 0", () => {
+  it("호출 카드 제목은 그대로", () => {
     const fc = load("session-first-call");
     const a = render(<DiagnosisScreen s={fc} onRecord={() => {}} onStart={() => {}} />);
     expect(a.container.querySelector(".why b")?.textContent).toBe("호출이 필요한 이유");
     expect(a.container.querySelector('[data-part="pick-rule"]')).toBeNull();
-    cleanup();
-    const s = shot(M01);
-    const picked = { ...s, preview: { ...s.preview, picked: { section: "4.4", title: "냉각 팬 분해 점검", grade: "C" } } };
-    const b = render(<DiagnosisScreen s={picked} onRecord={() => {}} onStart={() => {}} />);
-    expect(b.container.querySelector('[data-part="pick-rule"]')).toBeNull();
-    cleanup();
-    const nocause = { ...s, preview: { ...s.preview, cause: null } };
-    const c = render(<DiagnosisScreen s={nocause} onRecord={() => {}} onStart={() => {}} />);
-    expect(c.container.querySelector(".why span")?.textContent).toBe(s.preview.reason);
-    expect(c.container.querySelector('[data-part="pick-rule"]')).toBeNull();
   });
 });

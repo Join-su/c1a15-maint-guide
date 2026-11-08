@@ -9,6 +9,9 @@
 // 같은 그룹으로 넓혀 셌으면(count_scope group) '같은 그룹 기록 n건 중 k건' · 출처 줄에 까닭.
 // n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리 숨김 · 출처 줄은 비율만 · 옛 셈의 100% 까닭 줄은 뺌(옛 값 글 남김 0).
 // 리허설 F11: 다음 점검 카드에 예외가 맞은 까닭 · 안 맞은 까닭 한 줄(서버 글 그대로).
+// 재시연 3(R1 · R2, 표시 · 글만 · Pack 셈 손 0): 순위 · 고른 이유에서 % 빼고 건수만('지난 같은 알람 n건 중 k건' + 막대 = k ÷ n) ·
+// 기록 적으면 '기록 n건 · 확정 아님' · 셈 식 줄 뺌 · 고른 이유 = record_counts 값으로 짠 말 한 줄(n · k 칸이 없으면 서버 글 그대로) ·
+// 다른 설비 센서 비슷한 기록은 기본 화면에서 빼고 접힌 '다른 설비 참고'로만.
 
 import { useState } from "react";
 import {
@@ -37,48 +40,46 @@ type Diag = Pick<
   | "exception_miss"
 >;
 
+// 순서 = Pack 순위(probabilities) 그대로 · 막대 = n · k가 있으면 k ÷ n, 없으면(옛 세션) 그 비율 — 화면 글에 % 0.
 export function rankRows(
   s: Diag,
-): { code: string; name: string; pct: number; n: number; k: number | null }[] {
-  const counts = s.equipment_total != null ? s.equipment_counts : null;
+): { code: string; name: string; pct: number; n: number; k: number | null; bar: number }[] {
+  const total = s.equipment_counts ? s.equipment_total : null;
+  const counts = total != null ? s.equipment_counts : null;
   return Object.entries(s.probabilities)
-    .map(([code, pct]) => ({
-      code,
-      name: s.cause_names[code] ?? code,
-      pct,
-      n: s.evidence[code] ?? 0,
-      k: counts ? (counts[code] ?? 0) : null,
-    }))
+    .map(([code, pct]) => {
+      const k = counts ? (counts[code] ?? 0) : null;
+      return {
+        code,
+        name: s.cause_names[code] ?? code,
+        pct,
+        n: s.evidence[code] ?? 0,
+        k,
+        bar: k != null && total ? Math.round((k / total) * 100) : k != null ? 0 : pct,
+      };
+    })
     .sort((a, b) => b.pct - a.pct);
 }
 
+// 기록이 이보다 적으면 '기록 n건 · 확정 아님'(표시만 · Pack 셈과 무관)
+export const FEW_RECORDS = 10;
+
 // 셈 범위(Pack record_counts.scope): group = 같은 증상 전체 기록으로 셈 — 기본 건수가 있으면(이 설비 셈) 이 설비 기록이 3건 미만이라 넓힘.
 const isGroup = (s: Diag) => s.count_scope === "group";
-export const countWord = (s: Diag) => (isGroup(s) ? "같은 증상 전체 기록" : "이 설비 기록");
+export const countWord = (s: Diag) => (isGroup(s) ? "같은 증상 전체 기록" : "지난 같은 알람");
+const shownTotal = (s: Diag) => (s.equipment_counts ? (s.equipment_total ?? null) : null);
 
-// 순위 아래 출처 한 줄 = 셈 식 그대로(확률 = (k + prior) ÷ (n + prior × 원인 수)) · n · k 칸이 없으면 비율만.
-export function rankSource(s: Diag): string {
-  const n = s.equipment_counts ? s.equipment_total : null;
-  if (n == null) return "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율";
-  const prior = s.count_prior ?? 0;
-  const m = Object.keys(s.equipment_counts ?? {}).length;
-  const basis = isGroup(s)
-    ? `${prior > 0 ? "이 설비 기록이 3건 미만이라 " : ""}같은 증상 전체 기록 ${n}건 기준`
-    : `이 설비의 지난 같은 알람 기록 ${n}건 기준`;
-  if (prior <= 0) return `확률 = 그 원인 건수 ÷ ${n} — ${basis}`;
-  const per = prior === 1 ? `원인 ${m}개` : `원인 ${m}개 × ${prior}`;
-  return `확률 = (그 원인 건수 + ${prior}) ÷ (${n} + ${per}) — ${basis} · 원인마다 기본 ${prior}건을 더해 기록이 적어도 100%가 되지 않음`;
-}
-
-// 지시 카드(A · B)만 — 호출 · 고른 점검 · 원인 모름이면 null. 분을 모르면 숫자 부분만 뺌.
-export function pickRule(s: Diag): string | null {
+// 지시 카드(A · B)의 고른 이유 = 건수 말 한 줄 — 호출 · 고른 점검 · 원인 모름 · n · k 칸 없음이면 null(서버 글 그대로).
+export function pickWords(s: Diag): string | null {
   const p = s.preview;
-  if (p.picked || !p.cause || !p.title || (p.kind !== "instruct" && p.kind !== "instruct_after_checklist")) return null;
+  const n = shownTotal(s);
+  if (n == null || p.picked || !p.cause || !p.title || (p.kind !== "instruct" && p.kind !== "instruct_after_checklist")) return null;
   const name = s.cause_names[p.cause] ?? p.cause;
-  const pct = s.probabilities[p.cause];
-  const nums = pct != null && p.minutes != null ? ` — ${name} ${pct}% ÷ 약 ${p.minutes}분` : "";
-  const sec = p.section ? `(매뉴얼 ${p.section}절)` : "";
-  return `고르는 셈: A · B 등급 점검 중 '원인 확률 ÷ 걸리는 분'이 가장 큰 것${nums}. ${p.title} = ${name} 확인 점검${sec}`;
+  const k = s.equipment_counts?.[p.cause] ?? 0;
+  const head = !isGroup(s) && n > 0 && k === n ? `지난 같은 알람 ${n}건 모두 ${name}` : `${countWord(s)} ${n}건 중 ${k}건 ${name}`;
+  const mins = p.minutes != null ? ` · 약 ${p.minutes}분이면 확인` : "";
+  const sec = p.section ? ` · 매뉴얼 ${p.section}절` : "";
+  return `${head}${mins}(${p.title}${sec})`;
 }
 
 export function NextCard({
@@ -96,7 +97,7 @@ export function NextCard({
   const pick = p.picked;
   const call = !pick && p.kind === "call";
   const [switching, setSwitching] = useState(false);
-  const rule = pickRule(s);
+  const words = pickWords(s);
   // F11: 예외 후보가 왜 맞았나(배운 기기 · 근거 기록 · 이 기기 같은 정비 · 며칠 전) · 같은 증상인데 왜 안 맞았나(최근 같은 정비 없음)
   const exLine = s.exception_why ? (
     <span className="xwhy" data-part="ex-why">
@@ -132,12 +133,7 @@ export function NextCard({
         {p.reason && !pick ? (
           <div className="why">
             <b>{call ? "호출이 필요한 이유" : "이 점검을 고른 이유"}</b>
-            <span>{p.reason}</span>
-            {rule ? (
-              <span className="rs" data-part="pick-rule">
-                {rule}
-              </span>
-            ) : null}
+            {words ? <span data-part="pick-rule">{words}</span> : <span>{p.reason}</span>}
             {exLine}
           </div>
         ) : (
@@ -230,6 +226,7 @@ export function DiagnosisScreen({
   onSwitch?: (section: string) => void;
 }) {
   const rows = rankRows(s);
+  const n = shownTotal(s);
   return (
     <div className={past ? "ap-body past" : "ap-body"}>
       <div className="g64">
@@ -243,40 +240,42 @@ export function DiagnosisScreen({
               ) : null}
             </div>
             {rows.map((r, i) => (
-              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 48px 148px" }}>
+              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 196px" }}>
                 <span className="rn">{i + 1}</span>
                 <b>{r.name}</b>
                 <span className="rb">
-                  <i style={{ width: `${r.pct}%` }} />
+                  <i style={{ width: `${r.bar}%` }} />
                 </span>
-                <span className="rv">{r.pct}%</span>
                 {r.k != null ? (
                   <span className="rs">
-                    {countWord(s)} {s.equipment_total}건 중 {r.k}건
+                    {countWord(s)} {n}건 중 {r.k}건
                   </span>
                 ) : null}
               </div>
             ))}
-            {rows.length ? (
-              <div className="rs" data-part="rank-source" style={{ marginTop: 10, lineHeight: 1.6 }}>
-                {rankSource(s)}
+            {rows.length && n != null && isGroup(s) && (s.count_prior ?? 0) > 0 ? (
+              <div className="rs" data-part="rank-wide" style={{ marginTop: 10 }}>
+                이 설비 기록이 3건 미만이라 같은 증상 전체 기록으로 셈
+              </div>
+            ) : null}
+            {rows.length && n != null && n < FEW_RECORDS ? (
+              <div className="rs" data-part="rank-few" style={{ marginTop: 10 }}>
+                기록 {n}건 · 확정 아님
               </div>
             ) : null}
           </div>
-          <div className="cd mt">
-            <div className="cd-h">
-              <Icon name="history" />
-              <b>
-                비슷한 과거 기록 {s.similar_cards.length}건 · 참고(다른 설비
-                포함) · 순위 계산에 안 씀
-              </b>
-            </div>
-            <div className="hcs">
-              {s.similar_cards.map((c) => (
-                <RecordCard key={c.record_id} card={c} onOpen={onRecord} />
-              ))}
-            </div>
-          </div>
+          {s.similar_cards.length ? (
+            <details className="cd mt" data-part="other-ref">
+              <summary className="rs" style={{ cursor: "pointer" }}>
+                다른 설비 참고 {s.similar_cards.length}건 · 순위 계산에 안 씀
+              </summary>
+              <div className="hcs" style={{ marginTop: 10 }}>
+                {s.similar_cards.map((c) => (
+                  <RecordCard key={c.record_id} card={c} onOpen={onRecord} />
+                ))}
+              </div>
+            </details>
+          ) : null}
         </div>
         <NextCard s={s} onStart={onStart} past={past} onSwitch={onSwitch} />
       </div>

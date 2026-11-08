@@ -206,8 +206,8 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
     expect(texts(container, ".hc-t b")).toEqual(
       s.similar_cards.map((c) => c.record_id),
     );
-    expect(container.querySelector(".cd.mt .cd-h b")?.textContent).toBe(
-      `비슷한 과거 기록 ${s.similar_cards.length}건 · 참고(다른 설비 포함) · 순위 계산에 안 씀`,
+    expect(container.querySelector('details[data-part="other-ref"] summary')?.textContent).toBe(
+      `다른 설비 참고 ${s.similar_cards.length}건 · 순위 계산에 안 씀`,
     );
     expect(container.querySelector(".nx h3")?.textContent).toBe(
       s.preview.title,

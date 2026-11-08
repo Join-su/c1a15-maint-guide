@@ -73,8 +73,9 @@ test("AC-03 L3 · AC-30 · AC-08 · AC-37: R5 계산 예시 → 4.3 → 정상 �
       simR5Example(s);
     },
     async () => {
-      // AC-03-C1(G6-S03 B1): 정비자 앱 진단 화면 순위 50 · 28 · 11 · 11
-      await expect(page.locator(".rk .rv")).toHaveText(["50%", "28%", "11%", "11%"]);
+      // AC-03-C1(G6-S03 B1): 정비자 앱 진단 화면 1순위 = 냉각 필터 막힘(재시연 3 R2: 화면에 % 0 · 건수만)
+      await expect(page.locator(".rk.on b")).toHaveText("냉각 필터 막힘");
+      await expect(page.locator(".rk .rv")).toHaveCount(0);
       await shot(page, info, "T04-r5_example");
     },
   );

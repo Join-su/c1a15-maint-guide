@@ -44,12 +44,13 @@ test("첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠�
   // AC-40 문구 · 합 100 · CO-42(기본 진단에는 호출 경고 토큰 없음)
   await expect(page.locator(".rk").first()).toHaveClass(/on/);
   await expect(page.locator(".hint")).toHaveCount(0); // D-528: 「근거 n = …」 · 과거 기록 안내 문장 뺌
-  await expect(page.locator(".cd.mt .cd-h b")).toHaveText(/비슷한 과거 기록 \d건 · 참고\(다른 설비 포함\) · 순위 계산에 안 씀/);
-  const pcts = await page.locator(".rk .rv").allTextContents();
-  expect(pcts.reduce((a, p) => a + Number(p.replace("%", "")), 0)).toBe(100);
+  // 재시연 3 R1 · R2: 순위에 % 0 · 다른 설비 센서 비슷한 기록은 접힌 '다른 설비 참고'
+  await expect(page.locator(".rk .rv")).toHaveCount(0);
+  await expect(page.locator('[data-part="other-ref"] summary')).toHaveText(/다른 설비 참고 \d건 · 순위 계산에 안 씀/);
   await expect(page.locator(".warnb")).toHaveCount(0);
   await shot(page, info, "T04-default");
   // AC-38: 기록 카드 → 그 기록 전체 → 닫으면 같은 화면
+  await page.locator('[data-part="other-ref"] summary').click();
   const rid = await page.locator(".hc-t b").first().textContent();
   await page.locator(".hc").first().click();
   await expect(page.locator(".modal .mh b")).toHaveText(`과거 기록 ${rid}`);
