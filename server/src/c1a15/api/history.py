@@ -111,6 +111,7 @@ def history(c: Connection, row: m.DiagSession) -> dict:
             "equipment_counts": snap.get("equipment_counts"),  # 리허설 2 R3 · R6: 세션 시작 때 남긴 것만(없으면 숨김)
             "equipment_total": snap.get("equipment_total"),
             "count_scope": snap.get("count_scope"),
+            "count_prior": snap.get("count_prior"),
             "cause_names": screen.cause_names(k, row.symptom_group),
             "similar_cards": screen.similar_cards(c, row.similar),
             "low_evidence": session.rules.low_evidence(sessions.similar_of(row)),

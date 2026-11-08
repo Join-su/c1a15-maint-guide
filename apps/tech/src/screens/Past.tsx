@@ -122,6 +122,7 @@ export function PastScreen(p: PastProps) {
             equipment_counts: r.equipment_counts,
             equipment_total: r.equipment_total,
             count_scope: r.count_scope,
+            count_prior: r.count_prior,
             cause_names: r.cause_names ?? {},
             similar_cards: r.similar_cards ?? [],
             low_evidence: !!r.low_evidence,

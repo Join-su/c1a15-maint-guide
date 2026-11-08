@@ -5403,6 +5403,17 @@
       "title": "Corrections",
       "type": "array"
      },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
+     },
      "count_scope": {
       "anyOf": [
        {
@@ -7197,6 +7208,17 @@
        }
       ]
      },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
+     },
      "count_scope": {
       "anyOf": [
        {
@@ -7521,6 +7543,17 @@
         "type": "null"
        }
       ]
+     },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
      },
      "count_scope": {
       "anyOf": [

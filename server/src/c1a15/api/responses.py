@@ -688,7 +688,8 @@ class SessionView(_Out):
     evidence: dict[str, int]
     equipment_counts: dict[str, int] | None = None  # 리허설 2 R3 · R6: 확률 셈의 이 설비 원인별 k건(Pack 출력)
     equipment_total: int | None = None  # 같은 셈의 이 설비 기록 n건
-    count_scope: str | None = None  # equipment · group(이 설비 기록이 적어 같은 그룹으로 넓혀 셈)
+    count_scope: str | None = None  # equipment · group(이 설비 기록이 적거나 같은 증상 전체 셈)
+    count_prior: int | None = None  # 원인마다 기본 건수(확률 = (k + prior) ÷ (n + prior × 원인 수))
     low_evidence: bool
     top_records: list[str]
     similar_basis: str
@@ -1175,6 +1176,7 @@ class PastRecord(_Out):
     equipment_counts: dict[str, int] | None = None  # 리허설 2 R3 · R6: 그때 순위 줄 n건 중 k건(없으면 숨김)
     equipment_total: int | None = None
     count_scope: str | None = None
+    count_prior: int | None = None
     cause_names: dict[str, str] | None = None
     similar_cards: list[RecordCard] | None = None
     low_evidence: bool | None = None

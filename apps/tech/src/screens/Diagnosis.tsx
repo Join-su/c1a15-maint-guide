@@ -27,6 +27,7 @@ type Diag = Pick<
   | "equipment_counts"
   | "equipment_total"
   | "count_scope"
+  | "count_prior"
   | "cause_names"
   | "similar_cards"
   | "low_evidence"
@@ -51,16 +52,22 @@ export function rankRows(
     .sort((a, b) => b.pct - a.pct);
 }
 
-// 셈 범위: group = 이 설비 기록이 3건 미만이라 같은 그룹 기록으로 넓혀 셈(Pack count_scope).
+// 셈 범위(Pack record_counts.scope): group = 같은 증상 전체 기록으로 셈 — 기본 건수가 있으면(이 설비 셈) 이 설비 기록이 3건 미만이라 넓힘.
 const isGroup = (s: Diag) => s.count_scope === "group";
-export const countWord = (s: Diag) => (isGroup(s) ? "같은 그룹 기록" : "이 설비 기록");
+export const countWord = (s: Diag) => (isGroup(s) ? "같은 증상 전체 기록" : "이 설비 기록");
 
-// 순위 아래 출처 한 줄: n · k 칸이 있으면 새 셈(셈 범위 · n건 · 원인마다 기본 1건), 없으면 비율만.
+// 순위 아래 출처 한 줄 = 셈 식 그대로(확률 = (k + prior) ÷ (n + prior × 원인 수)) · n · k 칸이 없으면 비율만.
 export function rankSource(s: Diag): string {
   const n = s.equipment_counts ? s.equipment_total : null;
   if (n == null) return "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율";
-  const where = isGroup(s) ? "이 설비 기록이 3건 미만이라 같은 그룹의" : "이 설비의";
-  return `확률: ${where} 지난 같은 알람 기록 ${n}건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)`;
+  const prior = s.count_prior ?? 0;
+  const m = Object.keys(s.equipment_counts ?? {}).length;
+  const basis = isGroup(s)
+    ? `${prior > 0 ? "이 설비 기록이 3건 미만이라 " : ""}같은 증상 전체 기록 ${n}건 기준`
+    : `이 설비의 지난 같은 알람 기록 ${n}건 기준`;
+  if (prior <= 0) return `확률 = 그 원인 건수 ÷ ${n} — ${basis}`;
+  const per = prior === 1 ? `원인 ${m}개` : `원인 ${m}개 × ${prior}`;
+  return `확률 = (그 원인 건수 + ${prior}) ÷ (${n} + ${per}) — ${basis} · 원인마다 기본 ${prior}건을 더해 기록이 적어도 100%가 되지 않음`;
 }
 
 // 지시 카드(A · B)만 — 호출 · 고른 점검 · 원인 모름이면 null. 분을 모르면 숫자 부분만 뺌.

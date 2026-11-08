@@ -14,40 +14,82 @@ from c1a15.llm.fixture import FixtureAdapter
 
 ORDER = ["CL-1", "CL-2", "CL-3", "CL-4"]
 # Pack pack/d642 c36ec02 실제 출력(저장소 그래프 · count_equipment · start 결과 decision 칸 그대로)
-M03 = json.loads('{"kind": "lock", "section": "1.2", "probabilities": {"CL-1": 67, "CL-2": 11, "CL-3": 11, "CL-4": 11}, "evidence": {"CL-1": 4, "CL-2": 0, "CL-3": 6, "CL-4": 0}, "record_counts": {"scope": "equipment", "total": 5, "by_cause": {"CL-1": 5, "CL-2": 0, "CL-3": 0, "CL-4": 0}, "prior": 1}}')
-MZZ = json.loads('{"kind": "lock", "section": "1.2", "probabilities": {"CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15}, "evidence": {}, "record_counts": {"scope": "group", "total": 108, "by_cause": {"CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16}, "prior": 1}}')
+M03 = json.loads(
+    '{"kind": "lock", "section": "1.2", "probabilities": {"CL-1": 67, "CL-2": 11, "CL-3": 11, "CL-4": 11}, "evidence": {"CL-1": 4, "CL-2": 0, "CL-3": 6, "CL-4": 0}, "record_counts": {"scope": "equipment", "total": 5, "by_cause": {"CL-1": 5, "CL-2": 0, "CL-3": 0, "CL-4": 0}, "prior": 1}}'
+)
+MZZ = json.loads(
+    '{"kind": "lock", "section": "1.2", "probabilities": {"CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15}, "evidence": {}, "record_counts": {"scope": "group", "total": 108, "by_cause": {"CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16}, "prior": 1}}'
+)
 
 
 def test_real_pack_output_maps_to_the_screen_fields_in_manual_order():
     assert screen.PACK_COUNT_KEY == "record_counts"
     got = screen.decided_counts(M03, ORDER)
-    assert got == {"equipment_counts": {"CL-1": 5, "CL-2": 0, "CL-3": 0, "CL-4": 0}, "equipment_total": 5, "count_scope": "equipment", "count_prior": 1}
-    shuffled = {**M03, "record_counts": {**M03["record_counts"], "by_cause": {"CL-4": 0, "CL-3": 0, "CL-1": 5, "CL-2": 0}}}
+    assert got == {
+        "equipment_counts": {"CL-1": 5, "CL-2": 0, "CL-3": 0, "CL-4": 0},
+        "equipment_total": 5,
+        "count_scope": "equipment",
+        "count_prior": 1,
+    }
+    shuffled = {
+        **M03,
+        "record_counts": {**M03["record_counts"], "by_cause": {"CL-4": 0, "CL-3": 0, "CL-1": 5, "CL-2": 0}},
+    }
     assert list(screen.decided_counts(shuffled, ORDER)["equipment_counts"]) == ORDER
-    assert screen.decided_counts(MZZ, ORDER) == {"equipment_counts": {"CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16}, "equipment_total": 108, "count_scope": "group", "count_prior": 1}
+    assert screen.decided_counts(MZZ, ORDER) == {
+        "equipment_counts": {"CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16},
+        "equipment_total": 108,
+        "count_scope": "group",
+        "count_prior": 1,
+    }
 
 
 def test_no_counts_or_odd_shape_gives_none():
     rc = M03["record_counts"]
     assert screen.decided_counts(None, ORDER) is None
-    assert screen.decided_counts({"probabilities": {}, "evidence": {}}, ORDER) is None  # 옛 Pack · 옛 세션 · 예외 · 바꾸기 뒤
-    for bad in ({**rc, "total": "5"}, {**rc, "by_cause": [5, 0]}, {**rc, "by_cause": {"CL-1": "5"}}, {**rc, "by_cause": {"CL-1": True}},
-                {**rc, "total": True}, {**rc, "prior": None}, {**rc, "scope": "line"}, {k: v for k, v in rc.items() if k != "scope"}, "x", [rc]):
+    assert (
+        screen.decided_counts({"probabilities": {}, "evidence": {}}, ORDER) is None
+    )  # 옛 Pack · 옛 세션 · 예외 · 바꾸기 뒤
+    for bad in (
+        {**rc, "total": "5"},
+        {**rc, "by_cause": [5, 0]},
+        {**rc, "by_cause": {"CL-1": "5"}},
+        {**rc, "by_cause": {"CL-1": True}},
+        {**rc, "total": True},
+        {**rc, "prior": None},
+        {**rc, "scope": "line"},
+        {k: v for k, v in rc.items() if k != "scope"},
+        "x",
+        [rc],
+    ):
         assert screen.decided_counts({**M03, "record_counts": bad}, ORDER) is None, bad
 
 
 def test_a_decision_without_counts_shows_the_start_snapshot():
-    events = [{"type": "step_opened", "decision": M03}, {"type": "preview_shown", "preview": {}, **screen.decided_counts(M03, ORDER)},
-              {"type": "step_opened", "decision": {"kind": "instruct", "probabilities": M03["probabilities"], "evidence": {}}}]
+    events = [
+        {"type": "step_opened", "decision": M03},
+        {"type": "preview_shown", "preview": {}, **screen.decided_counts(M03, ORDER)},
+        {
+            "type": "step_opened",
+            "decision": {"kind": "instruct", "probabilities": M03["probabilities"], "evidence": {}},
+        },
+    ]
     assert screen.shown_counts(events[-1]["decision"], events, ORDER) == screen.decided_counts(M03, ORDER)
     later = {**M03, "record_counts": {**M03["record_counts"], "total": 7}}
     assert screen.shown_counts(later, events, ORDER)["equipment_total"] == 7  # 칸이 있으면 그 결정 값
-    assert screen.shown_counts({"kind": "instruct"}, [{"type": "preview_shown", "preview": {}}], ORDER) is None  # 옛 세션: 숨김
+    assert (
+        screen.shown_counts({"kind": "instruct"}, [{"type": "preview_shown", "preview": {}}], ORDER) is None
+    )  # 옛 세션: 숨김
 
 
 def test_reason_calls_the_alternatives_the_manuals_other_checks():
-    facts = {"cause_name": "냉각 필터 막힘", "probability": 50, "minutes": 3, "grade": "A",
-             "alternatives": [{"section": "4.4", "grade": "C"}, {"section": "4.5", "grade": "A"}]}
+    facts = {
+        "cause_name": "냉각 필터 막힘",
+        "probability": 50,
+        "minutes": 3,
+        "grade": "A",
+        "alternatives": [{"section": "4.4", "grade": "C"}, {"section": "4.5", "grade": "A"}],
+    }
     for rank in (1, 2):
         text = FixtureAdapter().write(Facts("reason", "4.3", {**facts, "rank": rank})).text
         assert text.endswith("매뉴얼의 다른 점검: 4.4(C), 4.5(A).")
