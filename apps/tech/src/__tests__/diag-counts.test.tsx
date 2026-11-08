@@ -1,6 +1,6 @@
 // 리허설 2 R3 · R6(A 진단 숫자 · 앱 몫, 표시 · 글만): 순위 줄 = 확률 셈에 쓴 '이 설비 기록 n건 중 k건'(Pack 판정 출력 그대로) ·
 // 비슷한 과거 기록은 순위 줄에서 빼고 그 칸 이름에 '참고(다른 설비 포함) · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
-// n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리를 숨김 — 지어낸 숫자 0.
+// n · k = Pack 판정 출력 record_counts(앱 서버가 equipment_counts · total · count_scope · count_prior로 실음) · 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리를 숨김 — 지어낸 숫자 0.
 
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
@@ -11,12 +11,12 @@ const fx = import.meta.glob("./fixtures/*.json", { eager: true, import: "default
 const load = (name: string) => structuredClone(fx[`./fixtures/${name}.json`]) as SessionWithPreview;
 const texts = (root: ParentNode, sel: string) => [...root.querySelectorAll(sel)].map((e) => e.textContent?.trim() ?? "");
 
-// M-02 꼴: 이 설비 기록 6건(냉각 필터 막힘 4 · 냉각 팬 열화 1 · 냉각수 부족 1 · 냉각 설정 오류 0) · 비슷한 기록 상위 10건은 4/0/6/0
+// M-02 = Pack pack/d642 c36ec02 실제 출력(저장소 그래프 · count_equipment): 이 설비 기록 6건 4/1/1/0 · prior 1 → 50/20/20/10 · 비슷한 기록 상위 10건은 4/0/6/0
 function m02(): SessionWithPreview {
   const s = load("session-before-lock");
   s.probabilities = { "CL-1": 50, "CL-2": 20, "CL-3": 20, "CL-4": 10 };
   s.evidence = { "CL-1": 4, "CL-2": 0, "CL-3": 6, "CL-4": 0 };
-  Object.assign(s, { equipment_counts: { "CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0 }, equipment_total: 6 });
+  Object.assign(s, { equipment_counts: { "CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0 }, equipment_total: 6, count_scope: "equipment", count_prior: 1 });
   return s;
 }
 
@@ -39,7 +39,7 @@ describe("순위 줄 = 이 설비 기록 n건 중 k건 · 비슷한 기록은 �
   it("출처 줄은 새 셈을 말함(이 설비의 지난 같은 알람 기록 · 원인마다 기본 1건) · 100% 까닭 줄 0", () => {
     const { container } = render(<DiagnosisScreen s={m02()} onRecord={() => {}} onStart={() => {}} />);
     expect(container.querySelector('[data-part="rank-source"]')?.textContent).toBe(
-      "확률: 이 설비의 지난 같은 알람 기록 6건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)",
+      "확률 = (그 원인 건수 + 1) ÷ (6 + 원인 4개) — 이 설비의 지난 같은 알람 기록 6건 기준 · 원인마다 기본 1건을 더해 기록이 적어도 100%가 되지 않음",
     );
     expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
   });
@@ -63,19 +63,28 @@ describe("순위 줄 = 이 설비 기록 n건 중 k건 · 비슷한 기록은 �
     expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/비슷한/);
   });
 
-  it("그룹으로 넓혀 센 셈(count_scope group): '같은 그룹 기록 n건 중 k건' · 출처 줄이 까닭(이 설비 기록 3건 미만)을 말함", () => {
-    const s = Object.assign(m02(), { count_scope: "group", equipment_counts: { "CL-1": 9, "CL-2": 3, "CL-3": 2, "CL-4": 1 }, equipment_total: 15 });
+  it("넓혀 센 셈(scope group · Pack 실제 출력 M-ZZ): '같은 증상 전체 기록 n건 중 k건' · 출처 줄이 까닭(이 설비 기록 3건 미만)을 말함", () => {
+    const s = Object.assign(m02(), { count_scope: "group", count_prior: 1, equipment_counts: { "CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16 }, equipment_total: 108 });
+    s.probabilities = { "CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15 };
     const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk .rs")).toEqual([
-      "같은 그룹 기록 15건 중 9건",
-      "같은 그룹 기록 15건 중 3건",
-      "같은 그룹 기록 15건 중 2건",
-      "같은 그룹 기록 15건 중 1건",
+      "같은 증상 전체 기록 108건 중 57건",
+      "같은 증상 전체 기록 108건 중 25건",
+      "같은 증상 전체 기록 108건 중 16건",
+      "같은 증상 전체 기록 108건 중 10건",
     ]);
     expect(container.querySelector('[data-part="rank-source"]')?.textContent).toBe(
-      "확률: 이 설비 기록이 3건 미만이라 같은 그룹의 지난 같은 알람 기록 15건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)",
+      "확률 = (그 원인 건수 + 1) ÷ (108 + 원인 4개) — 이 설비 기록이 3건 미만이라 같은 증상 전체 기록 108건 기준 · 원인마다 기본 1건을 더해 기록이 적어도 100%가 되지 않음",
     );
-    expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/이 설비 기록 15건/);
+    expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/이 설비 기록 108건/);
+  });
+
+  it("기본 건수 0(같은 증상 전체 셈 옵션): 식에 +1 없음 · 기본 1건 글 0", () => {
+    const s = Object.assign(m02(), { count_scope: "group", count_prior: 0, equipment_counts: { "CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16 }, equipment_total: 108 });
+    const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
+    expect(container.querySelector('[data-part="rank-source"]')?.textContent).toBe(
+      "확률 = 그 원인 건수 ÷ 108 — 같은 증상 전체 기록 108건 기준",
+    );
   });
 
   it("지난 화면도 같은 글 · 화면 글에 내부 번호 0", () => {
