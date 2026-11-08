@@ -25,6 +25,7 @@ export interface TopBarProps {
   user: { name: string; role: string };
   onHome: () => void;
   onBell: () => void;
+  onSwitchUser?: () => void; // 피드백 F12: 정비자 앱 [사용자 바꾸기](로그아웃 → 로그인 화면)
 }
 
 export function TopBar(p: TopBarProps) {
@@ -60,6 +61,11 @@ export function TopBar(p: TopBarProps) {
           <span className="av">{p.user.name.slice(0, 1)}</span>
           {p.user.name} · {p.user.role}
         </span>
+        {p.onSwitchUser ? (
+          <span className="tb-home tb-switch" role="button" tabIndex={0} onClick={p.onSwitchUser}>
+            사용자 바꾸기
+          </span>
+        ) : null}
       </div>
     </div>
   );

@@ -53,6 +53,17 @@ export function App() {
     device.setMe(m);
   };
   const expired = useCallback(() => setMe(null), []);
+  const switchUser = async () => {
+    // 피드백 F12: 서버 로그인 세션을 닫고(쿠키 지움) 로그인 화면으로 — 응답이 없어도 기기 쪽은 비움
+    await api.POST("/api/logout").catch(() => undefined);
+    setHome(null);
+    setNotes(null);
+    setSession(null);
+    setOpened(null);
+    lastNew.current = null;
+    setMe(null);
+    go({ name: "home" });
+  };
 
   const go = (v: View) => {
     setView(v);
@@ -168,6 +179,7 @@ export function App() {
           if (view.name !== "home") go({ name: "home" });
           setPanel((x) => !x);
         }}
+        onSwitchUser={() => void switchUser()}
       />
       <TodayPanel
         home={home}
