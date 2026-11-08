@@ -1,5 +1,5 @@
 // 리허설 2 R3 · R6(A 진단 숫자 · 앱 몫, 표시 · 글만): 순위 줄 = 확률 셈에 쓴 '이 설비 기록 n건 중 k건'(Pack 판정 출력 그대로) ·
-// 비슷한 과거 기록은 순위 줄에서 빼고 그 칸 이름에 '다른 설비 참고 · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
+// 비슷한 과거 기록은 순위 줄에서 빼고 그 칸 이름에 '참고(다른 설비 포함) · 순위 계산에 안 씀' · 출처 줄은 새 셈(원인마다 기본 1건)을 말함.
 // n · k 칸이 없으면(옛 Pack · 옛 세션) 숫자 자리를 숨김 — 지어낸 숫자 0.
 
 import { cleanup, render } from "@testing-library/react";
@@ -44,11 +44,11 @@ describe("순위 줄 = 이 설비 기록 n건 중 k건 · 비슷한 기록은 �
     expect(container.querySelector('[data-part="rank-full"]')).toBeNull();
   });
 
-  it("비슷한 과거 기록 칸 이름 = '다른 설비 참고 · 순위 계산에 안 씀' · 카드는 그대로", () => {
+  it("비슷한 과거 기록 칸 이름 = '참고(다른 설비 포함) · 순위 계산에 안 씀' · 카드는 그대로", () => {
     const s = m02();
     const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
     const head = [...container.querySelectorAll(".cd-h b")].map((b) => b.textContent);
-    expect(head).toContain(`비슷한 과거 기록 ${s.similar_cards.length}건 · 다른 설비 참고 · 순위 계산에 안 씀`);
+    expect(head).toContain(`비슷한 과거 기록 ${s.similar_cards.length}건 · 참고(다른 설비 포함) · 순위 계산에 안 씀`);
     expect(container.querySelectorAll(".hcs > *").length).toBe(s.similar_cards.length);
   });
 
@@ -61,6 +61,21 @@ describe("순위 줄 = 이 설비 기록 n건 중 k건 · 비슷한 기록은 �
       "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율",
     );
     expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/비슷한/);
+  });
+
+  it("그룹으로 넓혀 센 셈(count_scope group): '같은 그룹 기록 n건 중 k건' · 출처 줄이 까닭(이 설비 기록 3건 미만)을 말함", () => {
+    const s = Object.assign(m02(), { count_scope: "group", equipment_counts: { "CL-1": 9, "CL-2": 3, "CL-3": 2, "CL-4": 1 }, equipment_total: 15 });
+    const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
+    expect(texts(container, ".rk .rs")).toEqual([
+      "같은 그룹 기록 15건 중 9건",
+      "같은 그룹 기록 15건 중 3건",
+      "같은 그룹 기록 15건 중 2건",
+      "같은 그룹 기록 15건 중 1건",
+    ]);
+    expect(container.querySelector('[data-part="rank-source"]')?.textContent).toBe(
+      "확률: 이 설비 기록이 3건 미만이라 같은 그룹의 지난 같은 알람 기록 15건에서 원인별 건수 비율 · 원인마다 기본 1건을 더해 셈(기록이 적어도 한 원인이 100%가 되지 않게)",
+    );
+    expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/이 설비 기록 15건/);
   });
 
   it("지난 화면도 같은 글 · 화면 글에 내부 번호 0", () => {

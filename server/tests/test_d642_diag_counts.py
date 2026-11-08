@@ -10,14 +10,22 @@ from c1a15.llm.base import Facts
 from c1a15.llm.fixture import FixtureAdapter
 
 ORDER = ["CL-1", "CL-2", "CL-3", "CL-4"]
-KC, KT = screen.PACK_COUNT_KEYS
+KC, KT, KS = screen.PACK_COUNT_KEYS
 
 
 def test_counts_come_from_the_pack_output_in_manual_order():
     step = {"probabilities": {"CL-1": 50}, "evidence": {}, KC: {"CL-3": 1, "CL-1": 4, "CL-4": 0, "CL-2": 1}, KT: 6}
     got = screen.decided_counts(step, ORDER)
-    assert got == {"equipment_counts": {"CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0}, "equipment_total": 6}
+    assert got == {"equipment_counts": {"CL-1": 4, "CL-2": 1, "CL-3": 1, "CL-4": 0}, "equipment_total": 6, "count_scope": "equipment"}
     assert list(got["equipment_counts"]) == ORDER
+
+
+def test_scope_group_is_carried_and_an_unknown_scope_hides_the_numbers():
+    step = {KC: {"CL-1": 9}, KT: 15}
+    assert screen.decided_counts({**step, KS: "group"}, ORDER)["count_scope"] == "group"
+    assert screen.decided_counts({**step, KS: "equipment"}, ORDER)["count_scope"] == "equipment"
+    assert screen.decided_counts(step, ORDER)["count_scope"] == "equipment"  # 칸 없음 = 지금 Pack 기본(이 설비)
+    assert screen.decided_counts({**step, KS: "line"}, ORDER) is None  # 모르는 값이면 '이 설비'라고 말하지 않음
 
 
 def test_no_counts_or_odd_shape_gives_none():
