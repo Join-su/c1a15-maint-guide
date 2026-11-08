@@ -203,13 +203,13 @@ describe("T05 잠금 · 사전 확인", () => {
 
   it("잠금 뒤 사전 확인: 잠금 표시줄 · 등급 · 절 · 분 · 「점수 없이 항상 먼저」 · 다음 안내 줄 없음(D-528 가이드 정비자 5)", () => {
     const s = load<SessionWithPreview>("session-precheck");
-    const { container } = render(<PrecheckScreen s={s} busy={false} values="" onValues={() => {}} onDone={() => {}} />);
+    const { container } = render(<PrecheckScreen s={s} busy={false} onDone={() => {}} />);
     expect(container.querySelector(".lockok b")?.textContent).toBe("잠금 확인 완료");
     expect(container.querySelector(".ins-h .sm")?.textContent).toBe("사전 확인");
     expect(container.querySelector(".ins-h .gb")?.textContent).toBe("A단독 가능");
     expect(container.querySelector(".res .note")).toBeNull();
-    expect(texts(container, ".res .btn")).toEqual(["사전 확인 완료"]);
-    expect(container.querySelector(".res .btn")?.className).toContain("dis"); // 값이 없으면 열리지 않음(D-422)
+    expect(texts(container, ".res .btn")).toEqual(["확인", "상급자 호출"]); // 피드백 F9: 적는 칸 없이 두 단추
+    expect(container.querySelector(".res textarea")).toBeNull();
   });
 });
 

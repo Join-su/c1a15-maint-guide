@@ -82,9 +82,8 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").content), "잠금 표시 이모지 0").not.toContain("🔒");
   expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").maskImage || getComputedStyle(el, "::before").webkitMaskImage), "잠금 표시 선 아이콘").toContain("svg");
   await snap(page, info, "T5-precheck");
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   // 정비자 6 점검 → 9 조치 · 재가동
   await expect(page.locator(".rbtns")).toBeVisible();
   await expect(page.locator(".res .note")).toHaveCount(0);
@@ -224,9 +223,8 @@ test("두 번째 점검이 열리면 왼쪽 칸도 바로 '점검 2/3' · 매뉴
   await page.locator(".nx .btn").click();
   await pause(page);
   await page.locator(".lockm").getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await expect(page.locator(".rbtns")).toBeVisible();
   // 매뉴얼 원문 창: 가운데 · 640px 안팎 · 단계 띠도 창 뒤 어둠 아래(답장 001-zzx-2 1 — 앞 '밝게' 바로잡음)
   await pause(page);

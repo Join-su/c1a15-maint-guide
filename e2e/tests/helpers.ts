@@ -195,8 +195,7 @@ export async function toFirstCheck(
   if (onDiagnosis) await onDiagnosis();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C"); // D-422: 사전 확인 값 필수
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await expect(page.locator(".rbtns")).toBeVisible();
   return sid;
 }

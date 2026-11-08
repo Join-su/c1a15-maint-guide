@@ -106,21 +106,22 @@ it("'진단 보기' 세 번 빠르게 → 알람 확인 요청 한 번 · 응답
   expect(container.textContent).not.toContain("잠금 완료");
 });
 
-it("사전 확인: 값이 비면 '사전 확인 완료'가 잠겨 보내지 않고, 값을 적으면 값과 함께 보냄", async () => {
+it("사전 확인(피드백 F9): 기록할 값 칸 없음 · [확인] → 값 '확인함' · [상급자 호출] → 호출 후 조치 길(mode call_first)", async () => {
   const view = { ...load<SessionView>("event-precheck"), preview: { kind: "instruct", section: null, grade: null, cause: null } } as SessionView;
   expect(view.step.kind).toBe("precheck");
   const POST = vi.fn(() => ok(view));
   const api = { GET: vi.fn(() => ok(view)), POST } as unknown as Api;
-  const { container, getByLabelText } = session(api, view);
-  const done = () => [...container.querySelectorAll(".btn")].find((b) => b.textContent?.includes("사전 확인 완료")) as Element;
-  expect(done().className).toContain("dis");
-  fireEvent.click(done());
-  expect(POST).not.toHaveBeenCalled();
-  fireEvent.change(getByLabelText("기록할 값"), { target: { value: "하우징 52 °C" } });
-  expect(done().className).not.toContain("dis");
-  await act(async () => fireEvent.click(done()));
-  expect(POST).toHaveBeenCalledWith("/api/tech/sessions/{sid}/events", {
+  const { container } = session(api, view);
+  expect(container.querySelector("textarea")).toBeNull();
+  const b = (label: string) => [...container.querySelectorAll(".res .btn")].find((x) => x.textContent?.trim() === label) as Element;
+  await act(async () => fireEvent.click(b("확인")));
+  expect(POST).toHaveBeenLastCalledWith("/api/tech/sessions/{sid}/events", {
     params: { path: { sid: view.session_id } },
-    body: { seq: view.last_seq + 1, type: "precheck_done", values: "하우징 52 °C" },
+    body: { seq: view.last_seq + 1, type: "precheck_done", values: "확인함" },
+  });
+  await act(async () => fireEvent.click(b("상급자 호출")));
+  expect(POST).toHaveBeenLastCalledWith("/api/tech/sessions/{sid}/events", {
+    params: { path: { sid: view.session_id } },
+    body: { seq: view.last_seq + 1, type: "precheck_done", values: "이상 있음 · 상급자 호출", mode: "call_first" },
   });
 });

@@ -349,3 +349,31 @@ def test_pick_outside_candidates_at_diagnosis_is_refused(api, db, deploy):
     tech, s = start(api, db, equipment="M-02")
     s = ok(tech, s, type="alarm_ack")
     assert ev(tech, s, type="switch_check", section="9.9").status_code == 409
+
+
+def test_precheck_call_up_goes_the_call_first_path(api, db, deploy):
+    """피드백 F9: 사전 확인 [상급자 호출] = precheck_done{values, mode: call_first} 한 번 → 사전 확인 끝 ·
+    정비자 예외 '호출 후 조치'와 같은 길(exception_start → EX-NEW 호출 자동). [확인]은 값 '확인함'으로 그대로."""
+    reset_ops(db)
+    lc = lead(api)
+    tech, s = start(api, db)
+    for etype in ("alarm_ack", "lock"):
+        s = ok(tech, s, type=etype)
+    s = ok(tech, s, type="precheck_done", values="이상 있음 · 상급자 호출", mode="call_first")
+    sid = s["session_id"]
+    assert _events(db, sid, "precheck_done") == [{"values": "이상 있음 · 상급자 호출"}]  # 사전 확인 사건에 mode 안 남김
+    assert _events(db, sid, "exception_start") == [{"mode": "call_first"}]
+    assert (s["step"]["kind"], s["step"]["section"], s["step"]["call_status"]) == ("call", "EX-NEW", "sent")
+    assert [e["section"] for e in _events(db, sid, "call_sent")] == ["EX-NEW"]
+    assert lc.get("/api/lead/calls").json()["rows"]  # 파트장 쪽 호출 한 줄
+    r = _post(tech, s, type="precheck_done", values="확인함")
+    assert (r.status_code, r.json()["detail"]) == (409, "not_precheck_step")
+
+
+def test_precheck_confirm_only_is_plain_precheck(api, db, deploy):
+    reset_ops(db)
+    tech, s = start(api, db)
+    for etype in ("alarm_ack", "lock"):
+        s = ok(tech, s, type=etype)
+    s = ok(tech, s, type="precheck_done", values="확인함")
+    assert s["step"]["kind"] == "instruct" and _events(db, s["session_id"], "exception_start") == []

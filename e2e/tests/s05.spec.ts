@@ -14,16 +14,15 @@ async function leadPage(browser: Browser): Promise<Page> {
   return page;
 }
 
-/** 홈 → 새 알람 → 진단 → 잠금 → 사전 확인(측정값 기록) → 첫 지시. */
-async function toCheck(page: Page, scenario = "DEMO-01", values = "하우징 표면 52 °C · 공기 302.7 K · 공정 310.5 K"): Promise<number> {
+/** 홈 → 새 알람 → 진단 → 잠금 → 사전 확인([확인]) → 첫 지시. */
+async function toCheck(page: Page, scenario = "DEMO-01"): Promise<number> {
   alarm(scenario);
   await page.locator(".al .btn", { hasText: "점검 시작" }).click();
   await page.waitForURL(/\/session\/\d+/);
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill(values);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await expect(page.locator(".rbtns")).toBeVisible();
   return sidOf(page);
 }

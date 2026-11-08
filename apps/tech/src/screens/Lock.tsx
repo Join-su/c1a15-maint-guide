@@ -88,18 +88,16 @@ export function LockScreen({ s, busy, onLock }: { s: SessionWithPreview; busy: b
   );
 }
 
+// 피드백 F9: 사전 확인은 보고 확인만 — 적는 칸 없이 [확인] · [상급자 호출](현장에서 태블릿 타이핑 시간 없음).
+// [상급자 호출]은 사전 확인을 마치며 [예외] '호출 후 조치'와 같은 길로 파트장 호출이 바로 나감(서버).
 export function PrecheckScreen({
   s,
   busy,
-  values,
-  onValues,
   onDone,
 }: {
   s: SessionWithPreview;
   busy: boolean;
-  values: string;
-  onValues: (v: string) => void;
-  onDone: () => void;
+  onDone: (callUp: boolean) => void;
 }) {
   const ins = s.instruction;
   if (!ins) return null;
@@ -122,15 +120,11 @@ export function PrecheckScreen({
         <div className="cd">
           <div className="res">
             <b className="rt">사전 확인</b>
-            <span className="sm">기록할 값</span>
-            <textarea className="memo" aria-label="기록할 값" value={values} onChange={(e) => onValues(e.target.value)} />
-            <span
-              className={`btn lg full${busy || !values.trim() ? " dis" : ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={busy || !values.trim() ? undefined : onDone} // D-422: 값 없이 다음으로 가지 않음(서버도 거절)
-            >
-              사전 확인 완료 <Icon name="check" />
+            <span className={`btn lg full${busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={busy ? undefined : () => onDone(false)}>
+              확인 <Icon name="check" />
+            </span>
+            <span className={`btn lg full ghost${busy ? " dis" : ""}`} role="button" tabIndex={0} onClick={busy ? undefined : () => onDone(true)}>
+              상급자 호출
             </span>
           </div>
         </div>

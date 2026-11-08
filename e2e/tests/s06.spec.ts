@@ -29,8 +29,7 @@ test("AC-44-C3(S-05 이어받음): 조치 B 시작 전 체크 · 재가동 체�
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await page.locator(".rbtn", { hasText: "이상" }).click();
   await page.getByText("결과 보내기").click();
   // 조치 B 시작 전 체크(T08 / checklist_b): 하나만 체크

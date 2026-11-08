@@ -207,11 +207,11 @@ export function Session(p: SessionProps) {
       <PrecheckScreen
         s={s}
         busy={busy}
-        values={draft.precheck}
-        onValues={(v) => setDraft({ ...draft, precheck: v })}
-        onDone={() =>
-          void send({ type: "precheck_done", ...(draft.precheck.trim() ? { values: draft.precheck.trim() } : {}) }).then(
-            (ok) => ok && setDraft({ ...draft, precheck: "" }),
+        onDone={(callUp) =>
+          void send(
+            callUp
+              ? { type: "precheck_done", values: "이상 있음 · 상급자 호출", mode: "call_first" }
+              : { type: "precheck_done", values: "확인함" },
           )
         }
       />

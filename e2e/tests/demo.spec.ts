@@ -155,14 +155,13 @@ for (const d of DEMO) {
     await page.getByText("진단 보기").click();
     await page.locator(".nx .btn").click();
     await page.getByText("잠금 완료", { exact: true }).click();
-    await expect(page.getByText("사전 확인 완료")).toBeVisible();
+    await expect(page.locator(".res").getByRole("button", { name: "확인", exact: true })).toBeVisible();
     if (d.steps.some((x) => "restartApi" in x)) {
       await restartApi(page); // 재시작 재개(P-17 verifier): 잠금 뒤 api 재시작 → 같은 단계(사전 확인)로 이어서
       await page.reload();
-      await expect(page.getByText("사전 확인 완료")).toBeVisible();
+      await expect(page.locator(".res").getByRole("button", { name: "확인", exact: true })).toBeVisible();
     }
-    await page.getByLabel("기록할 값").fill("사전 확인 값 기록");
-    await page.getByText("사전 확인 완료").click();
+    await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
     await expect(page.locator(".rbtns")).toBeVisible();
     let lead: Page | null = null;
     let lg: ReturnType<typeof guard> | null = null;

@@ -672,6 +672,8 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
     events = events_of(c, row.session_id)
     last = events[-1]["seq"] if events else 0
     payload = {k2: v for k2, v in body.items() if k2 not in {"type", "seq"}}
+    # 피드백 F9 사전 확인 [상급자 호출]: 사전 확인 사건에는 값만 — 호출은 아래에서 예외 '호출 후 조치' 길로
+    call_up = etype == "precheck_done" and payload.pop("mode", None) == "call_first"
     seq = body.get("seq")
     if isinstance(seq, int) and seq <= last:
         stored = next((e for e in events if e["seq"] == seq), None)
@@ -780,6 +782,11 @@ def post_event(c: Connection, row: m.DiagSession, actor: str, body: dict) -> dic
         {"seq": last + 1, **payload},
     )
     decision = _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
+    if call_up and decision.get("kind") in SWITCHABLE:  # 첫 점검 안내가 열렸으면 [예외] 호출 후 조치와 같은 사건
+        etype, payload, last = "exception_start", {"mode": "call_first"}, events_of(c, row.session_id)[-1]["seq"]
+        _store(c, row.session_id, last + 1, etype, payload, actor)
+        audit(c, actor, etype, f"session:{row.session_id}", {"seq": last + 1, **payload})
+        decision = _open_step(c, row.session_id, row, events_of(c, row.session_id), actor)
     if etype == "exception_start" and payload["mode"] == "call_first" and decision["kind"] == "call":
         _auto_call(c, row, actor)  # 정답지 묶음 ① 16쪽: 호출 후 조치는 호출이 자동으로 나감
     return view(c, row)

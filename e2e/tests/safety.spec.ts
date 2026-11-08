@@ -16,7 +16,7 @@ async function rapid(page: Page, sel: string, n = 3) {
   }
 }
 
-test("빠른 세 번 누름: 홈 '점검 시작' → 알람 화면에 머묾 · 알람 '진단 보기' → 진단 화면에 머묾 · 사전 확인은 값 없이 안 넘어감", async ({ page }) => {
+test("빠른 세 번 누름: 홈 '점검 시작' → 알람 화면에 머묾 · 알람 '진단 보기' → 진단 화면에 머묾 · 사전 확인 [확인]은 한 번만", async ({ page }) => {
   await login(page, "tech.kim", TECH_PW, false);
   const id = alarm("DEMO-01");
   await expect(page.locator(`[data-alarm="${id}"] .btn`)).toBeVisible({ timeout: 15_000 });
@@ -39,11 +39,11 @@ test("빠른 세 번 누름: 홈 '점검 시작' → 알람 화면에 머묾 · 
   await page.locator(".nx .btn").click();
   await page.waitForTimeout(500);
   await page.getByText("잠금 완료", { exact: true }).click();
-  const done = page.locator(".btn", { hasText: "사전 확인 완료" });
-  await expect(done).toHaveClass(/dis/); // 값 없으면 잠김
+  // 피드백 F9: 사전 확인은 적는 칸 없이 [확인] — 빠르게 세 번 눌러도 사전 확인 한 번 · 다음 화면(점검 안내)에서 결과로 새지 않음
+  await expect(page.locator(".res textarea")).toHaveCount(0);
   await page.waitForTimeout(500);
-  await rapid(page, ".btn:has-text('사전 확인 완료')");
-  await page.waitForTimeout(1000);
-  await expect(done).toBeVisible(); // 그대로 사전 확인 화면
-  expect(psql(`select count(*) from ops.session_events where session_id = ${sid} and type = 'precheck_done'`)).toBe("0");
+  await rapid(page, ".res .btn:not(.ghost)");
+  await page.waitForTimeout(1500);
+  expect(psql(`select count(*) from ops.session_events where session_id = ${sid} and type = 'precheck_done'`)).toBe("1");
+  expect(psql(`select count(*) from ops.session_events where session_id = ${sid} and type in ('result', 'exception_start')`)).toBe("0");
 });

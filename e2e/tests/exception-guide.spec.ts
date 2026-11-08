@@ -85,9 +85,8 @@ async function toExceptionCall(page: Page, pick = true) {
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   if (pick) await pickException(page);
 }
 test.afterEach(async () => {
@@ -104,9 +103,8 @@ test("예외 안내: 점검방법 글 + 출처 · 「점검방법 등록」(취�
   await page.getByText("진단 보기").click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await pickException(page);
   const left = page.locator(".g64 > .cd").first();
   await expect(left.locator(".warn-h .sm")).toHaveText("예외 기록에서 온 점검"); // 잠금 · 사전 확인 뒤 예외 절 먼저
@@ -347,9 +345,8 @@ test("D570글: 진단 셋째 칩 = 첫 점검 이름 · 이유 · 호출 요약 
   await pause(page);
   await nx.locator(".btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await pickException(page);
   const right = page.locator(".g64 > .cd").nth(1);
   await expect(right).toContainText("예외상황-덮개 볼트 조임과 같은 조건 — 흡기 필터 덮개 볼트(C등급) 확인 필요");
@@ -374,9 +371,8 @@ test("실제 Pack 예외 preview 꼴(contracts v8 start-exception): 「점검 �
   await pause(page);
   await nx.locator(".btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await pickException(page);
   const left = page.locator(".g64 > .cd").first();
   await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인"); // 같은 예외 절 호출
@@ -402,9 +398,8 @@ test("F3 가이드 그림 일곱(DEMO-04 길): 로그인 · 잠금 창 · 사전
   await expect(page.getByText("잠금 완료", { exact: true })).toBeVisible();
   await snap(page, info, "F3-02-lock");
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 41 °C · 공기 302.6 K · 공정 310.4 K");
   await snap(page, info, "F3-03-precheck");
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await pickException(page);
   await page.locator(".g64 > .cd").nth(1).locator(".btn", { hasText: "파트장 호출" }).click();
   await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
@@ -458,9 +453,8 @@ test("D580 후보: 진단 다른 후보 · 호출 화면 근거 한 줄 · 예�
   await page.locator(".swm .mb .btn", { hasText: "취소" }).click();
   await page.locator(".nx .btn").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await page.locator(".rbtns").waitFor();
   await pause(page);
   await page.locator(".refs .lk", { hasText: "점검 바꾸기" }).click();
@@ -507,9 +501,8 @@ test("D585 진단 [점검 바꾸기]: 예외 고름 → 카드에 고른 점검 
   await page.locator(".nx .btn").click();
   await expect(page.getByText("잠금 완료", { exact: true })).toBeVisible(); // 안전 순서 그대로
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   const left = page.locator(".g64 > .cd").first();
   await expect(left.locator(".warn-h h3")).toHaveText("필터 덮개 고정 나사 확인");
   await snap(page, info, "D4-after-safety-picked-exception");
@@ -535,9 +528,8 @@ test("D585 보통 알람도 같게: 예외 없는 세션 진단 [점검 바꾸�
   await pause(page);
   await nx.locator(".btn.full").click();
   await page.getByText("잠금 완료", { exact: true }).click();
-  await page.getByLabel("기록할 값").fill("하우징 표면 52 °C");
   await pause(page);
-  await page.getByText("사전 확인 완료").click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
   await expect(page.locator(".ins-h h3")).toHaveText("냉각수 수위 확인");
   g.check(info);
 });
