@@ -216,11 +216,13 @@ describe("T10 파트장 호출", () => {
   });
 
   // D-566 약속 v10 걸음 길(정답지 26쪽): 호출 카드 머리 아래 '안내 차례 · 적은 순서 그대로' — 점검 둘 → 조치 둘 · 지금 걸음 굵게
+  // D-642 C: 한 줄 = 지시 문장(서버 say) · '지금'은 문장 앞 표시로 따로
+  const SAY1 = "필터 덮개 고정 나사 네 개를 손으로 돌려 보고, 헐거우면 이상으로 적습니다.";
   const WALK = [
-    { step: "c1", side: "check", what: "필터 덮개 고정 나사 확인", done: false, now: true },
-    { step: "c2", side: "check", what: "흡기 덕트 이음매", done: false, now: false },
-    { step: "a1", side: "action", what: "나사를 새로 끼움", done: false, now: false },
-    { step: "a2", side: "action", what: "밴드를 다시 조임", done: false, now: false },
+    { step: "c1", side: "check", what: "필터 덮개 고정 나사 확인", say: SAY1, done: false, now: true },
+    { step: "c2", side: "check", what: "흡기 덕트 이음매", say: "흡기 덕트 이음매", done: false, now: false },
+    { step: "a1", side: "action", what: "나사를 새로 끼움", say: "나사를 새로 끼움 · 부품 M6 나사", done: false, now: false },
+    { step: "a2", side: "action", what: "밴드를 다시 조임", say: "밴드를 다시 조임", done: false, now: false },
   ];
   it("예외 안내 걸음 길(정답지 26쪽): '안내 차례 · 적은 순서 그대로' 넷 · 1 점검 … · 지금 · 그 아래 점검방법 · 옛 길(목록 없음)은 차례 0", () => {
     const s = { ...exceptionCall(), exception_walk: WALK, exception_topic: "필터 덮개 나사" };
@@ -229,8 +231,10 @@ describe("T10 파트장 호출", () => {
     );
     const wk = container.querySelector('[data-part="ex-walk"]')!;
     expect(wk.querySelector("b")?.textContent).toBe("안내 차례 · 적은 순서 그대로");
-    expect(texts(wk, ".xwr")).toEqual(["1 점검 필터 덮개 고정 나사 확인 · 지금", "2 점검 흡기 덕트 이음매", "3 조치 나사를 새로 끼움", "4 조치 밴드를 다시 조임"]);
-    expect(texts(wk, ".xwr.now")).toEqual(["1 점검 필터 덮개 고정 나사 확인 · 지금"]);
+    expect(texts(wk, ".xwr")).toEqual([`지금점검 1 ${SAY1}`, "점검 2 흡기 덕트 이음매", "조치 3 나사를 새로 끼움 · 부품 M6 나사", "조치 4 밴드를 다시 조임"]);
+    expect(texts(wk, ".xwr.now .xnow")).toEqual(["지금"]); // '지금'은 문장 앞 표시 하나
+    expect(texts(wk, ".xwr.now .xsay")).toEqual([SAY1]); // 문장 안엔 '지금' 0
+    expect(texts(wk, ".xnow")).toHaveLength(1);
     expect(wk.nextElementSibling?.textContent).toBe("점검방법"); // 차례 다음 점검방법(26쪽 순서)
     cleanup();
     const old = render(
@@ -247,8 +251,8 @@ describe("T10 파트장 호출", () => {
     const send = vi.fn();
     const { container } = render(<ActionScreen s={s} busy={false} checked={[]} onCheck={() => {}} send={send} />);
     const card = container.querySelector(".cd.act")!;
-    expect(texts(card, ".xwr.done")).toEqual(["1 점검 필터 덮개 고정 나사 확인", "2 점검 흡기 덕트 이음매"]);
-    expect(texts(card, ".xwr.now")).toEqual(["3 조치 나사를 새로 끼움 · 지금"]);
+    expect(texts(card, ".xwr.done")).toEqual([`점검 1 ${SAY1}`, "점검 2 흡기 덕트 이음매"]);
+    expect(texts(card, ".xwr.now")).toEqual(["지금조치 3 나사를 새로 끼움 · 부품 M6 나사"]);
     expect(texts(card, ".proc li")).toEqual(["1부품 M6 나사"]);
     fireEvent.click(btn(card, "조치 완료"));
     expect(send).toHaveBeenLastCalledWith({ type: "action_done", section: "EX-R-0012" });
@@ -536,6 +540,12 @@ describe("T09 보고서", () => {
       "조치 2밴드 조임",
     ]); // 적은 순서 그대로 · 점검 다음 조치
     expect([...one.querySelectorAll(".exl")].map((x) => x.getAttribute("data-step"))).toEqual(["c1", "c2", "a1", "a2"]);
+    // D-642 C: AI 나눔이 지시 문장(무엇을 · 어떻게 · 판정 기준)을 함께 주면 '보고서에 적용' 전 줄에 그 문장 그대로
+    const say = "덮개 나사 네 개를 손으로 돌려 보고, 헐거우면 이상으로 적습니다.";
+    const EXS = { ...EX1, checks: [{ ...EX1.checks[0], instruction: say }, EX1.checks[1]] };
+    r.rerender(<ReportScreen report={exReport({ exception_split: { text: EXT, exception: EXS, error: null, similar_error: null } })} busy={false} send={send} onHome={() => {}} />);
+    expect(texts(popup(r.container)!, '[data-part="ex-items"] .exi .exl').slice(0, 2)).toEqual([`점검 1${say}`, "점검 2덕트 이음매 · 기준 정상 범위"]);
+    r.rerender(<ReportScreen report={exReport({ exception_split: { text: EXT, exception: EX1, error: null, similar_error: null } })} busy={false} send={send} onHome={() => {}} />);
     expect(one.querySelector(".exh")?.textContent).toBe("비슷한 것 · 예외 통째로 견줌");
     expect([...one.querySelectorAll(".exr")].map((x) => texts(x, ".ch, .exn, .btn"))).toEqual([
       ["예외", "예외상황-필터 덮개 나사", "같음"], // 지금 목록이 안 온 예외 줄 = 고침/보탬 0(30쪽은 따로 시험)
@@ -883,6 +893,8 @@ describe("D-619 사전 점검 후보", () => {
       { record_id: "H-P005", equipment_id: "M-07", at: "2026-09-18T01:00:00Z", result: "이상 없음", follow_days: null },
     ],
     mark: null,
+    assignee: "tech.jung",
+    assignee_name: "정비자 정",
     ...over,
   });
 
@@ -896,6 +908,7 @@ describe("D-619 사전 점검 후보", () => {
     expect(pc.getAttribute("data-precheck")).toBe("A");
     expect(texts(pc, ".pck-h > *")).toEqual(["한번 살펴봐 주세요", "고장 판단이 아닙니다"]);
     expect(pc.querySelector(".pck-d")?.textContent).toBe("M-04 · 2일 전 흡기 필터 교체(4.3.2)");
+    expect(pc.querySelector(".pck-o")?.textContent).toBe("내 담당 설비 · 정비자 정"); // D-642 E ③ 담당 표시
     expect(pc.querySelector(".pck-n")?.textContent).toBe(
       "같은 조건 사례 5건 중 3건이 7일 안에 필터 덮개 고정 문제로 이어졌고, 2건은 이상 없었습니다",
     );

@@ -55,6 +55,7 @@ function PrecheckCard({ c, onPrecheck }: { c: Precheck; onPrecheck?: OnPrecheck 
       <div className="pck-d">
         {c.equipment_id} · {when} {c.section_title}({c.section})
       </div>
+      <div className="pck-o">내 담당 설비 · {c.assignee_name}</div>
       <div className="pck-n">
         같은 조건 사례 {c.total}건 중 {c.hits}건이 {c.within_days}일 안에 {c.follow}로 이어졌고, {c.clean}건은 이상
         없었습니다

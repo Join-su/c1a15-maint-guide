@@ -3,7 +3,7 @@
 서버가 만든 값은 정해진 필드만(extra = forbid). 정비 이력 원본을 그대로 넘기는 객체(점검 경로 · 결과)는 extra = allow.
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class _Out(BaseModel):
@@ -143,6 +143,8 @@ class PrecheckCard(_Out):
     clean: int
     basis: list[PrecheckBasis]
     mark: PrecheckMark | None
+    assignee: str  # D-642 E 그 설비 담당자 id
+    assignee_name: str  # D-642 E 담당자 표시 이름(정비자 홈 담당 표시 · 파트장 칸)
 
 
 class PrecheckAck(_Out):
@@ -356,6 +358,9 @@ class ExceptionCheckFields(_Out):
     how: str
     criteria: str
     minutes: int | None
+    instruction: str | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )  # D-642 C 지시 문장 · 없으면 칸 안 나감
 
 
 class ExceptionActionFields(_Out):
@@ -364,6 +369,9 @@ class ExceptionActionFields(_Out):
     what: str
     parts: list[str]
     minutes: int | None
+    instruction: str | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )  # D-642 C 지시 문장 · 없으면 칸 안 나감
 
 
 class ExceptionGuideNext(_Out):
@@ -404,6 +412,7 @@ class ExceptionWalkStep(_Out):
     step: str
     side: str  # check | action
     what: str
+    say: str  # D-642 C 지시 문장(승인된 instruction · 없으면 무엇 · 어떻게 · 판정 기준) — '지금'은 now로 따로
     done: bool
     now: bool
 
@@ -788,6 +797,7 @@ class LeadOverview(_Out):
     tiles: LeadTiles
     rows: list[LeadReportRow]
     acted: list[LeadActedRow] = []  # 약속 v9 '호출 없이 조치함'(최근 순)
+    prechecks: list[PrecheckCard] = []  # D-642 E '사전 점검 후보' 칸(모든 설비 · 담당자 · 10초 조회마다 다시 셈)
 
 
 class LeadField(_Out):

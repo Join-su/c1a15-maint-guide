@@ -60,3 +60,22 @@ export function shortCause(text: string | null | undefined, max = 28): string {
   if (chars[cut - 1] !== " " && tail.includes(" ")) tail = tail.slice(tail.indexOf(" ") + 1);
   return `…${tail.trimStart()}`;
 }
+
+type ExCheckLike = { what: string; how?: string | null; criteria?: string | null; instruction?: string | null };
+type ExActionLike = { what: string; parts?: string[] | null; instruction?: string | null };
+
+/** 예외 점검 한 줄 = 지시 문장(무엇을 · 어떻게 · 판정 기준) — Pack이 만든 문장이 있으면 그대로 · 없으면 세 칸을 이어 씀(서버 say_of와 같은 규칙). */
+export function exCheckLine(c: ExCheckLike): string {
+  const say = (c.instruction ?? "").trim();
+  if (say) return say;
+  const how = (c.how ?? "").trim();
+  const crit = (c.criteria ?? "").trim();
+  return [c.what, how && how !== c.what ? how : "", crit && `기준 ${crit}`].filter(Boolean).join(" · ");
+}
+
+/** 예외 조치 한 줄 = 지시 문장 · 없으면 무엇 · 부품. */
+export function exActionLine(a: ExActionLike): string {
+  const say = (a.instruction ?? "").trim();
+  if (say) return say;
+  return [a.what, a.parts?.length ? `부품 ${a.parts.join(", ")}` : ""].filter(Boolean).join(" · ");
+}

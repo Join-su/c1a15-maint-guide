@@ -3,7 +3,7 @@
 // 스타일은 styles/final-report.css(앱 main.tsx에서 불러옴).
 
 import type { Schemas } from "./api";
-import { hhmm } from "./format";
+import { exActionLine, exCheckLine, hhmm } from "./format";
 
 type Final = Schemas["FinalReport"];
 
@@ -240,11 +240,11 @@ export function FinalReport({ data }: { data: Final }) {
                       </tr>
                       <tr data-item="checks">
                         <th>점검</th>
-                        <td>{numbered(xr.exception.checks.map((c) => join([c.what, c.criteria && `기준 ${c.criteria}`])))}</td>
+                        <td>{numbered(xr.exception.checks.map(exCheckLine))}</td>
                       </tr>
                       <tr data-item="actions">
                         <th>조치</th>
-                        <td>{numbered(xr.exception.actions.map((a) => join([a.what, a.parts.length > 0 && `부품 ${a.parts.join(", ")}`])))}</td>
+                        <td>{numbered(xr.exception.actions.map(exActionLine))}</td>
                       </tr>
                       {xr.exception.edit ? ( // 정답지 30쪽 파트장 승인: '같음 + 고침' · 바뀌기 전 / 뒤 나란히
                         <>

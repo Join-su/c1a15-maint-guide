@@ -214,16 +214,18 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
 
 // D-566 약속 v10 걸음 길(Pack 3502e29 engine 사본 · 정답지 26쪽): 예외 절에 점검 목록 · 조치 목록 → 승인 한 번 →
 // 점검 1 → 점검 2 → 조치 1 → 조치 2(결과로 건너뛰지 않음 · 사건 step 칸) → 재가동 → 경계 이내 → 보고서
+// D-642 C: 점검 1은 승인된 지시 문장(instruction)이 있는 줄 · 나머지는 세 칸을 이어 쓴 줄
+const WALK_SAY = "필터 덮개 고정 나사 네 개를 손으로 돌려 보고, 모두 체결되어 있으면 정상으로 적습니다.";
 const WALK_CHECKS = [
-  { what: "필터 덮개 고정 나사 확인", how: "손으로 돌려 봄", criteria: "모두 체결 = 정상", minutes: 5 },
+  { what: "필터 덮개 고정 나사 확인", how: "손으로 돌려 봄", criteria: "모두 체결 = 정상", minutes: 5, instruction: WALK_SAY },
   { what: "흡기 덕트 이음매", how: "", criteria: "", minutes: null },
 ];
 const WALK_ACTIONS = [
   { what: "나사를 새로 끼움", parts: ["M6 나사"], minutes: 5 },
   { what: "밴드를 다시 조임", parts: [], minutes: null },
 ];
-const WALK_ROWS = ["1 점검 필터 덮개 고정 나사 확인", "2 점검 흡기 덕트 이음매", "3 조치 나사를 새로 끼움", "4 조치 밴드를 다시 조임"];
-const walkNow = (n: number) => WALK_ROWS.map((r, i) => (i === n ? `${r} · 지금` : r));
+const WALK_ROWS = [`점검 1 ${WALK_SAY}`, "점검 2 흡기 덕트 이음매", "조치 3 나사를 새로 끼움 · 부품 M6 나사", "조치 4 밴드를 다시 조임"];
+const walkNow = (n: number) => WALK_ROWS.map((r, i) => (i === n ? `지금${r}` : r)); // '지금'은 문장 앞 표시
 
 test("예외 안내 걸음마다(정답지 26쪽): 안내 차례 넷 · 승인 한 번 → 점검 1 → 점검 2 → 조치 1 → 조치 2 → 재가동 → 보고서(사람 손 순서)", async ({ page, browser }, info) => {
   await answer({ exception_guide: guide({ minutes: 15, next_section: "4.3", checks: WALK_CHECKS, actions: WALK_ACTIONS }) });

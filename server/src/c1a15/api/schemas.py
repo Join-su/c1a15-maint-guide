@@ -49,6 +49,7 @@ class ExceptionCheckIn(_Strict):
     how: str = Field(default="", max_length=500)
     criteria: str = Field(default="", max_length=200)
     minutes: int | None = Field(default=None, ge=1)
+    instruction: str = Field(default="", max_length=500)  # D-642 C 지시 문장(선택 · 빈 글 = 칸 없음)
 
 
 class ExceptionActionIn(_Strict):
@@ -57,6 +58,7 @@ class ExceptionActionIn(_Strict):
     what: str = Field(min_length=1, max_length=200)
     parts: list[str] = Field(default=[], max_length=10)
     minutes: int | None = Field(default=None, ge=1)
+    instruction: str = Field(default="", max_length=500)  # D-642 C 지시 문장(선택 · 빈 글 = 칸 없음)
 
 
 class ExceptionEdit(_Strict):

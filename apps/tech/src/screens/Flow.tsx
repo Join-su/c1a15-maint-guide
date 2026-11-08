@@ -2,7 +2,7 @@
 // 값은 세션 응답의 path · action · restart · monitor · call · report(P-09). 화면 문구 외의 값은 만들지 않는다.
 
 import { useState } from "react";
-import { dateTime, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
+import { dateTime, exActionLine, exCheckLine, GradeBadge, hhmm, Icon, type Instruction, type Schemas, type SessionView } from "@c1a15/ui";
 import { SwitchRows } from "./Instruction";
 import { EX_NEW, ExWalk, isException, Proc, SecChip } from "./Lock";
 
@@ -129,10 +129,9 @@ type ExMatch = Schemas["ExceptionSimilar"];
 const matchKey = (m: { kind: string; no: string }) => `${m.kind}|${m.no}`;
 const exName = (topic?: string | null) => `예외상황-${topic ?? ""}`; // 고침A 11쪽 예외 이름
 const matchLabel = (m: ExMatch) => (m.kind === "예외" ? exName(m.name) : `${m.no} ${m.name}`);
-const lineCheck = (c: ExOne["checks"][number]) =>
-  [c.what, c.how && c.how !== c.what ? c.how : "", c.criteria && `기준 ${c.criteria}`].filter(Boolean).join(" · ");
-const lineAction = (a: ExOne["actions"][number]) =>
-  [a.what, a.parts.length ? `부품 ${a.parts.join(", ")}` : ""].filter(Boolean).join(" · ");
+// D-642 C: 점검 · 조치 한 줄 = 지시 문장(Pack 문장 · 없으면 무엇 · 어떻게 · 판정 기준) — 보고서 · 파트장 승인 화면과 같은 글
+const lineCheck = exCheckLine;
+const lineAction = exActionLine;
 /** 보고서 구역 한 줄(정답지 21쪽): '1 … · 2 …'. */
 const numbered = (xs: string[]) => xs.map((x, i) => `${i + 1} ${x}`).join(" · ");
 
@@ -153,7 +152,12 @@ type ExList = { checks: ExOne["checks"]; actions: ExOne["actions"] };
 /** 고친 뒤 대상 예외 목록 전체(same-edit.md 1절 edit) — 바뀐 것 없으면 null. */
 function editOf(m: ExMatch, e: ExEdit): ExList | null {
   if (!m.checks || !m.actions) return null;
-  const checks = m.checks.map((c, i) => ({ ...c, how: (e.hows[i] ?? c.how).trim() }));
+  // 방법을 고친 점검은 옛 지시 문장을 뺌(문장과 방법이 어긋나지 않게 · 화면은 세 칸을 이어 씀)
+  const checks = m.checks.map((c, i) => {
+    const { instruction, ...rest } = c;
+    const how = (e.hows[i] ?? c.how).trim();
+    return instruction && how === c.how ? { ...rest, how, instruction } : { ...rest, how };
+  });
   const actions = e.add.trim() ? [...m.actions, { what: e.add.trim(), parts: [], minutes: null }] : m.actions;
   const changed = checks.some((c, i) => c.how !== m.checks![i].how) || actions.length !== m.actions.length;
   return changed ? { checks, actions } : null;

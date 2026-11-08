@@ -1153,6 +1153,8 @@ export interface components {
          * @description D-554 ④ 한 조치(c1a15-pack 꼴 정본 fields-gate 1절).
          */
         ExceptionActionFields: {
+            /** Instruction */
+            instruction?: string | null;
             /** Minutes */
             minutes: number | null;
             /** Parts */
@@ -1165,6 +1167,11 @@ export interface components {
          * @description 약속 v10 1절 조치 칸(what만 필수).
          */
         ExceptionActionIn: {
+            /**
+             * Instruction
+             * @default
+             */
+            instruction: string;
             /** Minutes */
             minutes?: number | null;
             /**
@@ -1213,6 +1220,8 @@ export interface components {
             criteria: string;
             /** How */
             how: string;
+            /** Instruction */
+            instruction?: string | null;
             /** Minutes */
             minutes: number | null;
             /** What */
@@ -1233,6 +1242,11 @@ export interface components {
              * @default
              */
             how: string;
+            /**
+             * Instruction
+             * @default
+             */
+            instruction: string;
             /** Minutes */
             minutes?: number | null;
             /** What */
@@ -1554,6 +1568,8 @@ export interface components {
             done: boolean;
             /** Now */
             now: boolean;
+            /** Say */
+            say: string;
             /** Side */
             side: string;
             /** Step */
@@ -1937,6 +1953,11 @@ export interface components {
             acted: components["schemas"]["LeadActedRow"][];
             /** Now */
             now: string;
+            /**
+             * Prechecks
+             * @default []
+             */
+            prechecks: components["schemas"]["PrecheckCard"][];
             /** Rows */
             rows: components["schemas"]["LeadReportRow"][];
             tiles: components["schemas"]["LeadTiles"];
@@ -2355,6 +2376,10 @@ export interface components {
          * @description D-619 사전 점검 후보(고장 판단 아님): 건수는 코드가 이력에서 셈.
          */
         PrecheckCard: {
+            /** Assignee */
+            assignee: string;
+            /** Assignee Name */
+            assignee_name: string;
             /** Basis */
             basis: components["schemas"]["PrecheckBasis"][];
             /** Clean */

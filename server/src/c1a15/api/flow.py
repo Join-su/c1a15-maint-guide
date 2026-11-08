@@ -703,9 +703,20 @@ def exception_split_of(events: list[dict]) -> dict | None:
     return {k: hit.get(k) for k in ("text", "exception", "error", "similar_error")} if hit else None
 
 
+def _sentence(row: dict) -> dict:
+    """D-642 C: Pack이 AI 나눔 때 만든 지시 문장(선택 칸 instruction).
+    빈 글 · 없음이면 칸을 싣지 않음(옛 꼴 그대로)."""
+    say = str(row.get("instruction") or "").strip()
+    return {"instruction": say} if say else {}
+
+
 def _check_of(ck: dict) -> dict:
     return {
-        k: ck.get(k) if k == "minutes" else str(ck.get(k) or "").strip() for k in ("what", "how", "criteria", "minutes")
+        **{
+            k: ck.get(k) if k == "minutes" else str(ck.get(k) or "").strip()
+            for k in ("what", "how", "criteria", "minutes")
+        },
+        **_sentence(ck),
     }
 
 
@@ -714,7 +725,22 @@ def _action_of(ac: dict) -> dict:
         "what": str(ac.get("what") or "").strip(),
         "parts": [str(x) for x in ac.get("parts") or []],
         "minutes": ac.get("minutes"),
+        **_sentence(ac),
     }
+
+
+def say_of(item: dict, side: str) -> str:
+    """D-642 C 안내 차례 한 줄 = 승인된 지시 문장(instruction).
+    없으면 무엇 · 어떻게 · 기준(조치는 무엇 · 부품)을 이어 씀. '지금' 표시는 문장에 넣지 않음(화면이 앞에 따로)."""
+    say = str(item.get("instruction") or "").strip()
+    if say:
+        return say
+    what = str(item.get("what") or "").strip()
+    if side == "action":
+        parts = [str(x) for x in item.get("parts") or []]
+        return " · ".join(x for x in (what, f"부품 {', '.join(parts)}" if parts else "") if x)
+    how, crit = str(item.get("how") or "").strip(), str(item.get("criteria") or "").strip()
+    return " · ".join(x for x in (what, how if how != what else "", f"기준 {crit}" if crit else "") if x)
 
 
 def split_exception(output: dict) -> dict | None:
@@ -1086,7 +1112,7 @@ def walk_item(eg: dict | None, name: str | None) -> dict | None:
 
 def walk_of(events: list[dict], step: dict) -> list[dict] | None:
     """정답지 26쪽 '안내 차례 · 적은 순서 그대로': 점검 c1 … → 조치 a1 …(약속 v10 5절).
-    한 걸음 = 이름 · 무엇 · 끝남 · 지금.
+    한 걸음 = 이름 · 무엇 · 지시 문장(say · D-642 C) · 끝남 · 지금.
     지금 = 그 걸음 결정 · 승인 전 호출이면 첫 남은 걸음."""
     eg = exception_guide_of(events)
     if not walks(eg):
@@ -1102,7 +1128,8 @@ def walk_of(events: list[dict], step: dict) -> list[dict] | None:
     if now is None and step.get("section") == sec and step.get("kind") == "call":
         now = next((n for n, _, _ in rows if n not in done), None)
     return [
-        {"step": n, "side": side, "what": item["what"], "done": n in done, "now": n == now} for n, side, item in rows
+        {"step": n, "side": side, "what": item["what"], "say": say_of(item, side), "done": n in done, "now": n == now}
+        for n, side, item in rows
     ]
 
 

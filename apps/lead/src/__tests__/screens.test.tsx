@@ -231,6 +231,12 @@ describe("파트장 2 보고서 검토 = 최종본 문서", () => {
     ]);
     expect(texts(s2, ".fd-ex .fd-xk")).toEqual(["같음 · 예외상황-필터 덮개 나사"]); // 칩 하나(예외 전체에 한 번)
     cleanup();
+    // D-642 C: 파트장 승인 때 AI 나눔 지시 문장(무엇을 · 어떻게 · 판정 기준)이 그대로 보임 — 승인된 문장만 다른 기계에
+    const say = "덮개 나사 네 개를 손으로 돌려 보고, 헐거우면 이상으로 적습니다.";
+    const said = { ...one, checks: [{ ...one.checks[0], instruction: say }, one.checks[1]], actions: [{ ...one.actions[0], instruction: "헐거운 나사를 새로 끼웁니다." }, one.actions[1]] };
+    const sv = render(<Review api={{} as Api} report={{ ...report(), exception_record: { ...split, exception: said } }} onBack={noop} onDone={noop} />).container;
+    expect(texts(sv, ".fd-ex td").slice(3, 5)).toEqual([`1 ${say} · 2 덕트 이음매`, "1 헐거운 나사를 새로 끼웁니다. · 2 밴드 조임 · 부품 밴드"]);
+    cleanup();
     // 정답지 30쪽 파트장 승인: 칩 '같음 + 고침 · 이름' · 바뀌기 전 / 뒤 나란히(전 = 그때 받은 대상 지금 목록)
     const tgt = { checks: [{ what: "필터 덮개 고정 나사", how: "손으로 돌려 본다", criteria: "", minutes: null }], actions: [{ what: "나사를 새로 끼움", parts: [], minutes: null }] };
     const edit = { checks: [{ ...tgt.checks[0], how: "풀린 나사는 손으로 돌려 본다" }], actions: tgt.actions };

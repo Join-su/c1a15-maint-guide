@@ -18,7 +18,8 @@ export function SecChip({ section, topic }: { section: string; topic?: string | 
   return <span className="ch blue">{label}</span>;
 }
 
-/** 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길): 점검 c1 … → 조치 a1 … · 지금 걸음 굵게 · 끝낸 걸음 흐리게. */
+/** 정답지 26쪽 '안내 차례 · 적은 순서 그대로'(약속 v10 걸음 길): 점검 c1 … → 조치 a1 … · 지금 걸음 굵게 · 끝낸 걸음 흐리게.
+ * D-642 C: 한 줄 = 지시 문장(무엇을 · 어떻게 · 판정 기준 · 서버 say) · '지금'은 문장 앞 표시로 따로. */
 export function ExWalk({ walk }: { walk?: SessionView["exception_walk"] }) {
   if (!walk?.length) return null;
   return (
@@ -26,8 +27,11 @@ export function ExWalk({ walk }: { walk?: SessionView["exception_walk"] }) {
       <b>안내 차례 · 적은 순서 그대로</b>
       {walk.map((w, i) => (
         <div className={`xwr${w.now ? " now" : ""}${w.done ? " done" : ""}`} key={w.step} data-step={w.step}>
-          {i + 1} {w.side === "check" ? "점검" : "조치"} {w.what}
-          {w.now ? " · 지금" : ""}
+          {w.now ? <span className="ch blue xnow">지금</span> : null}
+          <span className="xside">
+            {w.side === "check" ? "점검" : "조치"} {i + 1}
+          </span>{" "}
+          <span className="xsay">{w.say}</span>
         </div>
       ))}
     </div>

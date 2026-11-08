@@ -6,6 +6,9 @@
 - 승인 예외는 승인 때 배포 revision과 지금이 달라진 뒤에만 이어짐(KG 반영 뒤).
 - 표시 = 이어짐 3건 이상 · 분모의 절반 이상.
 - 후보 = 그 설비 담당자의 진행 중 건 · 앞 조치 뒤 알람이 있던 설비 · 열린 알람 설비 뺌.
+- D-642 E: 셈은 조회 때마다 다시 — 그래프 반영 신호(배포 revision이 승인 때와 달라짐)가 오면
+  다음 조회에서 승인 예외가 이어짐에 듦.
+  파트장 앱 칸 = 모든 설비 후보 + 담당자(사용자 바꾸기 0) · 정비자 홈 = 내 담당 설비 것만 + 담당 표시.
 - [살펴봄] · [이번엔 제외]는 누가 · 언제 · 이유만 audit_log에 남김(건수 안 바뀜)."""
 
 from dataclasses import dataclass
@@ -160,18 +163,31 @@ def _basis(case: dict, result: str) -> dict:
     }
 
 
+def _owners(c: Connection) -> dict[str, tuple[str, str]]:
+    """설비 → (담당자 id, 표시 이름) — 담당자 없는 설비는 빠짐."""
+    found = c.execute(
+        text(
+            "select a.equipment_id, a.user_id, u.display_name from ops.equipment_assignments a "
+            "join ops.accounts u on u.user_id = a.user_id"
+        )
+    ).all()
+    return {r.equipment_id: (r.user_id, r.display_name) for r in found}
+
+
 def cards(c: Connection, user_id: str, now: datetime | None = None) -> list[dict]:
-    """그 정비자 담당 설비의 후보 카드 — 값은 모두 코드가 이력에서 셈."""
+    """그 정비자 담당 설비의 후보 카드 — 값은 모두 코드가 이력에서 셈(D-642 E ③ 담당 표시 칸 함께)."""
+    return [x for x in candidates(c, now) if x["assignee"] == user_id]
+
+
+def candidates(c: Connection, now: datetime | None = None) -> list[dict]:
+    """D-642 E 모든 설비의 후보 카드 + 담당자(파트장 앱 '사전 점검 후보' 칸) — 조회마다 다시 셈.
+    승인 예외는 그래프 반영 신호(배포 revision이 승인 때와 다름) 뒤에만 이어짐에 듦 · 담당자 없는 설비는 뺌."""
     now = now or datetime.now(UTC)
     rows = _rows(c)
     if not rows:
         return []
     reflected = _reflected(c, rows)
-    mine = set(
-        c.execute(
-            text("select equipment_id from ops.equipment_assignments where user_id = :u"), {"u": user_id}
-        ).scalars()
-    )
+    owners = _owners(c)
     alarms = c.execute(text("select equipment_id, occurred_at, status from ops.alarms")).all()
     marks = _marks(c)
     out = []
@@ -187,7 +203,7 @@ def cards(c: Connection, user_id: str, now: datetime | None = None) -> list[dict
                 a.equipment_id == eq and (a.occurred_at >= o["at"] or a.status in ("new", "in_progress"))
                 for a in alarms
             )
-            if eq not in mine or had_alarm:
+            if eq not in owners or had_alarm:
                 continue
             step = next(s for s in o["row"]["record"]["steps"] if s.get("section") == p.section)
             out.append(
@@ -206,9 +222,11 @@ def cards(c: Connection, user_id: str, now: datetime | None = None) -> list[dict
                     "clean": clean,
                     "basis": sorted(basis, key=lambda b: b["at"]),
                     "mark": marks.get(_target(p.id, o["record_id"])),
+                    "assignee": owners[eq][0],
+                    "assignee_name": owners[eq][1],
                 }
             )
-    return out
+    return sorted(out, key=lambda x: (x["equipment_id"], x["pattern"]))  # 파트장 칸 줄 순서(설비 → 패턴)
 
 
 def mark(c: Connection, user_id: str, pattern: str, record_id: str, choice: str, reason: str | None) -> dict:

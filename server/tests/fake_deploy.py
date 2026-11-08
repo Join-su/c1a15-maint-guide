@@ -427,12 +427,17 @@ def split_answer(text: str) -> dict:
     if not checks or not actions:  # 한쪽 0 = 나누지 못함(약속 v10 2절 · D-566 덧 1)
         return {"exception_split": {"exception": None, "reason": "not_split"}}
     topic = " ".join(checks[0].split()[:2] + checks[0].split()[3:4]).rstrip("을를")[:15]  # 가짜 주제(Pack 몫)
+    # D-642 C 표지 [시험:문장] → 줄마다 지시 문장(Pack 몫 흉내 · 칸 이름 instruction)
+    say = (lambda x, tail: {"instruction": f"{x} — {tail}"}) if "[시험:문장]" in text else (lambda x, tail: {})
     return {
         "exception_split": {
             "exception": {
                 "topic": topic,
-                "checks": [{"what": c[:40], "how": c, "criteria": "정상 범위", "minutes": None} for c in checks],
-                "actions": [{"what": a[:40], "parts": [], "minutes": None} for a in actions],
+                "checks": [
+                    {"what": c[:40], "how": c, "criteria": "정상 범위", "minutes": None, **say(c, "정상 범위면 정상")}
+                    for c in checks
+                ],
+                "actions": [{"what": a[:40], "parts": [], "minutes": None, **say(a, "합니다")} for a in actions],
             },
             "reason": None,
         }

@@ -154,3 +154,42 @@ def test_remove_takes_only_marked_lines(db, lines):
         n = demo_history.precheck_remove(c)
         after = c.execute(text("select count(*) from knowledge.history_records")).scalar()
     assert n == len(_pattern_lines()) and before - after == n
+
+
+def _lead_cards(api):
+    from test_api import LEAD_PW
+
+    _fresh()
+    lead, _ = login(api, "lead", "lead.park", LEAD_PW)
+    return lead.get("/api/lead/overview").json()["prechecks"]
+
+
+def test_lead_overview_recounts_on_the_graph_signal_without_switching_user(api, db, deploy, lines):
+    """D-642 E: 파트장 앱 '사전 점검 후보' 칸 — 담당자와 무관하게 모든 설비 후보 · 기계 · 담당자 · 5건 중 3건.
+    승인만으로는 그대로 · 그래프 반영 신호(배포 revision 바뀜)가 오면 다음 조회에서 A가 들어옴(사용자 바꾸기 0)."""
+    with db.connect() as c:
+        owner = c.execute(
+            text(
+                "select a.user_id, u.display_name from ops.equipment_assignments a join ops.accounts u using (user_id) "
+                "where a.equipment_id = 'M-04'"
+            )
+        ).one()
+    rows = _lead_cards(api)
+    assert [(x["pattern"], x["equipment_id"], x["assignee"], x["total"], x["hits"]) for x in rows] == [
+        ("B", "M-04", owner.user_id, 5, 3)
+    ]
+    assert rows[0]["assignee_name"] == owner.display_name
+    _approved_exception(api, db)
+    assert [x["pattern"] for x in _lead_cards(api)] == ["B"]
+    deploy.revision = "sha256:fake-next"
+    rows = _lead_cards(api)
+    a = next(x for x in rows if x["pattern"] == "A")
+    assert (a["equipment_id"], a["assignee"], a["total"], a["hits"], a["clean"]) == ("M-04", owner.user_id, 5, 3, 2)
+    assert a["assignee_name"] == owner.display_name
+
+
+def test_tech_home_card_says_whose_machine_it_is(api, db, deploy, lines):
+    """D-642 E ③: 정비자 홈 카드는 담당 설비 것만 그대로 + 담당 표시 칸."""
+    _, cards = _home(api)
+    assert [(x["pattern"], x["assignee"]) for x in cards] == [("B", "tech.jung")]
+    assert cards[0]["assignee_name"]

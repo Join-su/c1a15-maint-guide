@@ -463,6 +463,7 @@ describe("T06 점검 지시 · 결과 입력", () => {
         step: "c1",
         side: "check",
         what: "필터 덮개 고정 나사 확인",
+        say: "필터 덮개 고정 나사 확인",
         done: true,
         now: false,
       },
@@ -470,6 +471,7 @@ describe("T06 점검 지시 · 결과 입력", () => {
         step: "c2",
         side: "check",
         what: "흡기 덕트 이음매",
+        say: "흡기 덕트 이음매",
         done: false,
         now: true,
       },
@@ -477,6 +479,7 @@ describe("T06 점검 지시 · 결과 입력", () => {
         step: "a1",
         side: "action",
         what: "나사를 새로 끼움",
+        say: "나사를 새로 끼움",
         done: false,
         now: false,
       },
@@ -504,9 +507,9 @@ describe("T06 점검 지시 · 결과 입력", () => {
       "흡기 덕트 이음매",
     );
     expect(texts(container, ".xwr")).toEqual([
-      "1 점검 필터 덮개 고정 나사 확인",
-      "2 점검 흡기 덕트 이음매 · 지금",
-      "3 조치 나사를 새로 끼움",
+      "점검 1 필터 덮개 고정 나사 확인",
+      "지금점검 2 흡기 덕트 이음매",
+      "조치 3 나사를 새로 끼움",
     ]);
     cleanup();
     const plain = instr({ ...s, exception_walk: walk }).container; // 걸음 칸 없는 지시(밖 → 원래 순서 4.3)

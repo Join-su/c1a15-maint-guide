@@ -296,3 +296,59 @@ def test_reason_names_exception_by_first_check_even_with_numbers(api, db, deploy
     pv = s["preview"]
     assert "덮개 볼트 4개 확인(C)" in pv["reason"] and eg["section"] not in pv["reason"]
     assert pv["reason_fallback"] is False
+
+
+def test_d642_sentence_flows_split_apply_approve_history_then_walk_and_card(api, db, deploy):
+    """D-642 C: AI 나눔 지시 문장(instruction) → 보고서 적용 · 확정 → 파트장 승인 → 이력 줄에 그대로 →
+    다음 기계 start exception_guide 문장 → 안내 차례 say = 승인된 문장(지어낸 값 0)."""
+    from sqlalchemy import text as sql
+
+    from test_exception_record import _rid, _to_report
+    from test_lead import lead
+
+    reset_ops(db)
+    txt = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움 [시험:문장]"
+    tech, s = _to_report(api, db)
+    s = ok(tech, s, type="exception_split", exception_text=txt)
+    ex = s["report"]["exception_split"]["exception"]
+    say_c, say_a = ex["checks"][0]["instruction"], ex["actions"][0]["instruction"]
+    assert say_c.endswith("정상 범위면 정상") and say_a.endswith("합니다")
+    s = ok(
+        tech,
+        s,
+        type="report_confirm",
+        exception_record={"text": txt},
+        exception_review={"decision": "not", "match": None},
+    )
+    assert s["report"]["exception_record"]["exception"]["checks"][0]["instruction"] == say_c  # 보고서 칸
+    rid = _rid(db, s["session_id"])
+    lc = lead(api)
+    final = lc.get(f"/api/lead/reports/{rid}/final").json()["exception_record"]
+    assert final["exception"]["checks"][0]["instruction"] == say_c  # 파트장 승인 화면 값
+    hid = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).json()["history_record_id"]
+    with db.connect() as c:
+        rec = c.execute(sql("select record from knowledge.history_records where record_id = :i"), {"i": hid}).scalar()
+    er = rec["exception_record"]["exception"]
+    assert (er["checks"][0]["instruction"], er["actions"][0]["instruction"]) == (
+        say_c,
+        say_a,
+    )  # 승인된 문장만 다른 기계로
+    # 다음 기계: 그래프가 돌려준 예외 절(승인된 문장 그대로) → 안내 차례 · 지시 카드
+    eg = {
+        **_guide(hid),
+        "minutes": 15,
+        "next_section": "4.3",
+        "topic": "필터 덮개 나사",
+        **{k: er[k] for k in ("checks", "actions")},
+    }
+    deploy.default = pack_answer_of(eg)
+    tech2, s2 = start(api, db, equipment="M-03")
+    s2 = to_ex(tech2, s2, eg)
+    assert [(w["step"], w["say"], w["now"]) for w in s2["exception_walk"]] == [
+        ("c1", say_c, True),
+        ("a1", say_a, False),
+    ]
+    s2 = ok(tech2, s2, type="call_send")
+    _approve_call(api, eg)
+    s2 = tech2.get(f"/api/tech/sessions/{s2['session_id']}").json()
+    assert s2["step"]["step"] == "c1" and s2["exception_walk"][0]["say"] == say_c

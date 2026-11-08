@@ -151,6 +151,9 @@
 .ap .xwk > b { display: block; font-size: 13px; color: #b45309; }
 .ap .xwk .xwr.now { font-weight: 700; color: var(--ink); }
 .ap .xwk .xwr.done { color: var(--sub); }
+/* D-642 C: 지시 문장 한 줄 · '지금'은 문장 앞 표시 */
+.ap .xwk .xwr .xnow { margin-right: 6px; }
+.ap .xwk .xwr .xside { color: var(--sub); }
 .ap .xkh .xsrc { display: block; margin-top: 8px; font-size: 13px; color: var(--sub); }
 .ap .xkr { position: absolute; right: 20px; bottom: 18px; }
 .ap .xkr .btn, .ap .xkf .mb .btn { height: 44px; padding: 0 22px; }
@@ -244,6 +247,7 @@
 .ap .rx .rxr > span:first-child { color: var(--sub); font-weight: 700; }
 
 /* D-619 사전 점검 후보: 내 알람 아래 · 고장 판단 아님(주의 수준 · 알람 빨강 안 씀) */
+.ap .pck .pck-o { font-size: 13px; color: var(--sub); } /* D-642 E ③ 담당 표시 */
 .ap .pcl { flex: 1; min-height: 0; overflow-y: auto; margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
 .ap .g2 > div:has(> .pcl) > .cd .empty { padding: 10px 0; }
 .ap .pck { flex: none; display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; border-left: 4px solid var(--pri); }
