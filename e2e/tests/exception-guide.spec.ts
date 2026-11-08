@@ -446,7 +446,7 @@ test("D580 후보: 진단 다른 후보 · 호출 화면 근거 한 줄 · 예�
   await page.locator(".al .btn", { hasText: "점검 시작" }).click();
   await page.waitForURL(/\/session\/\d+/);
   await page.getByText("진단 보기").click();
-  const why = "이 기기에서 배운 규칙 · 3일 전 같은 정비를 함"; // 같은 기기(M-01 알람 · 등록도 M-01)
+  const why = `이 기기에서 배운 규칙(근거 ${rid}) · 3일 전 같은 정비(4.3.2 · H-0301)`; // 같은 기기(M-01 알람 · 등록도 M-01) · 리허설 F11: 근거 기록 id · 절 · 이력 번호
   await page.locator(".nx .lk.sw").click(); // D-585 진단 카드 [점검 바꾸기]
   await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toContainText(why);
   await snap(page, info, "C1-diagnosis-candidates");
@@ -546,7 +546,7 @@ test("D593 다른 기기: M-03 알람 · 등록 기기 M-01 → 'M-01에서 배�
   await expect(page.locator(".ap-top, .n-li").first()).toContainText("M-03");
   await pause(page);
   await page.locator(".nx .lk.sw").click();
-  await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toContainText("M-01에서 배운 규칙 · 이 기기도 2일 전 같은 정비를 함");
+  await expect(page.locator(`.swm .swc[data-section="EX-${rid}"]`)).toContainText(`M-01에서 배운 규칙(근거 ${rid}) · 이 기기도 2일 전 같은 정비(4.3.2 · H-0302)`);
   await snap(page, info, "C5-other-device-switch-list");
   g.check(info);
 });
