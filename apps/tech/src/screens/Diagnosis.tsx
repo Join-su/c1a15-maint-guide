@@ -265,7 +265,7 @@ export function DiagnosisScreen({
             ) : null}
           </div>
           {s.similar_cards.length ? (
-            <details className="cd mt" data-part="other-ref">
+            <details className="cd mt" data-part="other-ref" style={{ flex: "none" }}>
               <summary className="rs" style={{ cursor: "pointer" }}>
                 다른 설비 참고 {s.similar_cards.length}건 · 순위 계산에 안 씀
               </summary>
