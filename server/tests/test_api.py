@@ -766,7 +766,10 @@ def test_p19_screen_values_from_api(api, db, monkeypatch):
     ).json()
     ins = s["instruction"]  # T06: 점검 n / 최대 m · 근거(결정 014 ② · ③)
     assert ins["section"] == "4.3" and (ins["grade"], ins["minutes"]) == ("A", 3) and len(ins["steps"]) == 4
-    assert ins["criterion"].startswith("기름때") and (ins["check_no"], ins["check_max"]) == (1, 4)  # D-637 F3: C 4.4도 셈
+    assert ins["criterion"].startswith("기름때") and (ins["check_no"], ins["check_max"]) == (
+        1,
+        4,
+    )  # D-637 F3: C 4.4도 셈
     want = [x["record_id"] for x in sorted((x for x in sim if x["cause"] == "CL-1"), key=lambda x: -x["score"])][:2]
     assert ins["evidence_record_ids"] == want and ins["unable"] == []
     # T02 · T12: 진행 n / m · 교대(결정 014 ④) · 증상 이름

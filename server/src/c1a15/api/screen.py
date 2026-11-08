@@ -346,7 +346,9 @@ def check_progress(events: list[dict], k: ManualKnowledge, group: str, grades: d
     매뉴얼 점검 중 D가 아닌 것(A · B, C는 바꾸기 → 파트장 승인 뒤) ∪ 예외 절(안내가 있으면) ∪ 이미 지시된 점검.
     표시 수만 — 판정 · 체크 기록은 이 값을 쓰지 않는다."""
     seen = instructed_checks(events, k, group)
-    reach = {c.section_id for c in k.checks.get(group, []) if rules.effective_grade(c.section_id, grades, approvals) != "D"}
+    reach = {
+        c.section_id for c in k.checks.get(group, []) if rules.effective_grade(c.section_id, grades, approvals) != "D"
+    }
     eg = next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
     if eg and eg.get("section"):
         reach.add(eg["section"])
