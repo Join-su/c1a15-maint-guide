@@ -53,7 +53,11 @@
 .fbody { overflow: auto; }
 .fbar { display: flex; align-items: center; gap: 10px; max-width: 960px; margin: 0 auto 12px; }
 .fbar .sp { flex: 1; }
-.rl .rl-r { display: inline-flex; align-items: center; gap: 10px; }
+.rl .rl-r { display: inline-flex; align-items: center; gap: 10px; flex: none; }
+/* D-637 F13: 최근 내 보고서 한 줄 — 넘치면 … */
+.rl { gap: 10px; }
+.rl .rl-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rl .rl-w { color: var(--sub); }
 .rl .lk2 { color: var(--pri); font-weight: 700; font-size: 14px; cursor: pointer; }
 /* D-530 답장 001-zzt 1(가이드 10쪽): 매뉴얼 원문 창 = 가운데 · 조금 작게 · 단계 띠도 어둠 아래(답장 001-zzx-2 1) */
 .ap .modal.wide[aria-label^="매뉴얼 원문"] { left: 320px; top: 134px; width: 640px; max-height: 540px; }

@@ -2,7 +2,7 @@
 // D-528(가이드 정비자 2): 내 알람 카드에 상태값 한 줄 · 안전 수칙 · 반려 칸 설명 문장 뺌.
 
 import { Fragment, useState } from "react";
-import { dateTime, hhmm, Icon, num, type Home as HomeData, type Notifications } from "@c1a15/ui";
+import { dateTime, hhmm, Icon, num, shortCause, type Home as HomeData, type Notifications } from "@c1a15/ui";
 
 type Row = HomeData["alarms"][number];
 type Precheck = HomeData["prechecks"][number];
@@ -288,8 +288,10 @@ export function HomeScreen({
             ) : (
               home.recent_reports.map((r) => (
                 <div className="rl" key={r.report_id}>
-                  <span>
-                    {r.equipment_id} · {r.cause} · {r.confirmed_at ? dayTime(r.confirmed_at) : ""}
+                  {/* D-637 F13: 설비 · 확정 원인 짧게 · 시각 · 상태만 한 줄(긴 글은 「최종본 보기」 안) */}
+                  <span className="rl-t">
+                    <b>{r.equipment_id}</b> · {shortCause(r.cause, 18)}
+                    {r.confirmed_at ? <span className="rl-w"> · {dayTime(r.confirmed_at)}</span> : null}
                   </span>
                   <span className="rl-r">
                     {r.status !== "rejected" && onFinal ? ( // D-528 가이드 정비자 14: 최근 내 보고서 줄에서도 최종본

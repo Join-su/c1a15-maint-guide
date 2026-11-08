@@ -84,6 +84,23 @@ describe("파트장 2 승인 대기", () => {
     expect(onOpen).toHaveBeenLastCalledWith(o.rows[2].report_id);
   });
 
+  it("D-637 F10: 긴 확정 원인은 칸 안에서 짧게 한 줄(괄호 · 근거 번호 빼고 첫 마디) · 작성 · 확정 칸은 그대로", () => {
+    const o = load<Schemas["LeadOverview"]>("overview-list");
+    o.rows[0] = { ...o.rows[0], cause: "원인 미상, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음, 근거 사례 H-0232, H-0197, H-0155 참고" };
+    o.rows[1] = { ...o.rows[1], cause: "흡기 필터 표면의 기름때가 절반 이상 덮여 냉각 필터가 막힘(4.3, H-0197, H-0232, H-0155)." };
+    const { container } = render(<ApprovalList data={o} audit={null} calls={null} {...props} />);
+    const cells = [...container.querySelectorAll("tr[data-report] td.cause")];
+    expect(cells.length).toBe(o.rows.length);
+    expect(cells[0].textContent).toBe("원인 미상");
+    expect(cells[1].textContent).toBe("흡기 필터 표면의 기름때가 절반 이상 덮여 냉각 필터가 막힘");
+    for (const c of cells) {
+      expect([...(c.textContent ?? "")].length).toBeLessThanOrEqual(40);
+      expect(c.textContent).not.toMatch(/H-\d|EX-R|\(/);
+    }
+    const row0 = container.querySelector("tr[data-report]")!;
+    expect(row0.querySelectorAll("td")[2].textContent).toBe(o.rows[0].author_name);
+  });
+
   it("오늘 기록(최근 5줄 · 전체 건수 · 보고서 확정 행은 「보고서 보기」) · 처리할 호출(지금 API 그대로) · 전체 보기 링크", () => {
     const o = load<Schemas["LeadOverview"]>("overview-list");
     const a = load<Schemas["LeadAudit"]>("audit-default");

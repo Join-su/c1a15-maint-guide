@@ -42,3 +42,21 @@ export function dateDay(iso: string): string {
   const wd = new Date(`${p.year}-${p.month}-${p.day}T12:00:00+09:00`).getUTCDay(); // 현장 날짜의 정오
   return `${p.year}-${p.month}-${p.day} (${WEEKDAY[wd]}) ${p.hour}:${p.minute}`;
 }
+
+/**
+ * 확정 원인 짧게(D-637 F10 · F13 — 표시만, 값은 서버 그대로): 괄호 안(절 · 근거 기록 번호)을 빼고
+ * 첫 쉼표 · 마침표 앞 한 마디만, 그래도 길면 끝 쪽 max 글자 안(앞에 '…'). 긴 글은 보고서 화면에서 본다.
+ */
+export function shortCause(text: string | null | undefined, max = 28): string {
+  const full = (text ?? "").replace(/\s+/g, " ").trim();
+  if (!full) return "";
+  const noParen = full.replace(/\s*[(（][^()（）]*[)）]/g, "").trim();
+  const first = (noParen.split(/[,，;；]|\.\s|。/)[0] ?? "").replace(/[.。]+$/, "").trim() || noParen || full;
+  const chars = [...first];
+  if (chars.length <= max) return first;
+  // 우리말 원인 글은 끝에 결론(예: '… 냉각 필터가 막힘')이 오므로 뒤쪽을 남기고, 잘린 앞 낱말은 뺀다.
+  const cut = chars.length - (max - 1);
+  let tail = chars.slice(cut).join("");
+  if (chars[cut - 1] !== " " && tail.includes(" ")) tail = tail.slice(tail.indexOf(" ") + 1);
+  return `…${tail.trimStart()}`;
+}
