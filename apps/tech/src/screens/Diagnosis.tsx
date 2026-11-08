@@ -1,6 +1,9 @@
 // T04 진단: 원인 후보 순위(이름 = cause_names, A-04) · 비슷한 과거 기록 3건(P-19 ④) · 다음 점검(미리보기, P-06 · P-18).
 // 첫 판정이 호출이면 같은 구조에서 강조 카드 값만 바뀐다(T04 / first_call, 예외는 이 상태에서만 — CO-42).
 // D-528(가이드 정비자 4): 순위 아래 「근거 n = …」 설명 · 과거 기록 아래 안내 문장 뺌.
+// D-637(리허설 F1 · F8 · F2 · 표시 · 글만, 셈 손 0): 확률(판정 출력 probabilities = 이 설비의 지난 같은 알람 기록 원인 비율)과
+// 오른쪽 수(evidence = 비슷한 기록 상위 10건 중 그 원인)는 출처가 달라 '근거 n' → '비슷한 기록 n건' · 순위 아래 출처 한 줄 ·
+// 100%면 까닭 한 줄 · 지시 카드 이유 아래 고르는 셈 한 줄(rules.best_pick: A · B 점검 중 원인 확률 ÷ 분이 가장 큰 것).
 
 import { useState } from "react";
 import { GradeBadge, Icon, RecordCard, type SessionWithPreview } from "@c1a15/ui";
@@ -13,6 +16,19 @@ export function rankRows(s: Diag): { code: string; name: string; pct: number; n:
   return Object.entries(s.probabilities)
     .map(([code, pct]) => ({ code, name: s.cause_names[code] ?? code, pct, n: s.evidence[code] ?? 0 }))
     .sort((a, b) => b.pct - a.pct);
+}
+
+const RANK_SOURCE = "확률: 이 설비의 지난 같은 알람 기록에서 원인별 비율 · 비슷한 기록: 비슷한 과거 기록 상위 10건 중 그 원인 수";
+
+// 지시 카드(A · B)만 — 호출 · 고른 점검 · 원인 모름이면 null. 분을 모르면 숫자 부분만 뺌.
+export function pickRule(s: Diag): string | null {
+  const p = s.preview;
+  if (p.picked || !p.cause || !p.title || (p.kind !== "instruct" && p.kind !== "instruct_after_checklist")) return null;
+  const name = s.cause_names[p.cause] ?? p.cause;
+  const pct = s.probabilities[p.cause];
+  const nums = pct != null && p.minutes != null ? ` — ${name} ${pct}% ÷ 약 ${p.minutes}분` : "";
+  const sec = p.section ? `(매뉴얼 ${p.section}절)` : "";
+  return `고르는 셈: A · B 등급 점검 중 '원인 확률 ÷ 걸리는 분'이 가장 큰 것${nums}. ${p.title} = ${name} 확인 점검${sec}`;
 }
 
 export function NextCard({
@@ -30,6 +46,7 @@ export function NextCard({
   const pick = p.picked;
   const call = !pick && p.kind === "call";
   const [switching, setSwitching] = useState(false);
+  const rule = pickRule(s);
   return (
     <div className="cd hl">
       <div className="nx">
@@ -47,6 +64,11 @@ export function NextCard({
           <div className="why">
             <b>{call ? "호출이 필요한 이유" : "이 점검을 고른 이유"}</b>
             <span>{p.reason}</span>
+            {rule ? (
+              <span className="rs" data-part="pick-rule">
+                {rule}
+              </span>
+            ) : null}
           </div>
         ) : null}
         {!past && onSwitch && p.candidates?.length ? (
@@ -130,16 +152,26 @@ export function DiagnosisScreen({
               {s.low_evidence ? <span className="ch amber">근거 적음</span> : null}
             </div>
             {rows.map((r, i) => (
-              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code}>
+              <div className={`rk ${i === 0 ? "on" : ""}`} key={r.code} style={{ gridTemplateColumns: "28px 150px 1fr 48px 104px" }}>
                 <span className="rn">{i + 1}</span>
                 <b>{r.name}</b>
                 <span className="rb">
                   <i style={{ width: `${r.pct}%` }} />
                 </span>
                 <span className="rv">{r.pct}%</span>
-                <span className="rs">근거 {r.n}</span>
+                <span className="rs">비슷한 기록 {r.n}건</span>
               </div>
             ))}
+            {rows.length ? (
+              <div className="rs" data-part="rank-source" style={{ marginTop: 10, lineHeight: 1.6 }}>
+                {RANK_SOURCE}
+              </div>
+            ) : null}
+            {rows[0]?.pct === 100 ? (
+              <div className="rs" data-part="rank-full" style={{ marginTop: 4, lineHeight: 1.6 }}>
+                100%인 까닭: 이 설비의 지난 같은 알람 기록이 모두 이 원인({rows[0].name})이었습니다.
+              </div>
+            ) : null}
           </div>
           <div className="cd mt">
             <div className="cd-h">
