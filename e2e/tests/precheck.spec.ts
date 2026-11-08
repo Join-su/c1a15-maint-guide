@@ -1,5 +1,5 @@
-// D-619 사전 점검 후보를 사람 손 순서로 — D-650 덧1 A안: 시연 첫 상태 예시 줄 = 패턴 B만(A · C 줄 0).
-// 담당 홈 B 카드 1장(첫 상태부터) → tech.kim M-01 예외 → 파트장 승인 → 새 배포 뒤에도 A 0(덮개 이어짐 1건 < 3) · B 그대로
+// D-619 사전 점검 후보를 사람 손 순서로 — D-653: 시연 첫 상태 예시 줄 = 패턴 C만(A · B 줄 0).
+// 담당 홈 C 카드 1장(첫 상태부터) → tech.kim M-01 예외 → 파트장 승인 → 새 배포 뒤에도 A 0(덮개 이어짐 1건 < 3) · C 그대로
 // → 근거 보기 → [이번엔 제외] 이유 → 같은 화면 다시 열기.
 // 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 화면마다 PNG(1280 × 800).
 
@@ -63,16 +63,16 @@ function line(id: string, eq: string, daysAgo: number, group: string, did: strin
   };
 }
 
-const LINES = [ // D-650 덧1 A안: 패턴 B(공구 교체 2.4.2 → 14일 안 교체 기록 대조 2.3 이상)만 — 번호는 예시 대본과 같음
-  line("H-P008", "M-09", 60, "TW", ["2.4.2"], []),
-  line("H-P009", "M-09", 48, "TW", [], ["2.3"]),
-  line("H-P010", "M-10", 53, "TW", ["2.4.2"], []),
-  line("H-P011", "M-10", 41, "TW", [], ["2.3"]),
-  line("H-P012", "M-11", 46, "TW", ["2.4.2"], []),
-  line("H-P013", "M-11", 34, "TW", [], ["2.3"]),
-  line("H-P014", "M-12", 40, "TW", ["2.4.2"], []),
-  line("H-P015", "M-14", 33, "TW", ["2.4.2"], []),
-  line("H-P016", "M-04", 4, "TW", ["2.4.2"], []),
+const LINES = [ // D-653: 패턴 C(엔코더 커넥터 재체결 3.4.2 → 7일 안 회전 조건 설정 확인 3.3 이상)만 — 번호는 예시 대본과 같음
+  line("H-P017", "M-15", 60, "PW", ["3.4.2"], []),
+  line("H-P018", "M-15", 55, "PW", [], ["3.3"]),
+  line("H-P019", "M-16", 53, "PW", ["3.4.2"], []),
+  line("H-P020", "M-16", 48, "PW", [], ["3.3"]),
+  line("H-P021", "M-17", 54, "PW", ["3.4.2"], []),
+  line("H-P022", "M-17", 49, "PW", [], ["3.3"]),
+  line("H-P023", "M-18", 53, "PW", ["3.4.2"], []),
+  line("H-P024", "M-19", 33, "PW", ["3.4.2"], []),
+  line("H-P025", "M-04", 3, "PW", ["3.4.2"], []),
 ];
 
 test.beforeEach(async () => {
@@ -126,7 +126,7 @@ async function approveException(page: Page, lead: Page) {
   await expect(lead.locator(".lempty").first()).toBeVisible();
 }
 
-test("사전 점검 후보(A안): B 한 장 첫 상태부터 → 승인 → 새 배포 뒤에도 A 0 · B 그대로 → 근거 보기 → 이번엔 제외 → 다시 열기(사람 손 순서)", async ({ page, browser }, info) => {
+test("사전 점검 후보(D-653): C 한 장 첫 상태부터 → 승인 → 새 배포 뒤에도 A 0 · C 그대로 → 근거 보기 → 이번엔 제외 → 다시 열기(사람 손 순서)", async ({ page, browser }, info) => {
   test.setTimeout(180000);
   const g = guard(page);
   const jung = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
@@ -134,10 +134,10 @@ test("사전 점검 후보(A안): B 한 장 첫 상태부터 → 승인 → 새 
   await login(jung, "tech.jung"); // 시험 자료의 M-04 담당(시연 첫 상태는 김 정비 · 데이터만 다름)
   const cards = jung.locator(".pck");
   await expect(cards).toHaveCount(1);
-  const b = jung.locator('.pck[data-precheck="B"]');
-  await expect(b.locator(".pck-d")).toHaveText("M-04 · 4일 전 공구 교체(2.4.2)");
+  const b = jung.locator('.pck[data-precheck="C"]');
+  await expect(b.locator(".pck-d")).toHaveText("M-04 · 3일 전 엔코더 커넥터 재체결(3.4.2)");
   await expect(b.locator(".pck-n")).toHaveText(
-    "같은 조건 사례 5건 중 3건이 14일 안에 마모 카운터 미초기화로 이어졌고, 2건은 이상 없었습니다",
+    "같은 조건 사례 5건 중 3건이 7일 안에 회전 조건 설정 오류로 이어졌고, 2건은 이상 없었습니다",
   );
   await snap(jung, info, "P1-home-before");
 
@@ -157,7 +157,7 @@ test("사전 점검 후보(A안): B 한 장 첫 상태부터 → 승인 → 새 
   await pause(jung);
   await b.locator(".lk", { hasText: "근거 보기" }).click();
   const dlg = jung.locator('.modal[aria-label="과거에 같은 순서로 이어진 사례"]');
-  await expect(dlg.locator(".pcs")).toHaveText("살펴볼 곳 · 마모 카운터 · 교체 기록");
+  await expect(dlg.locator(".pcs")).toHaveText("살펴볼 곳 · 회전 조건 설정");
   await expect(dlg.locator(".pcb")).toHaveCount(5);
   await snap(jung, info, "P3-basis");
   await pause(jung);
@@ -176,7 +176,7 @@ test("사전 점검 후보(A안): B 한 장 첫 상태부터 → 승인 → 새 
   await expect(b.locator(".pck-n")).toContainText("5건 중 3건");
   await snap(jung, info, "P4-marked");
   expect(psql("select string_agg(actor || ' ' || action || ' ' || target, ',' order by audit_id) from ops.audit_log where action in ('precheck_look', 'precheck_skip')")).toBe(
-    "tech.jung precheck_skip precheck:B:H-P016",
+    "tech.jung precheck_skip precheck:C:H-P025",
   );
   g.check(info);
 });

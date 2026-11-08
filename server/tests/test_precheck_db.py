@@ -54,6 +54,24 @@ def _pattern_lines():
     return rows
 
 
+def _pattern_c_lines():
+    """D-653 시연 예시 = 패턴 C(엔코더 커넥터 재체결 3.4.2 → 7일 안 회전 조건 설정 확인 3.3 이상)만 · 예시 대본과 같은 번호."""
+    rows, n = [], 16
+
+    def add(*a, **k):
+        nonlocal n
+        n += 1
+        rows.append(_line(f"H-P{n:03d}", *a, **k))
+
+    for eq, days in (("M-15", 60), ("M-16", 53), ("M-17", 54)):
+        add(eq, days, "PW", did=["3.4.2"])
+        add(eq, days - 5, "PW", bad=["3.3"])
+    add("M-18", 53, "PW", did=["3.4.2"])
+    add("M-19", 33, "PW", did=["3.4.2"])
+    add("M-04", 3, "PW", did=["3.4.2"])
+    return rows
+
+
 @pytest.fixture
 def lines(db):
     from c1a15 import demo_history
@@ -226,32 +244,32 @@ def test_tech_home_card_says_whose_machine_it_is(api, db, deploy, lines):
     assert cards[0]["assignee_name"]
 
 
-def test_d650_b_only_lines_kim_sees_b_from_first_state_and_no_a_after_reflect(api, db, deploy):
-    """D-650 덧1 A안 + R4: 시연 첫 상태 = 패턴 B 예시 줄만 · M-04 담당 = 김 정비 → 첫 상태부터 김 정비 홈 B 1장 ·
-    M-01 예외 승인 → 새 배포 뒤에도 A 0(덮개 이어짐 M-01 한 건 < 3) · B 그대로 · 파트장 칸도 1건."""
+def test_d653_c_only_lines_kim_sees_c_from_first_state_and_no_a_after_reflect(api, db, deploy):
+    """D-653(D-650 덧1 A안 + R4 위): 시연 첫 상태 = 패턴 C 예시 줄만 · M-04 담당 = 김 정비 → 첫 상태부터 김 정비 홈 C 1장 ·
+    M-01 예외 승인 → 새 배포 뒤에도 A 0(덮개 이어짐 M-01 한 건 < 3) · C 그대로 · 파트장 칸도 1건."""
     from c1a15 import demo_history
 
     reset_ops(db)
-    b_only = [x for x in _pattern_lines() if x["symptom_group"]["code"] == "TW"]
+    c_only = _pattern_c_lines()  # D-653: 시연 예시 = 패턴 C만
     with db.begin() as c:
         demo_history.precheck_remove(c)
         demo_history.remove(c, "H-0301")
         demo_history.add(
             c, {**_line("H-0301", "M-01", 3, "CL", did=["4.3.2"]), "provenance": "시연 이력 줄(D-570)", "demo": "D-570"}
         )
-        demo_history.precheck_add(c, b_only)
+        demo_history.precheck_add(c, c_only)
         old = c.execute(text("select user_id from ops.equipment_assignments where equipment_id = 'M-04'")).scalar()
         c.execute(text("update ops.equipment_assignments set user_id = 'tech.kim' where equipment_id = 'M-04'"))
     try:
         assert [(x["pattern"], x["equipment_id"], x["total"], x["hits"]) for x in _home(api, "tech.kim")[1]] == [
-            ("B", "M-04", 5, 3)
+            ("C", "M-04", 5, 3)
         ]
         assert _home(api, "tech.jung")[1] == []
         _approved_exception(api, db)
         deploy.revision = "sha256:fake-next"
         kim = _home(api, "tech.kim")[1]
-        assert [(x["pattern"], x["equipment_id"]) for x in kim] == [("B", "M-04")]  # A 0
-        assert [(x["pattern"], x["assignee"]) for x in _lead_cards(api)] == [("B", "tech.kim")]
+        assert [(x["pattern"], x["equipment_id"]) for x in kim] == [("C", "M-04")]  # A 0
+        assert [(x["pattern"], x["assignee"]) for x in _lead_cards(api)] == [("C", "tech.kim")]
     finally:
         with db.begin() as c:
             c.execute(text("update ops.equipment_assignments set user_id = :u where equipment_id = 'M-04'"), {"u": old})
