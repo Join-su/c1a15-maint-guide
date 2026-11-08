@@ -180,7 +180,7 @@ test("예외 안내 승인 뒤: 원래 순서 다음 · 파트장 「승인 후 
   await page.getByText("점검 시작").click();
   await expect(page.locator(".ins-h h3")).toHaveText("필터 덮개 고정 나사 확인"); // 예외 절 지시
   await expect(page.locator(".proc li")).toHaveText(["1덮개 나사 확인", "2빠졌으면 새로 끼움"]); // 응답 절차 그대로
-  await expect(page.locator(".ins-h .sm")).toHaveText(/^점검 2 \/ 최대 4/); // 첫 추천을 연 뒤 바꾼 예외 절 = 둘째(덧 34 · D-580)
+  await expect(page.locator(".ins-h .sm")).toHaveText(/^점검 2 \/ 최대 5/); // 첫 추천을 연 뒤 바꾼 예외 절 = 둘째(덧 34 · D-580) · D-637 F3: 최대 = 매뉴얼 넷(C 포함) + 예외
   await snap(page, info, "G5-exception-instruct");
   await page.reload(); // 같은 화면 다시 열어도 그대로
   await expect(page.locator(".ins-h h3")).toHaveText("필터 덮개 고정 나사 확인");

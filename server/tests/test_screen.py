@@ -59,19 +59,36 @@ def opened(section, kind="instruct"):
 
 
 def test_check_progress_definition(k, grades):
-    """결정 014 ②: n = 지시된 점검 순번, m = 지금 지시할 수 있는 점검(A · B 또는 승인된 C) ∪ 이미 지시된 점검."""
+    """D-637 F3: n = 지시된 점검 순번, m = 이 세션에서 갈 수 있는 점검 모두 — 매뉴얼 점검 중 D가 아닌 것
+    (A · B, C는 [점검 바꾸기] → 파트장 승인 뒤) ∪ 예외 절(안내가 있으면) ∪ 이미 지시된 점검. 바꾸기로 가도 n ≤ m."""
     g = dict(grades[0])
     assert (g["4.3"], g["4.4"], g["4.5"], g["4.6"]) == ("A", "C", "A", "A")
     base = [opened("1.2", "lock"), opened("4.2", "precheck")]
-    assert screen.check_progress(base, k, "CL", g, set()) == {"check_no": 0, "check_max": 3}
+    assert screen.check_progress(base, k, "CL", g, set()) == {"check_no": 0, "check_max": 4}  # C 4.4도 셈
     ev = base + [opened("4.3"), opened("4.3"), opened("4.5")]  # 같은 점검이 다시 열려도 한 번
-    assert screen.check_progress(ev, k, "CL", g, set()) == {"check_no": 2, "check_max": 3}
-    assert screen.check_progress(ev, k, "CL", g, {"4.4"}) == {"check_no": 2, "check_max": 4}  # 승인된 C
-    g2 = {**g, "4.5": "C"}  # 지시 뒤 C가 된 점검도 '한 점검'으로 남는다
-    assert screen.check_progress(ev, k, "CL", g2, set()) == {"check_no": 2, "check_max": 3}
-    g3 = {**g, "4.4": "B"}
-    assert screen.check_progress(base, k, "CL", g3, set())["check_max"] == 4
+    assert screen.check_progress(ev, k, "CL", g, set()) == {"check_no": 2, "check_max": 4}
+    assert screen.check_progress(ev, k, "CL", g, {"4.4"}) == {"check_no": 2, "check_max": 4}  # 승인돼도 같은 수
+    g2 = {**g, "4.5": "D"}  # 지시 뒤 D가 된 점검도 '한 점검'으로 남는다
+    assert screen.check_progress(ev, k, "CL", g2, set()) == {"check_no": 2, "check_max": 4}
+    g3 = {**g, "4.4": "D"}  # D는 갈 수 없어 빠짐
+    assert screen.check_progress(base, k, "CL", g3, set())["check_max"] == 3
     assert screen.check_progress(base + [opened("4.4", "call")], k, "CL", g, set())["check_no"] == 0  # 호출은 지시 아님
+
+
+def test_check_progress_rehearsal_switch_never_exceeds_max(k, grades):
+    """D-637 F3(11-08 리허설): 4.3 정상 → 4.6 → [점검 바꾸기] 4.4(C · 승인) → 4.5 → 예외 — 끝까지 n ≤ m, m은 그대로."""
+    g = dict(grades[0])
+    eg = {"section": "EX-R-14001", "title": "예외"}
+    start = {"type": "step_opened", "decision": {"kind": "instruct", "section": "4.3"}, "exception_guide": eg}
+    ev = [opened("1.2", "lock"), opened("4.2", "precheck"), start]
+    walk = [opened("4.6"), opened("4.4", "call"), opened("4.4"), opened("4.5"), opened("EX-R-14001")]
+    seen = []
+    for e in [None, *walk]:
+        if e:
+            ev.append(e)
+        seen.append(screen.check_progress(ev, k, "CL", g, set()))
+    assert [x["check_no"] for x in seen] == [1, 2, 2, 3, 4, 5]
+    assert {x["check_max"] for x in seen} == {5}  # 매뉴얼 넷 + 예외 하나 — 처음부터 끝까지 같은 수
 
 
 def test_evidence_records_are_top_confirmed_of_that_cause(k):

@@ -258,10 +258,10 @@ def test_exception_counts_as_check_grade_use_and_approved_call_row(api, db, depl
     sec = eg["section"]
     assert (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (
         2,
-        4,
-    )  # 첫 추천 4.3을 연 뒤 바꾼 예외 절 = 둘째(매뉴얼 셋 + 예외 하나)
+        5,
+    )  # 첫 추천 4.3을 연 뒤 바꾼 예외 절 = 둘째(D-637 F3: 매뉴얼 넷(C 포함) + 예외 하나)
     s = ok(tech, s, type="result", section=sec, value="정상")
-    assert s["step"]["section"] == "4.3" and (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (2, 4)
+    assert s["step"]["section"] == "4.3" and (s["instruction"]["check_no"], s["instruction"]["check_max"]) == (2, 5)
     s = ok(tech, s, type="result", section="4.3", value="이상", memo="기름때")
     s = ok(tech, s, type="action_done", section="4.3.2")
     s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])

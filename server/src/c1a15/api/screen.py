@@ -341,15 +341,16 @@ def instructed_checks(events: list[dict], k: ManualKnowledge, group: str) -> lis
 
 
 def check_progress(events: list[dict], k: ManualKnowledge, group: str, grades: dict, approvals) -> dict:
-    """'점검 n / 최대 m'. n = 이 세션에서 지시된 점검 순번, m = 지금 등급으로 지시할 수 있는 점검(A · B 또는 승인된 C)
-    과 이미 지시된 점검을 합한 수(결정 014 ②)."""
+    """'점검 n / 최대 m'. n = 이 세션에서 지시된 점검 순번(결정 014 ②).
+    m = 이 세션에서 갈 수 있는 점검 모두(D-637 F3 — 리허설에서 '최대 3'인데 [점검 바꾸기]로 4 · 5번째까지 감):
+    매뉴얼 점검 중 D가 아닌 것(A · B, C는 바꾸기 → 파트장 승인 뒤) ∪ 예외 절(안내가 있으면) ∪ 이미 지시된 점검.
+    표시 수만 — 판정 · 체크 기록은 이 값을 쓰지 않는다."""
     seen = instructed_checks(events, k, group)
-    now = {
-        c.section_id
-        for c in k.checks.get(group, [])
-        if rules.effective_grade(c.section_id, grades, approvals) in rules.INSTRUCTABLE
-    }
-    return {"check_no": len(seen), "check_max": len(now | set(seen))}
+    reach = {c.section_id for c in k.checks.get(group, []) if rules.effective_grade(c.section_id, grades, approvals) != "D"}
+    eg = next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
+    if eg and eg.get("section"):
+        reach.add(eg["section"])
+    return {"check_no": len(seen), "check_max": len(reach | set(seen))}
 
 
 def evidence_record_ids(k: ManualKnowledge, section: str, similar: list[dict]) -> list[str]:
