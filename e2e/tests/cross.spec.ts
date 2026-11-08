@@ -63,6 +63,9 @@ test("AC-27 · AC-09(SC-33, A-07 확인 문장) · AC-29-C3: 승인 대기 목�
   await page.locator(".al .btn", { hasText: "점검 시작" }).click();
   await page.waitForURL(/\/session\/\d+/);
   await page.getByText("진단 보기").click();
+  // D-650 R1: 다른 설비 비슷한 기록 카드는 접힌 '다른 설비 참고' 칸 안 — 사람처럼 칸을 열고 봄
+  await expect(page.locator('[data-part="other-ref"] .hc').first()).toBeHidden();
+  await page.locator('[data-part="other-ref"] summary').click();
   await expect(page.locator(".hc").first()).toBeVisible();
   const next = await page.request.get(`/api/tech/sessions/${sidOf(page)}`).then((r) => r.json());
   const cards: string[] = next.similar_cards.map((c: { record_id: string }) => c.record_id);
