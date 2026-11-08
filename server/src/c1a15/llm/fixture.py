@@ -35,10 +35,10 @@ class FixtureAdapter:
             rank = v.get("rank", 1)
             text = (
                 f"{v['cause_name']} 가능성이 {v['probability']}%로 가장 높고, "
-                f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 다른 점검: {alts}."
+                f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 매뉴얼의 다른 점검: {alts}."
                 if rank == 1
                 else f"{rank}위 {v['cause_name']} {v['probability']}%: "  # D-450: 1위가 아니면 1위라고 말하지 않음
-                f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 다른 점검: {alts}."
+                f"{facts.section}절 점검은 약 {v['minutes']}분 · {v['grade']}등급입니다. 매뉴얼의 다른 점검: {alts}."
             )
             return Draft(text, sections=(facts.section,))
         if facts.kind == "call_reason":  # P-18: 첫 판정이 호출일 때 '호출이 필요한 이유'(T04 / first_call)

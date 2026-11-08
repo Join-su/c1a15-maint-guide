@@ -5450,6 +5450,28 @@
       "title": "Corrections",
       "type": "array"
      },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
+     },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
+     },
      "criterion": {
       "anyOf": [
        {
@@ -5460,6 +5482,31 @@
        }
       ],
       "title": "Criterion"
+     },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
      },
      "evidence": {
       "anyOf": [
@@ -7218,6 +7265,53 @@
        }
       ]
      },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
+     },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
+     },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
+     },
      "evidence": {
       "additionalProperties": {
        "type": "integer"
@@ -7506,6 +7600,53 @@
         "type": "null"
        }
       ]
+     },
+     "count_prior": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Prior"
+     },
+     "count_scope": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Count Scope"
+     },
+     "equipment_counts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "integer"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Counts"
+     },
+     "equipment_total": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Equipment Total"
      },
      "evidence": {
       "additionalProperties": {

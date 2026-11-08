@@ -239,6 +239,48 @@ def decided_numbers(step: dict | None, order: list[str]) -> tuple[dict, dict] | 
     return in_order(step["probabilities"], order), in_order(step["evidence"], order)
 
 
+# 리허설 2 R3 · R6: 확률 셈에 쓴 기록 — Pack 판정 출력 record_counts {scope, total, by_cause, prior}.
+# scope = equipment(이 설비) | group(이 설비 기록이 적거나 같은 증상 전체 셈 옵션).
+# total · by_cause = 기본 건수 더하기 전 실제 수.
+PACK_COUNT_KEY = "record_counts"
+COUNT_SCOPES = ("equipment", "group")
+
+
+def decided_counts(step: dict | None, order: list[str]) -> dict | None:
+    """화면 순위 줄 '이 설비 기록 n건 중 k건' = Pack 판정 출력 그대로(앱이 다시 세지 않음).
+
+    칸이 없거나 꼴이 다르면 None(화면은 숫자 자리 숨김).
+    """
+    rc = (step or {}).get(PACK_COUNT_KEY)
+    if not isinstance(rc, dict):
+        return None
+    counts, total, prior, scope = rc.get("by_cause"), rc.get("total"), rc.get("prior"), rc.get("scope")
+    ok = lambda v: isinstance(v, int) and not isinstance(v, bool)  # noqa: E731
+    if not isinstance(counts, dict) or not ok(total) or not ok(prior) or not all(ok(v) for v in counts.values()):
+        return None
+    if scope not in COUNT_SCOPES:  # 모르는 범위면 '이 설비'라고 말하지 않음
+        return None
+    return {
+        "equipment_counts": in_order(counts, order),
+        "equipment_total": total,
+        "count_scope": scope,
+        "count_prior": prior,
+    }
+
+
+def shown_counts(step: dict | None, events: list[dict], order: list[str]) -> dict | None:
+    """지금 결정의 record_counts, 없으면 세션 시작 때 남긴 진단 스냅샷 값.
+
+    칸 없는 결정 = 예외 걸음 · 점검 바꾸기 뒤(순위 숫자는 시작 때와 같음).
+    """
+    got = decided_counts(step, order)
+    if got is not None:
+        return got
+    snap = next((e for e in events if e.get("type") == "preview_shown" and "preview" in e), None) or {}
+    keys = ("equipment_counts", "equipment_total", "count_scope", "count_prior")
+    return {key: snap[key] for key in keys} if all(key in snap for key in keys) else None
+
+
 def similar_cards(c: Connection, similar: list[dict]) -> list[dict]:
     """T04 기록 카드 = R3 상위 3건 가운데 근거가 되는 기록(R6 score ≥ 0.5).
 

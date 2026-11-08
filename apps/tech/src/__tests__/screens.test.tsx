@@ -207,7 +207,7 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
       s.similar_cards.map((c) => c.record_id),
     );
     expect(container.querySelector(".cd.mt .cd-h b")?.textContent).toBe(
-      `비슷한 과거 기록 ${s.similar_cards.length}건 · 상위 10건 중`,
+      `비슷한 과거 기록 ${s.similar_cards.length}건 · 참고(다른 설비 포함) · 순위 계산에 안 씀`,
     );
     expect(container.querySelector(".nx h3")?.textContent).toBe(
       s.preview.title,
