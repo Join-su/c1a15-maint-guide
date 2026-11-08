@@ -154,7 +154,7 @@ test("예외 상황 기록: [예외] 바로 조치 → 보고서 전 팝업 → 
   await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
   await pause(lead);
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   // 승인 = 정비 이력 원본 층에 같이(record.exception_record)
   const rid = psql("select report_id from ops.reports"); // 이번 보고서(앞 반복이 남긴 승인 이력과 가름 — 지식 schema는 초기화 밖)
   expect(psql(`select record->'exception_record'->>'situation' from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`)).toBe(situation);
@@ -245,7 +245,7 @@ test("같음 + 고침(정답지 30쪽): 기존 예외 「고침/보탬」 → �
   await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
   await pause(lead);
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   const rid = psql("select report_id from ops.reports");
   const er = `from knowledge.history_records where source = 'approved_report' and record->'exception_record'->'context'->>'report_id' = '${rid}'`;
   expect(psql(`select record->'exception_record'->'exception_review'->'edit'->'checks'->0->>'how' ${er}`)).toBe(EDIT_HOW); // same-edit.md 1절

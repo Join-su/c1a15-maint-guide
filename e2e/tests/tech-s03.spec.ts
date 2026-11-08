@@ -55,7 +55,7 @@ test("SC-06 · AC-07 · AC-33 · AC-21 · AC-32-C1: 4.3 이상 → 조치 완료
   await page.locator('[data-field="cause"] .ed').dispatchEvent("click");
   await expect(page.locator(".rf textarea")).toHaveCount(0);
   await page.getByText("홈으로").click();
-  await expect(page.locator(".rl").first()).toContainText("M-01 · 냉각 필터 막힘 · ");
+  await expect(page.locator(".rl").first()).toContainText("M-01 · 냉각 필터 막힘"); // D-642 D 보고서 한 줄 = 설비 · 원인 이름(시각은 따로 칸)
   await expect(page.locator(".rl .ch").first()).toHaveText("승인 대기");
   await shot(page, info, "T02-recent_report");
   g.check(info);

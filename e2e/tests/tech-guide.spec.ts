@@ -174,7 +174,7 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await lead.getByLabel("반려 사유").fill("4.3 메모를 더 자세히 적어 다시 확정");
   await pause(lead);
   await lead.locator(".lmdl button.lbtn", { hasText: "반려" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
 
   // 정비자 2(반려 33쪽) · 12(34쪽): 홈 반려 칸 → 이어서 하기 → 반려 사유 오른쪽 위 → 고쳐 다시 확정
   await pause(page);

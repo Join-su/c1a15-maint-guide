@@ -73,7 +73,7 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await snap(lead, info, "P2-reject");
   await pause(lead);
   await okReject.click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
 
   // 정비자 2 · 12: 반려 사유 → 보고서 고쳐 다시 확정
   await page.locator(".tb-home").click();
@@ -101,7 +101,7 @@ test("파트장 최종안: 승인 대기 → 최종본 검토 → 반려 → 다
   await snap(lead, info, "P2-approve");
   await pause(lead);
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   await pause(lead);
   await today.locator("button.ltx", { hasText: "보고서 보기" }).first().click(); // 승인 완료 최종본 다시 보기
   await expect(lead.locator(".fd-st span").last()).toHaveText("승인 완료");

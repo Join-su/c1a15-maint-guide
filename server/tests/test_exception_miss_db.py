@@ -65,3 +65,21 @@ def test_m03_no_miss_when_same_work(api, db, deploy, work):  # noqa: F811
         demo_history.add(c, _line("H-0302", "M-03", 2))
     _, s = start(api, db, equipment="M-03")
     assert s["exception_miss"] is None
+
+
+@pytest.mark.parametrize(("hours_ago", "says"), [(4 * 24 + 1, True), (4 * 24 - 1, False)])
+def test_d642_four_day_window_boundary(api, db, deploy, work, monkeypatch, hours_ago, says):  # noqa: F811
+    """D-642 B 길 ①: 시연 설정 C1A15_RECENT_DAYS=4(그래프 WHEN_RECENT.days 4와 같게) — 조회 창은 [알람 − 4일, 알람)
+    (Pack _recent와 같은 끝 셈). 4일 + 1시간 전 교체 = 창 밖 → '최근 4일 … 없음' · 4일 − 1시간 전 = 창 안 → 글 0."""
+    from c1a15 import demo_history
+    from c1a15.api import flow
+
+    monkeypatch.setattr(flow, "RECENT_DAYS", 4)
+    hid = _approved_exception(api, db)
+    line = _line("H-0302", "M-03", 0)
+    line["occurred_at"] = (datetime.now(UTC).replace(microsecond=0) - timedelta(hours=hours_ago)).isoformat()
+    with db.begin() as c:
+        demo_history.add(c, line)
+    _, s = start(api, db, equipment="M-03")
+    want = f"예외 조건 안 맞음 · 최근 4일 같은 정비(4.3.2) 없음 · M-01에서 배운 규칙(근거 {hid})"
+    assert s["exception_miss"] == (want if says else None)

@@ -35,7 +35,7 @@ test("AC-27 · AC-09(SC-33, A-07 확인 문장) · AC-29-C3: 승인 대기 목�
   const g = guard(page);
   const lead = await leadPage(browser);
   const lg = guard(lead);
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다"); // AC-27-C3
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다"); // AC-27-C3
   await shot(lead, info, "L02-empty");
   await login(page);
   const sid = await confirmReport(page);
@@ -51,7 +51,7 @@ test("AC-27 · AC-09(SC-33, A-07 확인 문장) · AC-29-C3: 승인 대기 목�
   await shot(lead, info, "L03-review");
   await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   const rid = Number(psql(`select report_id from ops.reports where session_id = ${sid}`));
   const hid = `R-${String(rid).padStart(4, "0")}`;
   expect(psql(`select source from knowledge.history_records where record_id = '${hid}'`)).toBe("approved_report"); // AC-09-C1 이력 한 건(다음 진단 후보에 드는 것은 배포 서버 R12 — EV-001 ES-17 CH-32)
@@ -211,7 +211,7 @@ test("SC-35 · AC-24 · AC-11 · AC-37: 반려 사유 없으면 저장 안 됨 �
   await expect(page.locator(".banner.bad")).toHaveCount(0);
   await lead.getByLabel("반려 사유").fill("필터 표면 상태를 메모로 다시 적어 주세요");
   await lead.locator(".lmdl button.lbtn", { hasText: "반려" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   await page.reload();
   await expect(page.locator(".rl .ch").first()).toHaveText("반려"); // AC-11-C1
   await expect(page.locator(".banner.bad div")).toContainText("필터 표면 상태를 메모로 다시 적어 주세요");
@@ -270,7 +270,7 @@ test("AC-37: 종 목록 4종류(새 알람 · 진행 중 · 답이 온 호출 ·
   await lead.locator(".lbar button.lbtn", { hasText: "반려" }).click();
   await lead.getByLabel("반려 사유").fill("근거 기록을 다시 확인해 주세요");
   await lead.locator(".lmdl button.lbtn", { hasText: "반려" }).click();
-  await expect(lead.locator(".lempty")).toHaveText("승인 대기 보고서가 없습니다");
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toHaveText("승인 대기 보고서가 없습니다");
   await lead.goto(LEAD_URL + "/calls");
   await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
   await lead.locator(".lopts button", { hasText: "주간 처리" }).click();
