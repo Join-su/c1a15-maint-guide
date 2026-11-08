@@ -62,7 +62,7 @@ export function TopBar(p: TopBarProps) {
           {p.user.name} · {p.user.role}
         </span>
         {p.onSwitchUser ? (
-          <span className="tb-home tb-switch" role="button" tabIndex={0} onClick={p.onSwitchUser}>
+          <span className="tb-switch" role="button" tabIndex={0} onClick={p.onSwitchUser}>
             사용자 바꾸기
           </span>
         ) : null}

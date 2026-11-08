@@ -272,7 +272,7 @@ body { margin: 0; background: #d9dee5; }
 .hist-row b { display: block; } .hist-row .tt { color: var(--sub); font-weight: 700; }
 .hist-row.unsent { background: var(--warn-s); border-radius: 10px; padding: 10px 8px; border-bottom: none; margin-top: 6px; }
 
-.tb-home { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1.5px solid var(--ln); border-radius: 999px; background: #fff; color: var(--ink); font-weight: 800; }
+.tb-home, .tb-switch { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1.5px solid var(--ln); border-radius: 999px; background: #fff; color: var(--ink); font-weight: 800; }
 .tb-home.on { background: var(--pri-s); border-color: var(--pri); color: #183a9e; }
 .sp.view { outline: 2px solid var(--pri); outline-offset: 2px; }
 .pastbar { display: flex; align-items: center; gap: 12px; margin: 8px 22px 0; padding: 7px 14px; background: #eef2f8; border: 1px solid #d6deea; border-radius: 12px; font-size: 14.5px; }

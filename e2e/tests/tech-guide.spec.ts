@@ -77,10 +77,10 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await expect(page.locator(".lockok b")).toHaveText("잠금 확인 완료");
   await expect(page.locator(".ins-h .sm")).toHaveText("사전 확인");
   await expect(page.locator(".res .note")).toHaveCount(0);
-  await expect(page.locator(".res .btn")).toHaveClass(/dis/);
-  // 답장 001-zzx-2 3(가이드 9 · 15 · 34쪽): 잠긴 버튼 표시 = 선 자물쇠 아이콘(이모지 0)
-  expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").content), "잠금 표시 이모지 0").not.toContain("🔒");
-  expect.soft(await page.locator(".res .btn").evaluate((el) => getComputedStyle(el, "::before").maskImage || getComputedStyle(el, "::before").webkitMaskImage), "잠금 표시 선 아이콘").toContain("svg");
+  // 피드백 F9: 사전 확인 = 적는 칸 없이 [확인] · [상급자 호출](둘 다 바로 누를 수 있음)
+  await expect(page.locator(".res .btn")).toHaveText(["확인", "상급자 호출"]);
+  await expect(page.locator(".res .btn.dis")).toHaveCount(0);
+  await expect(page.locator(".res textarea")).toHaveCount(0);
   await snap(page, info, "T5-precheck");
   await pause(page);
   await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
@@ -94,6 +94,10 @@ test("정비자 최종안: 왼쪽 칸 · 한 줄 · 잠금 큰 창 · 확정 확
   await page.locator(".act .btn", { hasText: "조치 완료" }).click();
   // 재가동 체크리스트 셋(다 고르기 전 잠김) — 공용 restartWithin은 막기를 끈 시험용이라 여기서는 사람처럼 하나씩
   await expect(page.locator(".act .btn", { hasText: /^재가동$/ })).toHaveClass(/dis/);
+  // 답장 001-zzx-2 3(가이드 9 · 15 · 34쪽): 잠긴 버튼 표시 = 선 자물쇠 아이콘(이모지 0) — 사전 확인 잠김이 없어져 여기서 봄
+  const locked = page.locator(".act .btn", { hasText: /^재가동$/ });
+  expect.soft(await locked.evaluate((el) => getComputedStyle(el, "::before").content), "잠금 표시 이모지 0").not.toContain("🔒");
+  expect.soft(await locked.evaluate((el) => getComputedStyle(el, "::before").maskImage || getComputedStyle(el, "::before").webkitMaskImage), "잠금 표시 선 아이콘").toContain("svg");
   const items = page.locator(".act .ck");
   for (let i = 0; i < (await items.count()); i++) {
     await pause(page);
