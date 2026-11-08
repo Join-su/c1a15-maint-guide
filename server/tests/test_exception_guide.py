@@ -195,6 +195,8 @@ def test_exception_after_approval_instruct_then_abnormal_action_restart_report(a
     s = ok(tech, s, type="report_confirm")
     rid = _rid(db, s["session_id"])
     assert eg["title"] in json.dumps(lc.get(f"/api/lead/reports/{rid}").json(), ensure_ascii=False)  # 파트장 보고서
+    row = next(x for x in lc.get("/api/lead/overview").json()["rows"] if x["report_id"] == rid)
+    assert row["line"] == f"예외상황 · {eg['title']}"  # D-642: 옛 v8 안내 = 점검 · 조치가 같은 절 이름 → 한 번만
     r = lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
     assert r.status_code == 200
     with db.connect() as c:

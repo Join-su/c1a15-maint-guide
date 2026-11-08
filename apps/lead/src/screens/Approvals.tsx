@@ -70,8 +70,8 @@ export function ApprovalList({
                   <b>{r.equipment_id}</b>
                   <div className="m">{r.group_name}</div>
                 </td>
-                {/* D-637 F10: 확정 원인은 칸 안에서 짧게 · 한 줄(긴 글은 「검토」 보고서에서) */}
-                <td className="cause">{shortCause(r.cause, 40)}</td>
+                {/* D-642 R2: 한 줄 = 서버 줄 값(예외면 '예외상황 · 점검 → 조치', 아니면 원인 이름) · 칸 안 한 줄(긴 글은 「검토」) */}
+                <td className="cause">{r.line || shortCause(r.cause, 40)}</td>
                 <td>{r.author_name}</td>
                 <td className="n">{r.confirmed_at ? hhmm(r.confirmed_at) : ""}</td>
                 <td className="n">
@@ -139,7 +139,7 @@ export function ApprovalList({
                     <td className="n">{hhmm(x.at)}</td>
                     <td>{appLabel(x.app)}</td>
                     <td>{x.user_name}</td>
-                    <td>{x.action}</td>
+                    <td className="w">{x.action /* D-642 R2: 긴 행동 글은 칸 안에서 줄바꿈 */}</td>
                     <td>
                       {x.report_id ? (
                         <button type="button" className="ltx" onClick={() => onOpen(x.report_id as number)}>

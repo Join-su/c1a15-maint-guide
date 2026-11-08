@@ -84,6 +84,16 @@ describe("파트장 2 승인 대기", () => {
     expect(onOpen).toHaveBeenLastCalledWith(o.rows[2].report_id);
   });
 
+  it("D-642 R2 · R5: 확정된 보고서 한 줄 = 서버 줄 값(예외면 '예외상황 · 점검 → 조치', 아니면 원인 이름) — 원인 문장을 자르지 않음", () => {
+    const o = load<Schemas["LeadOverview"]>("overview-list");
+    o.rows[0] = { ...o.rows[0], cause: "원인 미상이며, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음", line: "예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임" };
+    o.rows[1] = { ...o.rows[1], cause: "흡기 필터 표면의 기름때가 절반 이상 덮여 냉각 필터가 막힘(4.3).", line: "냉각 필터 막힘" };
+    const { container } = render(<ApprovalList data={o} audit={null} calls={null} {...props} />);
+    const cells = texts(container, "tr[data-report] td.cause");
+    expect(cells.slice(0, 2)).toEqual(["예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임", "냉각 필터 막힘"]);
+    expect(cells.join(" ")).not.toMatch(/원인 미상이며|EX-R|H-\d/);
+  });
+
   it("D-637 F10: 긴 확정 원인은 칸 안에서 짧게 한 줄(괄호 · 근거 번호 빼고 첫 마디) · 작성 · 확정 칸은 그대로", () => {
     const o = load<Schemas["LeadOverview"]>("overview-list");
     o.rows[0] = { ...o.rows[0], cause: "원인 미상, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음, 근거 사례 H-0232, H-0197, H-0155 참고" };

@@ -64,6 +64,16 @@ describe("왼쪽 「오늘 밤 알람」 칸", () => {
   });
 });
 
+describe("D-642 R5 완료 탭 = 서버 줄 값", () => {
+  it("예외 보고서 줄", () => {
+    const h = load<Home>("home-d528");
+    h.recent_reports = h.recent_reports.map((r) => ({ ...r, cause: "원인 미상이며, 잠금 확인(1.2) 및 고온부 확인과 온도 기록(4.2), 흡기 필터 덮개 볼트(EX-R-14001) 이상 없음", line: "예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임" }));
+    const { container } = render(<TodayPanel home={h} current={null} onOpen={() => {}} />);
+    fireEvent.click([...container.querySelectorAll(".tabs button")][1]);
+    expect(texts(container, ".n-li.ro b")).toEqual(h.recent_reports.map((r) => `${r.equipment_id} · 예외상황 · 흡기 필터 덮개 볼트 → 덮개 볼트 조임`));
+  });
+});
+
 describe("D-637 F13 완료 탭(최근 내 보고서)", () => {
   it("확정 원인은 짧게 — 괄호 · 근거 번호 없음", () => {
     const h = load<Home>("home-d528");

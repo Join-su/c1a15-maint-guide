@@ -809,7 +809,8 @@ describe("T02 홈 완료 행 · 최근 보고서 · T12 답이 온 호출", () =
     fireEvent.click(rows[2].querySelector(".btn")!);
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ status: "done", report_session_id: home.recent_reports[0].session_id }));
     expect(texts(container, ".kt b")).toEqual(["1", "1", "1"]);
-    expect(texts(container, ".rl span:first-child")[0]).toMatch(/^M-01 · 냉각 필터 막힘 · /);
+    expect(texts(container, ".rl .rl-t")[0]).toBe("M-01 · 냉각 필터 막힘"); // D-642: 시각은 오른쪽 칸
+    expect(texts(container, ".rl .rl-r .rl-w")[0]).toMatch(/^\d{2}:\d{2}$|^어제 |^\d{2}-\d{2} /);
     expect(texts(container, ".rl .ch")).toEqual(["승인 대기"]);
     expect(container.querySelector(".rl .ch")?.className).toBe("ch amber");
   });

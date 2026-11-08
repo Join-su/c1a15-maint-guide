@@ -61,6 +61,28 @@ def test_lead_role_boundary_and_empty_overview(api, db):
     assert lc.get("/api/tech/home").status_code in {401, 403}
 
 
+def test_report_line_is_cause_name_not_cause_sentence(api, db):
+    """D-642 R5 · R2: 홈 '최근 내 보고서' · 파트장 '확정된 보고서' 한 줄 = 업무 기록의 확정 원인 이름 — 원인 칸이 긴 문장이어도."""
+    reset_ops(db)
+    tech, s, rid = confirmed_report(api, db)
+    lc = lead(api)
+    # D-642 R5 · R2: 한 줄은 원인 문장이 아니라 업무 기록의 확정 원인 이름 — 원인 칸이 긴 문장이어도 그대로
+    long = "흡기 필터 표면의 기름때가 절반 이상 덮여 냉각 필터가 막힘(4.3, H-0197, H-0232)."
+    with db.begin() as c:
+        c.execute(
+            text(
+                "update ops.reports set fields = (select jsonb_agg(case when f->>'key' = 'cause'"
+                " then jsonb_set(f, '{text}', to_jsonb(cast(:t as text))) else f end) from jsonb_array_elements(fields) f)"
+                " where report_id = :r"
+            ),
+            {"t": long, "r": rid},
+        )
+    row = lc.get("/api/lead/overview").json()["rows"][0]
+    assert (row["cause"], row["line"]) == (long, "냉각 필터 막힘")
+    rr = tech.get("/api/tech/home").json()["recent_reports"][0]
+    assert (rr["cause"], rr["line"]) == (long, "냉각 필터 막힘")
+
+
 def test_lead_overview_rows_and_approve_adds_history(api, db):
     """AC-27-C1 · C2 · AC-29-C3 · R12(결정 018 ⑤): 승인 대기 행 → 그대로 승인 → R-번호 이력(다음 진단 후보는 배포 서버 R12)."""
     reset_ops(db)

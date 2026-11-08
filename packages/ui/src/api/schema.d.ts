@@ -1978,6 +1978,11 @@ export interface components {
             evidence_count: number;
             /** Group Name */
             group_name: string;
+            /**
+             * Line
+             * @default
+             */
+            line: string;
             /** Low Evidence */
             low_evidence: boolean;
             /** Report Id */
@@ -2456,6 +2461,11 @@ export interface components {
             confirmed_at: string | null;
             /** Equipment Id */
             equipment_id: string;
+            /**
+             * Line
+             * @default
+             */
+            line: string;
             /** Reject Reason */
             reject_reason?: string | null;
             /** Rejected At */

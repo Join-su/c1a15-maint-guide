@@ -114,6 +114,7 @@ def overview(user: User = Depends(lead_user), c: Connection = Depends(conn, scop
                 "equipment_id": r.equipment_id,
                 "group_name": deps.group_names()[r.symptom_group],
                 "cause": _field(r, "cause"),
+                "line": sessions.report_line(c, r.session_id),  # D-642 R2
                 "author_name": names.get(r.author, r.author),
                 "confirmed_at": _iso(r.confirmed_at),
                 "evidence_count": len(evidence),
