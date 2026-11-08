@@ -15,7 +15,7 @@ from sqlalchemy import select
 from sqlalchemy.engine import Connection
 
 from c1a15 import config
-from c1a15.api import deps, sessions
+from c1a15.api import deps, flow, sessions
 from c1a15.db import models as m
 from c1a15.deploy import runs as deploy_runs
 
@@ -286,6 +286,7 @@ def build(c: Connection, report_id: int) -> dict | None:
         "lead": lead,
         "signals": _signals(steps, outcome, first_top, runs, lead, reasons),
         "field_truth": field_truth,
+        "exception_offer": flow.exception_offer(events),  # D-633 예외가 보였는데 골랐나(안 보였으면 null)
     }
     return CheckRecordV1.model_validate(doc).model_dump(by_alias=True)
 

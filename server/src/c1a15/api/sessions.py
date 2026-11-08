@@ -880,6 +880,19 @@ def check_records(sid: int, events: list[dict]) -> list[dict]:
                 "at_seq": last["seq"],
             }
         )
+    offer = flow.exception_offer(events) if last else None  # D-633 예외가 보였는데 끝까지 안 고름(확정 때 정해짐)
+    if offer and not offer["adopted"]:
+        out.append(
+            {
+                "kind": "exception_not_picked",
+                "session_id": sid,
+                "human_check": {"section": offer["picked_section"], "from_section": None},
+                "relation_id": offer["relation_id"],
+                "at_seq": last["seq"],
+                "how": offer["how"],
+                "run_id": offer["run_id"],
+            }
+        )
     return out
 
 

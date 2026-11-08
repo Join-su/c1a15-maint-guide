@@ -1350,6 +1350,17 @@
       "title": "At Seq",
       "type": "integer"
      },
+     "how": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "How"
+     },
      "human_check": {
       "anyOf": [
        {
@@ -1374,6 +1385,17 @@
        }
       ],
       "title": "Relation Id"
+     },
+     "run_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Run Id"
      },
      "session_id": {
       "title": "Session Id",

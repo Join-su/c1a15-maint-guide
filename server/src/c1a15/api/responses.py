@@ -894,11 +894,13 @@ class HumanCheck(_Out):
 class CheckRecord(_Out):
     """약속 v9 3절 기록 줄(앱 → LLMOps): 헛걸음 · 놓침 · 새 예외 + 사람이 고른 점검."""
 
-    kind: str  # wasted_step | missed | new_exception
+    kind: str  # wasted_step | missed | new_exception | exception_not_picked(D-633)
     session_id: int
     human_check: HumanCheck | None
-    relation_id: str | None = None  # 놓침이면 같다고 한 항목(예외 · 매뉴얼 절 번호)
+    relation_id: str | None = None  # 놓침이면 같다고 한 항목(예외 · 매뉴얼 절 번호) · 안 고름이면 보인 예외 관계 id
     at_seq: int
+    how: str | None = None  # D-633 안 고름의 길: switched | followed
+    run_id: str | None = None  # D-633 예외 안내가 처음 실린 Run(start)
 
 
 class CheckRecordList(_Out):

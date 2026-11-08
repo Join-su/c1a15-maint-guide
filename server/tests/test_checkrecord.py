@@ -241,3 +241,69 @@ def test_schema_file_is_model_schema():
 
     path = SERVER / "src/c1a15/checkrecord/check-record-v1.schema.json"
     assert path.read_text(encoding="utf-8") == schema_text()
+
+
+def _finish(api, db, tech, s):
+    """지시마다 4.3만 이상 → 조치 → 경계 이내 → 보고서 확정 → 파트장 그대로 승인 → 체크 기록."""
+    for _ in range(6):
+        if s["step"]["kind"] not in {"instruct", "instruct_after_checklist"}:
+            break
+        sec = s["instruction"]["section"]
+        s = ok(tech, s, type="result", section=sec, value="이상" if sec == "4.3" else "정상")
+    s = ok(tech, s, type="action_done", section=s["action"]["section"])
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    s = ok(tech, s, type="restart_result", outcome="within")
+    s = ok(tech, s, type="report_confirm")
+    rid = one(db, "select report_id from ops.reports where session_id = :s", s=s["session_id"])
+    lc, _ = login(api, "lead", "lead.park", LEAD_PW)
+    assert lc.post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"}).status_code == 200
+    return build(db, rid), s
+
+
+def test_exception_shown_not_picked_followed_and_switched(api, db, deploy):
+    """D-633: 예외 추천이 보였는데 끝까지 안 고름 — 추천 4.3대로(followed) · [점검 바꾸기]로 A · B 후보(switched).
+    칸 = 관계 id · start Run(안내가 처음 실린 Run) · 사람이 한 점검. 예외가 안 보인 세션은 null. 내부 기록 줄도 하나씩."""
+    from fastapi.testclient import TestClient
+
+    from fake_deploy import pack_answer
+    from test_api import start
+    from test_exception_guide import _approved_exception, _guide
+
+    reset_ops(db)
+    hid = _approved_exception(api, db)
+    plain = one(db, "select max(report_id) from ops.reports")
+    assert build(db, plain)["exception_offer"] is None  # 예외가 안 보인 세션
+    eg = _guide(hid)
+    deploy.default = pack_answer(exception_guide=eg, preview=True)
+    tech, s = start(api, db, equipment="M-01")
+    assert eg["section"] in {c["section"] for c in s["preview"]["candidates"]}  # 보임
+    sid = s["session_id"]
+    srun = one(db, "select start_run_id from ops.diag_sessions where session_id = :s", s=sid)
+    doc, s = _finish(api, db, tech, to_instruct(tech, s))
+    assert doc["exception_offer"] == {
+        "relation_id": eg["relation_id"],
+        "run_id": srun,
+        "adopted": False,
+        "how": "followed",
+        "picked_section": "4.3",
+    }
+    tech, s = start(api, db, equipment="M-01")
+    s = to_instruct(tech, s)
+    assert eg["section"] in {c["section"] for c in s["switch_candidates"]}
+    pick = next(c["section"] for c in s["switch_candidates"] if not c["exception"] and c["grade"] in {"A", "B"})
+    s = ok(tech, s, type="switch_check", section=pick)
+    doc2, s2 = _finish(api, db, tech, s)
+    o = doc2["exception_offer"]
+    assert (o["relation_id"], o["adopted"], o["how"], o["picked_section"]) == (
+        eg["relation_id"],
+        False,
+        "switched",
+        pick,
+    )
+    items = TestClient(api).get("/api/internal/check-records", headers={"X-Internal-Token": "test-internal-token"})
+    lines = [x for x in items.json()["items"] if x["kind"] == "exception_not_picked"]
+    hc = lambda sec: {"section": sec, "from_section": None}  # noqa: E731
+    assert [(x["session_id"], x["human_check"], x["relation_id"], x["how"], x["run_id"]) for x in lines] == [
+        (sid, hc("4.3"), eg["relation_id"], "followed", srun),
+        (s2["session_id"], hc(pick), eg["relation_id"], "switched", o["run_id"]),
+    ]

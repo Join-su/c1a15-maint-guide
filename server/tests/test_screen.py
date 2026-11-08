@@ -236,7 +236,15 @@ def test_exception_record_input_and_blocks():
     assert "exception_review" in responses.ExceptionRecord.model_fields
     assert set(responses.ExceptionSplit.model_fields) == {"text", "exception", "error", "similar_error"}
     assert {"kind", "no", "name", "score"} <= set(responses.ExceptionSimilar.model_fields)  # 약속 v10 3절
-    assert set(responses.CheckRecord.model_fields) == {"kind", "session_id", "human_check", "relation_id", "at_seq"}
+    assert set(responses.CheckRecord.model_fields) == {
+        "kind",
+        "session_id",
+        "human_check",
+        "relation_id",
+        "at_seq",
+        "how",  # D-633 안 고름 줄 몫(그 밖 줄은 null)
+        "run_id",
+    }
     assert {"exception_auto", "exception_split"} <= set(responses.ReportBlock.model_fields)
     assert (
         "exception_record" in responses.ReportBlock.model_fields

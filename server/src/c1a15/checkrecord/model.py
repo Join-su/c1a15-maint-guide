@@ -117,6 +117,16 @@ class FieldTruth(_M):
     confirmed_cause: str
 
 
+class ExceptionOffer(_M):
+    """D-633 예외 추천이 보인 세션 — 사람이 그 예외를 골랐나(선택 칸 · 예외가 안 보인 세션은 null)."""
+
+    relation_id: str | None
+    run_id: str | None
+    adopted: bool
+    how: Literal["switched", "followed"] | None
+    picked_section: str | None
+
+
 class CheckRecordV1(_M):
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -132,6 +142,7 @@ class CheckRecordV1(_M):
     lead: Lead
     signals: list[Signal]
     field_truth: FieldTruth | None
+    exception_offer: ExceptionOffer | None = None
 
 
 def schema_text() -> str:

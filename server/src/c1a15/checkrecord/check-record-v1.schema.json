@@ -43,6 +43,73 @@
    "title": "Edit",
    "type": "object"
   },
+  "ExceptionOffer": {
+   "additionalProperties": false,
+   "description": "D-633 예외 추천이 보인 세션 — 사람이 그 예외를 골랐나(선택 칸 · 예외가 안 보인 세션은 null).",
+   "properties": {
+    "adopted": {
+     "title": "Adopted",
+     "type": "boolean"
+    },
+    "how": {
+     "anyOf": [
+      {
+       "enum": [
+        "switched",
+        "followed"
+       ],
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "How"
+    },
+    "picked_section": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Picked Section"
+    },
+    "relation_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Relation Id"
+    },
+    "run_id": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ],
+     "title": "Run Id"
+    }
+   },
+   "required": [
+    "relation_id",
+    "run_id",
+    "adopted",
+    "how",
+    "picked_section"
+   ],
+   "title": "ExceptionOffer",
+   "type": "object"
+  },
   "FieldTruth": {
    "additionalProperties": false,
    "properties": {
@@ -698,6 +765,17 @@
  },
  "additionalProperties": false,
  "properties": {
+  "exception_offer": {
+   "anyOf": [
+    {
+     "$ref": "#/$defs/ExceptionOffer"
+    },
+    {
+     "type": "null"
+    }
+   ],
+   "default": null
+  },
   "field_truth": {
    "anyOf": [
     {

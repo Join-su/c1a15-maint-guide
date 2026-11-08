@@ -89,6 +89,8 @@ def test_switch_to_candidate_is_a_judge_event_pack_opens_it_then_continues(api, 
             "human_check": {"section": ab["section"], "from_section": "4.3"},
             "relation_id": None,
             "at_seq": _seq(db, s["session_id"], "switch_check"),
+            "how": None,  # D-633 안 고름 줄 몫 칸(헛걸음 줄은 null)
+            "run_id": None,
         }
     ]
 

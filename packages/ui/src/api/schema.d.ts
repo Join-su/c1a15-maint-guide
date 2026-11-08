@@ -997,11 +997,15 @@ export interface components {
         CheckRecord: {
             /** At Seq */
             at_seq: number;
+            /** How */
+            how?: string | null;
             human_check: components["schemas"]["HumanCheck"] | null;
             /** Kind */
             kind: string;
             /** Relation Id */
             relation_id?: string | null;
+            /** Run Id */
+            run_id?: string | null;
             /** Session Id */
             session_id: number;
         };

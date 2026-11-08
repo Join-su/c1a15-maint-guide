@@ -963,6 +963,44 @@ def exception_guide_of(events: list[dict]) -> dict | None:
     return next((e["exception_guide"] for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
 
 
+PICK_TYPES = {"switch_check", "diagnosis_pick"}  # [점검 바꾸기] 고름(잠금 뒤 판정 사건 · 잠금 전 진단 카드 사건)
+OFFER_WORK = {"instruct", "instruct_after_checklist", "call"}
+
+
+def exception_offer(events: list[dict]) -> dict | None:
+    """D-633 예외 추천을 골랐나: start 결과 exception_guide가 실린 세션 = 예외가 보임
+    (진단 카드 · [점검 바꾸기] 후보 줄). 고름 = 무효 아닌 사건 중 그 예외 절을 고른 줄(바꾸기 · 결과 · 호출 …) 하나라도.
+    안 고름이면 how = switched([점검 바꾸기]로 다른 점검 · [예외] EX-NEW) |
+    followed(추천 점검대로 — 창을 열고 취소한 것은 사건이 없어 여기).
+    picked_section = 사람이 한 점검(바꾼 마지막 점검 | 첫 결과 절 | 첫 점검 안내 절). 예외 안내가 없으면 None."""
+    first = next((e for e in events if e["type"] == "step_opened" and e.get("exception_guide")), None)
+    if first is None:
+        return None
+    eg = first["exception_guide"]
+    sec = eg.get("section")
+    live = [e for e in events if not e.get("void") and e["type"] not in {"step_opened", "preview_shown"}]
+    base = {"relation_id": eg.get("relation_id"), "run_id": first.get("run_id")}
+    if any(e.get("section") == sec for e in live):
+        return {**base, "adopted": True, "how": None, "picked_section": sec}
+    moves = [
+        e.get("section") if e["type"] in PICK_TYPES else switch.NEW
+        for e in live
+        if e["type"] in PICK_TYPES or e["type"] == "exception_start"
+    ]
+    if moves:
+        return {**base, "adopted": False, "how": "switched", "picked_section": moves[-1]}
+    done = next((e.get("section") for e in live if e["type"] == "result"), None)
+    shown = next(
+        (
+            (e.get("decision") or {}).get("section")
+            for e in events
+            if e["type"] == "step_opened" and not e.get("void") and (e.get("decision") or {}).get("kind") in OFFER_WORK
+        ),
+        None,
+    )
+    return {**base, "adopted": False, "how": "followed", "picked_section": done or shown}
+
+
 def why_line(eg: dict | None) -> str | None:
     """D-593 '왜 이 예외' 한 줄 = Pack matched — 규칙은 등록 기기에서, 최근 정비는 이 기기 것(지어내기 0)."""
     m_ = (eg or {}).get("matched")
