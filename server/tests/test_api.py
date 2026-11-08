@@ -766,17 +766,17 @@ def test_p19_screen_values_from_api(api, db, monkeypatch):
     ).json()
     ins = s["instruction"]  # T06: 점검 n / 최대 m · 근거(결정 014 ② · ③)
     assert ins["section"] == "4.3" and (ins["grade"], ins["minutes"]) == ("A", 3) and len(ins["steps"]) == 4
-    assert ins["criterion"].startswith("기름때") and (ins["check_no"], ins["check_max"]) == (1, 3)
+    assert ins["criterion"].startswith("기름때") and (ins["check_no"], ins["check_max"]) == (1, 4)  # D-637 F3: C 4.4도 셈
     want = [x["record_id"] for x in sorted((x for x in sim if x["cause"] == "CL-1"), key=lambda x: -x["score"])][:2]
     assert ins["evidence_record_ids"] == want and ins["unable"] == []
     # T02 · T12: 진행 n / m · 교대(결정 014 ④) · 증상 이름
     home = tech.get("/api/tech/home").json()
     row = next(x for x in home["alarms"] if x["alarm_id"] == s["alarm_id"])
-    assert row["progress"] == {"check_no": 1, "check_max": 3} and row["session_id"] == sid
+    assert row["progress"] == {"check_no": 1, "check_max": 4} and row["session_id"] == sid
     assert row["group_name"] == "온도 차 저하" and home["recent_reports"] == []
     assert home["shift"]["in_progress"] == 1 and (home["shift"]["done"], home["shift"]["calls"]) == (0, 0)
     item = next(i for i in tech.get("/api/tech/notifications").json()["items"] if i["kind"] == "in_progress")
-    assert item["progress"] == {"check_no": 1, "check_max": 3} and item["group_name"] == "온도 차 저하"
+    assert item["progress"] == {"check_no": 1, "check_max": 4} and item["group_name"] == "온도 차 저하"
     # 확인 불가 → 다음 지시에 그 점검 이름 · 횟수
     body = {"seq": s["last_seq"] + 1, "type": "result", "section": "4.3", "value": "확인 불가"}
     s = tech.post(f"/api/tech/sessions/{sid}/events", json=body).json()
