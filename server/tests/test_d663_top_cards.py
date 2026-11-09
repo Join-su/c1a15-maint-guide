@@ -58,11 +58,25 @@ H0301 = {
 }
 
 
-def test_m01_a_demo_work_line_without_an_alarm_is_not_a_basis_card_and_does_not_break(data_dir):
-    # D-663 리허설 13:38: 시연 첫 상태에서 M-01 점검 시작 = 500(KeyError downtime_min) — 알람 없는 정비 줄은 '지난 같은 알람' 아님
+def test_m01_first_layer_k2_drops_the_newest_demo_line_the_graph_does_not_hold_yet(data_dir):
+    # D-663 덧1: 카드 수 = k. 첫 층 그래프는 시연 줄 H-0301 · H-0302를 안 실음(첫 승인 반영 때 들어옴 · deploy first-build)
+    # → 앱 DB 후보 3(H-0301 · H-0210 · H-0191) > Pack k 2 = 그래프가 아직 모르는 가장 새 줄을 뺌. 리허설 13:38 500(KeyError downtime_min)도 막음.
     got = screen.top_records([*_recs(data_dir), H0301], M01_PROBS, M01_COUNTS, "M-01", "CL", AT)
-    assert [r["record_id"] for r in got] == ["H-0210", "H-0191"]  # 순위 줄 k = 2와 같은 수
+    assert [r["record_id"] for r in got] == ["H-0210", "H-0191"]
     assert [screen.top_card(r)["record_id"] for r in got] == ["H-0210", "H-0191"]
+
+
+def test_after_reflection_k3_the_demo_work_line_is_a_card_without_downtime(data_dir):
+    # 승인 반영 뒤 그래프가 H-0301을 세면(k 3) 시연 정비 줄도 카드(알람 없음 · 정지 시간 칸 비움) — M-03(6) · M-13(4)과 같은 꼴
+    counts = {**M01_COUNTS, "equipment_counts": {**M01_COUNTS["equipment_counts"], "CL-1": 3}, "equipment_total": 6}
+    got = screen.top_records([*_recs(data_dir), H0301], M01_PROBS, counts, "M-01", "CL", AT)
+    assert [r["record_id"] for r in got] == ["H-0301", "H-0210", "H-0191"]
+    card = screen.top_card(got[0])
+    assert (
+        card["downtime_min"] is None
+        and card["action_name"] == "흡기 필터 교체"
+        and card["outcome_label"] == "냉각 필터 막힘"
+    )
 
 
 def test_the_card_is_the_record_card_without_a_similarity():

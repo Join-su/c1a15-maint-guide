@@ -50,10 +50,10 @@ def work(db):  # noqa: F811
 
 
 def test_m02_says_why_not(api, db, deploy, work):  # noqa: F811
-    hid = _approved_exception(api, db)  # M-01 보고서 승인 — 자동 정보에 최근 정비 H-0301(4.3.2)
+    _approved_exception(api, db)  # M-01 보고서 승인 — 자동 정보에 최근 정비 H-0301(4.3.2)
     _, s = start(api, db, equipment="M-02")  # Pack 답에 예외 안내 없음(가짜 배포 기본)
     assert s.get("exception_why") is None
-    assert s["exception_miss"] == f"예외 조건 안 맞음 · 최근 7일 같은 정비(4.3.2) 없음 · M-01에서 배운 규칙(근거 {hid})"
+    assert s["exception_miss"] == "예외 조건 안 맞음 · 최근 7일 같은 정비(4.3.2) 없음 · M-01에서 배운 규칙"
 
 
 def test_m03_no_miss_when_same_work(api, db, deploy, work):  # noqa: F811
@@ -75,11 +75,11 @@ def test_d642_four_day_window_boundary(api, db, deploy, work, monkeypatch, hours
     from c1a15.api import flow
 
     monkeypatch.setattr(flow, "RECENT_DAYS", 4)
-    hid = _approved_exception(api, db)
+    _approved_exception(api, db)
     line = _line("H-0302", "M-03", 0)
     line["occurred_at"] = (datetime.now(UTC).replace(microsecond=0) - timedelta(hours=hours_ago)).isoformat()
     with db.begin() as c:
         demo_history.add(c, line)
     _, s = start(api, db, equipment="M-03")
-    want = f"예외 조건 안 맞음 · 최근 4일 같은 정비(4.3.2) 없음 · M-01에서 배운 규칙(근거 {hid})"
+    want = "예외 조건 안 맞음 · 최근 4일 같은 정비(4.3.2) 없음 · M-01에서 배운 규칙"
     assert s["exception_miss"] == (want if says else None)

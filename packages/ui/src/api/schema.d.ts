@@ -2580,7 +2580,7 @@ export interface components {
             /** Cause Code */
             cause_code: string | null;
             /** Downtime Min */
-            downtime_min: number;
+            downtime_min: number | null;
             /** Equipment Id */
             equipment_id: string;
             /** Month */

@@ -223,7 +223,7 @@ def _record_card(rec: dict, score: float) -> dict:
         "cause_code": outcome.get("cause_code"),
         "outcome_label": label,
         "action_name": action,
-        "downtime_min": rec["downtime_min"],
+        "downtime_min": rec.get("downtime_min"),  # D-663 덧1: 시연 정비 줄은 정지 시간 칸 없음 → 비움
     }
 
 
@@ -324,14 +324,18 @@ def top_records(recs: list[dict], probs: dict, counts: dict | None, equipment_id
         r
         for r in recs
         if _group_code(r) == group
-        # 알람 없는 시연 정비 줄(demo_history add · D-570)은 '지난 같은 알람' 아님 — Pack 셈(M-01 5건)과 같게
-        and r.get("alarm")
         and (scope == "group" or r["equipment_id"] == equipment_id)
         and (r.get("outcome") or {}).get("cause_code") == top
         and _at(r["occurred_at"]) < t
     ]
     hit.sort(key=lambda r: _at(r["occurred_at"]), reverse=True)
-    return hit[:TOP_CARDS_MAX] if scope == "group" else hit
+    if scope == "group":
+        return hit[:TOP_CARDS_MAX]
+    # D-663 덧1: 카드 수 = 순위 줄 k. 그래프(Pack 셈)는 앱 DB보다 늦음 —
+    # 아직 안 실린 줄(첫 층 밖 시연 줄 · 반영 전 승인)은
+    # 언제나 가장 새 줄이라 k보다 많으면 새 줄부터 뺌(알람 없는 시연 정비 줄도 셈에 들면 카드).
+    k = (counts.get("equipment_counts") or {}).get(top)
+    return hit[len(hit) - k :] if k is not None and len(hit) > k else hit
 
 
 def top_card(rec: dict) -> dict:

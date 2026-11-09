@@ -1035,8 +1035,7 @@ def why_line(eg: dict | None) -> str | None:
     src = m_.get("source_equipment")
     same = src == m_.get("equipment_id")
     head = "이 기기에서 배운 규칙" if same else f"{src}에서 배운 규칙" if src else "배운 규칙"
-    basis = (m_.get("records") or [None])[0]
-    head += f"(근거 {basis})" if basis else ""  # D-637 F11: 무엇에서 배웠나 = 근거 기록 id
+    # D-663 덧1: 화면에 보고서 번호(R-…) 0 — '… M-01에서 배운 규칙'까지만(근거 기록은 matched.records에 그대로)
     r = m_.get("recent")
     if r:
         n = int(r["days_ago"])
@@ -1057,7 +1056,7 @@ def miss_line(source: dict | None, mine: list[dict], days: int) -> str | None:
     done = {x for r in mine if r["days_before"] <= days for x in [*r["did"], *r["checked"]]}
     if done & set(secs):
         return None
-    where = f"{source['equipment_id']}에서 배운 규칙(근거 {source['record_id']})"
+    where = f"{source['equipment_id']}에서 배운 규칙"  # D-663 덧1: 보고서 번호(R-…) 화면 0
     return f"예외 조건 안 맞음 · 최근 {days}일 같은 정비({', '.join(secs)}) 없음 · {where}"
 
 

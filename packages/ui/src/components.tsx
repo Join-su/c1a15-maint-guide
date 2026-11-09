@@ -124,7 +124,8 @@ export function RecordCard({ card, onOpen }: { card: Schemas["RecordCard"]; onOp
       </div>
       <div className="hc-c">{card.outcome_label}</div>
       <span>
-        {card.action_name} · 정지 {card.downtime_min}분
+        {/* D-663 덧1: 알람 없는 시연 정비 줄 = 정지 시간 칸 없음 → '정비 기록' */}
+        {card.downtime_min != null ? `${card.action_name} · 정지 ${card.downtime_min}분` : `${card.action_name} · 정비 기록`}
       </span>
     </div>
   );

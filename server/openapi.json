@@ -6623,6 +6623,9 @@
        },
        {
         "type": "number"
+       },
+       {
+        "type": "null"
        }
       ],
       "title": "Downtime Min"

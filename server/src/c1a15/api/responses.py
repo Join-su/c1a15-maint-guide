@@ -239,7 +239,7 @@ class RecordCard(_Out):
     cause_code: str | None
     outcome_label: str
     action_name: str
-    downtime_min: int | float
+    downtime_min: int | float | None  # D-663 덧1: 시연 정비 줄(알람 없음) 근거 카드는 없음
 
 
 class ResultRow(_Out):

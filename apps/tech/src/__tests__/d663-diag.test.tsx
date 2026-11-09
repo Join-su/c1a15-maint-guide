@@ -64,6 +64,21 @@ describe("S1 근거 칸 = 1위 후보로 확정된 기록 카드", () => {
     expect(container.textContent ?? "").not.toMatch(/다른 설비/);
   });
 
+  it("D-663 덧1 M-03: 카드 수 = k 6 · 알람 없는 시연 정비 줄(H-0302)도 카드 — 정지 시간 칸 비움 · '정비 기록'", () => {
+    const demo = { ...card("H-0302", 11), equipment_id: "M-03", downtime_min: null };
+    const s = Object.assign(withCounts({ "CL-1": 70, "CL-2": 10, "CL-3": 10, "CL-4": 10 }, { "CL-1": 6, "CL-2": 0, "CL-3": 0, "CL-4": 0 }, 6), {
+      top_cards: [demo, ...["H-0246", "H-0227", "H-0212", "H-0193", "H-0174"].map((id) => ({ ...card(id, 9), equipment_id: "M-03" }))],
+    });
+    const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
+    const top = container.querySelector('[data-part="top-ref"]')!;
+    expect(top.querySelector(".cd-h b")?.textContent).toBe("근거 · 냉각 필터 막힘 6건");
+    expect(top.querySelectorAll(".hc")).toHaveLength(6);
+    const first = top.querySelector(".hc")!;
+    expect(first.querySelector(".hc-t b")?.textContent).toBe("H-0302");
+    expect(first.querySelector(".hc > span")?.textContent).toBe("흡기 필터 교체 · 정비 기록");
+    expect(top.textContent ?? "").not.toMatch(/null|정지 분/);
+  });
+
   it("넓혀 센 셈에서 카드가 k보다 적으면 '최근 n건' · 카드 없음(옛 세션)이면 근거 칸 0", () => {
     const g = Object.assign(withCounts({ "CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15 }, { "CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16 }, 108, "group"), {
       top_cards: [card("H-0300", 10), card("H-0210", 9), card("H-0191", 9)],
