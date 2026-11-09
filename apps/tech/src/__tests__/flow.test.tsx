@@ -899,7 +899,8 @@ describe("D-619 사전 점검 후보", () => {
     ...over,
   });
 
-  it("내 알람 아래 · 설비 · 며칠 전 조치 · 몇 건 중 몇 건 · 근거 보기 창 · 없으면 칸 0", () => {
+  // D-663 S4(재시연 5): 카드 겉은 핵심만('M-04 · 냉각 설정값 미리 확인' + '5건 중 3건') · 눌러야 자세히(앞 조치 · 날짜 · 사례 · 고장 판단 아님 · 살펴봄 · 이번엔 제외)
+  it("D-663 S4: 겉 = '설비 · 살펴볼 것 미리 확인' + 'n건 중 k건'만 · 누르면 자세히(앞 조치 · 사례 · 고장 판단 아님) · 다시 누르면 접힘 · 없으면 칸 0", () => {
     const home = load<Home>("home-in-progress");
     home.prechecks = [card()];
     const { container } = render(<HomeScreen home={home} onOpen={() => {}} />);
@@ -907,28 +908,40 @@ describe("D-619 사전 점검 후보", () => {
     const pc = col.querySelector(".pck")!;
     expect(col.querySelector(".pcl")?.previousElementSibling?.querySelector(".cd-h b")?.textContent).toBe("내 알람");
     expect(pc.getAttribute("data-precheck")).toBe("A");
-    expect(texts(pc, ".pck-h > *")).toEqual(["한번 살펴봐 주세요", "고장 판단이 아닙니다"]);
-    expect(pc.querySelector(".pck-d")?.textContent).toBe("M-04 · 2일 전 흡기 필터 교체(4.3.2)");
-    expect(pc.querySelector(".pck-o")?.textContent).toBe("내 담당 설비 · 정비자 정"); // D-642 E ③ 담당 표시
-    expect(pc.querySelector(".pck-n")?.textContent).toBe(
+    const face = pc.querySelector<HTMLElement>(".pck-s")!;
+    expect(face.querySelector(".pck-t")?.textContent).toBe("M-04 · 필터 덮개 고정 미리 확인");
+    expect(face.querySelector(".pck-c")?.textContent).toBe("5건 중 3건");
+    expect(face.getAttribute("aria-expanded")).toBe("false");
+    expect(pc.querySelector(".pck-x")).toBeNull(); // 접힘: 긴 글 · 버튼 0
+    expect(pc.textContent).not.toMatch(/고장 판단|이어졌고|살펴봄|이번엔 제외|일 전/);
+    fireEvent.click(face);
+    expect(face.getAttribute("aria-expanded")).toBe("true");
+    const x = pc.querySelector(".pck-x")!;
+    expect(texts(x, ".pck-h > *")).toEqual(["한번 살펴봐 주세요", "고장 판단이 아닙니다"]);
+    expect(x.querySelector(".pck-d")?.textContent).toBe("M-04 · 2일 전 흡기 필터 교체(4.3.2)");
+    expect(x.querySelector(".pck-o")?.textContent).toBe("내 담당 설비 · 정비자 정"); // D-642 E ③ 담당 표시
+    expect(x.querySelector(".pck-n")?.textContent).toBe(
       "같은 조건 사례 5건 중 3건이 7일 안에 필터 덮개 고정 문제로 이어졌고, 2건은 이상 없었습니다",
     );
+    expect(x.querySelector(".pck-l")?.textContent).toBe("살펴볼 곳 · 필터 덮개 고정");
+    expect(texts(x, ".pcb")).toEqual(["M-05 · 08-09 · 5일 뒤 이어짐", "M-07 · 09-18 · 이상 없음"]); // 사례는 펼친 칸 안(창 0)
+    expect(container.querySelector(".modal")).toBeNull();
+    expect(container.textContent).not.toContain("근거 보기");
     expect(container.textContent).not.toContain("연쇄");
     expect(container.textContent).not.toContain("예시");
-    fireEvent.click(pc.querySelector(".lk")!);
-    const dlg = container.querySelector('.modal[aria-label="과거에 같은 순서로 이어진 사례"]')!;
-    expect(dlg.textContent).toContain("살펴볼 곳 · 필터 덮개 고정");
-    expect(texts(dlg, ".pcb")).toEqual(["M-05 · 08-09 · 5일 뒤 이어짐", "M-07 · 09-18 · 이상 없음"]);
+    fireEvent.click(face);
+    expect(pc.querySelector(".pck-x")).toBeNull();
     cleanup();
     const none = render(<HomeScreen home={{ ...home, prechecks: [] }} onOpen={() => {}} />).container;
     expect(none.querySelector(".pck")).toBeNull();
   });
 
-  it("[살펴봄] 바로 기록 · [이번엔 제외]는 이유를 적어야 저장 · 기록 뒤엔 버튼 대신 한 줄", () => {
+  it("[살펴봄] 바로 기록 · [이번엔 제외]는 이유를 적어야 저장 · 기록 뒤엔 버튼 대신 한 줄(펼친 칸) · 겉엔 짧은 표시", () => {
     const home = load<Home>("home-in-progress");
     home.prechecks = [card()];
     const onMark = vi.fn();
     const { container } = render(<HomeScreen home={home} onOpen={() => {}} onPrecheck={onMark} />);
+    fireEvent.click(container.querySelector(".pck-s")!);
     const buttons = () => [...container.querySelectorAll(".pck-b .btn")];
     expect(buttons().map((b) => b.textContent)).toEqual(["살펴봄", "이번엔 제외"]);
     fireEvent.click(buttons()[0]);
@@ -945,6 +958,8 @@ describe("D-619 사전 점검 후보", () => {
     cleanup();
     home.prechecks = [card({ mark: { choice: "skip", by: "tech.jung", at: "2026-11-07T01:10:00Z", reason: "이번 주 교체 예정" } })];
     const done = render(<HomeScreen home={home} onOpen={() => {}} />).container;
+    expect(done.querySelector(".pck-s .pck-ms")?.textContent).toBe("이번엔 제외");
+    fireEvent.click(done.querySelector(".pck-s")!);
     expect(done.querySelector(".pck-b .btn")).toBeNull();
     expect(done.querySelector(".pck-m")?.textContent).toBe("이번엔 제외 · 10:10 · 이번 주 교체 예정");
   });

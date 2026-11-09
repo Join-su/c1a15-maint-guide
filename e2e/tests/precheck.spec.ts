@@ -1,7 +1,7 @@
 // D-619 사전 점검 후보를 사람 손 순서로 — D-656: 시연 첫 상태 예시 줄 = 패턴 F(컨트롤러 펌웨어 업데이트 → 7일 안 냉각 설정 오류)만(C 0).
 // 첫 상태 카드 0(2/4 · 기준 미만) · 파트장 칸 0 → tech.kim M-02 보통 처리 끝까지(4.3 정상 헛걸음 → 4.6 이상 → 조치 → 재가동 → 확정)
 // → 파트장 승인(예외 아님 · 배포 revision 그대로) → 담당 홈 F 1장 '5건 중 3건'(그래프 기다림 0) · 파트장 칸 1건
-// → 근거 보기 → [이번엔 제외] 이유 → 같은 화면 다시 열기.
+// → 카드 눌러 자세히(사례 다섯 · D-663 S4) → [이번엔 제외] 이유 → 같은 화면 다시 열기.
 // 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 화면마다 PNG(1280 × 800).
 
 import { mkdirSync, readFileSync } from "node:fs";
@@ -195,21 +195,22 @@ test("사전 점검 후보(D-656): 첫 상태 카드 0 → M-02 보통 처리 ·
   await jung.reload(); // 배포 revision 그대로 — 그래프 반영 기다림 0
   await expect(cards).toHaveCount(1);
   const b = jung.locator('.pck[data-precheck="F"]');
+  // D-663 S4: 겉은 핵심만 · 눌러서 자세히(사람 손 순서)
+  await expect(b.locator(".pck-s .pck-t")).toHaveText("M-04 · 냉각 설정값 미리 확인");
+  await expect(b.locator(".pck-s .pck-c")).toHaveText("5건 중 3건");
+  await expect(b.locator(".pck-n")).toHaveCount(0);
+  await snap(jung, info, "P3-home-after");
+  await pause(jung);
+  await b.locator(".pck-s").click();
   await expect(b.locator(".pck-d")).toHaveText("M-04 · 3일 전 컨트롤러 펌웨어 업데이트(7.1)");
   await expect(b.locator(".pck-n")).toHaveText("같은 조건 사례 5건 중 3건이 7일 안에 냉각 설정 오류로 이어졌고, 2건은 이상 없었습니다");
-  await snap(jung, info, "P3-home-after");
   await lead.reload();
   await expect(lead.locator('[data-part="prechecks"] .lsect-h .c')).toHaveText("1건");
   await expect(page.locator(".pck")).toHaveCount(0); // M-02 처리한 이 정비는 M-04 담당 아님 — 담당 홈에만
 
-  await pause(jung);
-  await b.locator(".lk", { hasText: "근거 보기" }).click();
-  const dlg = jung.locator('.modal[aria-label="과거에 같은 순서로 이어진 사례"]');
-  await expect(dlg.locator(".pcs")).toHaveText("살펴볼 곳 · 냉각 설정값");
-  await expect(dlg.locator(".pcb")).toHaveCount(5);
+  await expect(b.locator(".pck-l")).toHaveText("살펴볼 곳 · 냉각 설정값");
+  await expect(b.locator(".pcb")).toHaveCount(5); // 사례 다섯은 펼친 칸 안
   await snap(jung, info, "P4-basis");
-  await pause(jung);
-  await dlg.locator(".btn", { hasText: "닫기" }).click();
 
   await pause(jung);
   await b.locator(".pck-b .btn", { hasText: "이번엔 제외" }).click();
@@ -219,7 +220,10 @@ test("사전 점검 후보(D-656): 첫 상태 카드 0 → M-02 보통 처리 ·
   await pause(jung);
   await skip.locator(".btn", { hasText: "저장" }).click();
   await expect(b.locator(".pck-m")).toHaveText(/^이번엔 제외 · \d\d:\d\d · 이번 주 교체 예정$/);
-  await jung.reload(); // 같은 화면 다시 열기: 기록 · 건수 그대로
+  await jung.reload(); // 같은 화면 다시 열기: 기록 · 건수 그대로(겉은 짧은 표시 · 눌러서 자세히)
+  await expect(b.locator(".pck-s .pck-ms")).toHaveText("이번엔 제외");
+  await expect(b.locator(".pck-s .pck-c")).toHaveText("5건 중 3건");
+  await b.locator(".pck-s").click();
   await expect(b.locator(".pck-m")).toHaveText(/^이번엔 제외 · /);
   await expect(b.locator(".pck-n")).toContainText("5건 중 3건");
   await snap(jung, info, "P5-marked");
