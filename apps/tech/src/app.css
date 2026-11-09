@@ -262,6 +262,15 @@
 .ap .pck-m { font-size: 13px; color: var(--sub); font-weight: 600; }
 .ap .modal.pcm { width: 520px; }
 .ap .pcs { font-size: 14px; font-weight: 700; margin: 6px 0 10px; }
+/* D-663 S4: 겉은 핵심만(누르면 펼침) */
+.ap .pck-s { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.ap .pck-t { font-size: 15px; font-weight: 800; }
+.ap .pck-c { font-size: 14px; font-weight: 700; color: var(--pri); }
+.ap .pck-ms { font-size: 12px; color: var(--sub); font-weight: 600; }
+.ap .pck-s svg { margin-left: auto; width: 18px; height: 18px; color: var(--sub); }
+.ap .pck-x { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--ln); }
+.ap .pck-l { font-size: 13px; font-weight: 700; margin-top: 4px; }
+.ap .pck-x .pcb { font-size: 13px; padding: 5px 0; }
 .ap .pcb { font-size: 14px; padding: 7px 0; border-top: 1px solid var(--ln); }
 .ap .pcm textarea { width: 100%; min-height: 90px; box-sizing: border-box; font: inherit; padding: 10px; border: 1px solid var(--ln); border-radius: 10px; margin-top: 8px; }
 .ap .pcm .mb { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }

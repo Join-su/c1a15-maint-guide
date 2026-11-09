@@ -1,7 +1,8 @@
 // 파트장 2 승인 대기(가이드 30쪽): 요약 셋 → 확정된 보고서 → (호출 없이 조치함 · 약속 v9) → 오늘 기록(감사 기록 최근 5줄) · 처리할 호출.
 // 값은 지금 API 그대로(/api/lead/overview · /api/lead/audit · /api/lead/calls, 부록 4 — 새 API 0). 보고서 검토는 Review.tsx.
 
-import { hhmm, shortCause, type Schemas } from "@c1a15/ui";
+import { Fragment, useState } from "react";
+import { dateTime, hhmm, shortCause, type Schemas } from "@c1a15/ui";
 import { Bar, headDate, LBtn } from "./Frame";
 
 type Overview = Schemas["LeadOverview"];
@@ -33,6 +34,7 @@ export function ApprovalList({
   const open = calls?.rows ?? [];
   const acted = data.acted ?? [];
   const prechecks = data.prechecks ?? [];
+  const [openPc, setOpenPc] = useState<string | null>(null); // D-663 S4: 펼친 사전 점검 줄
   return (
     <>
       <Bar title="승인 대기" date={headDate(data.now)} />
@@ -132,30 +134,49 @@ export function ApprovalList({
               <tr>
                 <th>설비</th>
                 <th>담당</th>
-                <th>앞 조치</th>
-                <th>근거</th>
-                <th>살펴볼 것</th>
+                <th>사전 점검</th>
                 <th>정비자 확인</th>
               </tr>
-              {prechecks.map((p) => (
-                <tr key={`${p.pattern}-${p.record_id}`} data-precheck={p.pattern}>
-                  <td>
-                    <b>{p.equipment_id}</b>
-                  </td>
-                  <td>{p.assignee_name}</td>
-                  <td className="w">
-                    {p.section_title}({p.section}) · {p.days_ago > 0 ? `${p.days_ago}일 전` : "오늘"}
-                  </td>
-                  <td>
-                    사례 {p.total}건 중 {p.hits}건 이어짐
-                    <div className="m">
-                      {p.within_days}일 안에 {p.follow}
-                    </div>
-                  </td>
-                  <td>{p.look_at}</td>
-                  <td>{p.mark ? `${p.mark.choice === "look" ? "살펴봄" : "이번엔 제외"} · ${hhmm(p.mark.at)}` : "아직"}</td>
-                </tr>
-              ))}
+              {/* D-663 S4: 줄 겉은 핵심만 · 줄을 누르면 아래 자세히 줄(앞 조치 · 날짜 · 사례 · 고장 판단 아님) */}
+              {prechecks.map((p) => {
+                const key = `${p.pattern}-${p.record_id}`;
+                const open = openPc === key;
+                return (
+                  <Fragment key={key}>
+                    <tr data-precheck={p.pattern} className="pck-r" onClick={() => setOpenPc(open ? null : key)} aria-expanded={open}>
+                      <td>
+                        <b>{p.equipment_id}</b>
+                      </td>
+                      <td>{p.assignee_name}</td>
+                      <td>
+                        {p.look_at} 미리 확인 · {p.total}건 중 {p.hits}건
+                      </td>
+                      <td>{p.mark ? `${p.mark.choice === "look" ? "살펴봄" : "이번엔 제외"} · ${hhmm(p.mark.at)}` : "아직"}</td>
+                    </tr>
+                    {open ? (
+                      <tr className="pck-x">
+                        <td colSpan={4}>
+                          <div className="pck-xl">고장 판단이 아닙니다</div>
+                          <div className="pck-xl">
+                            앞 조치 · {p.section_title}({p.section}) · {p.days_ago > 0 ? `${p.days_ago}일 전` : "오늘"}
+                          </div>
+                          <div className="pck-xl">
+                            같은 조건 사례 {p.total}건 중 {p.hits}건이 {p.within_days}일 안에 {p.follow}로 이어졌고, {p.clean}건은 이상
+                            없었습니다
+                          </div>
+                          <div className="pck-xl">살펴볼 곳 · {p.look_at}</div>
+                          {p.basis.map((b) => (
+                            <div className="pcb" key={b.record_id}>
+                              {b.equipment_id} · {dateTime(b.at).slice(5, 10)} ·{" "}
+                              {b.result === "이어짐" ? `${b.follow_days}일 뒤 이어짐` : b.result}
+                            </div>
+                          ))}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })}
             </tbody>
           </table>
         ) : (

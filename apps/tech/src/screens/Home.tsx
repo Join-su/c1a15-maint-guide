@@ -39,74 +39,71 @@ export function sortedAlarms(h: HomeData): Row[] {
   return [...h.alarms].sort((a, b) => rank(a) - rank(b));
 }
 
-/** D-619 사전 점검 후보(고장 판단 아님 · 설계 4절): 내 알람 아래 · 근거 보기 · 살펴봄 · 이번엔 제외(기록만). */
+/** D-619 사전 점검 후보(고장 판단 아님 · 설계 4절): 내 알람 아래 · 살펴봄 · 이번엔 제외(기록만).
+ *  D-663 S4(재시연 5): 겉은 핵심만('M-04 · 냉각 설정값 미리 확인' + '5건 중 3건') · 눌러야 자세히(앞 조치 · 날짜 · 사례 · 고장 판단 아님 · 버튼). */
 function PrecheckCard({ c, onPrecheck }: { c: Precheck; onPrecheck?: OnPrecheck }) {
-  const [basis, setBasis] = useState(false);
+  const [open, setOpen] = useState(false);
   const [skipping, setSkipping] = useState(false);
   const [reason, setReason] = useState("");
   const when = c.days_ago > 0 ? `${c.days_ago}일 전` : "오늘";
   const note = reason.trim();
+  const markWord = c.mark ? (c.mark.choice === "look" ? "살펴봄" : "이번엔 제외") : null;
   return (
     <div className="cd pck" data-precheck={c.pattern}>
-      <div className="pck-h">
-        <b>한번 살펴봐 주세요</b>
-        <span>고장 판단이 아닙니다</span>
-      </div>
-      <div className="pck-d">
-        {c.equipment_id} · {when} {c.section_title}({c.section})
-      </div>
-      <div className="pck-o">내 담당 설비 · {c.assignee_name}</div>
-      <div className="pck-n">
-        같은 조건 사례 {c.total}건 중 {c.hits}건이 {c.within_days}일 안에 {c.follow}로 이어졌고, {c.clean}건은 이상
-        없었습니다
-      </div>
-      <div className="pck-f">
-        <span className="lk" role="button" tabIndex={0} onClick={() => setBasis(true)}>
-          근거 보기 ›
+      <div className="pck-s" role="button" tabIndex={0} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <b className="pck-t">
+          {c.equipment_id} · {c.look_at} 미리 확인
+        </b>
+        <span className="pck-c">
+          {c.total}건 중 {c.hits}건
         </span>
-        {c.mark ? (
-          <span className="pck-m">
-            {c.mark.choice === "look" ? "살펴봄" : "이번엔 제외"} · {hhmm(c.mark.at)}
-            {c.mark.reason ? ` · ${c.mark.reason}` : ""}
-          </span>
-        ) : (
-          <span className="pck-b">
-            <span
-              className="btn ghost"
-              role="button"
-              tabIndex={0}
-              onClick={() => onPrecheck?.(c.pattern, c.record_id, "look", undefined)}
-            >
-              살펴봄
-            </span>
-            <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSkipping(true)}>
-              이번엔 제외
-            </span>
-          </span>
-        )}
+        {markWord ? <span className="pck-ms">{markWord}</span> : null}
+        <Icon name={open ? "chevron-up" : "chevron-down"} />
       </div>
-      {basis ? (
-        <>
-          <div className="dim" />
-          <div className="modal pcm" role="dialog" aria-label="과거에 같은 순서로 이어진 사례">
-            <div className="mh">
-              <Icon name="history" />
-              <b>과거에 같은 순서로 이어진 사례</b>
-            </div>
-            <div className="pcs">살펴볼 곳 · {c.look_at}</div>
-            {c.basis.map((b) => (
-              <div className="pcb" key={b.record_id}>
-                {b.equipment_id} · {dateTime(b.at).slice(5, 10)} ·{" "}
-                {b.result === "이어짐" ? `${b.follow_days}일 뒤 이어짐` : b.result}
-              </div>
-            ))}
-            <div className="mb">
-              <span className="btn ghost" role="button" tabIndex={0} onClick={() => setBasis(false)}>
-                닫기
-              </span>
-            </div>
+      {open ? (
+        <div className="pck-x">
+          <div className="pck-h">
+            <b>한번 살펴봐 주세요</b>
+            <span>고장 판단이 아닙니다</span>
           </div>
-        </>
+          <div className="pck-d">
+            {c.equipment_id} · {when} {c.section_title}({c.section})
+          </div>
+          <div className="pck-o">내 담당 설비 · {c.assignee_name}</div>
+          <div className="pck-n">
+            같은 조건 사례 {c.total}건 중 {c.hits}건이 {c.within_days}일 안에 {c.follow}로 이어졌고, {c.clean}건은 이상
+            없었습니다
+          </div>
+          <div className="pck-l">살펴볼 곳 · {c.look_at}</div>
+          {c.basis.map((b) => (
+            <div className="pcb" key={b.record_id}>
+              {b.equipment_id} · {dateTime(b.at).slice(5, 10)} ·{" "}
+              {b.result === "이어짐" ? `${b.follow_days}일 뒤 이어짐` : b.result}
+            </div>
+          ))}
+          <div className="pck-f">
+            {c.mark ? (
+              <span className="pck-m">
+                {markWord} · {hhmm(c.mark.at)}
+                {c.mark.reason ? ` · ${c.mark.reason}` : ""}
+              </span>
+            ) : (
+              <span className="pck-b">
+                <span
+                  className="btn ghost"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onPrecheck?.(c.pattern, c.record_id, "look", undefined)}
+                >
+                  살펴봄
+                </span>
+                <span className="btn ghost" role="button" tabIndex={0} onClick={() => setSkipping(true)}>
+                  이번엔 제외
+                </span>
+              </span>
+            )}
+          </div>
+        </div>
       ) : null}
       {skipping ? (
         <>
