@@ -101,6 +101,8 @@ describe("파트장 2 승인 대기", () => {
       within_days: 7,
       follow: "필터 덮개 고정 문제",
       look_at: "필터 덮개 고정",
+      act_short: "흡기 필터 교체",
+      follow_short: "필터 덮개 고정 문제",
       total: 5,
       hits: 3,
       clean: 2,
@@ -124,9 +126,8 @@ describe("파트장 2 승인 대기", () => {
     const x = sect.querySelector("tr.pck-x")!;
     expect(x.previousElementSibling).toBe(row);
     expect(texts(x, ".pck-xl")).toEqual([
-      "고장 판단이 아닙니다",
-      "앞 조치 · 흡기 필터 교체(4.3.2) · 2일 전",
-      "같은 조건 사례 5건 중 3건이 7일 안에 필터 덮개 고정 문제로 이어졌고, 2건은 이상 없었습니다",
+      "주의 필요 · 고장 판단 아님", // D-670
+      "2일 전 흡기 필터 교체(4.3.2) · 7일 안 필터 덮개 고정 문제 5건 중 3건",
       "살펴볼 곳 · 필터 덮개 고정",
     ]);
     fireEvent.click(row);

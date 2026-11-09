@@ -184,3 +184,20 @@ def test_report_check_feeds_check_patterns_but_not_the_exception_word_pattern():
     tw = [line("H-P101", "M-09", 20, did=["2.4.2"], group="TW")]
     rep_b = line("R-8103", "M-09", 10, bad=["2.3"], group="TW", demo=None, source="approved_report")
     assert [r["follow_id"] for r in count("B", [*tw, rep_b])["hits"]] == ["R-8103"]
+
+
+def test_d670_card_short_words_f_is_firmware_and_setting_error_others_fall_back():
+    """D-670 카드 펼침 한 줄 '3일 전 펌웨어 업데이트(7.1) · 7일 안 설정 오류 5건 중 3건' — 화면용 짧은 말(셈 손 0)."""
+    from c1a15.api import precheck
+
+    f = next(p for p in precheck.PATTERNS if p.id == "F")
+    a = next(p for p in precheck.PATTERNS if p.id == "A")
+    assert precheck.short_words(f, said=True, section_title="컨트롤러 펌웨어 업데이트") == (
+        "펌웨어 업데이트",
+        "설정 오류",
+    )
+    assert precheck.short_words(f, said=False, section_title="전기 계통 작업") == ("전기 계통 작업", "설정 오류")
+    assert precheck.short_words(a, said=False, section_title="흡기 필터 교체") == (
+        "흡기 필터 교체",
+        "필터 덮개 고정 문제",
+    )

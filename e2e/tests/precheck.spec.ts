@@ -202,8 +202,11 @@ test("사전 점검 후보(D-656): 첫 상태 카드 0 → M-02 보통 처리 ·
   await snap(jung, info, "P3-home-after");
   await pause(jung);
   await b.locator(".pck-s").click();
-  await expect(b.locator(".pck-d")).toHaveText("M-04 · 3일 전 컨트롤러 펌웨어 업데이트(7.1)");
-  await expect(b.locator(".pck-n")).toHaveText("같은 조건 사례 5건 중 3건이 7일 안에 냉각 설정 오류로 이어졌고, 2건은 이상 없었습니다");
+  // D-670: 머리 '주의 필요' · 작게 '고장 판단 아님' · 한 줄 · 긴 문장 0
+  await expect(b.locator(".pck-h b")).toHaveText("주의 필요");
+  await expect(b.locator(".pck-h span")).toHaveText("고장 판단 아님");
+  await expect(b.locator(".pck-d")).toHaveText("3일 전 펌웨어 업데이트(7.1) · 7일 안 설정 오류 5건 중 3건");
+  await expect(b.locator(".pck-n")).toHaveCount(0);
   await lead.reload();
   await expect(lead.locator('[data-part="prechecks"] .lsect-h .c')).toHaveText("1건");
   await expect(page.locator(".pck")).toHaveCount(0); // M-02 처리한 이 정비는 M-04 담당 아님 — 담당 홈에만

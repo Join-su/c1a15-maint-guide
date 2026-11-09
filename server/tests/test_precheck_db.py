@@ -389,6 +389,7 @@ def test_d656_f_card_zero_at_first_state_then_one_right_after_m02_plain_approval
         f = kim[0]
         assert (f["within_days"], f["follow"], f["record_id"]) == (7, "냉각 설정 오류", "H-P033")
         assert (f["section"], f["section_title"], f["look_at"]) == ("7.1", "컨트롤러 펌웨어 업데이트", "냉각 설정값")
+        assert (f["act_short"], f["follow_short"]) == ("펌웨어 업데이트", "설정 오류")  # D-670 카드 펼침 한 줄
         assert any(
             b["equipment_id"] == "M-02" and b["result"] == "이어짐" for b in f["basis"]
         )  # 방금 승인한 M-02가 셋째

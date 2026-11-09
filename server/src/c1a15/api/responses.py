@@ -139,6 +139,8 @@ class PrecheckCard(_Out):
     within_days: int
     follow: str
     look_at: str
+    act_short: str  # D-670 카드 펼침 한 줄 짧은 앞 조치 이름
+    follow_short: str  # D-670 카드 펼침 한 줄 짧은 뒤 사건 이름
     total: int
     hits: int
     clean: int

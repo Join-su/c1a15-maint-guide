@@ -62,18 +62,15 @@ function PrecheckCard({ c, onPrecheck }: { c: Precheck; onPrecheck?: OnPrecheck 
       </div>
       {open ? (
         <div className="pck-x">
+          {/* D-670: 필요한 말만 — 머리 '주의 필요' + 작게 '고장 판단 아님' · 한 줄(앞 조치 · 뒤 사건 건수) · 긴 문장 0 */}
           <div className="pck-h">
-            <b>한번 살펴봐 주세요</b>
-            <span>고장 판단이 아닙니다</span>
+            <b>주의 필요</b>
+            <span>고장 판단 아님</span>
           </div>
           <div className="pck-d">
-            {c.equipment_id} · {when} {c.section_title}({c.section})
+            {when} {c.act_short}({c.section}) · {c.within_days}일 안 {c.follow_short} {c.total}건 중 {c.hits}건
           </div>
           <div className="pck-o">내 담당 설비 · {c.assignee_name}</div>
-          <div className="pck-n">
-            같은 조건 사례 {c.total}건 중 {c.hits}건이 {c.within_days}일 안에 {c.follow}로 이어졌고, {c.clean}건은 이상
-            없었습니다
-          </div>
           <div className="pck-l">살펴볼 곳 · {c.look_at}</div>
           {c.basis.map((b) => (
             <div className="pcb" key={b.record_id}>

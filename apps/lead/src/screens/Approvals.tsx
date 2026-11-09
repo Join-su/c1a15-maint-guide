@@ -156,13 +156,13 @@ export function ApprovalList({
                     {open ? (
                       <tr className="pck-x">
                         <td colSpan={4}>
-                          <div className="pck-xl">고장 판단이 아닙니다</div>
+                          {/* D-670: 정비자 홈과 같은 말 — '주의 필요 · 고장 판단 아님' · 한 줄 · 긴 문장 0 */}
                           <div className="pck-xl">
-                            앞 조치 · {p.section_title}({p.section}) · {p.days_ago > 0 ? `${p.days_ago}일 전` : "오늘"}
+                            <b>주의 필요</b> · <small>고장 판단 아님</small>
                           </div>
                           <div className="pck-xl">
-                            같은 조건 사례 {p.total}건 중 {p.hits}건이 {p.within_days}일 안에 {p.follow}로 이어졌고, {p.clean}건은 이상
-                            없었습니다
+                            {p.days_ago > 0 ? `${p.days_ago}일 전` : "오늘"} {p.act_short}({p.section}) · {p.within_days}일 안 {p.follow_short}{" "}
+                            {p.total}건 중 {p.hits}건
                           </div>
                           <div className="pck-xl">살펴볼 곳 · {p.look_at}</div>
                           {p.basis.map((b) => (

@@ -886,6 +886,8 @@ describe("D-619 사전 점검 후보", () => {
     within_days: 7,
     follow: "필터 덮개 고정 문제",
     look_at: "필터 덮개 고정",
+    act_short: "흡기 필터 교체", // D-670: 화면용 짧은 말(패턴에 없으면 앞 조치 이름 · 뒤 사건 이름 그대로)
+    follow_short: "필터 덮개 고정 문제",
     total: 5,
     hits: 3,
     clean: 2,
@@ -917,12 +919,12 @@ describe("D-619 사전 점검 후보", () => {
     fireEvent.click(face);
     expect(face.getAttribute("aria-expanded")).toBe("true");
     const x = pc.querySelector(".pck-x")!;
-    expect(texts(x, ".pck-h > *")).toEqual(["한번 살펴봐 주세요", "고장 판단이 아닙니다"]);
-    expect(x.querySelector(".pck-d")?.textContent).toBe("M-04 · 2일 전 흡기 필터 교체(4.3.2)");
+    // D-670: 머리 '주의 필요' + 작게 '고장 판단 아님' · 한 줄 '2일 전 앞 조치(절) · 7일 안 뒤 사건 n건 중 k건' · 긴 문장 0
+    expect(texts(x, ".pck-h > *")).toEqual(["주의 필요", "고장 판단 아님"]);
+    expect(x.querySelector(".pck-d")?.textContent).toBe("2일 전 흡기 필터 교체(4.3.2) · 7일 안 필터 덮개 고정 문제 5건 중 3건");
     expect(x.querySelector(".pck-o")?.textContent).toBe("내 담당 설비 · 정비자 정"); // D-642 E ③ 담당 표시
-    expect(x.querySelector(".pck-n")?.textContent).toBe(
-      "같은 조건 사례 5건 중 3건이 7일 안에 필터 덮개 고정 문제로 이어졌고, 2건은 이상 없었습니다",
-    );
+    expect(x.querySelector(".pck-n")).toBeNull();
+    expect(x.textContent).not.toMatch(/한번 살펴봐|같은 조건 사례|이어졌고|이상 없었습니다/);
     expect(x.querySelector(".pck-l")?.textContent).toBe("살펴볼 곳 · 필터 덮개 고정");
     expect(texts(x, ".pcb")).toEqual(["M-05 · 08-09 · 5일 뒤 이어짐", "M-07 · 09-18 · 이상 없음"]); // 사례는 펼친 칸 안(창 0)
     expect(container.querySelector(".modal")).toBeNull();

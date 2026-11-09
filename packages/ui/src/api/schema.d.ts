@@ -2409,6 +2409,8 @@ export interface components {
          * @description D-619 사전 점검 후보(고장 판단 아님): 건수는 코드가 이력에서 셈.
          */
         PrecheckCard: {
+            /** Act Short */
+            act_short: string;
             /** Assignee */
             assignee: string;
             /** Assignee Name */
@@ -2423,6 +2425,8 @@ export interface components {
             equipment_id: string;
             /** Follow */
             follow: string;
+            /** Follow Short */
+            follow_short: string;
             /** Hits */
             hits: number;
             /** Look At */

@@ -40,6 +40,8 @@ class Pattern:
     follow_word: str | None = None
     extra: tuple[str, ...] = ()
     act_title: str | None = None  # D-656: 앞 줄 이력 글에 이 말이 있으면 카드 앞 조치 이름(없으면 절 이름)
+    act_short: str | None = None  # D-670: 카드 펼침 한 줄용 짧은 앞 조치 이름(act_title이 글에 있을 때만)
+    follow_short: str | None = None  # D-670: 카드 펼침 한 줄용 짧은 뒤 사건 이름(없으면 follow)
 
 
 PATTERNS = (
@@ -47,9 +49,25 @@ PATTERNS = (
     Pattern("B", "TW", "2.4.2", 14, "마모 카운터 미초기화", "마모 카운터 · 교체 기록", follow_check="2.3"),
     Pattern("C", "PW", "3.4.2", 7, "회전 조건 설정 오류", "회전 조건 설정", follow_check="3.3"),
     Pattern(
-        "F", "PW", "7.1", 7, "냉각 설정 오류", "냉각 설정값", follow_check="4.6", act_title="컨트롤러 펌웨어 업데이트"
+        "F",
+        "PW",
+        "7.1",
+        7,
+        "냉각 설정 오류",
+        "냉각 설정값",
+        follow_check="4.6",
+        act_title="컨트롤러 펌웨어 업데이트",
+        act_short="펌웨어 업데이트",
+        follow_short="설정 오류",
     ),  # D-656: 매뉴얼에 펌웨어 절 0 → 가장 가까운 7.1 전기 계통 작업(new-pack 013-280)
 )
+
+
+def short_words(p: Pattern, said: bool, section_title: str) -> tuple[str, str]:
+    """D-670 카드 펼침 한 줄('3일 전 펌웨어 업데이트(7.1) · 7일 안 설정 오류 5건 중 3건')의 짧은 말.
+
+    보이는 글만(셈 손 0)."""
+    return (p.act_short if said and p.act_short else section_title), (p.follow_short or p.follow)
 
 
 def shows(hits: int, clean: int) -> bool:
@@ -218,14 +236,18 @@ def candidates(c: Connection, now: datetime | None = None) -> list[dict]:
             if eq not in owners or had_alarm:
                 continue
             step = next(s for s in o["row"]["record"]["steps"] if s.get("section") == p.section)
-            said = p.act_title and p.act_title in (o["row"]["record"].get("narrative") or "")
+            said = bool(p.act_title) and p.act_title in (o["row"]["record"].get("narrative") or "")
+            title = p.act_title if said else (step.get("name") or p.section)
+            act_short, follow_short = short_words(p, said, title)
             out.append(
                 {
                     "pattern": p.id,
                     "record_id": o["record_id"],
                     "equipment_id": eq,
                     "section": p.section,
-                    "section_title": p.act_title if said else (step.get("name") or p.section),
+                    "section_title": title,
+                    "act_short": act_short,
+                    "follow_short": follow_short,
                     "days_ago": (now - o["at"]).days,
                     "within_days": p.days,
                     "follow": p.follow,
