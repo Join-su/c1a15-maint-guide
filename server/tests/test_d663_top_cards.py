@@ -7,8 +7,12 @@ M-01(저장소 이력): 온도 차 저하 원인 확정 5건 중 냉각 필터 �
 """
 
 import json
+from datetime import UTC, datetime
+
+import pytest
 
 from c1a15.api import screen
+from test_api import db  # noqa: F401
 
 M01_PROBS = {"CL-1": 34, "CL-2": 22, "CL-3": 22, "CL-4": 22}
 M01_COUNTS = {
@@ -86,3 +90,15 @@ def test_group_scope_reads_the_same_symptom_records_latest_few(data_dir):
     assert 0 < len(got) == min(screen.TOP_CARDS_MAX, len(every))
     assert [r["occurred_at"] for r in got] == sorted((r["occurred_at"] for r in got), reverse=True)
     assert {r["outcome"]["cause_code"] for r in got} == {"CL-1"}
+
+
+@pytest.mark.db
+def test_the_db_query_reads_the_loaded_history(db):  # noqa: F811
+    """적재된 이력(knowledge.history_records)에서 같은 두 장 · 카드 꼴(유사 % 없음)."""
+    with db.connect() as c:
+        got = screen.top_cards(c, "M-01", "CL", datetime(2026, 11, 9, 3, 0, tzinfo=UTC), M01_PROBS, M01_COUNTS)
+        assert [x["record_id"] for x in got] == ["H-0210", "H-0191"]
+        assert {(x["outcome_label"], x["similarity_pct"], x["equipment_id"]) for x in got} == {
+            ("냉각 필터 막힘", None, "M-01")
+        }
+        assert screen.top_cards(c, "M-01", "CL", datetime(2026, 11, 9, 3, 0, tzinfo=UTC), M01_PROBS, None) == []
