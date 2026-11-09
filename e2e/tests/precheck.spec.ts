@@ -228,7 +228,7 @@ test("사전 점검 후보(D-656): 첫 상태 카드 0 → M-02 보통 처리 ·
   await expect(b.locator(".pck-s .pck-c")).toHaveText("5건 중 3건");
   await b.locator(".pck-s").click();
   await expect(b.locator(".pck-m")).toHaveText(/^이번엔 제외 · /);
-  await expect(b.locator(".pck-n")).toContainText("5건 중 3건");
+  await expect(b.locator(".pck-d")).toContainText("5건 중 3건"); // D-670: 긴 문장(.pck-n) 뺌 → 한 줄
   await snap(jung, info, "P5-marked");
   expect(psql("select string_agg(actor || ' ' || action || ' ' || target, ',' order by audit_id) from ops.audit_log where action in ('precheck_look', 'precheck_skip')")).toBe(
     "tech.jung precheck_skip precheck:F:H-P033",
