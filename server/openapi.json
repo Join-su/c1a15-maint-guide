@@ -5725,6 +5725,20 @@
       ],
       "title": "Title"
      },
+     "top_cards": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/RecordCard"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Top Cards"
+     },
      "value": {
       "anyOf": [
        {
@@ -6634,8 +6648,15 @@
       "type": "string"
      },
      "similarity_pct": {
-      "title": "Similarity Pct",
-      "type": "integer"
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Similarity Pct"
      }
     },
     "required": [
@@ -7568,6 +7589,14 @@
       "title": "Switch Candidates",
       "type": "array"
      },
+     "top_cards": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/RecordCard"
+      },
+      "title": "Top Cards",
+      "type": "array"
+     },
      "top_records": {
       "items": {
        "type": "string"
@@ -7905,6 +7934,14 @@
        "$ref": "#/components/schemas/SwitchCandidate"
       },
       "title": "Switch Candidates",
+      "type": "array"
+     },
+     "top_cards": {
+      "default": [],
+      "items": {
+       "$ref": "#/components/schemas/RecordCard"
+      },
+      "title": "Top Cards",
       "type": "array"
      },
      "top_records": {

@@ -120,7 +120,7 @@ export function RecordCard({ card, onOpen }: { card: Schemas["RecordCard"]; onOp
         <span>
           {card.equipment_id} · {card.month}월
         </span>
-        <em>유사 {card.similarity_pct}%</em>
+        {card.similarity_pct != null ? <em>유사 {card.similarity_pct}%</em> : null}
       </div>
       <div className="hc-c">{card.outcome_label}</div>
       <span>

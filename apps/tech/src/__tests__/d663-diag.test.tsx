@@ -71,7 +71,7 @@ describe("S1 근거 칸 = 1위 후보로 확정된 기록 카드", () => {
     const a = render(<DiagnosisScreen s={g} onRecord={() => {}} onStart={() => {}} />);
     expect(a.container.querySelector('[data-part="top-ref"] .cd-h b')?.textContent).toBe("근거 · 냉각 필터 막힘 최근 3건");
     cleanup();
-    const old = { ...m01(), top_cards: undefined } as SessionWithPreview;
+    const old = { ...m01(), top_cards: undefined } as unknown as SessionWithPreview;
     const b = render(<DiagnosisScreen s={old} onRecord={() => {}} onStart={() => {}} />);
     expect(b.container.querySelector('[data-part="top-ref"]')).toBeNull();
     expect(b.container.querySelector('[data-part="other-ref"]')).toBeNull();

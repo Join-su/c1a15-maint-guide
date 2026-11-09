@@ -125,6 +125,7 @@ export function PastScreen(p: PastProps) {
             count_prior: r.count_prior,
             cause_names: r.cause_names ?? {},
             similar_cards: r.similar_cards ?? [],
+            top_cards: r.top_cards ?? [],
             low_evidence: !!r.low_evidence,
             preview: r.next,
           }}

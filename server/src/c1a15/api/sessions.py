@@ -563,6 +563,8 @@ def view(c: Connection, row: m.DiagSession) -> dict:
         session.probabilities(state),
         rules.evidence_counts(state.candidates, state.similar),
     )
+    counts = screen.shown_counts(step, events, order)
+    al = alarm_of(c, row.alarm_id)
     out = {
         "session_id": row.session_id,
         "alarm_id": row.alarm_id,
@@ -572,13 +574,15 @@ def view(c: Connection, row: m.DiagSession) -> dict:
         "lock_at": next((e["at"] for e in reversed(events) if e["type"] == "lock"), None) if state.locked else None,
         "probabilities": probs,
         "evidence": evidence,
-        **(screen.shown_counts(step, events, order) or {}),  # 리허설 2 R3 · R6: 순위 줄 n건 중 k건(Pack 출력)
+        **(counts or {}),  # 리허설 2 R3 · R6: 순위 줄 n건 중 k건(Pack 출력)
         "low_evidence": rules.low_evidence(state.similar),
         "top_records": [s["record_id"] for s in row.similar[:3]],
         "similar_basis": "상위 10건",
         "cause_names": screen.cause_names(k, row.symptom_group),  # P-19 ⑨(A-04): T04 순위 원인 이름
         "similar_cards": screen.similar_cards(c, row.similar),  # P-19 ④: T04 기록 카드
-        "alarm": screen.alarm_block(alarm_of(c, row.alarm_id), len(row.similar)),  # P-19 ③: T03
+        # D-663 S1: 근거 칸 = 1위 후보로 확정된 지난 같은 알람 기록(셈 범위 그대로)
+        "top_cards": screen.top_cards(c, al.equipment_id, al.symptom_group, al.occurred_at, probs, counts),
+        "alarm": screen.alarm_block(al, len(row.similar)),  # P-19 ③: T03
         "results": [
             {k2: e.get(k2) for k2 in ("seq", "section", "value", "memo")} for e in events if e["type"] == "result"
         ],

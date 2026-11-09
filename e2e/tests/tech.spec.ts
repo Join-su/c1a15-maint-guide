@@ -40,17 +40,26 @@ test("첫 end-to-end(FLOW-03 · SC-04): 로그인 → 알람 → 진단 → 잠�
   await expect(page.locator(".ap-step .sp.on")).toContainText("알람");
   await expect(page.locator(".tbl tr")).toHaveCount(6);
   await shot(page, info, "T03-default");
+  // D-663 S1: 근거 칸 = 1위 후보 확정 기록(top_cards) — 셈 칸(record_counts)이 있을 때만 서버가 고름. 가짜 배포 서버는 그 칸을 내지 않아
+  // 카드가 0장 → AC-38(카드 → 기록 전체) 길만 보려고 응답의 비슷한 기록 첫 장(실제 기록 번호 · 같은 카드 꼴)을 근거 칸에 넣음(시험 장치).
+  await page.route(/\/api\/tech\/sessions\/\d+$/, async (route) => {
+    const res = await route.fetch();
+    const j = await res.json();
+    if (!j.top_cards?.length) j.top_cards = (j.similar_cards ?? []).slice(0, 1).map((c: object) => ({ ...c, similarity_pct: null }));
+    await route.fulfill({ response: res, json: j });
+  });
   await page.getByText("진단 보기").click();
   // AC-40 문구 · 합 100 · CO-42(기본 진단에는 호출 경고 토큰 없음)
   await expect(page.locator(".rk").first()).toHaveClass(/on/);
   await expect(page.locator(".hint")).toHaveCount(0); // D-528: 「근거 n = …」 · 과거 기록 안내 문장 뺌
-  // 재시연 3 R1 · R2: 순위에 % 0 · 다른 설비 센서 비슷한 기록은 접힌 '다른 설비 참고'
+  // D-663 S1: 다른 설비 참고 칸 0 · 근거 칸 = 1위 후보 이름
   await expect(page.locator(".rk .rv")).toHaveCount(0);
-  await expect(page.locator('[data-part="other-ref"] summary')).toHaveText(/다른 설비 참고 \d건 · 순위 계산에 안 씀/);
+  await expect(page.locator('[data-part="other-ref"]')).toHaveCount(0);
+  const top = (await page.locator(".rk.on b").textContent()) ?? "";
+  await expect(page.locator('[data-part="top-ref"] .cd-h b')).toHaveText(`근거 · ${top} 1건`);
   await expect(page.locator(".warnb")).toHaveCount(0);
   await shot(page, info, "T04-default");
   // AC-38: 기록 카드 → 그 기록 전체 → 닫으면 같은 화면
-  await page.locator('[data-part="other-ref"] summary').click();
   const rid = await page.locator(".hc-t b").first().textContent();
   await page.locator(".hc").first().click();
   await expect(page.locator(".modal .mh b")).toHaveText(`과거 기록 ${rid}`);

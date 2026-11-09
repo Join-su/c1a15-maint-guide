@@ -2313,6 +2313,8 @@ export interface components {
             summary?: string | null;
             /** Title */
             title?: string | null;
+            /** Top Cards */
+            top_cards?: components["schemas"]["RecordCard"][] | null;
             /** Value */
             value?: string | null;
             /** Values */
@@ -2590,7 +2592,7 @@ export interface components {
             /** Record Id */
             record_id: string;
             /** Similarity Pct */
-            similarity_pct: number;
+            similarity_pct: number | null;
         };
         /** RecordStepOut */
         RecordStepOut: {
@@ -2832,6 +2834,11 @@ export interface components {
              * @default []
              */
             switch_candidates: components["schemas"]["SwitchCandidate"][];
+            /**
+             * Top Cards
+             * @default []
+             */
+            top_cards: components["schemas"]["RecordCard"][];
             /** Top Records */
             top_records: string[];
         };
@@ -2918,6 +2925,11 @@ export interface components {
              * @default []
              */
             switch_candidates: components["schemas"]["SwitchCandidate"][];
+            /**
+             * Top Cards
+             * @default []
+             */
+            top_cards: components["schemas"]["RecordCard"][];
             /** Top Records */
             top_records: string[];
         };

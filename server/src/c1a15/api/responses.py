@@ -234,7 +234,7 @@ class RecordCard(_Out):
     record_id: str
     equipment_id: str
     month: int
-    similarity_pct: int
+    similarity_pct: int | None  # D-663: 근거 카드(1위 후보 확정 기록)는 없음
     outcome_type: str
     cause_code: str | None
     outcome_label: str
@@ -716,6 +716,7 @@ class SessionView(_Out):
     similar_basis: str
     cause_names: dict[str, str]
     similar_cards: list[RecordCard]
+    top_cards: list[RecordCard] = []  # D-663 S1: 진단 근거 칸 = 1위 후보로 확정된 지난 같은 알람 기록
     alarm: AlarmBlock
     results: list[ResultRow]
     step: Step
@@ -1202,6 +1203,7 @@ class PastRecord(_Out):
     count_prior: int | None = None
     cause_names: dict[str, str] | None = None
     similar_cards: list[RecordCard] | None = None
+    top_cards: list[RecordCard] | None = None  # D-663 S1: 그때 1위 후보로 확정된 기록
     low_evidence: bool | None = None
     next: Preview | None = None
 

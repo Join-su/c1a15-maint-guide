@@ -114,6 +114,15 @@ def history(c: Connection, row: m.DiagSession) -> dict:
             "count_prior": snap.get("count_prior"),
             "cause_names": screen.cause_names(k, row.symptom_group),
             "similar_cards": screen.similar_cards(c, row.similar),
+            # D-663 S1: 그때 1위 후보로 확정된 지난 같은 알람 기록(시작 때 남긴 셈 칸이 있을 때만)
+            "top_cards": screen.top_cards(
+                c,
+                alarm.equipment_id,
+                alarm.symptom_group,
+                alarm.occurred_at,
+                snap["probabilities"],
+                snap if snap.get("equipment_counts") is not None else None,
+            ),
             "low_evidence": session.rules.low_evidence(sessions.similar_of(row)),
             "next": snap["preview"],
             "void": False,

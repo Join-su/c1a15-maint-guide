@@ -297,6 +297,58 @@ def similar_cards(c: Connection, similar: list[dict]) -> list[dict]:
     return [_record_card(recs[s["record_id"]], s["score"]) for s in top if s["record_id"] in recs]
 
 
+# D-663 S1(재시연 5 · 표시 · 근거 고르는 곳만 · Pack 셈 · 순위 손 0):
+# 진단 근거 칸 = 1위 후보로 확정된 지난 같은 알람 기록.
+# 1위 = Pack 순위(probabilities) 그대로(같은 값이면 매뉴얼 순 앞 — 화면 정렬과 같음) · 범위 = record_counts.scope 그대로
+# (equipment = 이 설비 · group = 같은 증상 전체, 늦은 순 TOP_CARDS_MAX건) · 알람 앞 기록만.
+# 셈 칸이 없으면(옛 세션) 카드 0.
+TOP_CARDS_MAX = 3
+
+
+def _at(v) -> datetime:
+    return v if isinstance(v, datetime) else datetime.fromisoformat(v)
+
+
+def _group_code(rec: dict) -> str | None:
+    g = rec.get("symptom_group")
+    return g.get("code") if isinstance(g, dict) else g
+
+
+def top_records(recs: list[dict], probs: dict, counts: dict | None, equipment_id: str, group: str, at) -> list[dict]:
+    if not counts or not probs:
+        return []
+    top = max(probs, key=lambda code: probs[code])  # 같은 값이면 앞(매뉴얼 순)
+    scope = counts.get("count_scope")
+    t = _at(at)
+    hit = [
+        r
+        for r in recs
+        if _group_code(r) == group
+        and (scope == "group" or r["equipment_id"] == equipment_id)
+        and (r.get("outcome") or {}).get("cause_code") == top
+        and _at(r["occurred_at"]) < t
+    ]
+    hit.sort(key=lambda r: _at(r["occurred_at"]), reverse=True)
+    return hit[:TOP_CARDS_MAX] if scope == "group" else hit
+
+
+def top_card(rec: dict) -> dict:
+    """근거 카드 = 기록 카드 꼴 그대로 · 유사 %는 없음(센서 비슷함이 아니라 원인 확정 기록)."""
+    return {**_record_card(rec, 0.0), "similarity_pct": None}
+
+
+def top_cards(c: Connection, equipment_id: str, group: str, at, probs: dict, counts: dict | None) -> list[dict]:
+    if not counts or not probs:
+        return []
+    q = select(m.HistoryRecord.record).where(
+        m.HistoryRecord.symptom_group == group, m.HistoryRecord.occurred_at < _at(at)
+    )
+    if counts.get("count_scope") != "group":
+        q = q.where(m.HistoryRecord.equipment_id == equipment_id)
+    recs = [r for (r,) in c.execute(q).all()]
+    return [top_card(r) for r in top_records(recs, probs, counts, equipment_id, group, at)]
+
+
 # ---------------------------------------------------------------- 잠금 · 지시(T05 · T06)
 
 _STEP = re.compile(r"^\d+\. (.+)$", re.M)

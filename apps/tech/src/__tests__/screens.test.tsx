@@ -383,12 +383,13 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
 
   it("기록 카드를 누르면 그 기록 번호로 연다(AC-38)", () => {
     const s = load<SessionWithPreview>("session-before-lock");
+    s.top_cards = s.similar_cards.map((c) => ({ ...c, similarity_pct: null })); // D-663 S1: 근거 칸 카드(1위 후보 확정 기록)
     const onRecord = vi.fn();
     const { container } = render(
       <DiagnosisScreen s={s} onRecord={onRecord} onStart={() => {}} />,
     );
     fireEvent.click(container.querySelectorAll(".hc")[1]);
-    expect(onRecord).toHaveBeenCalledWith(s.similar_cards[1].record_id);
+    expect(onRecord).toHaveBeenCalledWith(s.top_cards[1].record_id);
   });
 });
 

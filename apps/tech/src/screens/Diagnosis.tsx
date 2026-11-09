@@ -12,6 +12,9 @@
 // 재시연 3(R1 · R2, 표시 · 글만 · Pack 셈 손 0): 순위 · 고른 이유에서 % 빼고 건수만('지난 같은 알람 n건 중 k건' + 막대 = k ÷ n) ·
 // 기록 적으면 '기록 n건 · 확정 아님' · 셈 식 줄 뺌 · 고른 이유 = record_counts 값으로 짠 말 한 줄(n · k 칸이 없으면 서버 글 그대로) ·
 // 다른 설비 센서 비슷한 기록은 기본 화면에서 빼고 접힌 '다른 설비 참고'로만.
+// 재시연 5(D-663 S1, 표시 · 근거 고르는 곳만 · Pack 셈 · 순위 손 0): 순위 줄 = '40% · 5건 중 2건'만(% = k ÷ n, 기본 점수 없이) ·
+// 고른 이유도 짧게('냉각 필터 막힘 40% · 5건 중 2건 · 약 3분') · 근거 칸 = 1위 후보로 확정된 지난 같은 알람 기록(서버 top_cards) ·
+// 다른 설비 참고 카드는 화면에서 뺌.
 
 import { useState } from "react";
 import {
@@ -33,6 +36,7 @@ type Diag = Pick<
   | "count_prior"
   | "cause_names"
   | "similar_cards"
+  | "top_cards"
   | "low_evidence"
   | "preview"
   | "exception_topic"
@@ -66,8 +70,10 @@ export const FEW_RECORDS = 10;
 
 // 셈 범위(Pack record_counts.scope): group = 같은 증상 전체 기록으로 셈 — 기본 건수가 있으면(이 설비 셈) 이 설비 기록이 3건 미만이라 넓힘.
 const isGroup = (s: Diag) => s.count_scope === "group";
-export const countWord = (s: Diag) => (isGroup(s) ? "같은 증상 전체 기록" : "지난 같은 알람");
 const shownTotal = (s: Diag) => (s.equipment_counts ? (s.equipment_total ?? null) : null);
+// D-663 S1: 순위 줄 · 고른 이유의 짧은 글 = 'k ÷ n %' · 'n건 중 k건'
+export const pctOf = (k: number, n: number) => (n > 0 ? Math.round((k / n) * 100) : 0);
+export const shortCount = (k: number, n: number) => `${pctOf(k, n)}% · ${n}건 중 ${k}건`;
 
 // 지시 카드(A · B)의 고른 이유 = 건수 말 한 줄 — 호출 · 고른 점검 · 원인 모름 · n · k 칸 없음이면 null(서버 글 그대로).
 export function pickWords(s: Diag): string | null {
@@ -79,10 +85,8 @@ export function pickWords(s: Diag): string | null {
   if (n == null || p.picked || !p.cause || !p.title || (p.kind !== "instruct" && p.kind !== "instruct_after_checklist")) return null;
   const name = s.cause_names[p.cause] ?? p.cause;
   const k = s.equipment_counts?.[p.cause] ?? 0;
-  const head = !isGroup(s) && n > 0 && k === n ? `지난 같은 알람 ${n}건 모두 ${name}` : `${countWord(s)} ${n}건 중 ${k}건 ${name}`;
-  const mins = p.minutes != null ? ` · 약 ${p.minutes}분이면 확인` : "";
-  const sec = p.section ? ` · 매뉴얼 ${p.section}절` : "";
-  return `${head}${mins}(${p.title}${sec})`;
+  const mins = p.minutes != null ? ` · 약 ${p.minutes}분` : "";
+  return `${name} ${shortCount(k, n)}${mins}`;
 }
 
 export function NextCard({
@@ -230,6 +234,7 @@ export function DiagnosisScreen({
 }) {
   const rows = rankRows(s);
   const n = shownTotal(s);
+  const top = rows[0];
   return (
     <div className={past ? "ap-body past" : "ap-body"}>
       <div className="g64">
@@ -249,11 +254,7 @@ export function DiagnosisScreen({
                 <span className="rb">
                   <i style={{ width: `${r.bar}%` }} />
                 </span>
-                {r.k != null ? (
-                  <span className="rs">
-                    {countWord(s)} {n}건 중 {r.k}건
-                  </span>
-                ) : null}
+                {r.k != null && n != null ? <span className="rs">{shortCount(r.k, n)}</span> : null}
               </div>
             ))}
             {rows.length && n != null && isGroup(s) && (s.count_prior ?? 0) > 0 ? (
@@ -267,17 +268,21 @@ export function DiagnosisScreen({
               </div>
             ) : null}
           </div>
-          {s.similar_cards.length ? (
-            <details className="cd mt" data-part="other-ref" style={{ flex: "none" }}>
-              <summary className="rs" style={{ cursor: "pointer" }}>
-                다른 설비 참고 {s.similar_cards.length}건 · 순위 계산에 안 씀
-              </summary>
-              <div className="hcs" style={{ marginTop: 10 }}>
-                {s.similar_cards.map((c) => (
+          {top && s.top_cards?.length ? (
+            <div className="cd mt" data-part="top-ref" style={{ flex: "none" }}>
+              <div className="cd-h">
+                <Icon name="history" />
+                <b>
+                  근거 · {top.name}{" "}
+                  {top.k != null && s.top_cards.length < top.k ? `최근 ${s.top_cards.length}건` : `${s.top_cards.length}건`}
+                </b>
+              </div>
+              <div className="hcs">
+                {s.top_cards.map((c) => (
                   <RecordCard key={c.record_id} card={c} onOpen={onRecord} />
                 ))}
               </div>
-            </details>
+            </div>
           ) : null}
         </div>
         <NextCard s={s} onStart={onStart} past={past} onSwitch={onSwitch} />
