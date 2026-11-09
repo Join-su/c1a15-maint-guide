@@ -324,6 +324,8 @@ def top_records(recs: list[dict], probs: dict, counts: dict | None, equipment_id
         r
         for r in recs
         if _group_code(r) == group
+        # 알람 없는 시연 정비 줄(demo_history add · D-570)은 '지난 같은 알람' 아님 — Pack 셈(M-01 5건)과 같게
+        and r.get("alarm")
         and (scope == "group" or r["equipment_id"] == equipment_id)
         and (r.get("outcome") or {}).get("cause_code") == top
         and _at(r["occurred_at"]) < t

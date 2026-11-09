@@ -36,6 +36,35 @@ def test_m01_top_cause_records_are_its_own_two_filter_records(data_dir):
     assert {r["outcome"]["cause_code"] for r in got} == {"CL-1"} and {r["equipment_id"] for r in got} == {"M-01"}
 
 
+# 시연 첫 상태 줄(demo_history add · D-570): 알람 · 정지 시간 없는 정비 줄 — 시연 앱 DB 실제 H-0301 꼴 그대로
+H0301 = {
+    "demo": "D-570",
+    "steps": [
+        {
+            "at": "2026-11-05T21:26:26+09:00",
+            "kind": "action",
+            "name": "흡기 필터 교체",
+            "result": "완료",
+            "section": "4.3.2",
+        }
+    ],
+    "source": "generated",
+    "outcome": {"type": "원인 확정", "cause_code": "CL-1", "cause_name": "냉각 필터 막힘"},
+    "approval": {"at": "2026-11-05T21:34:26+09:00", "by": "시연", "status": "승인"},
+    "record_id": "H-0301",
+    "occurred_at": "2026-11-05T21:26:26+09:00",
+    "equipment_id": "M-01",
+    "symptom_group": {"code": "CL", "name": "온도 차 저하"},
+}
+
+
+def test_m01_a_demo_work_line_without_an_alarm_is_not_a_basis_card_and_does_not_break(data_dir):
+    # D-663 리허설 13:38: 시연 첫 상태에서 M-01 점검 시작 = 500(KeyError downtime_min) — 알람 없는 정비 줄은 '지난 같은 알람' 아님
+    got = screen.top_records([*_recs(data_dir), H0301], M01_PROBS, M01_COUNTS, "M-01", "CL", AT)
+    assert [r["record_id"] for r in got] == ["H-0210", "H-0191"]  # 순위 줄 k = 2와 같은 수
+    assert [screen.top_card(r)["record_id"] for r in got] == ["H-0210", "H-0191"]
+
+
 def test_the_card_is_the_record_card_without_a_similarity():
     card = screen.top_card(
         {
