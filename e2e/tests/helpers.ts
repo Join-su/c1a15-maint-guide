@@ -44,6 +44,14 @@ export function alarm(scenario: string): number {
   return Number(m[1]);
 }
 
+/** 알람 한 줄(표준 입력 JSON · 시연 alarm.sh와 같은 길) 등록 → 알람 ID. */
+export function alarmFrom(line: object): number {
+  const out = hostPy(["-m", "c1a15.alarms", "--stdin"], Buffer.from(JSON.stringify(line) + "\n"));
+  const m = /"alarm_id": (\d+)/.exec(out);
+  if (!m) throw new Error(`알람 등록 실패: ${out.slice(0, 200)}`);
+  return Number(m[1]);
+}
+
 /** D-570 시연 이력 줄: 넣기(add) · 빼기(remove) — 사람이 시연 전에 치는 명령 그대로. */
 export function demoHistory(...args: string[]): void {
   hostPy(["-m", "c1a15.demo_history", ...args]);

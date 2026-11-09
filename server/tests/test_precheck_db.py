@@ -276,3 +276,127 @@ def test_d653_c_only_lines_kim_sees_c_from_first_state_and_no_a_after_reflect(ap
             demo_history.precheck_remove(c)
             demo_history.remove(c, "H-0301")
             c.execute(text("delete from knowledge.history_records where source = 'approved_report'"))
+
+
+M02_CL4 = {"H-0305": 30, "H-0306": 37}
+
+
+def _pattern_f_lines():
+    """D-656 시연 예시 = 패턴 F(컨트롤러 펌웨어 업데이트 7.1 · PW → 7일 안 냉각 설정 확인 4.6 이상)만 · 예시 대본 번호:
+    다른 설비 넷(이어짐 둘 · 이상 없음 둘 → 2/4 · 기준 미만) · M-02 업데이트 5일 전 · M-04 업데이트 3일 전."""
+    rows, n = [], 25
+
+    def add(*a, fw=False, **k):
+        nonlocal n
+        n += 1
+        row = _line(f"H-P{n:03d}", *a, **k)
+        if fw:
+            row["narrative"] = f"{row['equipment_id']} 컨트롤러 펌웨어 업데이트 — 전기 담당 작업(7.1 전기 계통 작업)."
+        rows.append(row)
+
+    for eq, days in (("M-05", 60), ("M-06", 61)):
+        add(eq, days, "PW", did=["7.1"], fw=True)
+        add(eq, days - 5, "CL", bad=["4.6"])
+    add("M-07", 52, "PW", did=["7.1"], fw=True)
+    add("M-08", 33, "PW", did=["7.1"], fw=True)
+    add("M-02", 5, "PW", did=["7.1"], fw=True)
+    add("M-04", 3, "PW", did=["7.1"], fw=True)
+    return rows
+
+
+def _m02_plain_report_approved(api, db):
+    """M-02 보통 처리 끝까지(예외 아님 · AI 나눔 0): 4.3 정상(헛걸음) → 4.6 이상 → 조치 → 재가동 → 확정 → 파트장 승인."""
+    from test_api import ok, sim_answer, start, to_instruct
+    from test_exception_record import _rid
+    from test_lead import lead
+
+    tech, s = start(api, db, user="tech.kim", equipment="M-02")
+    s = to_instruct(tech, s)
+    seen = []
+    for _ in range(12):  # 4.3 정상 → 4.6 이상 → (C 조치면 파트장 호출 · 승인 후 진행) → 조치
+        kind = s["step"]["kind"]
+        if kind == "action":
+            break
+        if kind == "call":
+            sec = s["call"]["section"]
+            s = ok(tech, s, type="call_send")
+            sim_answer(db, s["session_id"], "approved", sec)
+            s = tech.get(f"/api/tech/sessions/{s['session_id']}").json()
+            seen.append(f"call {sec}")
+            continue
+        sec = s["instruction"]["section"]
+        seen.append(sec)
+        s = ok(tech, s, type="result", section=sec, value="이상" if sec == "4.6" else "정상")
+    assert s["step"]["kind"] == "action", (seen, s["step"])
+    s = ok(tech, s, type="action_done", section=s["step"]["section"])
+    s = ok(tech, s, type="restart", checked=s["restart"]["checklist"])
+    s = ok(tech, s, type="restart_result", outcome="within")
+    s = ok(tech, s, type="report_confirm")
+    rid = _rid(db, s["session_id"])
+    got = lead(api).post(f"/api/lead/reports/{rid}/decision", json={"decision": "approve"})
+    assert got.status_code == 200, got.text
+    return seen, got.json()["history_record_id"]
+
+
+def test_d656_f_card_zero_at_first_state_then_one_right_after_m02_plain_approval(api, db, deploy):
+    """D-656: 첫 상태 = 패턴 F 예시 줄만(C 0) · M-04 담당 김 정비 → 카드 0(2/4) · 파트장 칸 0 →
+    M-02 보통 보고서 승인(4.3 헛걸음 → 4.6 이상) → 배포 revision 그대로(그래프 기다림 0)인데 김 정비 홈 F 1장 · 5건 중 3건 · 파트장 칸 1건."""
+    from c1a15 import demo_history
+
+    reset_ops(db)
+    with db.begin() as c:
+        demo_history.precheck_remove(c)
+        demo_history.remove(c, "H-0301")
+        demo_history.precheck_add(c, _pattern_f_lines())
+        for r in M02_CL4:
+            demo_history.remove(c, r)
+        old = c.execute(text("select user_id from ops.equipment_assignments where equipment_id = 'M-04'")).scalar()
+        c.execute(text("update ops.equipment_assignments set user_id = 'tech.kim' where equipment_id = 'M-04'"))
+    for r, days in M02_CL4.items():  # 시연 첫 상태와 같은 명령 · 자료(new-pack 013-280 ④ M-02 지난 CL-4 2건)
+        demo_history.main(
+            [
+                "add",
+                "--record",
+                r,
+                "--equipment",
+                "M-02",
+                "--group",
+                "CL",
+                "--days-ago",
+                str(days),
+                "--check",
+                "4.6",
+                "--action",
+                "4.6.2",
+            ]
+        )
+    try:
+        assert _home(api, "tech.kim")[1] == []
+        assert _lead_cards(api) == []
+        seen, hid = _m02_plain_report_approved(api, db)
+        assert seen[0] == "4.3" and "4.6" in seen, (
+            seen
+        )  # 4.3 헛걸음 · 4.6 이상(4.3 바로 다음 4.6은 실제 Pack 몫 · 리허설에서 봄)
+        with db.connect() as c:
+            rec = c.execute(
+                text("select record from knowledge.history_records where record_id = :r"), {"r": hid}
+            ).scalar()
+        assert "exception_record" not in rec
+        kim = _home(api, "tech.kim")[1]  # deploy.revision 그대로
+        assert [(x["pattern"], x["equipment_id"], x["total"], x["hits"], x["clean"], x["days_ago"]) for x in kim] == [
+            ("F", "M-04", 5, 3, 2, 3)
+        ]
+        f = kim[0]
+        assert (f["within_days"], f["follow"], f["record_id"]) == (7, "냉각 설정 오류", "H-P033")
+        assert (f["section"], f["section_title"], f["look_at"]) == ("7.1", "컨트롤러 펌웨어 업데이트", "냉각 설정값")
+        assert any(
+            b["equipment_id"] == "M-02" and b["result"] == "이어짐" for b in f["basis"]
+        )  # 방금 승인한 M-02가 셋째
+        assert [(x["pattern"], x["assignee"]) for x in _lead_cards(api)] == [("F", "tech.kim")]
+    finally:
+        with db.begin() as c:
+            c.execute(text("update ops.equipment_assignments set user_id = :u where equipment_id = 'M-04'"), {"u": old})
+            demo_history.precheck_remove(c)
+            for r in M02_CL4:
+                demo_history.remove(c, r)
+            c.execute(text("delete from knowledge.history_records where source = 'approved_report'"))

@@ -9,6 +9,9 @@
 - D-642 E: 셈은 조회 때마다 다시 — 그래프 반영 신호(배포 revision이 승인 때와 달라짐)가 오면
   다음 조회에서 승인 예외가 이어짐에 듦.
   파트장 앱 칸 = 모든 설비 후보 + 담당자(사용자 바꾸기 0) · 정비자 홈 = 내 담당 설비 것만 + 담당 표시.
+- D-656 F(컨트롤러 펌웨어 업데이트 7.1 → 7일 안 냉각 설정 확인 4.6 이상): 점검 절 패턴(follow_check)은
+  승인 보고서(보통 · 예외 아님)의 그 점검 '이상'도 뒤 사건 — 승인 때 이력 적재 그 순간부터 셈(그래프 반영 기다림 0 ·
+  정비자 글 0). 예외 글 패턴(A)은 그대로 그래프 반영 뒤.
 - [살펴봄] · [이번엔 제외]는 누가 · 언제 · 이유만 audit_log에 남김(건수 안 바뀜)."""
 
 from dataclasses import dataclass
@@ -36,12 +39,16 @@ class Pattern:
     follow_check: str | None = None  # 뒤 사건 = 이 점검 절 '이상'(예시 줄은 원인 칸이 비어 있음 · 관문 확률 영향 0)
     follow_word: str | None = None
     extra: tuple[str, ...] = ()
+    act_title: str | None = None  # D-656: 앞 줄 이력 글에 이 말이 있으면 카드 앞 조치 이름(없으면 절 이름)
 
 
 PATTERNS = (
     Pattern("A", "CL", "4.3.2", 7, "필터 덮개 고정 문제", "필터 덮개 고정", follow_word="덮개", extra=("H-0301",)),
     Pattern("B", "TW", "2.4.2", 14, "마모 카운터 미초기화", "마모 카운터 · 교체 기록", follow_check="2.3"),
     Pattern("C", "PW", "3.4.2", 7, "회전 조건 설정 오류", "회전 조건 설정", follow_check="3.3"),
+    Pattern(
+        "F", "PW", "7.1", 7, "냉각 설정 오류", "냉각 설정값", follow_check="4.6", act_title="컨트롤러 펌웨어 업데이트"
+    ),  # D-656: 매뉴얼에 펌웨어 절 0 → 가장 가까운 7.1 전기 계통 작업(new-pack 013-280)
 )
 
 
@@ -58,17 +65,23 @@ def _exception_words(rec: dict) -> str:
     return f"{(ex.get('exception') or {}).get('topic') or ''} {ex.get('text') or ''}"
 
 
+def _found_abnormal(rec: dict, section: str) -> bool:
+    return any(
+        s.get("kind") == "check" and s.get("section") == section and s.get("result") == "이상"
+        for s in rec.get("steps") or []
+    )
+
+
 def _is_follow(p: Pattern, row: dict, reflected: frozenset | set) -> bool:
     rec = row["record"]
     if row["source"] == "approved_report":
+        if p.follow_check:  # D-656: 보통 보고서 승인 = 이력 적재 즉시(그래프 반영 기다림 0)
+            return _found_abnormal(rec, p.follow_check)
         return bool(p.follow_word) and row["record_id"] in reflected and p.follow_word in _exception_words(rec)
     if rec.get("demo") != MARK:
         return False
     if p.follow_check:
-        return any(
-            s.get("kind") == "check" and s.get("section") == p.follow_check and s.get("result") == "이상"
-            for s in rec.get("steps") or []
-        )
+        return _found_abnormal(rec, p.follow_check)
     return p.follow_word in _exception_words(rec)
 
 
@@ -106,8 +119,7 @@ def _rows(c: Connection) -> list[dict]:
     found = c.execute(
         text(
             "select record_id, equipment_id, symptom_group, occurred_at, source, record from knowledge.history_records "
-            "where record->>'demo' = :mark or record_id = any(:extra) "
-            "or (source = 'approved_report' and record->'exception_record' is not null)"
+            "where record->>'demo' = :mark or record_id = any(:extra) or source = 'approved_report'"  # D-656
         ),
         {"mark": MARK, "extra": extra},
     ).all()
@@ -206,13 +218,14 @@ def candidates(c: Connection, now: datetime | None = None) -> list[dict]:
             if eq not in owners or had_alarm:
                 continue
             step = next(s for s in o["row"]["record"]["steps"] if s.get("section") == p.section)
+            said = p.act_title and p.act_title in (o["row"]["record"].get("narrative") or "")
             out.append(
                 {
                     "pattern": p.id,
                     "record_id": o["record_id"],
                     "equipment_id": eq,
                     "section": p.section,
-                    "section_title": step.get("name") or p.section,
+                    "section_title": p.act_title if said else (step.get("name") or p.section),
                     "days_ago": (now - o["at"]).days,
                     "within_days": p.days,
                     "follow": p.follow,

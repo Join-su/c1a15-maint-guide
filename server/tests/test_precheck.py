@@ -132,3 +132,55 @@ def test_words_stay_off_the_banned_list():
     from c1a15.api import precheck
 
     assert not [p for p in precheck.PATTERNS if "연쇄" in p.follow + p.look_at]
+
+
+def f_rows():
+    """D-656 F(컨트롤러 펌웨어 업데이트 7.1 · PW → 같은 설비 7일 안 냉각 설정 확인 4.6 이상):
+    다른 설비 넷(이어짐 둘 · 이상 없음 둘) · M-02 업데이트 5일 전 · M-04 업데이트 3일 전
+    (둘 다 진행 중 · 분모 밖) — 예시 대본 번호."""
+    return [
+        line("H-P026", "M-05", 60, did=["7.1"], group="PW"),
+        line("H-P027", "M-05", 55, good=["4.3"], bad=["4.6"]),
+        line("H-P028", "M-06", 61, did=["7.1"], group="PW"),
+        line("H-P029", "M-06", 56, good=["4.3"], bad=["4.6"]),
+        line("H-P030", "M-07", 52, did=["7.1"], group="PW"),
+        line("H-P031", "M-08", 33, did=["7.1"], group="PW"),
+        line("H-P032", "M-02", 5, did=["7.1"], group="PW"),
+        line("H-P033", "M-04", 3, did=["7.1"], group="PW"),
+    ]
+
+
+def m02_report(days_ago=0.5, *, bad=("4.6",), good=("4.3",)):
+    """M-02 보통 보고서(예외 아님) 승인 이력 — 4.3 정상(헛걸음) → 4.6 이상 → 4.6.2 설정값 변경."""
+    return line("R-8101", "M-02", days_ago, bad=bad, good=good, did=["4.6.2"], demo=None, source="approved_report")
+
+
+def test_f_first_state_two_of_four_and_both_updates_are_open():
+    got = count("F", f_rows())
+    assert (len(got["hits"]), len(got["clean"])) == (2, 2)
+    assert sorted(r["record_id"] for r in got["open"]) == ["H-P032", "H-P033"]
+
+
+def test_f_a_plain_approved_report_counts_at_once_no_graph_wait():
+    """D-656 ②: 보통 보고서(예외 아님) 승인 = 이력 적재 그 순간부터 셈(배포 revision 기다림 0)
+    → M-02 셋째 이어짐 · 5건 중 3건."""
+    got = count("F", [*f_rows(), m02_report()])
+    assert (len(got["hits"]), len(got["clean"])) == (3, 2)
+    hit = next(r for r in got["hits"] if r["record_id"] == "H-P032")
+    assert (hit["follow_id"], hit["follow_days"]) == ("R-8101", 4)
+    assert [r["record_id"] for r in got["open"]] == ["H-P033"]
+
+
+def test_f_report_without_4_6_abnormal_or_other_machine_is_not_a_follow():
+    assert len(count("F", [*f_rows(), m02_report(bad=(), good=("4.3", "4.6"))])["hits"]) == 2
+    other = {**m02_report(), "equipment_id": "M-03"}
+    assert len(count("F", [*f_rows(), other])["hits"]) == 2
+
+
+def test_report_check_feeds_check_patterns_but_not_the_exception_word_pattern():
+    """승인 보고서의 점검 '이상'은 점검 절 패턴(B · C · F)에만 — 예외 글 패턴 A는 그대로(예외 글 · 그래프 반영 뒤)."""
+    rep = line("R-8102", "M-01", 1, bad=["4.3"], demo=None, source="approved_report")
+    assert len(count("A", [*a_rows(), rep], frozenset({"R-8102"}))["hits"]) == 2
+    tw = [line("H-P101", "M-09", 20, did=["2.4.2"], group="TW")]
+    rep_b = line("R-8103", "M-09", 10, bad=["2.3"], group="TW", demo=None, source="approved_report")
+    assert [r["follow_id"] for r in count("B", [*tw, rep_b])["hits"]] == ["R-8103"]

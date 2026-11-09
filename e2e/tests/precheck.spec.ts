@@ -1,27 +1,29 @@
-// D-619 사전 점검 후보를 사람 손 순서로 — D-653: 시연 첫 상태 예시 줄 = 패턴 C만(A · B 줄 0).
-// 담당 홈 C 카드 1장(첫 상태부터) → tech.kim M-01 예외 → 파트장 승인 → 새 배포 뒤에도 A 0(덮개 이어짐 1건 < 3) · C 그대로
+// D-619 사전 점검 후보를 사람 손 순서로 — D-656: 시연 첫 상태 예시 줄 = 패턴 F(컨트롤러 펌웨어 업데이트 → 7일 안 냉각 설정 오류)만(C 0).
+// 첫 상태 카드 0(2/4 · 기준 미만) · 파트장 칸 0 → tech.kim M-02 보통 처리 끝까지(4.3 정상 헛걸음 → 4.6 이상 → 조치 → 재가동 → 확정)
+// → 파트장 승인(예외 아님 · 배포 revision 그대로) → 담당 홈 F 1장 '5건 중 3건'(그래프 기다림 0) · 파트장 칸 1건
 // → 근거 보기 → [이번엔 제외] 이유 → 같은 화면 다시 열기.
 // 0.4초 막기는 켠 채(누름 사이 0.8초). SHOT_DIR이면 화면마다 PNG(1280 × 800).
 
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import {
+  alarmFrom,
   confirmReportModal,
   demoHistory,
   demoHistoryInput,
   guard,
   login,
+  LEAD_URL,
   loginLead,
   psql,
   resetOps,
   restartWithin,
   shot,
-  toFirstCheck,
 } from "./helpers";
 
 const DEPLOY = process.env.C1A15_DEPLOY_URL ?? "http://127.0.0.1:18796";
-const TEXT = "점검 필터 덮개 고정 나사를 손으로 확인. 조치 나사를 새로 끼움";
+const FW = "7.1"; // D-656: 매뉴얼에 펌웨어 절 0 → 가장 가까운 7.1 전기 계통 작업(앞 줄 이력 글 = 컨트롤러 펌웨어 업데이트)
 const pause = (p: Page) => p.waitForTimeout(800);
 
 async function snap(page: Page, info: TestInfo, name: string) {
@@ -42,7 +44,7 @@ async function revision(value: string) {
   expect(r.status).toBe(200);
 }
 
-const NAMES: Record<string, string> = { "4.3.2": "흡기 필터 교체", "2.4.2": "공구 교체", "3.4.2": "엔코더 커넥터 재체결" };
+const NAMES: Record<string, string> = { [FW]: "전기 계통 작업" };
 
 function line(id: string, eq: string, daysAgo: number, group: string, did: string[], bad: string[], text?: string) {
   const at = new Date(Date.now() - daysAgo * 86400000);
@@ -58,22 +60,31 @@ function line(id: string, eq: string, daysAgo: number, group: string, did: strin
       ...did.map((s) => ({ kind: "action", section: s, name: NAMES[s] })),
     ],
     outcome: { type: "원인 미상·숙련자 인계" },
-    narrative: `${eq} 정비`,
+    narrative: did.includes(FW) ? `${eq} 컨트롤러 펌웨어 업데이트 — 전기 담당 작업(7.1 전기 계통 작업).` : `${eq} 정비`,
     ...(text ? { exception_record: { text } } : {}),
   };
 }
 
-const LINES = [ // D-653: 패턴 C(엔코더 커넥터 재체결 3.4.2 → 7일 안 회전 조건 설정 확인 3.3 이상)만 — 번호는 예시 대본과 같음
-  line("H-P017", "M-15", 60, "PW", ["3.4.2"], []),
-  line("H-P018", "M-15", 55, "PW", [], ["3.3"]),
-  line("H-P019", "M-16", 53, "PW", ["3.4.2"], []),
-  line("H-P020", "M-16", 48, "PW", [], ["3.3"]),
-  line("H-P021", "M-17", 54, "PW", ["3.4.2"], []),
-  line("H-P022", "M-17", 49, "PW", [], ["3.3"]),
-  line("H-P023", "M-18", 53, "PW", ["3.4.2"], []),
-  line("H-P024", "M-19", 33, "PW", ["3.4.2"], []),
-  line("H-P025", "M-04", 3, "PW", ["3.4.2"], []),
+const LINES = [ // D-656: 패턴 F만(번호는 예시 대본과 같음) — 다른 설비 넷(이어짐 둘 · 이상 없음 둘) · M-02 업데이트 5일 전 · M-04 3일 전
+  line("H-P026", "M-05", 60, "PW", [FW], []),
+  line("H-P027", "M-05", 55, "CL", [], ["4.6"]),
+  line("H-P028", "M-06", 61, "PW", [FW], []),
+  line("H-P029", "M-06", 56, "CL", [], ["4.6"]),
+  line("H-P030", "M-07", 52, "PW", [FW], []),
+  line("H-P031", "M-08", 33, "PW", [FW], []),
+  line("H-P032", "M-02", 5, "PW", [FW], []),
+  line("H-P033", "M-04", 3, "PW", [FW], []),
 ];
+
+/** M-02 냉각 알람 — 시연 각본 DEMO-01(냉각 · 온도 차 저하)의 센서 값 · 출처 행 그대로 설비만 M-02(각본 등록과 같은 출처 칸). */
+function m02Alarm(): number {
+  const data = path.join(__dirname, "..", "..", "data");
+  const all = JSON.parse(readFileSync(path.join(data, "demo", "scenarios.json"), "utf-8")).scenarios;
+  const d = all.find((x: { scenario_id: string }) => x.scenario_id === "DEMO-01");
+  const sha = JSON.parse(readFileSync(path.join(data, "manifest.json"), "utf-8")).source.sha256;
+  const lineage = { source_release: `ai4i-2020@sha256:${sha}`, row_id: Number(d.udi), split: "demo" };
+  return alarmFrom({ equipment_id: "M-02", sensor_snapshot: d.sensor_snapshot, trend: d.trend, data_lineage: lineage });
+}
 
 test.beforeEach(async () => {
   resetOps();
@@ -88,78 +99,115 @@ test.afterEach(() => {
   demoHistory("remove");
 });
 
-async function approveException(page: Page, lead: Page) {
-  await toFirstCheck(page, "DEMO-01");
+async function sendResult(page: Page, value: string): Promise<void> {
+  const pre = page.locator(".act.pre .ck:not(.on)");
+  while (await pre.count()) await pre.first().click();
+  await page.locator(".rbtn", { hasText: value }).click();
+  const sent = page.waitForResponse((r) => r.url().endsWith("/events") && r.request().method() === "POST");
+  await page.getByText("결과 보내기").click();
+  expect((await sent).status()).toBe(200);
+  await expect(page.locator(".rbtn.sel")).toHaveCount(0);
+}
+
+/** M-02 보통 처리 끝까지(예외 아님 · AI 나눔 0) → 파트장 승인. 지나온 점검 절을 돌려줌.
+ * fake Pack 순서(4.3 → 4.5 → 4.4 호출 → 4.6 → 4.6.2 호출)를 그대로 따라감 — 4.3 바로 다음 4.6은 실제 Pack 몫(리허설). */
+async function m02PlainApproved(page: Page, lead: Page, info: TestInfo): Promise<string[]> {
+  m02Alarm();
+  await page.reload();
+  await page.locator(".al", { hasText: "M-02" }).locator(".btn", { hasText: "점검 시작" }).click();
+  await page.waitForURL(/\/session\/\d+/);
+  await page.getByText("진단 보기").click();
+  await expect(page.locator('[data-part="ex-why"]')).toHaveCount(0); // 예외 후보 0
   await pause(page);
-  await page.locator(".refs .lk", { hasText: "점검 바꾸기" }).click();
-  const sw = page.locator('.modal[aria-label="점검 바꾸기"]');
-  await pause(page);
-  await sw.locator(".swc.swx").click();
-  await pause(page);
-  await sw.locator(".swc", { hasText: "바로 조치" }).click();
-  await pause(page);
-  await page.locator(".act .btn", { hasText: "조치 완료" }).click();
+  await page.locator(".nx .btn").click();
+  await page.getByText("잠금 완료", { exact: true }).click();
+  await page.locator(".res").getByRole("button", { name: "확인", exact: true }).click();
+  await expect(page.locator(".rbtns")).toBeVisible();
+  const seen: string[] = [];
+  const here = page.url();
+  const act = page.locator(".act .btn").filter({ hasText: / (진행|완료)$/ }).first();
+  const call = page.getByText("파트장 호출");
+  for (let i = 0; i < 10; i++) { // 4.3 정상(헛걸음) … 4.6 이상 · C 절이면 파트장 호출 → 승인 후 진행 · 조치 화면에서 멈춤
+    await expect(page.locator(".rbtns").or(call).or(act)).toBeVisible();
+    if (await page.locator(".rbtns").count()) {
+      const sec = /매뉴얼 ([\d.]+)절/.exec(await page.locator(".ins-h .ch.blue").filter({ hasText: "매뉴얼" }).innerText())![1];
+      seen.push(sec);
+      await pause(page);
+      await sendResult(page, sec === "4.6" ? "이상" : "정상");
+    } else if (await call.count()) {
+      seen.push("call");
+      await pause(page);
+      await call.click();
+      await expect(page.locator(".wait b")).toHaveText(/^파트장 호출 보냄 · \d\d:\d\d$/);
+      await lead.goto(LEAD_URL + "/calls");
+      await expect(lead.locator("tr[data-call]")).toHaveCount(1);
+      await lead.locator("tr[data-call] button.lbtn", { hasText: "답하기" }).click();
+      await lead.locator(".lopts button", { hasText: "승인 후 진행" }).click();
+      await lead.locator("button.lbtn", { hasText: "답 저장" }).click();
+      await expect(lead.locator(".lempty")).toHaveText("처리할 호출이 없습니다");
+      await page.goto(here); // 같은 세션 화면 다시 열기(답 반영)
+      const start = page.getByText("점검 시작");
+      await expect(start.or(act).or(page.locator(".rbtns"))).toBeVisible();
+      if (await start.count()) await start.click();
+    } else break;
+  }
+  expect(seen).toContain("4.6");
+  await snap(page, info, "P2-m02-action");
+  await expect(act).toBeVisible();
+  if (/ 진행$/.test((await act.textContent()) ?? "")) {
+    const items = page.locator(".act .ck:not(.on)");
+    while (await items.count()) await items.first().click();
+    await page.locator(".act .btn", { hasText: / 진행$/ }).first().click();
+  }
+  await page.locator(".act .btn", { hasText: / 완료$/ }).first().click();
   await restartWithin(page);
   await pause(page);
   await page.locator(".choice2 .btn", { hasText: "경계 이내" }).click();
-  const dlg = page.locator('.modal[aria-label="예외 상황 기록"]');
-  const ta = dlg.getByLabel("예외 글", { exact: true });
-  await ta.click();
-  await ta.fill(TEXT);
-  await pause(page);
-  await dlg.locator(".exa .btn", { hasText: "AI 나눔" }).click();
-  const rows = dlg.locator('[data-part="ex-items"] .exi');
-  await expect(rows).toHaveCount(1);
-  await pause(page);
-  await rows.locator(".exb .btn", { hasText: "아님" }).click();
-  await pause(page);
-  await dlg.locator(".mb .btn", { hasText: "보고서에 적용" }).click();
-  await expect(dlg).toHaveCount(0);
-  await pause(page);
+  await expect(page.locator(".rf")).toHaveCount(8);
+  await expect(page.locator('[data-part="ex-section"]')).toHaveCount(0); // 예외 상황 구역 0
   await confirmReportModal(page);
-  await loginLead(lead);
+  await expect(page.locator(".banner.ok")).toBeVisible();
+  await lead.goto(LEAD_URL + "/"); // 이미 로그인한 파트장 창 — 승인 대기 목록
   await lead.locator("tr[data-report] button.lbtn", { hasText: "검토" }).click();
   await pause(lead);
   await lead.locator(".lbar button.lbtn", { hasText: "승인" }).click();
   await pause(lead);
   await lead.locator(".lmdl button.lbtn", { hasText: "승인" }).click();
-  await expect(lead.locator(".lempty").first()).toBeVisible();
+  await expect(lead.locator(".lempty", { hasText: "승인 대기" })).toBeVisible();
+  return seen;
 }
 
-test("사전 점검 후보(D-653): C 한 장 첫 상태부터 → 승인 → 새 배포 뒤에도 A 0 · C 그대로 → 근거 보기 → 이번엔 제외 → 다시 열기(사람 손 순서)", async ({ page, browser }, info) => {
-  test.setTimeout(180000);
+test("사전 점검 후보(D-656): 첫 상태 카드 0 → M-02 보통 처리 · 승인 → 담당 홈 F 1장 5건 중 3건(배포 그대로) → 근거 보기 → 이번엔 제외 → 다시 열기(사람 손 순서)", async ({ page, browser }, info) => {
+  test.setTimeout(300000);
   const g = guard(page);
   const jung = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   const lead = await (await browser.newContext({ viewport: { width: 1280, height: 800 } })).newPage();
   await login(jung, "tech.jung"); // 시험 자료의 M-04 담당(시연 첫 상태는 김 정비 · 데이터만 다름)
   const cards = jung.locator(".pck");
-  await expect(cards).toHaveCount(1);
-  const b = jung.locator('.pck[data-precheck="C"]');
-  await expect(b.locator(".pck-d")).toHaveText("M-04 · 3일 전 엔코더 커넥터 재체결(3.4.2)");
-  await expect(b.locator(".pck-n")).toHaveText(
-    "같은 조건 사례 5건 중 3건이 7일 안에 회전 조건 설정 오류로 이어졌고, 2건은 이상 없었습니다",
-  );
+  await expect(cards).toHaveCount(0); // 첫 상태 2/4 — 기준(3건) 미만
   await snap(jung, info, "P1-home-before");
+  await loginLead(lead);
+  await expect(lead.locator('[data-part="prechecks"] .lsect-h .c')).toHaveText("0건");
 
-  await login(page);
-  await expect(page.locator(".pck")).toHaveCount(0); // 내 설비 후보가 아님
-  await approveException(page, lead);
-  await jung.reload();
+  await login(page, "tech.lee"); // 시험 자료의 M-02 담당(시연은 김 정비 · 셈은 처리한 사람과 무관)
+  const seen = await m02PlainApproved(page, lead, info);
+  expect(seen[0]).toBe("4.3"); // 4.3 헛걸음(4.3 바로 다음 4.6은 실제 Pack 몫 — 리허설에서 봄)
+  await jung.reload(); // 배포 revision 그대로 — 그래프 반영 기다림 0
   await expect(cards).toHaveCount(1);
-
-  await revision("sha256:e2e-next");
-  await jung.waitForTimeout(12000); // 홈 다시 읽기 두 주기(5초)를 넘겨 기다림 — 그래도 A는 뜨지 않음
-  await expect(jung.locator('.pck[data-precheck="A"]')).toHaveCount(0); // 덮개 이어짐 = M-01 한 건뿐(< 3)
-  await expect(cards).toHaveCount(1);
-  await expect(b.locator(".pck-n")).toContainText("5건 중 3건");
-  await snap(jung, info, "P2-home-after");
+  const b = jung.locator('.pck[data-precheck="F"]');
+  await expect(b.locator(".pck-d")).toHaveText("M-04 · 3일 전 컨트롤러 펌웨어 업데이트(7.1)");
+  await expect(b.locator(".pck-n")).toHaveText("같은 조건 사례 5건 중 3건이 7일 안에 냉각 설정 오류로 이어졌고, 2건은 이상 없었습니다");
+  await snap(jung, info, "P3-home-after");
+  await lead.reload();
+  await expect(lead.locator('[data-part="prechecks"] .lsect-h .c')).toHaveText("1건");
+  await expect(page.locator(".pck")).toHaveCount(0); // M-02 처리한 이 정비는 M-04 담당 아님 — 담당 홈에만
 
   await pause(jung);
   await b.locator(".lk", { hasText: "근거 보기" }).click();
   const dlg = jung.locator('.modal[aria-label="과거에 같은 순서로 이어진 사례"]');
-  await expect(dlg.locator(".pcs")).toHaveText("살펴볼 곳 · 회전 조건 설정");
+  await expect(dlg.locator(".pcs")).toHaveText("살펴볼 곳 · 냉각 설정값");
   await expect(dlg.locator(".pcb")).toHaveCount(5);
-  await snap(jung, info, "P3-basis");
+  await snap(jung, info, "P4-basis");
   await pause(jung);
   await dlg.locator(".btn", { hasText: "닫기" }).click();
 
@@ -174,9 +222,9 @@ test("사전 점검 후보(D-653): C 한 장 첫 상태부터 → 승인 → 새
   await jung.reload(); // 같은 화면 다시 열기: 기록 · 건수 그대로
   await expect(b.locator(".pck-m")).toHaveText(/^이번엔 제외 · /);
   await expect(b.locator(".pck-n")).toContainText("5건 중 3건");
-  await snap(jung, info, "P4-marked");
+  await snap(jung, info, "P5-marked");
   expect(psql("select string_agg(actor || ' ' || action || ' ' || target, ',' order by audit_id) from ops.audit_log where action in ('precheck_look', 'precheck_skip')")).toBe(
-    "tech.jung precheck_skip precheck:C:H-P025",
+    "tech.jung precheck_skip precheck:F:H-P033",
   );
   g.check(info);
 });
