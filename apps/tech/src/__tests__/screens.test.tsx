@@ -203,12 +203,9 @@ describe("T04 진단 · 첫 판정 호출(CO-42: 예외는 그 상태에서만)"
     expect(texts(container, ".rk b")).toEqual(rows.map((r) => r.name));
     expect(rows.reduce((a, r) => a + r.pct, 0)).toBe(100);
     expect(container.querySelector(".rk")?.className).toBe("rk on");
-    expect(texts(container, ".hc-t b")).toEqual(
-      s.similar_cards.map((c) => c.record_id),
-    );
-    expect(container.querySelector('details[data-part="other-ref"] summary')?.textContent).toBe(
-      `다른 설비 참고 ${s.similar_cards.length}건 · 순위 계산에 안 씀`,
-    );
+    // D-663 S1: 근거 칸 = 1위 후보 확정 기록(top_cards) · 다른 설비 비슷한 카드(similar_cards)는 화면에서 뺌
+    expect(texts(container, ".hc-t b")).toEqual((s.top_cards ?? []).map((c) => c.record_id));
+    expect(container.querySelector('[data-part="other-ref"]')).toBeNull();
     expect(container.querySelector(".nx h3")?.textContent).toBe(
       s.preview.title,
     );

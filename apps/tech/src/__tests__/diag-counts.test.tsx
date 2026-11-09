@@ -32,26 +32,26 @@ describe("R2 순위: % 빼고 건수 + 막대", () => {
     const { container } = render(<DiagnosisScreen s={m03()} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk b")).toEqual(["냉각 필터 막힘", "냉각 팬 열화", "냉각수 부족", "냉각 설정 오류"]);
     expect(texts(container, ".rk .rs")).toEqual([
-      "지난 같은 알람 6건 중 6건",
-      "지난 같은 알람 6건 중 0건",
-      "지난 같은 알람 6건 중 0건",
-      "지난 같은 알람 6건 중 0건",
+      "100% · 6건 중 6건",
+      "0% · 6건 중 0건",
+      "0% · 6건 중 0건",
+      "0% · 6건 중 0건",
     ]);
     expect(widths(container)).toEqual(["100%", "0%", "0%", "0%"]);
     expect(container.querySelectorAll(".rk .rv").length).toBe(0);
     expect(container.querySelector('[data-part="rank-few"]')?.textContent).toBe("기록 6건 · 확정 아님");
     expect(container.querySelector('[data-part="rank-source"]')).toBeNull(); // 셈 식 줄 0
     const rank = container.querySelector(".cd")!.textContent ?? "";
-    expect(rank).not.toMatch(/%|확률|기본 1건|70|비슷한/);
+    expect(rank).not.toMatch(/확률|기본 1건|70%|비슷한/); // D-663: % = k ÷ n만(Pack 값 0)
   });
 
   it("M-01: 2/1/1/1 · 막대 40 · 20 · 20 · 20 · 순서는 Pack 순위 그대로", () => {
     const { container } = render(<DiagnosisScreen s={m01()} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk .rs")).toEqual([
-      "지난 같은 알람 5건 중 2건",
-      "지난 같은 알람 5건 중 1건",
-      "지난 같은 알람 5건 중 1건",
-      "지난 같은 알람 5건 중 1건",
+      "40% · 5건 중 2건",
+      "20% · 5건 중 1건",
+      "20% · 5건 중 1건",
+      "20% · 5건 중 1건",
     ]);
     expect(widths(container)).toEqual(["40%", "20%", "20%", "20%"]);
     expect(container.querySelector('[data-part="rank-few"]')?.textContent).toBe("기록 5건 · 확정 아님");
@@ -61,14 +61,14 @@ describe("R2 순위: % 빼고 건수 + 막대", () => {
     const s = withCounts({ "CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15 }, { "CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16 }, 108, "group", 1);
     const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
     expect(texts(container, ".rk .rs")).toEqual([
-      "같은 증상 전체 기록 108건 중 57건",
-      "같은 증상 전체 기록 108건 중 25건",
-      "같은 증상 전체 기록 108건 중 16건",
-      "같은 증상 전체 기록 108건 중 10건",
+      "53% · 108건 중 57건",
+      "23% · 108건 중 25건",
+      "15% · 108건 중 16건",
+      "9% · 108건 중 10건",
     ]);
     expect(container.querySelector('[data-part="rank-few"]')).toBeNull();
     expect(container.querySelector('[data-part="rank-wide"]')?.textContent).toBe("이 설비 기록이 3건 미만이라 같은 증상 전체 기록으로 셈");
-    expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/%/);
+    expect(container.querySelector(".cd")!.textContent ?? "").not.toMatch(/52%/);
   });
 
   it("n · k 칸이 없으면(옛 세션) 숫자 자리 숨김 · % 0 · 확정 아님 줄 0", () => {
@@ -86,10 +86,10 @@ describe("R2 이 점검을 고른 이유: 말로 한 줄(건수 · 분) · % 0",
     const s = m03();
     const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
     expect(container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "지난 같은 알람 6건 모두 냉각 필터 막힘 · 약 3분이면 확인(흡기 필터 육안 점검 · 매뉴얼 4.3절)",
+      "냉각 필터 막힘 100% · 6건 중 6건 · 약 3분",
     );
     const why = container.querySelector(".why")!.textContent ?? "";
-    expect(why).not.toMatch(/%|÷|고르는 셈/);
+    expect(why).not.toMatch(/÷|고르는 셈|70%/);
     expect(why).not.toContain(s.preview.reason);
   });
 
@@ -97,20 +97,20 @@ describe("R2 이 점검을 고른 이유: 말로 한 줄(건수 · 분) · % 0",
     const s = m01();
     const a = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
     expect(a.container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "지난 같은 알람 5건 중 2건 냉각 필터 막힘 · 약 3분이면 확인(흡기 필터 육안 점검 · 매뉴얼 4.3절)",
+      "냉각 필터 막힘 40% · 5건 중 2건 · 약 3분",
     );
     cleanup();
     const b = m01();
     b.preview = { ...b.preview, kind: "instruct_after_checklist", grade: "B", minutes: null };
     const rb = render(<DiagnosisScreen s={b} onRecord={() => {}} onStart={() => {}} />);
     expect(rb.container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "지난 같은 알람 5건 중 2건 냉각 필터 막힘(흡기 필터 육안 점검 · 매뉴얼 4.3절)",
+      "냉각 필터 막힘 40% · 5건 중 2건",
     );
     cleanup();
     const g = withCounts({ "CL-1": 52, "CL-2": 23, "CL-3": 10, "CL-4": 15 }, { "CL-1": 57, "CL-2": 25, "CL-3": 10, "CL-4": 16 }, 108, "group", 1);
     const rg = render(<DiagnosisScreen s={g} onRecord={() => {}} onStart={() => {}} />);
     expect(rg.container.querySelector('[data-part="pick-rule"]')?.textContent).toBe(
-      "같은 증상 전체 기록 108건 중 57건 냉각 필터 막힘 · 약 3분이면 확인(흡기 필터 육안 점검 · 매뉴얼 4.3절)",
+      "냉각 필터 막힘 53% · 108건 중 57건 · 약 3분",
     );
   });
 
@@ -145,20 +145,17 @@ describe("R2 이 점검을 고른 이유: 말로 한 줄(건수 · 분) · % 0",
   });
 });
 
-describe("R1 근거 칸: 다른 설비 센서 비슷한 기록은 접힌 '다른 설비 참고'로만", () => {
-  it("기본은 접힘 · 제목 '다른 설비 참고 n건 · 순위 계산에 안 씀' · 펼치면 카드 그대로", () => {
+describe("R1 근거 칸(D-663): 다른 설비 센서 비슷한 기록은 화면에서 뺌", () => {
+  it("접힌 '다른 설비 참고' 칸도 0 · 비슷한 과거 기록 글 0", () => {
     const s = m03();
     const { container } = render(<DiagnosisScreen s={s} onRecord={() => {}} onStart={() => {}} />);
-    const ref = container.querySelector<HTMLDetailsElement>('details[data-part="other-ref"]')!;
-    expect(ref.open).toBe(false);
-    expect(ref.querySelector("summary")?.textContent).toBe(`다른 설비 참고 ${s.similar_cards.length}건 · 순위 계산에 안 씀`);
-    expect(ref.querySelectorAll(".hcs > *").length).toBe(s.similar_cards.length);
-    expect(container.textContent ?? "").not.toMatch(/비슷한 과거 기록/);
+    expect(container.querySelector('details[data-part="other-ref"]')).toBeNull();
+    expect(container.textContent ?? "").not.toMatch(/비슷한 과거 기록|다른 설비 참고/);
   });
 
   it("지난 화면도 같은 글 · 화면 글에 내부 번호 0", () => {
     const { container } = render(<DiagnosisScreen s={m03()} onRecord={() => {}} onStart={() => {}} past />);
-    expect(texts(container, ".rk .rs")[0]).toBe("지난 같은 알람 6건 중 6건");
+    expect(texts(container, ".rk .rs")[0]).toBe("100% · 6건 중 6건");
     expect(container.textContent ?? "").not.toMatch(/D-\d|R\d\b|F\d\b/);
   });
 });
